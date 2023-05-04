@@ -1,0 +1,6 @@
+[submodule "krp-market-contracts"]
+	path = krp-market-contracts
+	url = git@github.com:KryptoniteDAO/krp-market-contracts.git
+[submodule "krp-staking-contracts"]
+	path = krp-staking-contracts
+	url = git@github.com:KryptoniteDAO/krp-staking-contracts.git
