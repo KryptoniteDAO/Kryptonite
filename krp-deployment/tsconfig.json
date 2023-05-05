@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "useDefineForClassFields": true,
+    "allowJs": true,
+    "target": "es5",
+    "lib": ["es2015", "dom", "esnext" ],
+    "types": ["node", "jsdom", "jest"]
+  }
+}
