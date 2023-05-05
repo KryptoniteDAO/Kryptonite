@@ -57,37 +57,37 @@ export async function loadingStakingData() {
   let hub: DeployContractInfo = {
     codeId: (process.env.hubCodeId && Number(process.env.hubCodeId)) ?? 0,
     address: process.env.hubAddress,
-    filePath: process.env.hubFilePath ?? "../krp-staking/artifacts/basset_sei_hub.wasm",
+    filePath: process.env.hubFilePath ?? "../krp-staking-contracts/artifacts/basset_sei_hub.wasm",
     deploy: false
   }
   let reward: DeployContractInfo = {
     codeId: (process.env.rewardCodeId && Number(process.env.rewardCodeId)) ?? 0,
     address: process.env.rewardAddress,
-    filePath: process.env.rewardFilePath ?? "../krp-staking/artifacts/basset_sei_reward.wasm",
+    filePath: process.env.rewardFilePath ?? "../krp-staking-contracts/artifacts/basset_sei_reward.wasm",
     deploy: false
   }
   let bSeiToken: DeployContractInfo = {
     codeId: (process.env.bSeiTokenCodeId && Number(process.env.bSeiTokenCodeId)) ?? 0,
     address: process.env.bSeiTokenAddress,
-    filePath: process.env.bSeiTokenFilePath ?? "../krp-staking/artifacts/basset_sei_token_bsei.wasm",
+    filePath: process.env.bSeiTokenFilePath ?? "../krp-staking-contracts/artifacts/basset_sei_token_bsei.wasm",
     deploy: false
   }
   let rewardsDispatcher: DeployContractInfo = {
     codeId: (process.env.rewardsDispatcherCodeId && Number(process.env.rewardsDispatcherCodeId)) ?? 0,
     address: process.env.rewardsDispatcherAddress,
-    filePath: process.env.rewardsDispatcherFilePath ?? "../krp-staking/artifacts/basset_sei_rewards_dispatcher.wasm",
+    filePath: process.env.rewardsDispatcherFilePath ?? "../krp-staking-contracts/artifacts/basset_sei_rewards_dispatcher.wasm",
     deploy: false
   }
   let validatorsRegistry: DeployContractInfo = {
     codeId: (process.env.validatorsRegistryCodeId && Number(process.env.validatorsRegistryCodeId)) ?? 0,
     address: process.env.validatorsRegistryAddress,
-    filePath: process.env.validatorsRegistryFilePath ?? "../krp-staking/artifacts/basset_sei_validators_registry.wasm",
+    filePath: process.env.validatorsRegistryFilePath ?? "../krp-staking-contracts/artifacts/basset_sei_validators_registry.wasm",
     deploy: false
   }
   let stSeiToken: DeployContractInfo = {
     codeId: (process.env.stSeiTokenCodeId && Number(process.env.stSeiTokenCodeId)) ?? 0,
     address: process.env.stSeiTokenAddress,
-    filePath: process.env.stSeiTokenFilePath ?? "../krp-staking/artifacts/basset_sei_token_stsei.wasm",
+    filePath: process.env.stSeiTokenFilePath ?? "../krp-staking-contracts/artifacts/basset_sei_token_stsei.wasm",
     deploy: false
   }
 
