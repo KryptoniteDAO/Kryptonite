@@ -1,13 +1,16 @@
 {
   "scripts": {
-    "deploy:dev": "cp .env.development .env && node --require ./suppress-experimental.cjs --loader ts-node/esm ./deploy_local.ts --mode development",
-    "deploy:prod": "cp .env.production .env && node --require ./suppress-experimental.cjs --loader ts-node/esm ./deploy_local.ts --mode production",
-    "deploy:local": "cp .env.local .env && node --require ./suppress-experimental.cjs --loader ts-node/esm ./deploy_local.ts --mode local"
+    "deploy:staking:dev": "cp .env.development .env && node --require ./suppress-experimental.cjs --loader ts-node/esm ./deploy_staking_contracts.ts --mode development",
+    "deploy:staking:prod": "cp .env.production .env && node --require ./suppress-experimental.cjs --loader ts-node/esm ./deploy_staking_contracts.ts --mode production",
+    "deploy:staking:local": "cp .env.local .env && node --require ./suppress-experimental.cjs --loader ts-node/esm ./deploy_staking_contracts.ts --mode local",
+    "verify:staking:dev": "cp .env.development .env && node --require ./suppress-experimental.cjs --loader ts-node/esm ./verify_staking_contracts.ts --mode development",
+    "verify:staking:prod": "cp .env.production .env && node --require ./suppress-experimental.cjs --loader ts-node/esm ./verify_staking_contracts.ts --mode development",
+    "verify:staking:local": "cp .env.local .env && node --require ./suppress-experimental.cjs --loader ts-node/esm ./verify_staking_contracts.ts --mode local"
   },
   "dependencies": {
-    "@cosmjs/cosmwasm-stargate": "^0.30.0",
+    "@cosmjs/cosmwasm-stargate": "^0.30.1",
     "@cosmjs/tendermint-rpc": "^0.30.1",
-    "@sei-js/core": "^1.3.0",
+    "@sei-js/core": "^1.3.3",
     "@types/bech32": "^1.1.4",
     "@types/bip32": "^2.0.0",
     "@types/bip39": "^3.0.0",

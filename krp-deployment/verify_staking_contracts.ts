@@ -23,9 +23,13 @@ async function main(): Promise<void> {
     mnemonic,
     privateKey,
     account,
+    address1NativeBalance,
+    address1StableCoinBalance,
     mnemonic2,
     privateKey2,
     account2,
+    address2NativeBalance,
+    address2StableCoinBalance,
     validator,
     stable_coin_denom,
     prefix,
@@ -48,94 +52,126 @@ async function main(): Promise<void> {
   // //just a few simple tests to make sure the contracts are not failing
   // //for more accurate tests we must use integration-tests repo
 
-  await executeContract(RPC_ENDPOINT, wallet, hub.address, {bond_for_st_sei: {}}, "", parseCoins("1000000usei"))
-  console.log("test hub.address bond for stSei ok...")
+  console.log()
+  console.log("query hub.address config enter")
+  const hubConfigRes = await queryWasmContract(RPC_ENDPOINT, wallet, hub.address, {config: {}})
+  console.log("query hub.address config ok. \n", JSON.stringify(hubConfigRes))
+  console.log("check hub.address config result: ", (hubConfigRes.reward_dispatcher_contract === rewardsDispatcher.address
+    && hubConfigRes.validators_registry_contract === validatorsRegistry.address
+    && hubConfigRes.bsei_token_contract === bSeiToken.address
+    && hubConfigRes.stsei_token_contract === stSeiToken.address
+  ))
 
-  await executeContract(RPC_ENDPOINT, wallet, hub.address, {bond_for_st_sei: {}}, "", parseCoins("1000000usei"))
-  console.log("test hub.address bond for stSei ok...")
+  // 1 + 1 + 1 + 0.5 + txFee
+  if (Number(address1NativeBalance.balance.amount) < 4000000) {
+    console.error("wallet native balance insufficient 4_000_000. balance: " + address1NativeBalance.balance.amount)
+    process.exit(0)
+    return
+  }
+  console.log()
+  console.log("hub.address bond_for_st_sei 1 enter")
+  const hubBondStSeiRes = await executeContract(RPC_ENDPOINT, wallet, hub.address, {bond_for_st_sei: {}}, "", parseCoins("1000000usei"))
+  console.log("hub.address bond_for_st_sei 1 ok. \n", hubBondStSeiRes?.transactionHash)
 
-  await executeContract(RPC_ENDPOINT, wallet, hub.address, {bond: {}}, "", parseCoins("10000000usei"))
-  console.log("test hub.address bond for bSei ok...")
+  console.log()
+  console.log("hub.address bond_for_st_sei 2 enter")
+  const hubBondStSeiRes2 = await executeContract(RPC_ENDPOINT, wallet, hub.address, {bond_for_st_sei: {}}, "", parseCoins("1000000usei"))
+  console.log("hub.address bond_for_st_sei 2 ok. \n", hubBondStSeiRes2?.transactionHash)
 
-  console.log("query bond sei balance:")
-  await queryWasmContract(RPC_ENDPOINT, wallet, bSeiToken.address, {balance: {address: account.address}})
+  console.log()
+  console.log("hub.address bond enter")
+  const hubBondRes = await executeContract(RPC_ENDPOINT, wallet, hub.address, {bond: {}}, "", parseCoins("1000000usei"))
+  console.log("hub.address bond ok. \n", hubBondRes?.transactionHash)
 
+  console.log()
+  console.log("query wallet bSeiToken.address balance enter")
+  const bSeiTokenBalanceRes = await queryWasmContract(RPC_ENDPOINT, wallet, bSeiToken.address, {balance: {address: account.address}})
+  console.log("query wallet bSeiToken.address balance ok. \n", account.address, JSON.stringify(bSeiTokenBalanceRes))
 
-  await executeContract(RPC_ENDPOINT, wallet, bSeiToken.address, {
+  console.log()
+  console.log("bSeiToken.address send unbond enter")
+  const bSeiTokenSendUnbondRes = await executeContract(RPC_ENDPOINT, wallet, bSeiToken.address, {
     send: {
       contract: hub.address, amount: "500000",
       msg: Buffer.from(JSON.stringify({"unbond": {}})).toString('base64')
     }
   }, "", parseCoins(""))
-  console.log("send bSeiToken.address unbond for bSei ok...")
+  console.log("bSeiToken.address send unbond for bSei ok. \n", bSeiTokenSendUnbondRes?.transactionHash)
 
-  console.log("query hub contract balance:")
-  await queryAddressBalance(LCD_ENDPOINT, hub.address, stable_coin_denom);
+  console.log()
+  console.log("query hub.address stable coin balance enter")
+  const stableCoinBalanceRes = await queryAddressBalance(LCD_ENDPOINT, hub.address, stable_coin_denom);
+  console.log("query hub.address stable coin balance ok. \n", hub.address, JSON.stringify(stableCoinBalanceRes))
 
-  console.log("query withdraw able unbonded:")
-  await queryWasmContract(RPC_ENDPOINT, wallet, hub.address, {withdrawable_unbonded: {address: account.address}})
+  console.log()
+  console.log("query hub.address withdrawable unbonded enter")
+  const hubWithdrawableRes = await queryWasmContract(RPC_ENDPOINT, wallet, hub.address, {withdrawable_unbonded: {address: account.address}})
+  console.log("query hub.address withdraw able unbonded ok. \n", account.address, JSON.stringify(hubWithdrawableRes))
 
-  console.log("query staking pool:")
-  await queryStaking(LCD_ENDPOINT);
+  console.log()
+  console.log("query staking pool enter")
+  const stakingPoolRes = await queryStaking(LCD_ENDPOINT);
+  console.log("query staking pool ok. \n", JSON.stringify(stakingPoolRes))
 
+  console.log()
+  console.log("query hub.address current_batch enter")
+  const hubCurrentBatchRes = await queryWasmContract(RPC_ENDPOINT, wallet, hub.address, {current_batch: {}})
+  console.log("query hub.address current_batch ok. \n", JSON.stringify(hubCurrentBatchRes))
 
-  console.log("query current batch:")
-  await queryWasmContract(RPC_ENDPOINT, wallet, hub.address, {current_batch: {}})
+  console.log()
+  console.log("query hub.address unbond_requests enter")
+  const hubUnbondRequestRes = await queryWasmContract(RPC_ENDPOINT, wallet, hub.address, {unbond_requests: {address: account.address}})
+  console.log("query hub.address unbond_requests ok. \n", JSON.stringify(hubUnbondRequestRes))
 
-
-  console.log("query unbond request:")
-  await queryWasmContract(RPC_ENDPOINT, wallet, hub.address, {unbond_requests: {address: account.address}})
-
-
-  console.log("query staking parameter:")
-  await queryStakingParameters(LCD_ENDPOINT);
+  console.log()
+  console.log("query staking parameter enter")
+  const stakingParametersRes = await queryStakingParameters(LCD_ENDPOINT);
+  console.log("query staking parameter ok. \n", JSON.stringify(stakingParametersRes))
 
   // console.log("query delegations list:")
   // await queryStakingDelegations(LCD_ENDPOINT, account.address, "seivaloper1wukzl3ppckudkkny744k4kmrw0p0l6h98sm43s");
 
-  console.log("withdraw able unbonded:")
-  let withdrawRet = await executeContract(RPC_ENDPOINT, wallet, hub.address, {withdraw_unbonded: {}}, "", parseCoins(""))
-  console.log("withdraw able unbonded ok")
+  console.log()
+  console.log("hub.address withdraw unbonded enter")
+  const hubWithdrawUnbondedRes = await executeContract(RPC_ENDPOINT, wallet, hub.address, {withdraw_unbonded: {}}, "", parseCoins(""))
+  console.log("hub.address withdraw unbonded ok. \n", hubWithdrawUnbondedRes?.transactionHash)
 
-  console.log("query hub config:")
-  await queryWasmContract(RPC_ENDPOINT, wallet, hub.address, {config: {}})
+  console.log()
+  console.log("query address all balances enter")
+  const addressAllBalancesRes = await queryAddressAllBalances(LCD_ENDPOINT, account.address)
+  console.log("query address all balances ok. \n", account.address, JSON.stringify(addressAllBalancesRes))
 
-  await queryAddressAllBalances(LCD_ENDPOINT, account.address)
-
-  await executeContract(RPC_ENDPOINT, wallet, hub.address, {update_global_index: {}}, "",
+  console.log()
+  console.log("hub.address update_global_index enter")
+  const hubUpdateGlobalIndexRes = await executeContract(RPC_ENDPOINT, wallet, hub.address, {update_global_index: {}}, "",
     coins(100000000, stable_coin_denom))
-  console.log("update_reward_basset ok")
+  console.log("hub.address update_global_index ok. \n", hubUpdateGlobalIndexRes?.transactionHash)
 
-  console.log("query accured reward:")
-  await queryWasmContract(RPC_ENDPOINT, wallet, reward.address,
+  console.log()
+  console.log("reward.address accrued_rewards enter")
+  const rewardAccruedRewardsRes = await queryWasmContract(RPC_ENDPOINT, wallet, reward.address,
     {
       accrued_rewards:
         {
           address: account.address
         }
     })
+  console.log("reward.address accrued_rewards ok. \n", JSON.stringify(rewardAccruedRewardsRes))
 
-  console.log("query rewards balance:")
-  await queryAddressBalance(LCD_ENDPOINT, reward.address, stable_coin_denom)
+  console.log()
+  console.log("query rewards.address stable coin balance enter")
+  const rewardStableCoinBalanceRes = await queryAddressBalance(LCD_ENDPOINT, hub.address, stable_coin_denom);
+  console.log("query rewards.address stable coin balance ok. \n", reward.address, JSON.stringify(rewardStableCoinBalanceRes))
 
-  // console.log("query test2 balance:")
-  // await queryAddressAllBalances(LCD_ENDPOINT, account2.address)
-
-  console.log("claim reward:")
-  let claimRewardRet = await executeContract(RPC_ENDPOINT, wallet, reward.address,
+  console.log()
+  console.log("reward.address claim_rewards enter")
+  const rewardClaimRewardsRes = await executeContract(RPC_ENDPOINT, wallet, reward.address,
     {
       claim_rewards: {
         recipient: account.address,
       }
     }, "", parseCoins(""))
-  console.log("claim reward ok!")
-
-  console.log(`query ${account.address}`)
-  await queryAddressAllBalances(LCD_ENDPOINT, account.address)
-
-  console.log("query address test2 balance after claim reward:")
-  await queryAddressAllBalances(LCD_ENDPOINT, account2.address)
-
+  console.log("reward.address claim_rewards ok. \n", rewardClaimRewardsRes?.transactionHash)
 
   // let recAddress = "sei1tqm527sqmuw2tmmnlydge024ufwnvlv9e7draq";
   // // 2.2 send stable coin to test2 address
