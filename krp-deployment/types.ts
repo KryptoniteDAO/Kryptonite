@@ -1,6 +1,6 @@
 export type DeployContractInfo = {
   codeId: number;
   address: string;
-  filePath: string
-  deploy: boolean
-}
+  filePath: string;
+  deploy: boolean;
+};
