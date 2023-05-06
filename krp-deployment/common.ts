@@ -17,9 +17,9 @@ export async function storeCode(RPC_ENDPOINT: string, wallet: DirectSecp256k1HdW
     const uint8Array = new Uint8Array(data);
     const storeCodeTxResult = await signCosmWasmClient.upload(firstAccount.address, uint8Array, fee, memo)
     codeId = storeCodeTxResult.codeId;
-    // console.log(`${contract_file} stored with ${message} = ${codeId}`);
+    console.log(`${contract_file} stored codeId = ${codeId}`, storeCodeTxResult?.transactionHash);
   } catch (error: any) {
-    console.error("store code error：", error);
+    console.error("store code error：", contract_file, error);
   }
   return codeId
 }
@@ -35,7 +35,7 @@ export async function instantiateContract(RPC_ENDPOINT: string, wallet: DirectSe
 
 export async function instantiateContract2(RPC_ENDPOINT: string, wallet: DirectSecp256k1HdWallet | DirectSecp256k1Wallet, codeId: number, message: object, coins: Coin[], label: string) {
   console.log(`Instantiating contract with code_id = ${codeId}...`)
-  const fee = calculateFee(300000, "0.1usei");
+  const fee = calculateFee(500000, "0.1usei");
   const [firstAccount] = await wallet.getAccounts();
   const signCosmWasmClient = await getSigningCosmWasmClient(RPC_ENDPOINT, wallet);
   const instantiateTxResult = await signCosmWasmClient.instantiate(firstAccount.address, codeId, message, label, fee, {memo: "", funds: coins});
@@ -50,13 +50,15 @@ function getContractAddresses(txResult: InstantiateResult, msgIndex = 0): [strin
   eventName = 'instantiate';
   attributeKey = '_contract_address';
 
-  let contractAddress1: string = txResult.logs[msgIndex].events[eventName][attributeKey][0];
-  let contractAddress2: string = txResult.logs[msgIndex].events[eventName][attributeKey][1];
+  // let contractAddress1: string = txResult.logs[msgIndex].events[eventName][attributeKey][0];
+  // let contractAddress2: string = txResult.logs[msgIndex].events[eventName][attributeKey][1];
+  let contractAddress1: string = txResult.logs[0].events[2].attributes[0].value;
+  let contractAddress2: string = txResult.logs[0].events[2].attributes[2].value;
   return [contractAddress1, contractAddress2];
 }
 
 export async function executeContract(RPC_ENDPOINT: string, wallet: DirectSecp256k1HdWallet | DirectSecp256k1Wallet, contractAddress: string, message: object, label: string, coins: Coin[]) {
-  const fee = calculateFee(1500_000, "0.1usei");
+  const fee = calculateFee(2_000_000, "0.1usei");
   const [firstAccount] = await wallet.getAccounts();
   const signCosmWasmClient = await getSigningCosmWasmClient(RPC_ENDPOINT, wallet);
   return await signCosmWasmClient.execute(firstAccount.address, contractAddress, message, fee, label, coins);

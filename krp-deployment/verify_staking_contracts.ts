@@ -7,13 +7,6 @@ import {loadingStakingData} from "./env_data";
 
 require("dotenv").config();
 
-type ContractInfo = {
-  codeId: number;
-  address: string;
-  filePath: string
-  deploy: boolean
-}
-
 async function main(): Promise<void> {
   console.log(`--- --- verify deployed staking contracts enter --- ---`);
 
@@ -128,8 +121,10 @@ async function main(): Promise<void> {
   const stakingParametersRes = await queryStakingParameters(LCD_ENDPOINT);
   console.log("query staking parameter ok. \n", JSON.stringify(stakingParametersRes))
 
-  // console.log("query delegations list:")
-  // await queryStakingDelegations(LCD_ENDPOINT, account.address, "seivaloper1wukzl3ppckudkkny744k4kmrw0p0l6h98sm43s");
+  console.log()
+  console.log("query hub.address staking delegations enter")
+  const stakingDelegationsRes = await queryStakingDelegations(LCD_ENDPOINT, hub.address, validator);
+  console.log("query hub.address staking delegations ok. \n", JSON.stringify(stakingDelegationsRes))
 
   console.log()
   console.log("hub.address withdraw unbonded enter")
@@ -175,7 +170,7 @@ async function main(): Promise<void> {
 
   // let recAddress = "sei1tqm527sqmuw2tmmnlydge024ufwnvlv9e7draq";
   // // 2.2 send stable coin to test2 address
-  // let sendCoinRet = await sendCoin(RPC_ENDPOINT, wallet, recAddress, "", coin(10000000, stable_coin_denom))
+  // let sendCoinRet = await sendCoin(RPC_ENDPOINT, wallet, recAddress, "", coin(1000, stable_coin_denom))
   // console.log(`send stable token to ${recAddress} succeed`);
   // console.log(`query ${recAddress} usdc balance:`);
   // let queryUsdcRet = await queryAddressBalance(LCD_ENDPOINT, recAddress, "")
@@ -184,9 +179,9 @@ async function main(): Promise<void> {
   //***Test sending denom usdt token and sei coin**/
   // let receipientAddress = "sei1mlwyp04y5g95klqzq92tun0xsz7t5sef4h88a3";
   // // console.log("send denom usdt token to address:")
-  // // await sendCoin(RPC_ENDPOINT, wallet, receipientAddress, "", coin(100000000, stable_coin_denom))
+  // // await sendCoin(RPC_ENDPOINT, wallet, receipientAddress, "", coin(1000, stable_coin_denom))
   // // console.log("send sei to address:")
-  // // await sendCoin(RPC_ENDPOINT, wallet, receipientAddress, "", coin(100000000, "usei"))
+  // // await sendCoin(RPC_ENDPOINT, wallet, receipientAddress, "", coin(10, "usei"))
   // console.log(`query ${receipientAddress} balance:`)
   // await queryAddressBalance(LCD_ENDPOINT, receipientAddress, "")
 

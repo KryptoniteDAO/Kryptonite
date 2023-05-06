@@ -162,10 +162,9 @@ async function main(): Promise<void> {
     {name: `bSeiToken`, ...bSeiToken},
     {name: `stSeiToken`, ...stSeiToken},
   ]
-  console.table(tableData, [`name`, `coinId`, `address`, `deploy`]);
+  console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
 
   // //////////////////////////////////////configure contracts///////////////////////////////////////////
-  // //////////////////////////////////////must behind deploy moneymarket contract///////////////////////
 
   if (deployAddressFlag && hub.address && bSeiToken.address && stSeiToken.address && rewardsDispatcher.address && validatorsRegistry.address && reward.address) {
     console.log("Updating hub's config...")
@@ -180,6 +179,21 @@ async function main(): Promise<void> {
     }, "", parseCoins(""))
     console.log("Updating hub's config end")
   }
+
+  // console.log()
+  // const hubUpdateParamsRes = await executeContract(RPC_ENDPOINT, wallet, hub.address, {
+  //   update_params: {
+  //     epoch_period: 260000,
+  //     unbonding_period: 259200,
+  //     peg_recovery_fee: "0.005",
+  //     er_threshold: "1.0",
+  //   }
+  // }, "", parseCoins(""))
+  // console.log(`ret: ${JSON.stringify(hubUpdateParamsRes)}`)
+  // console.log("Updating hub's params end")
+
+  const hubParametersRes =  await queryWasmContract(RPC_ENDPOINT, wallet, hub.address, {parameters: {}})
+  console.log(`hubParametersRes: ${JSON.stringify(hubParametersRes)}`)
 
   //======================deployed contracts，change creator to update_global_index=======================================//
   // change creator，

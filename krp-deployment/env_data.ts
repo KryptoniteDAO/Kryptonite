@@ -36,7 +36,7 @@ export async function loadingStakingData() {
     return;
   }
 
-  const prefix = process.env.PREFIX ?? "sei";
+  const prefix = process.env.PREFIX || "sei";
   const wallet = privateKey ? await DirectSecp256k1Wallet.fromKey(toBeArray(privateKey), prefix) : await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {prefix});
   const [account] = await wallet.getAccounts();
   const wallet2 = privateKey2 ? await DirectSecp256k1Wallet.fromKey(toBeArray(privateKey2), prefix) : await DirectSecp256k1HdWallet.fromMnemonic(mnemonic2, {prefix});
@@ -55,39 +55,39 @@ export async function loadingStakingData() {
   ], [`address`, `nativeBalance`, `stableCoinBalance`]);
 
   let hub: DeployContractInfo = {
-    codeId: (process.env.hubCodeId && Number(process.env.hubCodeId)) ?? 0,
+    codeId: (process.env.hubCodeId && Number(process.env.hubCodeId)) || 0,
     address: process.env.hubAddress,
-    filePath: process.env.hubFilePath ?? "../krp-staking-contracts/artifacts/basset_sei_hub.wasm",
+    filePath: process.env.hubFilePath || "../krp-staking-contracts/artifacts/basset_sei_hub.wasm",
     deploy: false
   }
   let reward: DeployContractInfo = {
-    codeId: (process.env.rewardCodeId && Number(process.env.rewardCodeId)) ?? 0,
+    codeId: (process.env.rewardCodeId && Number(process.env.rewardCodeId)) || 0,
     address: process.env.rewardAddress,
-    filePath: process.env.rewardFilePath ?? "../krp-staking-contracts/artifacts/basset_sei_reward.wasm",
+    filePath: process.env.rewardFilePath || "../krp-staking-contracts/artifacts/basset_sei_reward.wasm",
     deploy: false
   }
   let bSeiToken: DeployContractInfo = {
-    codeId: (process.env.bSeiTokenCodeId && Number(process.env.bSeiTokenCodeId)) ?? 0,
+    codeId: (process.env.bSeiTokenCodeId && Number(process.env.bSeiTokenCodeId)) || 0,
     address: process.env.bSeiTokenAddress,
-    filePath: process.env.bSeiTokenFilePath ?? "../krp-staking-contracts/artifacts/basset_sei_token_bsei.wasm",
+    filePath: process.env.bSeiTokenFilePath || "../krp-staking-contracts/artifacts/basset_sei_token_bsei.wasm",
     deploy: false
   }
   let rewardsDispatcher: DeployContractInfo = {
-    codeId: (process.env.rewardsDispatcherCodeId && Number(process.env.rewardsDispatcherCodeId)) ?? 0,
+    codeId: (process.env.rewardsDispatcherCodeId && Number(process.env.rewardsDispatcherCodeId)) || 0,
     address: process.env.rewardsDispatcherAddress,
-    filePath: process.env.rewardsDispatcherFilePath ?? "../krp-staking-contracts/artifacts/basset_sei_rewards_dispatcher.wasm",
+    filePath: process.env.rewardsDispatcherFilePath || "../krp-staking-contracts/artifacts/basset_sei_rewards_dispatcher.wasm",
     deploy: false
   }
   let validatorsRegistry: DeployContractInfo = {
-    codeId: (process.env.validatorsRegistryCodeId && Number(process.env.validatorsRegistryCodeId)) ?? 0,
+    codeId: (process.env.validatorsRegistryCodeId && Number(process.env.validatorsRegistryCodeId)) || 0,
     address: process.env.validatorsRegistryAddress,
-    filePath: process.env.validatorsRegistryFilePath ?? "../krp-staking-contracts/artifacts/basset_sei_validators_registry.wasm",
+    filePath: process.env.validatorsRegistryFilePath || "../krp-staking-contracts/artifacts/basset_sei_validators_registry.wasm",
     deploy: false
   }
   let stSeiToken: DeployContractInfo = {
-    codeId: (process.env.stSeiTokenCodeId && Number(process.env.stSeiTokenCodeId)) ?? 0,
+    codeId: (process.env.stSeiTokenCodeId && Number(process.env.stSeiTokenCodeId)) || 0,
     address: process.env.stSeiTokenAddress,
-    filePath: process.env.stSeiTokenFilePath ?? "../krp-staking-contracts/artifacts/basset_sei_token_stsei.wasm",
+    filePath: process.env.stSeiTokenFilePath || "../krp-staking-contracts/artifacts/basset_sei_token_stsei.wasm",
     deploy: false
   }
 
