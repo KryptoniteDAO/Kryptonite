@@ -1,13 +1,14 @@
-import { coins, parseCoins } from "@cosmjs/stargate";
-import { storeCode, instantiateContract, executeContract, queryWasmContract, queryAddressBalance, instantiateContract2 } from "./common";
+import { coins } from "@cosmjs/stargate";
+import { storeCode, instantiateContract, executeContract, queryWasmContract, instantiateContract2, loadAddressesBalances } from "./common";
 import { loadingBaseData, loadingMarketData, loadingStakingData } from "./env_data";
+import Decimal from "decimal.js";
 
 require("dotenv").config();
 
 async function main(): Promise<void> {
   console.log(`--- --- deploy market contracts enter --- ---`);
 
-  const { LCD_ENDPOINT, RPC_ENDPOINT, mnemonic, privateKey, wallet, account, address1NativeBalance, address1StableCoinBalance, mnemonic2, privateKey2, wallet2, account2, address2NativeBalance, address2StableCoinBalance, validator, stable_coin_denom, prefix } = await loadingBaseData();
+  const { LCD_ENDPOINT, RPC_ENDPOINT, mnemonic, privateKey, wallet, account, mnemonic2, privateKey2, wallet2, account2, validator, stable_coin_denom, prefix, addressesBalances } = await loadingBaseData();
 
   const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData();
 
@@ -19,7 +20,9 @@ async function main(): Promise<void> {
 
   const { overseer, market, custodyBSei, interestModel, distributionModel, oracle, aToken, liquidationQueue } = await loadingMarketData();
 
-  let deployAddressFlag: boolean = false;
+  console.log();
+  console.log(`--- --- market contracts storeCode & instantiateContract enter --- ---`);
+  console.log();
 
   if (!market.address || !aToken.address) {
     if (market.codeId <= 0) {
@@ -41,12 +44,11 @@ async function main(): Promise<void> {
           reserve_factor: "0.0",
           stable_denom: stable_coin_denom
         },
-        coins(1_000_000, stable_coin_denom),
-        "money market contract"
+        "money market contract",
+        coins(1_000_000, stable_coin_denom)
       );
       market.address = contract1;
       aToken.address = contract2;
-      deployAddressFlag = true;
       market.deploy = true;
       aToken.deploy = true;
     }
@@ -68,10 +70,8 @@ async function main(): Promise<void> {
           interest_multiplier: "0.000000085601728176",
           owner: account.address
         },
-        parseCoins(""),
         "interest model contract"
       );
-      deployAddressFlag = true;
       interestModel.deploy = true;
     }
     console.log(`interestModel: `, JSON.stringify(interestModel));
@@ -93,10 +93,8 @@ async function main(): Promise<void> {
           increment_multiplier: "1.007266723782294841",
           owner: account.address
         },
-        parseCoins(""),
         "distribution model contract"
       );
-      deployAddressFlag = true;
       distributionModel.deploy = true;
     }
     console.log(`distributionModel: `, JSON.stringify(distributionModel));
@@ -115,10 +113,8 @@ async function main(): Promise<void> {
           base_asset: stable_coin_denom,
           owner: account.address
         },
-        parseCoins(""),
         "oracle contract"
       );
-      deployAddressFlag = true;
       oracle.deploy = true;
     }
     console.log(`oracle: `, JSON.stringify(oracle));
@@ -152,10 +148,8 @@ async function main(): Promise<void> {
           dyn_rate_min: "0.000001",
           dyn_rate_max: "0.0000012"
         },
-        parseCoins(""),
         "overseer contract"
       );
-      deployAddressFlag = true;
       overseer.deploy = true;
     }
     console.log(`overseer: `, JSON.stringify(overseer));
@@ -182,10 +176,8 @@ async function main(): Promise<void> {
           waiting_period: 600,
           overseer: overseer.address || account.address
         },
-        parseCoins(""),
         "liquidation queue contract"
       );
-      deployAddressFlag = true;
       liquidationQueue.deploy = true;
     }
     console.log(`liquidationQueue: `, JSON.stringify(liquidationQueue));
@@ -214,16 +206,18 @@ async function main(): Promise<void> {
           reward_contract: reward.address,
           stable_denom: stable_coin_denom
         },
-        parseCoins(""),
         "custody bond sei contract"
       );
-      deployAddressFlag = true;
       custodyBSei.deploy = true;
     }
     console.log(`custodyBSei: `, JSON.stringify(custodyBSei));
   }
 
   console.log();
+  console.log(`--- --- market contracts storeCode & instantiateContract end --- ---`);
+
+  console.log();
+  console.log(`# market contracts uploaded codeId [optional]`);
   console.log(`marketCodeId: "${market.codeId}"`);
   console.log(`aTokenCodeId: "${aToken.codeId}"`);
   console.log(`interestModelCodeId: "${interestModel.codeId}"`);
@@ -234,6 +228,7 @@ async function main(): Promise<void> {
   console.log(`custodyBSeiCodeId: "${custodyBSei.codeId}"`);
 
   console.log();
+  console.log(`# market contracts deployed address [optional]`);
   console.log(`marketAddress: "${market.address}"`);
   console.log(`aTokenAddress: "${aToken.address}"`);
   console.log(`interestModelAddress: "${interestModel.address}"`);
@@ -242,6 +237,7 @@ async function main(): Promise<void> {
   console.log(`liquidationQueueAddress: "${liquidationQueue.address}"`);
   console.log(`overseerAddress: "${overseer.address}"`);
   console.log(`custodyBSeiAddress: "${custodyBSei.address}"`);
+
   console.log();
   console.log(`--- --- deployed market contracts info --- ---`);
   const tableData = [
@@ -261,9 +257,17 @@ async function main(): Promise<void> {
   console.log();
   console.log(`--- --- market contracts configure enter --- ---`);
 
-  const marketConfigRes = await queryWasmContract(RPC_ENDPOINT, wallet, market.address, { config: {} });
-  console.log();
-  console.log(`marketConfig: ${JSON.stringify(marketConfigRes)}`);
+  let marketConfigRes = null;
+  let marketInitFlag = true;
+  try {
+    marketConfigRes = await queryWasmContract(RPC_ENDPOINT, wallet, market.address, { config: {} });
+    console.log();
+    console.log(`marketConfig: ${JSON.stringify(marketConfigRes)}`);
+  } catch (error: any) {
+    if (error.toString().includes("addr_humanize")) {
+      marketInitFlag = false;
+    }
+  }
   // {"contract_addr":"","owner_addr":"","atoken_contract":"","interest_model":"","distribution_model":"","overseer_contract":"","collector_contract":"","distributor_contract":"","stable_denom":"","max_borrow_factor":""}
 
   const interestModelConfigRes = await queryWasmContract(RPC_ENDPOINT, wallet, interestModel.address, { config: {} });
@@ -309,6 +313,7 @@ async function main(): Promise<void> {
   if (overseer.address && market.address && custodyBSei.address && interestModel.address && distributionModel.address && oracle.address && aToken.address && liquidationQueue.address) {
     // {"contract_addr":"","owner_addr":"","atoken_contract":"","interest_model":"","distribution_model":"","overseer_contract":"","collector_contract":"","distributor_contract":"","stable_denom":"","max_borrow_factor":""}
     const marketConfigFlag: boolean =
+      marketInitFlag &&
       overseer.address === marketConfigRes?.overseer_contract &&
       interestModel.address === marketConfigRes?.interest_model &&
       distributionModel.address === marketConfigRes?.distribution_model &&
@@ -316,7 +321,7 @@ async function main(): Promise<void> {
       rewardsDispatcher.address === marketConfigRes?.distributor_contract;
     if (!marketConfigFlag) {
       console.log();
-      console.log("Update market's register_contracts enter");
+      console.log("Do market's register_contracts enter");
       const marketRegisterContractsRes = await executeContract(RPC_ENDPOINT, wallet, market.address, {
         register_contracts: {
           overseer_contract: overseer.address,
@@ -326,42 +331,42 @@ async function main(): Promise<void> {
           distributor_contract: rewardsDispatcher.address
         }
       });
-      console.log("Update market's register_contracts ok. \n", marketRegisterContractsRes?.transactionHash);
+      console.log("Do market's register_contracts ok. \n", marketRegisterContractsRes?.transactionHash);
     }
 
     // {"owner_addr":"","oracle_contract":"","market_contract":"","liquidation_contract":"","collector_contract":"","threshold_deposit_rate":"","target_deposit_rate":"","buffer_distribution_factor":"","anc_purchase_factor":"","stable_denom":"","epoch_period":0,"price_timeframe":0,"dyn_rate_epoch":0,"dyn_rate_maxchange":"","dyn_rate_yr_increase_expectation":"","dyn_rate_min":"","dyn_rate_max":""}
     const overseerConfigFlag: boolean = liquidationQueue.address === overseerConfigRes?.liquidation_contract;
     if (!overseerConfigFlag) {
       console.log();
-      console.log("Update overseer's config enter");
+      console.log("Do overseer's config enter");
       const overseerUpdateConfigRes = await executeContract(RPC_ENDPOINT, wallet, overseer.address, {
         update_config: {
           liquidation_contract: liquidationQueue.address,
           epoch_period: 90
         }
       });
-      console.log("Update overseer's config ok. \n", overseerUpdateConfigRes?.transactionHash);
+      console.log("Do overseer's config ok. \n", overseerUpdateConfigRes?.transactionHash);
     }
 
     // {"owner":"","collateral_token":"","overseer_contract":"","market_contract":"","reward_contract":"","liquidation_contract":"","stable_denom":"","basset_info":{"name":"","symbol":"","decimals":6}}
     const custodyBSeiConfigFlag: boolean = liquidationQueue.address === custodyBSeiConfigRes?.liquidation_contract;
     if (!custodyBSeiConfigFlag) {
       console.log();
-      console.log("Update custodyBSei's config enter");
+      console.log("Do custodyBSei's config enter");
       let custodyBSeiUpdateConfigRes = await executeContract(RPC_ENDPOINT, wallet, custodyBSei.address, {
         update_config: {
           owner: account.address,
           liquidation_contract: liquidationQueue.address
         }
       });
-      console.log("Update custodyBSei's config ok. \n", custodyBSeiUpdateConfigRes?.transactionHash);
+      console.log("Do custodyBSei's config ok. \n", custodyBSeiUpdateConfigRes?.transactionHash);
     }
 
     // {"owner":"","oracle_contract":"","stable_denom":"","safe_ratio":"","bid_fee":"","liquidator_fee":"","liquidation_threshold":"","price_timeframe": “”,"waiting_period":“”,"overseer":""}
     const liquidationQueueConfigFlag: boolean = oracle.address === liquidationQueueConfigRes?.oracle_contract && overseer.address === liquidationQueueConfigRes?.overseer;
     if (!liquidationQueueConfigFlag) {
       console.log();
-      console.log("Update liquidationQueue's config enter");
+      console.log("Do liquidationQueue's config enter");
       const liquidationQueueUpdateConfigRes = await executeContract(RPC_ENDPOINT, wallet, liquidationQueue.address, {
         update_config: {
           owner: account.address,
@@ -375,29 +380,7 @@ async function main(): Promise<void> {
           overseer: overseer.address
         }
       });
-      console.log("Update liquidationQueue's config ok. \n", liquidationQueueUpdateConfigRes?.transactionHash);
-    }
-
-    let liquidationQueueWhitelistCollateralFlag = true;
-    try {
-      await queryWasmContract(RPC_ENDPOINT, wallet, liquidationQueue.address, { collateral_info: { collateral_token: bSeiToken.address } });
-    } catch (error: any) {
-      if (error.toString().includes("Collateral is not whitelisted")) {
-        liquidationQueueWhitelistCollateralFlag = false;
-      }
-    }
-    if (!liquidationQueueWhitelistCollateralFlag) {
-      console.log();
-      console.log("Update liquidationQueue's whitelist_collateral enter");
-      const liquidationQueueWhitelistCollateralRes = await executeContract(RPC_ENDPOINT, wallet, liquidationQueue.address, {
-        whitelist_collateral: {
-          collateral_token: bSeiToken.address,
-          bid_threshold: "500000000",
-          max_slot: 30,
-          premium_rate_per_slot: "0.01"
-        }
-      });
-      console.log("Update liquidationQueue's whitelist_collateral ok. \n", liquidationQueueWhitelistCollateralRes?.transactionHash);
+      console.log("Do liquidationQueue's config ok. \n", liquidationQueueUpdateConfigRes?.transactionHash);
     }
 
     // {"elems":[{"name":"","symbol":"","max_ltv":"","custody_contract":"","collateral_token":""}]}
@@ -408,10 +391,9 @@ async function main(): Promise<void> {
         break;
       }
     }
-
     if (!overseerWhitelistFlag) {
       console.log();
-      console.log("Update overseer's add collateral whitelist enter");
+      console.log("Do overseer's add collateral whitelist enter");
       const overseerWhitelistRes = await executeContract(RPC_ENDPOINT, wallet, overseer.address, {
         whitelist: {
           name: "Bond Sei",
@@ -421,30 +403,46 @@ async function main(): Promise<void> {
           max_ltv: "0.65"
         }
       });
-      console.log("Update overseer's add collateral whitelist ok. \n", overseerWhitelistRes?.transactionHash);
+      console.log("Do overseer's add collateral whitelist ok. \n", overseerWhitelistRes?.transactionHash);
+    }
+
+    // overseerWhitelistFlag must be true
+    let liquidationQueueWhitelistCollateralFlag = true;
+    try {
+      await queryWasmContract(RPC_ENDPOINT, wallet, liquidationQueue.address, { collateral_info: { collateral_token: bSeiToken.address } });
+    } catch (error: any) {
+      if (error.toString().includes("Collateral is not whitelisted")) {
+        liquidationQueueWhitelistCollateralFlag = false;
+      }
+    }
+    if (!liquidationQueueWhitelistCollateralFlag) {
+      console.log();
+      console.log("Do liquidationQueue's whitelist_collateral enter");
+      const liquidationQueueWhitelistCollateralRes = await executeContract(RPC_ENDPOINT, wallet, liquidationQueue.address, {
+        whitelist_collateral: {
+          collateral_token: bSeiToken.address,
+          bid_threshold: "500000000",
+          max_slot: 30,
+          premium_rate_per_slot: "0.01"
+        }
+      });
+      console.log("Do liquidationQueue's whitelist_collateral ok. \n", liquidationQueueWhitelistCollateralRes?.transactionHash);
     }
   }
 
   console.log();
   console.log(`--- --- market contracts configure end --- ---`);
 
-  const address1NativeBalance2 = await queryAddressBalance(LCD_ENDPOINT, account.address, "usei");
-  const address1StableCoinBalance2 = await queryAddressBalance(LCD_ENDPOINT, account.address, stable_coin_denom);
-  const address2NativeBalance2 = await queryAddressBalance(LCD_ENDPOINT, account2.address, "usei");
-  const address2StableCoinBalance2 = await queryAddressBalance(LCD_ENDPOINT, account2.address, stable_coin_denom);
-
-  console.log();
-  console.log(`--- --- after balances --- ---`);
-  console.table(
-    [
-      { address: account.address, nativeBalance: JSON.stringify(address1NativeBalance2.balance), stableCoinBalance: JSON.stringify(address1StableCoinBalance2.balance) },
-      { address: account2.address, nativeBalance: JSON.stringify(address2NativeBalance2.balance), stableCoinBalance: JSON.stringify(address2StableCoinBalance2.balance) }
-    ],
-    [`address`, `nativeBalance`, `stableCoinBalance`]
-  );
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   console.log();
   console.log(`--- --- deploy market contracts end --- ---`);
+
+  const afterAddressesBalances = await loadAddressesBalances(LCD_ENDPOINT, [account.address, account2.address], ["usei", stable_coin_denom]);
+  let address1UseiBalanceBefore = addressesBalances.find(v => account.address === v?.address && "usei" === v?.balance?.denom)?.balance?.amount;
+  let address1UseiBalanceAfter = afterAddressesBalances.find(v => account.address === v?.address && "usei" === v?.balance?.denom)?.balance?.amount;
+  let amount = new Decimal(address1UseiBalanceBefore).sub(new Decimal(address1UseiBalanceAfter)).div(new Decimal("10").pow(6)).toString();
+  console.log(`deployed market contracts payment: ${amount} sei`);
   console.log();
 }
 

@@ -1,17 +1,17 @@
 {
   "scripts": {
-    "deploy:staking:dev": "cp .env.development .env && node --require ./suppress-experimental.cjs --loader ts-node/esm ./deploy_staking_contracts.ts --mode development",
-    "deploy:staking:prod": "cp .env.production .env && node --require ./suppress-experimental.cjs --loader ts-node/esm ./deploy_staking_contracts.ts --mode production",
-    "deploy:staking:local": "cp .env.local .env && node --require ./suppress-experimental.cjs --loader ts-node/esm ./deploy_staking_contracts.ts --mode local",
+    "deploy:staking:dev": "cp .env.development .env && node --loader ts-node/esm ./deploy_staking_contracts.ts --mode development --require ./suppress-experimental.cjs",
+    "deploy:staking:prod": "cp .env.production .env && node --loader ts-node/esm ./deploy_staking_contracts.ts --mode production --require ./suppress-experimental.cjs",
+    "deploy:staking:local": "cp .env.local .env && node --loader ts-node/esm ./deploy_staking_contracts.ts --mode local --require ./suppress-experimental.cjs",
     "deploy:market:dev": "cp .env.development .env && node --loader ts-node/esm ./deploy_market_contracts.ts --mode development --require ./suppress-experimental.cjs",
-    "deploy:market:prod": "cp .env.production .env && node --require ./suppress-experimental.cjs --loader ts-node/esm ./deploy_market_contracts.ts --mode production",
-    "deploy:market:local": "cp .env.local .env && node --require ./suppress-experimental.cjs --loader ts-node/esm ./deploy_market_contracts.ts --mode local",
-    "verify:staking:dev": "cp .env.development .env && node --require ./suppress-experimental.cjs --loader ts-node/esm ./verify_staking_contracts.ts --mode development",
-    "verify:staking:prod": "cp .env.production .env && node --require ./suppress-experimental.cjs --loader ts-node/esm ./verify_staking_contracts.ts --mode development",
-    "verify:staking:local": "cp .env.local .env && node --require ./suppress-experimental.cjs --loader ts-node/esm ./verify_staking_contracts.ts --mode local",
-    "verify:market:dev": "cp .env.development .env && node --require ./suppress-experimental.cjs --loader ts-node/esm ./verify_market_contracts.ts --mode development",
-    "verify:market:prod": "cp .env.production .env && node --require ./suppress-experimental.cjs --loader ts-node/esm ./verify_market_contracts.ts --mode development",
-    "verify:market:local": "cp .env.local .env && node --require ./suppress-experimental.cjs --loader ts-node/esm ./verify_market_contracts.ts --mode local",
+    "deploy:market:prod": "cp .env.production .env && node --loader ts-node/esm ./deploy_market_contracts.ts --mode production --require ./suppress-experimental.cjs",
+    "deploy:market:local": "cp .env.local .env && node --loader ts-node/esm ./deploy_market_contracts.ts --mode local --require ./suppress-experimental.cjs",
+    "verify:staking:dev": "cp .env.development .env && node --loader ts-node/esm ./verify_staking_contracts.ts --mode development --require ./suppress-experimental.cjs",
+    "verify:staking:prod": "cp .env.production .env && node --loader ts-node/esm ./verify_staking_contracts.ts --mode development --require ./suppress-experimental.cjs",
+    "verify:staking:local": "cp .env.local .env && node --loader ts-node/esm ./verify_staking_contracts.ts --mode local --require ./suppress-experimental.cjs",
+    "verify:market:dev": "cp .env.development .env && node --loader ts-node/esm ./verify_market_contracts.ts --mode development --require ./suppress-experimental.cjs",
+    "verify:market:prod": "cp .env.production .env && node --loader ts-node/esm ./verify_market_contracts.ts --mode development --require ./suppress-experimental.cjs",
+    "verify:market:local": "cp .env.local .env && node --loader ts-node/esm ./verify_market_contracts.ts --mode local --require ./suppress-experimental.cjs",
     "format": "prettier --write \"./**/*.{html,ts,js,json,md}\""
   },
   "dependencies": {

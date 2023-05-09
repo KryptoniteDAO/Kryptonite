@@ -1,7 +1,6 @@
 import { DirectSecp256k1Wallet, DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
-import { parseCoins, coins } from "@cosmjs/stargate";
 import { toBeArray } from "ethers";
-import { storeCode, instantiateContract, executeContract, queryStakingDelegations, queryWasmContract, queryAddressBalance, queryStaking, queryStakingParameters, sendCoin, queryAddressAllBalances } from "./common";
+import { loadAddressesBalances } from "./common";
 import type { DeployContractInfo } from "./types";
 
 require("dotenv").config();
@@ -38,20 +37,7 @@ export async function loadingBaseData() {
   const wallet2 = privateKey2 ? await DirectSecp256k1Wallet.fromKey(toBeArray(privateKey2), prefix) : await DirectSecp256k1HdWallet.fromMnemonic(mnemonic2, { prefix });
   const [account2] = await wallet2.getAccounts();
 
-  const address1NativeBalance = await queryAddressBalance(LCD_ENDPOINT, account.address, "usei");
-  const address1StableCoinBalance = await queryAddressBalance(LCD_ENDPOINT, account.address, stable_coin_denom);
-  const address2NativeBalance = await queryAddressBalance(LCD_ENDPOINT, account2.address, "usei");
-  const address2StableCoinBalance = await queryAddressBalance(LCD_ENDPOINT, account2.address, stable_coin_denom);
-
-  console.log();
-  console.log(`--- --- before balances --- ---`);
-  console.table(
-    [
-      { address: account.address, nativeBalance: JSON.stringify(address1NativeBalance.balance), stableCoinBalance: JSON.stringify(address1StableCoinBalance.balance) },
-      { address: account2.address, nativeBalance: JSON.stringify(address2NativeBalance.balance), stableCoinBalance: JSON.stringify(address2StableCoinBalance.balance) }
-    ],
-    [`address`, `nativeBalance`, `stableCoinBalance`]
-  );
+  const addressesBalances = await loadAddressesBalances(LCD_ENDPOINT, [account.address, account2.address], ["usei", stable_coin_denom]);
 
   return {
     LCD_ENDPOINT,
@@ -60,17 +46,14 @@ export async function loadingBaseData() {
     privateKey,
     wallet,
     account,
-    address1NativeBalance,
-    address1StableCoinBalance,
     mnemonic2,
     privateKey2,
     wallet2,
     account2,
-    address2NativeBalance,
-    address2StableCoinBalance,
     validator,
     stable_coin_denom,
-    prefix
+    prefix,
+    addressesBalances
   };
 }
 
@@ -131,14 +114,14 @@ export async function loadingStakingData() {
 }
 
 /**
- * overseer
  * market
- * custodyBSei
+ * aToken
  * interestModel
  * distributionModel
  * oracle
- * aToken
  * liquidationQueue
+ * overseer
+ * custodyBSei
  */
 export async function loadingMarketData() {
   let overseer: DeployContractInfo = {

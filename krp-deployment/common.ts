@@ -1,6 +1,6 @@
 import { getQueryClient, getSigningClient, getSigningCosmWasmClient } from "@sei-js/core";
 import { DirectSecp256k1HdWallet, DirectSecp256k1Wallet } from "@cosmjs/proto-signing";
-import { calculateFee } from "@cosmjs/stargate";
+import { calculateFee, coin } from "@cosmjs/stargate";
 import { InstantiateResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
 import * as fs from "fs";
@@ -24,7 +24,7 @@ export async function storeCode(RPC_ENDPOINT: string, wallet: DirectSecp256k1HdW
   return codeId;
 }
 
-export async function instantiateContract(RPC_ENDPOINT: string, wallet: DirectSecp256k1HdWallet | DirectSecp256k1Wallet, codeId: number, message: object, coins: Coin[], label: string): Promise<string> {
+export async function instantiateContract(RPC_ENDPOINT: string, wallet: DirectSecp256k1HdWallet | DirectSecp256k1Wallet, codeId: number, message: object, label: string = "", coins: Coin[] = []): Promise<string> {
   console.log(`Instantiating contract with code_id = ${codeId}`);
   const fee = calculateFee(300_000, "0.1usei");
   const [firstAccount] = await wallet.getAccounts();
@@ -33,7 +33,7 @@ export async function instantiateContract(RPC_ENDPOINT: string, wallet: DirectSe
   return instantiateTxResult.contractAddress;
 }
 
-export async function instantiateContract2(RPC_ENDPOINT: string, wallet: DirectSecp256k1HdWallet | DirectSecp256k1Wallet, codeId: number, message: object, coins: Coin[], label: string) {
+export async function instantiateContract2(RPC_ENDPOINT: string, wallet: DirectSecp256k1HdWallet | DirectSecp256k1Wallet, codeId: number, message: object, label: string = "", coins: Coin[] = []) {
   console.log(`Instantiating contract with code_id = ${codeId}...`);
   const fee = calculateFee(500000, "0.1usei");
   const [firstAccount] = await wallet.getAccounts();
@@ -112,4 +112,37 @@ export async function queryStakingParameters(LCD_ENDPOINT: string) {
 export async function queryStakingDelegations(LCD_ENDPOINT: string, delegatorAddr: string, validatorAddr: string) {
   const queryClient = await getQueryClient(LCD_ENDPOINT);
   return await queryClient.cosmos.staking.v1beta1.delegation({ delegatorAddr, validatorAddr });
+}
+
+export async function loadAddressesBalances(LCD_ENDPOINT: string, addressList: string[], denomList: string[]) {
+  let addressesBalances = [];
+  for (let address of addressList) {
+    for (let denom of denomList) {
+      addressesBalances.push({ address: address, balance: (await queryAddressBalance(LCD_ENDPOINT, address, denom)).balance });
+    }
+  }
+
+  console.log();
+  console.log(`--- --- addresses balances --- ---`);
+  console.table(addressesBalances, [`address`, `balance`]);
+  return addressesBalances;
+}
+
+export async function sendCoinToOtherAddress(LCD_ENDPOINT: string,RPC_ENDPOINT: string, wallet, sender: string, receiver: string, denom: string, sendAmount: string | number, senderBalance?: string | number, receiverBalance?: string | number) {
+  if (!sender || !receiver || !denom || !sendAmount) {
+    return;
+  }
+  if(!senderBalance){
+    senderBalance = (await queryAddressBalance(LCD_ENDPOINT, sender, denom))?.balance?.amount;
+  }
+  if(!receiverBalance){
+    receiverBalance = (await queryAddressBalance(LCD_ENDPOINT, receiver, denom))?.balance?.amount;
+  }
+
+  if (senderBalance && receiverBalance && new Decimal(senderBalance).comparedTo(new Decimal(sendAmount).mul(new Decimal("10").pow(6))) > 0 && new Decimal(receiverBalance).comparedTo(new Decimal(sendAmount).mul(new Decimal("10").pow(6))) < 0) {
+    console.log();
+    console.log(`Do sendCoin enter. from ${sender} to ${receiver} ${sendAmount} ${denom}`);
+    const sendCoinRes = await sendCoin(RPC_ENDPOINT, wallet, receiver, "", coin(sendAmount, denom));
+    console.log(`Do sendCoin enter. from ${sender} to ${receiver} ${sendAmount} ${denom}  ok. \n ${sendCoinRes?.transactionHash}`);
+  }
 }
