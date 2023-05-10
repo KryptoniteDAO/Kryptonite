@@ -33,9 +33,9 @@ async function main(): Promise<void> {
   /// 2. market deposit_stable test
   /// 2.1. deposit stable to money market
   // console.log();
-  // console.log("Do market.address deposit_stable enter");
-  // const marketDepositStableRes = await executeContract(RPC_ENDPOINT, wallet, market.address, { deposit_stable: {} }, "", coins(1_000_000, stable_coin_denom));
-  // console.log("Do market.address deposit_stable ok. \n", marketDepositStableRes?.transactionHash);
+  console.log("Do market.address deposit_stable enter");
+  const marketDepositStableRes = await executeContract(RPC_ENDPOINT, wallet, market.address, { deposit_stable: {} }, "", coins(10_000_000_000, stable_coin_denom));
+  console.log("Do market.address deposit_stable ok. \n", marketDepositStableRes?.transactionHash);
 
   ///  Send stable coin to other address
   const senderAddress = account.address;
@@ -45,7 +45,7 @@ async function main(): Promise<void> {
   let receiverUseiBalance = addressesBalances.find(v => receiverAddress === v?.address && "usei" === v?.balance?.denom)?.balance?.amount;
   let receiverStableCoinBalance = addressesBalances.find(v => receiverAddress === v?.address && stable_coin_denom === v?.balance?.denom)?.balance?.amount;
   const sendUseiAmount = "10";
-  const sendStableCoinAmount = "10";
+  const sendStableCoinAmount = "1000";
   await sendCoinToOtherAddress(LCD_ENDPOINT, RPC_ENDPOINT, wallet, senderAddress, receiverAddress, "usei", sendUseiAmount, senderUseiBalance, receiverUseiBalance);
   await sendCoinToOtherAddress(LCD_ENDPOINT, RPC_ENDPOINT, wallet, senderAddress, receiverAddress, stable_coin_denom, sendStableCoinAmount, senderStableCoinBalance, receiverStableCoinBalance);
 
@@ -62,7 +62,7 @@ async function main(): Promise<void> {
   });
   console.log("Do custodyBSei.address deposit_collateral ok. \n", custodyBSeiDepositCollateralRes?.transactionHash);
 
-  /// 4. Overseer lock collateral
+  // 4. Overseer lock collateral
   console.log();
   console.log("Do overseer.address lock_collateral enter");
   const overseerLockCollateralRes = await executeContract(RPC_ENDPOINT, wallet, overseer.address, {

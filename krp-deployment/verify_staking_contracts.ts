@@ -31,24 +31,24 @@ async function main(): Promise<void> {
 
   // 1 + 1 + 1 + 0.5 + txFee
   let address1UseiBalance = addressesBalances.find(v => account.address === v?.address && "usei" === v?.balance?.denom)?.balance?.amount;
-  if (Number(address1UseiBalance) < 4000000) {
+  if (Number(address1UseiBalance) < 10000000) {
     console.error("wallet native balance insufficient 4_000_000. balance: " + address1UseiBalance);
     process.exit(0);
     return;
   }
   console.log();
   console.log("Do hub.address bond_for_st_sei 1 enter");
-  const hubBondStSeiRes = await executeContract(RPC_ENDPOINT, wallet, hub.address, { bond_for_st_sei: {} }, "", parseCoins("1000000usei"));
+  const hubBondStSeiRes = await executeContract(RPC_ENDPOINT, wallet, hub.address, { bond_for_st_sei: {} }, "", parseCoins("2000000usei"));
   console.log("Do hub.address bond_for_st_sei 1 ok. \n", hubBondStSeiRes?.transactionHash);
 
   console.log();
   console.log("Do hub.address bond_for_st_sei 2 enter");
-  const hubBondStSeiRes2 = await executeContract(RPC_ENDPOINT, wallet, hub.address, { bond_for_st_sei: {} }, "", parseCoins("1000000usei"));
+  const hubBondStSeiRes2 = await executeContract(RPC_ENDPOINT, wallet, hub.address, { bond_for_st_sei: {} }, "", parseCoins("500000usei"));
   console.log("Do hub.address bond_for_st_sei 2 ok. \n", hubBondStSeiRes2?.transactionHash);
 
   console.log();
   console.log("Do hub.address bond enter");
-  const hubBondRes = await executeContract(RPC_ENDPOINT, wallet, hub.address, { bond: {} }, "", parseCoins("1000000usei"));
+  const hubBondRes = await executeContract(RPC_ENDPOINT, wallet, hub.address, { bond: {} }, "", parseCoins("5000000usei"));
   console.log("Do hub.address bond ok. \n", hubBondRes?.transactionHash);
 
   console.log();

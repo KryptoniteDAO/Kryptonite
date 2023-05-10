@@ -111,6 +111,7 @@ export async function queryStakingParameters(LCD_ENDPOINT: string) {
 
 export async function queryStakingDelegations(LCD_ENDPOINT: string, delegatorAddr: string, validatorAddr: string) {
   const queryClient = await getQueryClient(LCD_ENDPOINT);
+  console.log(`validator: ${validatorAddr}`)
   return await queryClient.cosmos.staking.v1beta1.delegation({ delegatorAddr, validatorAddr });
 }
 
