@@ -29,7 +29,7 @@ export async function instantiateContract(RPC_ENDPOINT: string, wallet: DirectSe
   const fee = calculateFee(300_000, "0.1usei");
   const [firstAccount] = await wallet.getAccounts();
   const signCosmWasmClient = await getSigningCosmWasmClient(RPC_ENDPOINT, wallet);
-  const instantiateTxResult = await signCosmWasmClient.instantiate(firstAccount.address, codeId, message, label, fee, { memo: "", funds: coins });
+  const instantiateTxResult = await signCosmWasmClient.instantiate(firstAccount.address, codeId, message, label, fee, {memo: "", funds: coins , admin: firstAccount.address });
   return instantiateTxResult.contractAddress;
 }
 
@@ -38,7 +38,7 @@ export async function instantiateContract2(RPC_ENDPOINT: string, wallet: DirectS
   const fee = calculateFee(500000, "0.1usei");
   const [firstAccount] = await wallet.getAccounts();
   const signCosmWasmClient = await getSigningCosmWasmClient(RPC_ENDPOINT, wallet);
-  const instantiateTxResult = await signCosmWasmClient.instantiate(firstAccount.address, codeId, message, label, fee, { memo: "", funds: coins });
+  const instantiateTxResult = await signCosmWasmClient.instantiate(firstAccount.address, codeId, message, label, fee, {memo: "", funds: coins, admin: firstAccount.address });
   //   console.log(`instantiate ret:${JSON.stringify(instantiateTxResult)}`);
   return getContractAddresses(instantiateTxResult);
 }
