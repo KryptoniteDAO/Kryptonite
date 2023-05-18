@@ -1,25 +1,24 @@
-import { parseCoins, coins, coin } from "@cosmjs/stargate";
-import { executeContract, queryWasmContract, sendCoin, loadAddressesBalances, sendCoinToOtherAddress } from "./common";
-import { loadingBaseData, loadingMarketData, loadingStakingData } from "./env_data";
+import { coins } from "@cosmjs/stargate";
+import { executeContract, sendCoinToOtherAddress, readArtifact, executeContractByWalletData, queryWasmContractByWalletData, getClientData2ByWalletData, logChangeBalancesByWalletData } from "./common";
+import { loadingWalletData, loadingMarketData, loadingStakingData, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH } from "./env_data";
 
 require("dotenv").config();
 
 async function main(): Promise<void> {
   console.log(`--- --- verify deployed market contracts enter --- ---`);
 
-  const { LCD_ENDPOINT, RPC_ENDPOINT, mnemonic, privateKey, wallet, account, mnemonic2, privateKey2, wallet2, account2, validator, stable_coin_denom, prefix, addressesBalances } =
-    await loadingBaseData();
-
-  const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData();
-
-  if (!hub.address || !bSeiToken.address || !stSeiToken.address || !rewardsDispatcher.address || !validatorsRegistry.address || !reward.address) {
-    console.log(`--- --- verify deployed error, missing some deployed staking address info --- ---`);
+  const walletData = await loadingWalletData();
+  const networkStaking = readArtifact(walletData.chainId, STAKING_ARTIFACTS_PATH);
+  const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(networkStaking);
+  if (!hub?.address || !reward?.address || !bSeiToken?.address || !rewardsDispatcher?.address || !validatorsRegistry?.address || !stSeiToken?.address) {
+    console.error(`--- --- verify deployed error, missing some deployed staking address info --- ---`);
     process.exit(0);
     return;
   }
 
-  const { overseer, market, custodyBSei, interestModel, distributionModel, oracle, aToken, liquidationQueue } = await loadingMarketData();
-  if (!overseer.address || !market.address || !custodyBSei.address || !interestModel.address || !distributionModel.address || !oracle.address || !aToken.address || !liquidationQueue.address) {
+  const networkMarket = readArtifact(walletData.chainId, MARKET_ARTIFACTS_PATH);
+  const { aToken, market, interestModel, distributionModel, oracle, overseer, liquidationQueue, custodyBSei } = await loadingMarketData(networkMarket);
+  if (!aToken?.address || !market?.address || !interestModel?.address || !distributionModel?.address || !oracle?.address || !overseer?.address || !liquidationQueue?.address || !custodyBSei?.address) {
     console.log(`--- --- verify deployed error, missing some deployed market address info --- ---`);
     process.exit(0);
     return;
@@ -33,27 +32,27 @@ async function main(): Promise<void> {
   /// 2. market deposit_stable test
   /// 2.1. deposit stable to money market
   // console.log();
-  console.log("Do market.address deposit_stable enter");
-  const marketDepositStableRes = await executeContract(RPC_ENDPOINT, wallet, market.address, { deposit_stable: {} }, "", coins(10_000_000_000, stable_coin_denom));
+  console.warn("Do market.address deposit_stable enter");
+  const marketDepositStableRes = await executeContractByWalletData(walletData, market.address, { deposit_stable: {} }, "", coins(10_000_000_000, walletData.stable_coin_denom));
   console.log("Do market.address deposit_stable ok. \n", marketDepositStableRes?.transactionHash);
 
   ///  Send stable coin to other address
-  const senderAddress = account.address;
-  const receiverAddress = account2.address;
-  let senderUseiBalance = addressesBalances.find(v => senderAddress === v?.address && "usei" === v?.balance?.denom)?.balance?.amount;
-  let senderStableCoinBalance = addressesBalances.find(v => senderAddress === v?.address && stable_coin_denom === v?.balance?.denom)?.balance?.amount;
-  let receiverUseiBalance = addressesBalances.find(v => receiverAddress === v?.address && "usei" === v?.balance?.denom)?.balance?.amount;
-  let receiverStableCoinBalance = addressesBalances.find(v => receiverAddress === v?.address && stable_coin_denom === v?.balance?.denom)?.balance?.amount;
+  const senderAddress = walletData.address;
+  const receiverAddress = walletData.address2;
+  let senderUseiBalance = walletData.addressesBalances.find(v => senderAddress === v?.address && walletData.nativeCurrency.coinMinimalDenom === v?.balance?.denom)?.balance?.amount;
+  let senderStableCoinBalance = walletData.addressesBalances.find(v => senderAddress === v?.address && walletData.stable_coin_denom === v?.balance?.denom)?.balance?.amount;
+  let receiverUseiBalance = walletData.addressesBalances.find(v => receiverAddress === v?.address && walletData.nativeCurrency.coinMinimalDenom === v?.balance?.denom)?.balance?.amount;
+  let receiverStableCoinBalance = walletData.addressesBalances.find(v => receiverAddress === v?.address && walletData.stable_coin_denom === v?.balance?.denom)?.balance?.amount;
   const sendUseiAmount = "10";
   const sendStableCoinAmount = "1000";
-  await sendCoinToOtherAddress(LCD_ENDPOINT, RPC_ENDPOINT, wallet, senderAddress, receiverAddress, "usei", sendUseiAmount, senderUseiBalance, receiverUseiBalance);
-  await sendCoinToOtherAddress(LCD_ENDPOINT, RPC_ENDPOINT, wallet, senderAddress, receiverAddress, stable_coin_denom, sendStableCoinAmount, senderStableCoinBalance, receiverStableCoinBalance);
+  await sendCoinToOtherAddress(walletData, receiverAddress, walletData.nativeCurrency.coinMinimalDenom, sendUseiAmount, senderUseiBalance, receiverUseiBalance);
+  await sendCoinToOtherAddress(walletData, receiverAddress, walletData.stable_coin_denom, sendStableCoinAmount, senderStableCoinBalance, receiverStableCoinBalance);
 
   /// 3. CustodyBSei deposits collateral.
   /// Issued when a user sends bAsset tokens to the Custody contract.
   console.log();
   console.log("Do custodyBSei.address deposit_collateral enter");
-  const custodyBSeiDepositCollateralRes = await executeContract(RPC_ENDPOINT, wallet, bSeiToken.address, {
+  const custodyBSeiDepositCollateralRes = await executeContractByWalletData(walletData, bSeiToken.address, {
     send: {
       contract: custodyBSei.address,
       amount: "1000000",
@@ -65,7 +64,7 @@ async function main(): Promise<void> {
   // 4. Overseer lock collateral
   console.log();
   console.log("Do overseer.address lock_collateral enter");
-  const overseerLockCollateralRes = await executeContract(RPC_ENDPOINT, wallet, overseer.address, {
+  const overseerLockCollateralRes = await executeContractByWalletData(walletData, overseer.address, {
     lock_collateral: {
       collaterals: [[bSeiToken.address, "1000000"]]
     }
@@ -75,10 +74,10 @@ async function main(): Promise<void> {
   /// 5. Overseer register feeder for asset in oracle contract
   console.log();
   console.log("Do overseer.address register_feeder enter");
-  let overseerRegisterFeederRes = await executeContract(RPC_ENDPOINT, wallet, oracle.address, {
+  let overseerRegisterFeederRes = await executeContractByWalletData(walletData, oracle.address, {
     register_feeder: {
       asset: bSeiToken.address,
-      feeder: account.address
+      feeder: walletData.address
     }
   });
   console.log("Do overseer.address register_feeder ok. \n", overseerRegisterFeederRes?.transactionHash);
@@ -87,7 +86,7 @@ async function main(): Promise<void> {
   /// Feeds new price data. Can only be issued by the owner.
   console.log();
   console.log("Do oracle.address feed_price enter");
-  let oracleFeedPriceRes = await executeContract(RPC_ENDPOINT, wallet, oracle.address, {
+  let oracleFeedPriceRes = await executeContractByWalletData(walletData, oracle.address, {
     feed_price: {
       prices: [[bSeiToken.address, "100"]]
     }
@@ -98,10 +97,10 @@ async function main(): Promise<void> {
   /// Borrows stable coins from Anchor.
   console.log();
   console.log("Do market.address borrow_stable enter");
-  const marketBorrowStableRes = await executeContract(RPC_ENDPOINT, wallet, market.address, {
+  const marketBorrowStableRes = await executeContractByWalletData(walletData, market.address, {
     borrow_stable: {
       borrow_amount: "10000000",
-      to: account.address
+      to: walletData.address
     }
   });
   console.log("Do market.address borrow_stable ok. \n", marketBorrowStableRes?.transactionHash);
@@ -109,9 +108,9 @@ async function main(): Promise<void> {
   /// 7. query borrow stable coin info
   console.log();
   console.log("Query market.address borrower_info enter");
-  const marketBorrowerInfoRes = await queryWasmContract(RPC_ENDPOINT, wallet, market.address, {
+  const marketBorrowerInfoRes = await queryWasmContractByWalletData(walletData, market.address, {
     borrower_info: {
-      borrower: account.address
+      borrower: walletData.address
     }
   });
   console.log("Query market.address borrower_info ok. \n", JSON.stringify(marketBorrowerInfoRes));
@@ -123,7 +122,7 @@ async function main(): Promise<void> {
   /// Feeds new price data. Can only be issued by the owner.
   console.log();
   console.log("Do oracle.address feed_price 2 enter");
-  let oracleFeedPriceRes2 = await executeContract(RPC_ENDPOINT, wallet, oracle.address, {
+  let oracleFeedPriceRes2 = await executeContractByWalletData(walletData, oracle.address, {
     feed_price: {
       prices: [[bSeiToken.address, "50"]]
     }
@@ -135,9 +134,9 @@ async function main(): Promise<void> {
   console.log();
   console.log("Query overseer.address borrow_limit enter");
   const currentTimestamp = Date.parse(new Date().toString()) / 1000;
-  const overseerBorrowLimitRes = await queryWasmContract(RPC_ENDPOINT, wallet, overseer.address, {
+  const overseerBorrowLimitRes = await queryWasmContractByWalletData(walletData, overseer.address, {
     borrow_limit: {
-      borrower: account.address,
+      borrower: walletData.address,
       block_time: currentTimestamp
     }
   });
@@ -148,9 +147,9 @@ async function main(): Promise<void> {
   /// Requires stable coins to be sent beforehand.
   console.log();
   console.log("Do liquidationQueue.address submit_bid enter");
+  const clientData2 = getClientData2ByWalletData(walletData);
   const liquidationQueueSubmitBidRes = await executeContract(
-    RPC_ENDPOINT,
-    wallet2,
+    clientData2,
     liquidationQueue.address,
     {
       submit_bid: {
@@ -159,9 +158,9 @@ async function main(): Promise<void> {
       }
     },
     "",
-    coins(100000000, stable_coin_denom)
+    coins(100000000, walletData.stable_coin_denom)
   );
-  console.log("Do liquidationQueue.address submit_bid  ok. \n",liquidationQueueSubmitBidRes?.transactionHash);
+  console.log("Do liquidationQueue.address submit_bid  ok. \n", liquidationQueueSubmitBidRes?.transactionHash);
 
   ///////////////////////////////////////////////////////////////////////////////
   //                                                                           //
@@ -169,10 +168,11 @@ async function main(): Promise<void> {
 
   /// Gets the collateral balance of the specified borrower.
 
+  console.log();
   console.log(`Query custodyBSei.address borrower enter`);
-  const custodyBSeiBorrowerRes = await queryWasmContract(RPC_ENDPOINT, wallet, custodyBSei.address, {
+  const custodyBSeiBorrowerRes = await queryWasmContractByWalletData(walletData, custodyBSei.address, {
     borrower: {
-      address: account.address
+      address: walletData.address
     }
   });
   console.log("Query custodyBSei.address borrower ok. \n", JSON.stringify(custodyBSeiBorrowerRes));
@@ -180,7 +180,7 @@ async function main(): Promise<void> {
   /// Feeds new price data. Can only be issued by the owner.
   console.log();
   console.log("Do oracle.address feed_price 3 enter");
-  let oracleFeedPriceRes3 = await executeContract(RPC_ENDPOINT, wallet, oracle.address, {
+  let oracleFeedPriceRes3 = await executeContractByWalletData(walletData, oracle.address, {
     feed_price: {
       prices: [[bSeiToken.address, "5"]]
     }
@@ -190,9 +190,9 @@ async function main(): Promise<void> {
   /// 12.1 query borrow stable coin info
   console.log();
   console.log("Query market.address borrower_info 2 enter");
-  const marketBorrowerInfoRes2 = await queryWasmContract(RPC_ENDPOINT, wallet, market.address, {
+  const marketBorrowerInfoRes2 = await queryWasmContractByWalletData(walletData, market.address, {
     borrower_info: {
-      borrower: account.address,
+      borrower: walletData.address,
       block_height: null
     }
   });
@@ -202,9 +202,9 @@ async function main(): Promise<void> {
   console.log();
   console.log("Query overseer.address borrow_limit enter");
   const currentTimestamp2 = Date.parse(new Date().toString()) / 1000;
-  const overseerBorrowLimitRes2 = await queryWasmContract(RPC_ENDPOINT, wallet, overseer.address, {
+  const overseerBorrowLimitRes2 = await queryWasmContractByWalletData(walletData, overseer.address, {
     borrow_limit: {
-      borrower: account.address,
+      borrower: walletData.address,
       block_time: currentTimestamp2
     }
   });
@@ -212,7 +212,7 @@ async function main(): Promise<void> {
 
   console.log();
   console.log("Query overseer.address whitelist enter");
-  const overseerWhitelistRes = await queryWasmContract(RPC_ENDPOINT, wallet, overseer.address, {
+  const overseerWhitelistRes = await queryWasmContractByWalletData(walletData, overseer.address, {
     whitelist: {
       collateral_token: bSeiToken.address,
       start_after: null,
@@ -226,7 +226,7 @@ async function main(): Promise<void> {
 
   console.log();
   console.log("Query liquidationQueue.address liquidation_amount enter");
-  const liquidationQueueLiquidationAmountRes = await queryWasmContract(RPC_ENDPOINT, wallet, liquidationQueue.address, {
+  const liquidationQueueLiquidationAmountRes = await queryWasmContractByWalletData(walletData, liquidationQueue.address, {
     liquidation_amount: {
       borrow_amount: "10000067",
       borrow_limit: "6500000",
@@ -238,7 +238,7 @@ async function main(): Promise<void> {
 
   console.log();
   console.log("Query liquidationQueue.address config enter");
-  const liquidationQueueConfigRes = await queryWasmContract(RPC_ENDPOINT, wallet, liquidationQueue.address, {
+  const liquidationQueueConfigRes = await queryWasmContractByWalletData(walletData, liquidationQueue.address, {
     config: {}
   });
   console.log("Query liquidationQueue.address config ok. \n", JSON.stringify(liquidationQueueConfigRes));
@@ -246,9 +246,10 @@ async function main(): Promise<void> {
   /// 15.4 liquidate collateral call contract custody bSei =====step4==============
   console.log();
   console.log("Do overseer.address liquidate_collateral enter");
-  const overseerLiquidateCollateralRes = await executeContract(RPC_ENDPOINT, wallet2, overseer.address, {
+  const clientData22 = getClientData2ByWalletData(walletData);
+  const overseerLiquidateCollateralRes = await executeContract(clientData22, overseer.address, {
     liquidate_collateral: {
-      borrower: account.address
+      borrower: walletData.address
     }
   });
   console.log("Do overseer.address liquidate_collateral ok. \n", overseerLiquidateCollateralRes?.transactionHash);
@@ -256,7 +257,7 @@ async function main(): Promise<void> {
   /// 15.5 query liquidationQueue config
   console.log();
   console.log("Query liquidationQueue.address config 2 enter");
-  const liquidationQueueConfigRes2 = await queryWasmContract(RPC_ENDPOINT, wallet, liquidationQueue.address, {
+  const liquidationQueueConfigRes2 = await queryWasmContractByWalletData(walletData, liquidationQueue.address, {
     config: {}
   });
   console.log("Query liquidationQueue.address config 2 ok. \n", JSON.stringify(liquidationQueueConfigRes2));
@@ -264,7 +265,7 @@ async function main(): Promise<void> {
   /// 15.6 query liquidate pool
   console.log();
   console.log("Query liquidationQueue.address bid_pool enter");
-  const liquidationQueueBidPoolRes = await queryWasmContract(RPC_ENDPOINT, wallet, liquidationQueue.address, {
+  const liquidationQueueBidPoolRes = await queryWasmContractByWalletData(walletData, liquidationQueue.address, {
     bid_pool: {
       collateral_token: bSeiToken.address,
       bid_slot: 10
@@ -274,33 +275,33 @@ async function main(): Promise<void> {
 
   console.log();
   console.log("Query reward.address state enter");
-  const rewardStateRes = await queryWasmContract(RPC_ENDPOINT, wallet, reward.address, { state: {} });
+  const rewardStateRes = await queryWasmContractByWalletData(walletData, reward.address, { state: {} });
   console.log("Query reward.address state ok. \n", JSON.stringify(rewardStateRes));
 
   console.log();
   console.log("Do hub.address update_global_index enter");
-  const hubUpdateGlobalIndexRes = await executeContract(RPC_ENDPOINT, wallet, hub.address, { update_global_index: {} });
+  const hubUpdateGlobalIndexRes = await executeContractByWalletData(walletData, hub.address, { update_global_index: {} });
   console.log("Do hub.address update_global_index ok. \n", hubUpdateGlobalIndexRes?.transactionHash);
 
   console.log();
   console.log("Query reward.address accrued_rewards enter");
-  const rewardAccruedRewardsRes = await queryWasmContract(RPC_ENDPOINT, wallet, reward.address, {
+  const rewardAccruedRewardsRes = await queryWasmContractByWalletData(walletData, reward.address, {
     accrued_rewards: {
-      address: account.address
+      address: walletData.address
     }
   });
   console.log("Query reward.address accrued_rewards ok. \n", JSON.stringify(rewardAccruedRewardsRes));
 
   console.log();
   console.log("Query interestModel.address config enter");
-  const interestModelConfigRes = await queryWasmContract(RPC_ENDPOINT, wallet, interestModel.address, { config: {} });
+  const interestModelConfigRes = await queryWasmContractByWalletData(walletData, interestModel.address, { config: {} });
   console.log("Query interestModel.address config ok. \n", JSON.stringify(interestModelConfigRes));
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   console.log();
   console.log("Query market.address state enter");
-  const marketStateRes = await queryWasmContract(RPC_ENDPOINT, wallet, market.address, { state: {} });
+  const marketStateRes = await queryWasmContractByWalletData(walletData, market.address, { state: {} });
   console.log("Query market.address state ok. \n", JSON.stringify(marketStateRes));
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -308,7 +309,9 @@ async function main(): Promise<void> {
   console.log();
   console.log(`--- --- verify deployed market contracts end --- ---`);
 
-  await loadAddressesBalances(LCD_ENDPOINT, [account.address, account2.address], ["usei", stable_coin_denom]);
+  console.log();
+  await logChangeBalancesByWalletData(walletData);
+  console.log();
 }
 
 main().catch(console.log);

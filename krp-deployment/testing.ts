@@ -1,15 +1,27 @@
-import { parseCoins, coins } from "@cosmjs/stargate";
-import { storeCode, instantiateContract, executeContract, queryStakingDelegations, queryWasmContract, queryAddressBalance, queryStaking, queryStakingParameters, sendCoin, queryAddressAllBalances, loadAddressesBalances } from "./common";
-import { loadingBaseData, loadingStakingData } from "./env_data";
+import { queryWasmContractByWalletData, readArtifact } from "./common";
+import { loadingWalletData, loadingStakingData, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH, loadingMarketData } from "./env_data";
 
 require("dotenv").config();
 
 async function main(): Promise<void> {
   console.log(`--- --- test sparrowswaporacle enter --- ---`);
-  const sparrowSwapOracleAddress = "sei1d7mtgvzry3zdq4d05cyyasu08xkrp96zznar9d74hjxrj5nte32ske2w8q";
-  const { LCD_ENDPOINT, RPC_ENDPOINT, mnemonic, privateKey, wallet, account, mnemonic2, privateKey2, wallet2, account2, validator, stable_coin_denom, prefix, addressesBalances } = await loadingBaseData();
 
-  const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData();
+  const walletData = await loadingWalletData();
+  const networkStaking = readArtifact(walletData.chainId, STAKING_ARTIFACTS_PATH);
+  const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(networkStaking);
+  if (!hub?.address || !reward?.address || !bSeiToken?.address || !rewardsDispatcher?.address || !validatorsRegistry?.address || !stSeiToken?.address) {
+    console.error(`--- --- missing some deployed staking address info --- ---`);
+    process.exit(0);
+    return;
+  }
+
+  const networkMarket = readArtifact(walletData.chainId, MARKET_ARTIFACTS_PATH);
+  const { aToken, market, interestModel, distributionModel, oracle, overseer, liquidationQueue, custodyBSei } = await loadingMarketData(networkMarket);
+  if (!aToken?.address || !market?.address || !interestModel?.address || !distributionModel?.address || !oracle?.address || !overseer?.address || !liquidationQueue?.address || !custodyBSei?.address) {
+    console.log(`--- --- missing some deployed market address info --- ---`);
+    process.exit(0);
+    return;
+  }
 
   //let ret = queryWasmContract(RPC_ENDPOINT, wallet, sparrowSwapOracleAddress, {""})
   const pair1 = "sei1n6xhr5nevxu9537cwehwkp94ewdr9ysrcyl5lra73ng0tsc8eelsc45m4q";
@@ -25,12 +37,8 @@ async function main(): Promise<void> {
   const pair11 = "sei1d00cmsk7uym7mtrsrcnhhdza8mpu346klhrpufkzzxkvy9wlegeqe9rlhp";
   const pair12 = "sei1yqpvlrp4j7nkvel6zg0x5xv2wgdur5rdm3x3ylqxz9kl27j0jl9s5wvakd";
 
-  let ret1 = queryWasmContract(RPC_ENDPOINT, wallet, pair1, { pair: {} }); 
-  console.log(`pair swap info:${JSON.stringify(ret1)}`)
-  
-
-
-
+  let ret1 = await queryWasmContractByWalletData(walletData, pair1, { pair: {} });
+  console.log(`pair swap info: \n${JSON.stringify(ret1)}`);
 }
 
 main().catch(console.log);

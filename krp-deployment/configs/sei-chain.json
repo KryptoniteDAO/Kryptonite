@@ -1,0 +1,190 @@
+{
+  "validator": "seivaloper1h3ukufh4lhacftdf6kyxzum4p86rcnel0mamnx",
+  "stable_coin_denom": "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/USDT",
+  "hub": {
+    "admin": null,
+    "initMsg": {
+      "epoch_period": 30,
+      "er_threshold": "1.0",
+      "peg_recovery_fee": "0",
+      "unbonding_period": 120
+    },
+    "label": "sei hub",
+    "filePath": null,
+    "deploy": false
+  },
+  "reward": {
+    "admin": null,
+    "initMsg": {
+      "owner": null
+    },
+    "label": "sei reward",
+    "filePath": null,
+    "deploy": false
+  },
+  "bSeiToken": {
+    "admin": null,
+    "initMsg": {
+      "decimals": 6,
+      "name": "bsei",
+      "symbol": "BSEI",
+      "initial_balances": []
+    },
+    "label": "bond sei",
+    "filePath": null,
+    "deploy": false
+  },
+  "rewardsDispatcher": {
+    "admin": null,
+    "initMsg": {
+      "lido_fee_address": null,
+      "lido_fee_rate": "0.05"
+    },
+    "label": "reward dispatcher",
+    "filePath": null,
+    "deploy": false
+  },
+  "validatorsRegistry": {
+    "admin": null,
+    "initMsg": {
+      "registry": [
+        {
+          "active": true,
+          "total_delegated": "0"
+        }
+      ]
+    },
+    "label": "validator registry",
+    "filePath": null,
+    "deploy": false
+  },
+  "stSeiToken": {
+    "admin": null,
+    "initMsg": {
+      "decimals": 6,
+      "name": "stsei",
+      "symbol": "STSEI",
+      "initial_balances": []
+    },
+    "label": "staking sei",
+    "filePath": null,
+    "deploy": false
+  },
+  "aToken": {
+    "admin": null,
+    "initMsg": {},
+    "label": "aToken contract",
+    "filePath": null,
+    "deploy": false
+  },
+  "market": {
+    "admin": null,
+    "initMsg": {
+      "owner_addr": null,
+      "anc_emission_rate": "6793787.950524103374549206",
+      "max_borrow_factor": "0.95",
+      "reserve_factor": "0.0"
+    },
+    "initCoins": [
+      {
+        "amount": "1000000"
+      }
+    ],
+    "label": "money market contract",
+    "filePath": null,
+    "deploy": false
+  },
+  "interestModel": {
+    "admin": null,
+    "initMsg": {
+      "owner": null,
+      "base_rate": "0.000000004076272770",
+      "interest_multiplier": "0.000000085601728176"
+    },
+    "label": "interest model contract",
+    "filePath": null,
+    "deploy": false
+  },
+  "distributionModel": {
+    "admin": null,
+    "initMsg": {
+      "owner": null,
+      "decrement_multiplier": "0.997102083349256160",
+      "emission_cap": "20381363.851572310123647620",
+      "emission_floor": "6793787.950524103374549206",
+      "increment_multiplier": "1.007266723782294841"
+    },
+    "label": "distribution model contract",
+    "filePath": null,
+    "deploy": false
+  },
+  "oracle": {
+    "admin": null,
+    "initMsg": {
+      "owner": null
+    },
+    "label": "oracle contract",
+    "filePath": null,
+    "deploy": false
+  },
+  "overseer": {
+    "admin": null,
+    "initMsg": {
+      "owner_addr": null,
+      "collector_contract": "sei1xxrlcs6kekmh63ks26yuf47qxdrkkqw0srvh7w",
+      "anc_purchase_factor": "0.1",
+      "buffer_distribution_factor": "0.1",
+      "epoch_period": 1681,
+      "price_timeframe": 86400,
+      "target_deposit_rate": "0.000000040762727704",
+      "threshold_deposit_rate": "0.000000030572045778",
+      "dyn_rate_epoch": 8600,
+      "dyn_rate_maxchange": "0.005",
+      "dyn_rate_yr_increase_expectation": "0.001",
+      "dyn_rate_min": "0.000001",
+      "dyn_rate_max": "0.0000012"
+    },
+    "updateMsg": {
+      "name": "Bond Sei",
+      "symbol": "bSEI",
+      "max_ltv": "0.65"
+    },
+    "label": "overseer contract",
+    "filePath": null,
+    "deploy": false
+  },
+  "liquidationQueue": {
+    "admin": null,
+    "initMsg": {
+      "owner": null,
+      "safe_ratio": "0.8",
+      "bid_fee": "0.01",
+      "liquidator_fee": "0.01",
+      "liquidation_threshold": "500",
+      "price_timeframe": 86400,
+      "waiting_period": 600
+    },
+    "updateMsg": {
+      "bid_threshold": "500000000",
+      "max_slot": 30,
+      "premium_rate_per_slot": "0.01"
+    },
+    "label": "liquidation queue contract",
+    "filePath": null,
+    "deploy": false
+  },
+  "custodyBSei": {
+    "admin": null,
+    "initMsg": {
+      "owner": null,
+      "basset_info": {
+        "decimals": 6,
+        "name": "Bonded Sei",
+        "symbol": "BSEI"
+      }
+    },
+    "label": "custody bond sei contract",
+    "filePath": null,
+    "deploy": false
+  }
+}
