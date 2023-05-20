@@ -1,4 +1,4 @@
-import { readArtifact, storeCodeByWalletData, writeArtifact, instantiateContractByWalletData, instantiateContract2ByWalletData, queryWasmContractByWalletData, executeContractByWalletData, logChangeBalancesByWalletData } from "./common";
+import { readArtifact, storeCodeByWalletData, writeArtifact, instantiateContractByWalletData, instantiateContract2ByWalletData, queryWasmContractByWalletData, executeContractByWalletData, logChangeBalancesByWalletData, queryContractConfig } from "./common";
 import { loadingWalletData, loadingMarketData, loadingStakingData, chainConfigs, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH } from "./env_data";
 import type { DeployContract, WalletData } from "./types";
 
@@ -35,38 +35,26 @@ async function main(): Promise<void> {
 
   const { aToken, market, interestModel, distributionModel, oracle, overseer, liquidationQueue, custodyBSei } = await loadingMarketData(network);
 
-  console.log();
-  console.log(`--- --- deployed market contracts info --- ---`);
-  const tableData = [
-    { name: `aToken`, deploy: chainConfigs?.aToken?.deploy, ...aToken },
-    { name: `market`, deploy: chainConfigs?.market?.deploy, ...market },
-    { name: `interestModel`, deploy: chainConfigs?.interestModel?.deploy, ...interestModel },
-    { name: `distributionModel`, deploy: chainConfigs?.distributionModel?.deploy, ...distributionModel },
-    { name: `oracle`, deploy: chainConfigs?.oracle?.deploy, ...oracle },
-    { name: `overseer`, deploy: chainConfigs?.overseer?.deploy, ...overseer },
-    { name: `liquidationQueue`, deploy: chainConfigs?.liquidationQueue?.deploy, ...liquidationQueue },
-    { name: `custodyBSei`, deploy: chainConfigs?.custodyBSei?.deploy, ...custodyBSei }
-  ];
-  console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
+  await printDeployedContracts({ aToken, market, interestModel, distributionModel, oracle, overseer, liquidationQueue, custodyBSei });
 
   // //////////////////////////////////////configure contracts///////////////////////////////////////////
 
   console.log();
   console.log(`--- --- market contracts configure enter --- ---`);
 
-  const { marketInitFlag, marketConfigRes } = await queryMarketConfig(walletData, market);
-  const interestModelConfigRes = await queryInterestModelConfig(walletData, interestModel);
-  const distributionModelConfigRes = await queryDistributionModelConfig(walletData, distributionModel);
-  const oracleConfigRes = await queryOracleConfig(walletData, oracle);
-  const overseerConfigRes = await queryOverseerConfig(walletData, overseer);
-  const liquidationQueueConfigRes = await queryLiquidationQueueConfig(walletData, liquidationQueue);
-  const custodyBSeiConfigRes = await queryCustodyBSeiConfig(walletData, custodyBSei);
-  const overseerWhitelistRes = await queryOverseerWhitelist(walletData, overseer);
+  const marketConfigRes = await queryContractConfig(walletData, market, false);
+  const interestModelConfigRes = await queryContractConfig(walletData, interestModel, false);
+  const distributionModelConfigRes = await queryContractConfig(walletData, distributionModel, false);
+  const oracleConfigRes = await queryContractConfig(walletData, oracle, false);
+  const overseerConfigRes = await queryContractConfig(walletData, overseer, false);
+  const liquidationQueueConfigRes = await queryContractConfig(walletData, liquidationQueue, false);
+  const custodyBSeiConfigRes = await queryContractConfig(walletData, custodyBSei, false);
+  const overseerWhitelistRes = await queryOverseerWhitelist(walletData, overseer, false);
 
-  await doMarketConfig(walletData, marketInitFlag, marketConfigRes, market, interestModel, distributionModel, overseer, bSeiToken, rewardsDispatcher);
-  await doOverseerConfig(walletData, overseerConfigRes, overseer, liquidationQueue);
-  await doCustodyBSeiConfig(walletData, custodyBSeiConfigRes, custodyBSei, liquidationQueue);
-  await doLiquidationQueueConfig(walletData, liquidationQueueConfigRes, liquidationQueue, oracle, overseer);
+  await doMarketConfig(walletData, marketConfigRes.initFlag, marketConfigRes?.config, market, interestModel, distributionModel, overseer, bSeiToken, rewardsDispatcher);
+  await doOverseerConfig(walletData, overseerConfigRes?.config, overseer, liquidationQueue);
+  await doCustodyBSeiConfig(walletData, custodyBSeiConfigRes?.config, custodyBSei, liquidationQueue);
+  await doLiquidationQueueConfig(walletData, liquidationQueueConfigRes?.config, liquidationQueue, oracle, overseer);
   await doOverseerWhitelist(walletData, overseerWhitelistRes, overseer, custodyBSei, bSeiToken);
   await doLiquidationQueueWhitelistCollateral(walletData, liquidationQueue, bSeiToken);
 
@@ -350,7 +338,7 @@ async function doMarketConfig(walletData: WalletData, marketInitFlag: boolean, m
       }
     });
     console.log("Do market's register_contracts ok. \n", marketRegisterContractsRes?.transactionHash);
-    await queryMarketConfig(walletData, market);
+    await queryContractConfig(walletData, market, true);
   }
 }
 
@@ -370,7 +358,7 @@ async function doOverseerConfig(walletData: WalletData, overseerConfigRes: any, 
       }
     });
     console.log("Do overseer's config ok. \n", overseerUpdateConfigRes?.transactionHash);
-    await queryOverseerConfig(walletData, overseer);
+    await queryContractConfig(walletData, overseer);
   }
 }
 
@@ -391,7 +379,7 @@ async function doCustodyBSeiConfig(walletData: WalletData, custodyBSeiConfigRes:
       }
     });
     console.log("Do custodyBSei's config ok. \n", custodyBSeiUpdateConfigRes?.transactionHash);
-    await queryCustodyBSeiConfig(walletData, custodyBSei);
+    await queryContractConfig(walletData, custodyBSei);
   }
 }
 
@@ -418,7 +406,7 @@ async function doLiquidationQueueConfig(walletData: WalletData, liquidationQueue
       }
     });
     console.log("Do liquidationQueue's config ok. \n", liquidationQueueUpdateConfigRes?.transactionHash);
-    await queryLiquidationQueueConfig(walletData, liquidationQueue);
+    await queryContractConfig(walletData, liquidationQueue);
   }
 }
 
@@ -480,126 +468,142 @@ async function doLiquidationQueueWhitelistCollateral(walletData: WalletData, liq
     console.log("Do liquidationQueue's whitelist_collateral ok. \n", liquidationQueueWhitelistCollateralRes?.transactionHash);
   }
 }
-
-/**
- * {"contract_addr":"","owner_addr":"","atoken_contract":"","interest_model":"","distribution_model":"","overseer_contract":"","collector_contract":"","distributor_contract":"","stable_denom":"","max_borrow_factor":""}
- */
-async function queryMarketConfig(walletData: WalletData, market: DeployContract): Promise<any> {
-  if (!market || !market.address) {
-    return;
-  }
-  let marketConfigRes = null;
-  let marketInitFlag = true;
-  try {
-    console.log();
-    console.log("Query market.address config enter");
-    marketConfigRes = await queryWasmContractByWalletData(walletData, market.address, { config: {} });
-    console.log(`market.config: \n${JSON.stringify(marketConfigRes)}`);
-  } catch (error: any) {
-    if (error.toString().includes("addr_humanize")) {
-      marketInitFlag = false;
-      console.error(`market.config: need update config`);
-    }
-  }
-  return { marketInitFlag, marketConfigRes };
-}
-
-/**
- * {"owner":"","base_rate":"","interest_multiplier":""}
- */
-async function queryInterestModelConfig(walletData: WalletData, interestModel: DeployContract): Promise<any> {
-  if (!interestModel || !interestModel.address) {
-    return;
-  }
-  console.log();
-  console.log("Query interestModel.address config enter");
-  const interestModelConfigRes = await queryWasmContractByWalletData(walletData, interestModel.address, { config: {} });
-  console.log(`interestModel.config: \n${JSON.stringify(interestModelConfigRes)}`);
-  return interestModelConfigRes;
-}
-
-/**
- * {"owner":"","emission_cap":"","emission_floor":"","increment_multiplier":"","decrement_multiplier":""}
- */
-async function queryDistributionModelConfig(walletData: WalletData, distributionModel: DeployContract): Promise<any> {
-  if (!distributionModel || !distributionModel.address) {
-    return;
-  }
-  console.log();
-  console.log("Query distributionModel.address config enter");
-  const distributionModelConfigRes = await queryWasmContractByWalletData(walletData, distributionModel.address, { config: {} });
-  console.log(`distributionModel.config: \n${JSON.stringify(distributionModelConfigRes)}`);
-  return distributionModelConfigRes;
-}
-
-/**
- * {"owner":"","base_asset":""}
- */
-async function queryOracleConfig(walletData: WalletData, oracle: DeployContract): Promise<any> {
-  if (!oracle || !oracle.address) {
-    return;
-  }
-  console.log();
-  console.log("Query oracle.address config enter");
-  const oracleConfigRes = await queryWasmContractByWalletData(walletData, oracle.address, { config: {} });
-  console.log(`oracle.config: \n${JSON.stringify(oracleConfigRes)}`);
-  return oracleConfigRes;
-}
-
-/**
- * {"owner":"","oracle_contract":"","stable_denom":"","safe_ratio":"","bid_fee":"","liquidator_fee":"","liquidation_threshold":"","price_timeframe": “”,"waiting_period":“”,"overseer":""}
- */
-async function queryLiquidationQueueConfig(walletData: WalletData, liquidationQueue: DeployContract): Promise<any> {
-  if (!liquidationQueue || !liquidationQueue.address) {
-    return;
-  }
-  console.log();
-  console.log("Query liquidationQueue.address config enter");
-  const liquidationQueueConfigRes = await queryWasmContractByWalletData(walletData, liquidationQueue.address, { config: {} });
-  console.log(`liquidationQueue.config: \n${JSON.stringify(liquidationQueueConfigRes)}`);
-  return liquidationQueueConfigRes;
-}
-
-/**
- * {"owner_addr":"","oracle_contract":"","market_contract":"","liquidation_contract":"","collector_contract":"","threshold_deposit_rate":"","target_deposit_rate":"","buffer_distribution_factor":"","anc_purchase_factor":"","stable_denom":"","epoch_period":0,"price_timeframe":0,"dyn_rate_epoch":0,"dyn_rate_maxchange":"","dyn_rate_yr_increase_expectation":"","dyn_rate_min":"","dyn_rate_max":""}
- */
-async function queryOverseerConfig(walletData: WalletData, overseer: DeployContract): Promise<any> {
-  if (!overseer || !overseer.address) {
-    return;
-  }
-  console.log();
-  console.log("Query overseer.address config enter");
-  const overseerConfigRes = await queryWasmContractByWalletData(walletData, overseer.address, { config: {} });
-  console.log(`overseer.config: \n${JSON.stringify(overseerConfigRes)}`);
-  return overseerConfigRes;
-}
-
-/**
- * {"owner":"","collateral_token":"","overseer_contract":"","market_contract":"","reward_contract":"","liquidation_contract":"","stable_denom":"","basset_info":{"name":"","symbol":"","decimals":6}}
- */
-async function queryCustodyBSeiConfig(walletData: WalletData, custodyBSei: DeployContract): Promise<any> {
-  if (!custodyBSei || !custodyBSei.address) {
-    return;
-  }
-  console.log();
-  console.log("Query custodyBSei.address config enter");
-  const custodyBSeiConfigRes = await queryWasmContractByWalletData(walletData, custodyBSei.address, { config: {} });
-  console.log(`custodyBSei.config: \n${JSON.stringify(custodyBSeiConfigRes)}`);
-  return custodyBSeiConfigRes;
-}
+//
+// /**
+//  * {"contract_addr":"","owner_addr":"","atoken_contract":"","interest_model":"","distribution_model":"","overseer_contract":"","collector_contract":"","distributor_contract":"","stable_denom":"","max_borrow_factor":""}
+//  */
+// async function queryMarketConfig(walletData: WalletData, market: DeployContract, print: boolean = true): Promise<any> {
+//   if (!market || !market.address) {
+//     return;
+//   }
+//   let marketConfigRes = null;
+//   let marketInitFlag = true;
+//   try {
+//     print && console.log();
+//     print && console.log("Query market.address config enter");
+//     marketConfigRes = await queryWasmContractByWalletData(walletData, market.address, { config: {} });
+//     print && console.log(`market.config: \n${JSON.stringify(marketConfigRes)}`);
+//   } catch (error: any) {
+//     if (error.toString().includes("addr_humanize")) {
+//       marketInitFlag = false;
+//       console.error(`market.config: need update config`);
+//     }
+//   }
+//   return { marketInitFlag, marketConfigRes };
+// }
+//
+// /**
+//  * {"owner":"","base_rate":"","interest_multiplier":""}
+//  */
+// async function queryInterestModelConfig(walletData: WalletData, interestModel: DeployContract): Promise<any> {
+//   if (!interestModel || !interestModel.address) {
+//     return;
+//   }
+//   console.log();
+//   console.log("Query interestModel.address config enter");
+//   const interestModelConfigRes = await queryWasmContractByWalletData(walletData, interestModel.address, { config: {} });
+//   console.log(`interestModel.config: \n${JSON.stringify(interestModelConfigRes)}`);
+//   return interestModelConfigRes;
+// }
+//
+// /**
+//  * {"owner":"","emission_cap":"","emission_floor":"","increment_multiplier":"","decrement_multiplier":""}
+//  */
+// async function queryDistributionModelConfig(walletData: WalletData, distributionModel: DeployContract): Promise<any> {
+//   if (!distributionModel || !distributionModel.address) {
+//     return;
+//   }
+//   console.log();
+//   console.log("Query distributionModel.address config enter");
+//   const distributionModelConfigRes = await queryWasmContractByWalletData(walletData, distributionModel.address, { config: {} });
+//   console.log(`distributionModel.config: \n${JSON.stringify(distributionModelConfigRes)}`);
+//   return distributionModelConfigRes;
+// }
+//
+// /**
+//  * {"owner":"","base_asset":""}
+//  */
+// async function queryOracleConfig(walletData: WalletData, oracle: DeployContract): Promise<any> {
+//   if (!oracle || !oracle.address) {
+//     return;
+//   }
+//   console.log();
+//   console.log("Query oracle.address config enter");
+//   const oracleConfigRes = await queryWasmContractByWalletData(walletData, oracle.address, { config: {} });
+//   console.log(`oracle.config: \n${JSON.stringify(oracleConfigRes)}`);
+//   return oracleConfigRes;
+// }
+//
+// /**
+//  * {"owner":"","oracle_contract":"","stable_denom":"","safe_ratio":"","bid_fee":"","liquidator_fee":"","liquidation_threshold":"","price_timeframe": “”,"waiting_period":“”,"overseer":""}
+//  */
+// async function queryLiquidationQueueConfig(walletData: WalletData, liquidationQueue: DeployContract): Promise<any> {
+//   if (!liquidationQueue || !liquidationQueue.address) {
+//     return;
+//   }
+//   console.log();
+//   console.log("Query liquidationQueue.address config enter");
+//   const liquidationQueueConfigRes = await queryWasmContractByWalletData(walletData, liquidationQueue.address, { config: {} });
+//   console.log(`liquidationQueue.config: \n${JSON.stringify(liquidationQueueConfigRes)}`);
+//   return liquidationQueueConfigRes;
+// }
+//
+// /**
+//  * {"owner_addr":"","oracle_contract":"","market_contract":"","liquidation_contract":"","collector_contract":"","threshold_deposit_rate":"","target_deposit_rate":"","buffer_distribution_factor":"","anc_purchase_factor":"","stable_denom":"","epoch_period":0,"price_timeframe":0,"dyn_rate_epoch":0,"dyn_rate_maxchange":"","dyn_rate_yr_increase_expectation":"","dyn_rate_min":"","dyn_rate_max":""}
+//  */
+// async function queryOverseerConfig(walletData: WalletData, overseer: DeployContract): Promise<any> {
+//   if (!overseer || !overseer.address) {
+//     return;
+//   }
+//   console.log();
+//   console.log("Query overseer.address config enter");
+//   const overseerConfigRes = await queryWasmContractByWalletData(walletData, overseer.address, { config: {} });
+//   console.log(`overseer.config: \n${JSON.stringify(overseerConfigRes)}`);
+//   return overseerConfigRes;
+// }
+//
+// /**
+//  * {"owner":"","collateral_token":"","overseer_contract":"","market_contract":"","reward_contract":"","liquidation_contract":"","stable_denom":"","basset_info":{"name":"","symbol":"","decimals":6}}
+//  */
+// async function queryCustodyBSeiConfig(walletData: WalletData, custodyBSei: DeployContract): Promise<any> {
+//   if (!custodyBSei || !custodyBSei.address) {
+//     return;
+//   }
+//   console.log();
+//   console.log("Query custodyBSei.address config enter");
+//   const custodyBSeiConfigRes = await queryWasmContractByWalletData(walletData, custodyBSei.address, { config: {} });
+//   console.log(`custodyBSei.config: \n${JSON.stringify(custodyBSeiConfigRes)}`);
+//   return custodyBSeiConfigRes;
+// }
 
 /**
  * {"elems":[{"name":"","symbol":"","max_ltv":"","custody_contract":"","collateral_token":""}]}
  */
-async function queryOverseerWhitelist(walletData: WalletData, overseer: DeployContract): Promise<any> {
+async function queryOverseerWhitelist(walletData: WalletData, overseer: DeployContract, print: boolean = true): Promise<any> {
   if (!overseer || !overseer.address) {
     return;
   }
-  console.log();
-  console.log("Query overseer.address whitelist enter");
+  print && console.log();
+  print && console.log("Query overseer.address whitelist enter");
   const overseerWhitelistRes = await queryWasmContractByWalletData(walletData, overseer.address, { whitelist: {} });
-  console.log(`overseer.whitelist: \n${JSON.stringify(overseerWhitelistRes)}`);
+  print && console.log(`overseer.whitelist: \n${JSON.stringify(overseerWhitelistRes)}`);
   return overseerWhitelistRes;
+}
+
+async function printDeployedContracts({ aToken, market, interestModel, distributionModel, oracle, overseer, liquidationQueue, custodyBSei }): Promise<any> {
+  console.log();
+  console.log(`--- --- deployed market contracts info --- ---`);
+  const tableData = [
+    { name: `aToken`, deploy: chainConfigs?.aToken?.deploy, ...aToken },
+    { name: `market`, deploy: chainConfigs?.market?.deploy, ...market },
+    { name: `interestModel`, deploy: chainConfigs?.interestModel?.deploy, ...interestModel },
+    { name: `distributionModel`, deploy: chainConfigs?.distributionModel?.deploy, ...distributionModel },
+    { name: `oracle`, deploy: chainConfigs?.oracle?.deploy, ...oracle },
+    { name: `overseer`, deploy: chainConfigs?.overseer?.deploy, ...overseer },
+    { name: `liquidationQueue`, deploy: chainConfigs?.liquidationQueue?.deploy, ...liquidationQueue },
+    { name: `custodyBSei`, deploy: chainConfigs?.custodyBSei?.deploy, ...custodyBSei }
+  ];
+  console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
 }
 
 main().catch(console.log);

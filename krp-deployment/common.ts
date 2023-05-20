@@ -6,7 +6,7 @@ import { InstantiateResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
 import * as fs from "fs";
 import * as path from "path";
-import { Balance, WalletData, ClientData } from "./types";
+import { Balance, WalletData, ClientData, DeployContract } from "./types";
 
 const Decimal = require("decimal.js");
 
@@ -57,8 +57,10 @@ export async function storeCode(clientData: ClientData, contract_file: string, g
     const uint8Array = new Uint8Array(data);
     const storeCodeTxResult = await clientData?.signingCosmWasmClient?.upload(clientData?.senderAddress, uint8Array, fee, memo);
     codeId = storeCodeTxResult.codeId;
+    console.log();
     console.log(`${contract_file} stored codeId = ${codeId}`, storeCodeTxResult?.transactionHash);
   } catch (error: any) {
+    console.log();
     console.error("store code error：", contract_file, error);
   }
   return codeId;
@@ -68,10 +70,12 @@ export async function instantiateContractByWalletData(walletData: WalletData, ad
   return instantiateContract(getClientDataByWalletData(walletData), admin, codeId, message, label, coins);
 }
 export async function instantiateContract(clientData: ClientData, admin: string, codeId: number, message: object, label: string = "", coins: Coin[] = []): Promise<string> {
-  console.log(`Instantiating contract with code_id = ${codeId}`);
+  console.log();
+  console.log(`Instantiating contract enter. code_id = ${codeId}`);
   const fee: StdFee = calculateFee(300_000, clientData?.gasPrice || "0.001usei");
 
   const instantiateTxResult = await clientData?.signingCosmWasmClient?.instantiate(clientData?.senderAddress, codeId, message, label, fee, { memo: "", funds: coins, admin });
+  console.log(`Instantiating stored codeId = ${codeId}`, instantiateTxResult?.transactionHash);
   return instantiateTxResult.contractAddress;
 }
 
@@ -79,11 +83,13 @@ export async function instantiateContract2ByWalletData(walletData: WalletData, a
   return instantiateContract2(getClientDataByWalletData(walletData), admin, codeId, message, label, coins);
 }
 export async function instantiateContract2(clientData: ClientData, admin: string, codeId: number, message: object, label: string = "", coins: Coin[] = []): Promise<[string, string]> {
-  console.log(`Instantiating contract with code_id = ${codeId}...`);
+  console.log();
+  console.log(`Instantiating contract enter. code_id = ${codeId}`);
   const fee: StdFee = calculateFee(5_000_000, clientData?.gasPrice || "0.001usei");
 
   const instantiateTxResult = await clientData?.signingCosmWasmClient?.instantiate(clientData?.senderAddress, codeId, message, label, fee, { memo: "", funds: coins, admin });
   //   console.log(`instantiate ret:${JSON.stringify(instantiateTxResult)}`);
+  console.log(`Instantiating stored codeId = ${codeId}`, instantiateTxResult?.transactionHash);
   return getContractAddresses(instantiateTxResult);
 }
 
@@ -199,16 +205,38 @@ export async function logChangeBalancesByWalletData(walletData: WalletData) {
   const beforeAddressesBalances = walletData.addressesBalances;
   const afterAddressesBalances = await loadAddressesBalances(walletData.LCD_ENDPOINT, walletData.addressList, walletData.denomList);
   console.log();
-  console.log(`addresses balance changes (before - after): `);
+  console.log(`addresses balance changes (after - before): `);
   for (let address of walletData.addressList) {
     for (let denom of walletData.denomList) {
       let balanceBefore = beforeAddressesBalances.find(v => address === v?.address && denom === v?.balance?.denom)?.balance?.amount;
       let balanceAfter = afterAddressesBalances.find(v => address === v?.address && denom === v?.balance?.denom)?.balance?.amount;
-      let amountValue = new Decimal(balanceBefore).sub(new Decimal(balanceAfter));
+      let amountValue = new Decimal(balanceAfter).sub(new Decimal(balanceBefore));
       // if (amountValue.comparedTo(new Decimal("0")) !== 0) {
       let amount = amountValue.div(new Decimal("10").pow(walletData.nativeCurrency.coinDecimals)).toString();
       console.log(`${address}: ${amount} [${amountValue}] ${denom}`);
       // }
     }
   }
+}
+
+export async function queryContractConfig(walletData: WalletData, deployContract: DeployContract, print: boolean = true): Promise<{ initFlag; config }> {
+  if (!deployContract?.address) {
+    return;
+  }
+  let config = null;
+  let initFlag = true;
+  try {
+    print && console.log();
+    print && console.log(`Query deployed.address config enter. address: ${deployContract.address}`);
+    config = await queryWasmContractByWalletData(walletData, deployContract.address, { config: {} });
+    print && console.log(`Query deployed.address config ok. address: ${deployContract.address} \n${JSON.stringify(config)}`);
+  } catch (error: any) {
+    if (error?.toString().includes("addr_humanize")) {
+      initFlag = false;
+      console.error(`deployed.config: need update config`);
+    } else {
+      throw new Error(error);
+    }
+  }
+  return { initFlag, config };
 }

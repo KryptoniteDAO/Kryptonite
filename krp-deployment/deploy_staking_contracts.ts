@@ -23,17 +23,7 @@ async function main(): Promise<void> {
 
   const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(network);
 
-  console.log();
-  console.log(`--- --- deployed staking contracts info --- ---`);
-  const tableData = [
-    { name: `hub`, deploy: chainConfigs?.hub?.deploy, ...hub },
-    { name: `reward`, deploy: chainConfigs?.reward?.deploy, ...reward },
-    { name: `bSeiToken`, deploy: chainConfigs?.bSeiToken?.deploy, ...bSeiToken },
-    { name: `rewardsDispatcher`, deploy: chainConfigs?.rewardsDispatcher?.deploy, ...rewardsDispatcher },
-    { name: `validatorsRegistry`, deploy: chainConfigs?.validatorsRegistry?.deploy, ...validatorsRegistry },
-    { name: `stSeiToken`, deploy: chainConfigs?.stSeiToken?.deploy, ...stSeiToken }
-  ];
-  console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
+  await printDeployedContracts({ hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken });
 
   // //////////////////////////////////////configure contracts///////////////////////////////////////////
 
@@ -336,6 +326,20 @@ async function queryHubParameters(walletData: WalletData, hub: DeployContract): 
   const hubParametersRes = await queryWasmContractByWalletData(walletData, hub.address, { parameters: {} });
   console.log(`hub.parameters: \n${JSON.stringify(hubParametersRes)}`);
   return hubParametersRes;
+}
+
+async function printDeployedContracts({ hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken }): Promise<void> {
+  console.log();
+  console.log(`--- --- deployed staking contracts info --- ---`);
+  const tableData = [
+    { name: `hub`, deploy: chainConfigs?.hub?.deploy, ...hub },
+    { name: `reward`, deploy: chainConfigs?.reward?.deploy, ...reward },
+    { name: `bSeiToken`, deploy: chainConfigs?.bSeiToken?.deploy, ...bSeiToken },
+    { name: `rewardsDispatcher`, deploy: chainConfigs?.rewardsDispatcher?.deploy, ...rewardsDispatcher },
+    { name: `validatorsRegistry`, deploy: chainConfigs?.validatorsRegistry?.deploy, ...validatorsRegistry },
+    { name: `stSeiToken`, deploy: chainConfigs?.stSeiToken?.deploy, ...stSeiToken }
+  ];
+  console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
 }
 
 main().catch(console.log);

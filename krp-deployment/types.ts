@@ -98,9 +98,9 @@ export interface RewardContract extends BaseContract {
 
 export interface BSeiTokenContract extends BaseContract {
   initMsg: {
-    decimals: number;
     name: string;
     symbol: string;
+    decimals: number;
     initial_balances: InitialBalance[];
   };
 }
@@ -125,9 +125,9 @@ export interface ValidatorsRegistryContract extends BaseContract {
 
 export interface StSeiTokenContract extends BaseContract {
   initMsg: {
-    decimals: number;
     name: string;
     symbol: string;
+    decimals: number;
     initial_balances: InitialBalance[];
   };
 }
@@ -212,6 +212,34 @@ export interface CustodyBSeiContract extends BaseContract {
   };
 }
 
+export interface ConvertConverterContract extends BaseContract {
+  initMsg: {
+    owner: string;
+  };
+}
+export interface ConvertBtokenContract extends BaseContract {
+  initMsg: {
+    name: string;
+    symbol: string;
+    decimals: number;
+    initial_balances: InitialBalance[];
+    // mint: string;
+  };
+}
+export interface ConvertCustodyContract extends BaseContract {
+  initMsg: {
+    owner: string;
+    basset_info: TokenInfo;
+  };
+}
+
+export interface ConvertPairs {
+  native_denom: string;
+  converter: ConvertConverterContract;
+  btoken: ConvertBtokenContract;
+  custody: ConvertCustodyContract;
+}
+
 export interface Config {
   validator: string;
   stable_coin_denom: string;
@@ -231,4 +259,6 @@ export interface Config {
   overseer: OverseerContract;
   liquidationQueue: LiquidationQueueContract;
   custodyBSei: CustodyBSeiContract;
+
+  convertPairs: ConvertPairs[];
 }

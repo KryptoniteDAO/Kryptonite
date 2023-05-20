@@ -25,9 +25,9 @@
   "bSeiToken": {
     "admin": null,
     "initMsg": {
-      "decimals": 6,
       "name": "bsei",
       "symbol": "BSEI",
+      "decimals": 6,
       "initial_balances": []
     },
     "label": "bond sei",
@@ -61,9 +61,9 @@
   "stSeiToken": {
     "admin": null,
     "initMsg": {
-      "decimals": 6,
       "name": "stsei",
       "symbol": "STSEI",
+      "decimals": 6,
       "initial_balances": []
     },
     "label": "staking sei",
@@ -178,13 +178,91 @@
     "initMsg": {
       "owner": null,
       "basset_info": {
-        "decimals": 6,
         "name": "Bonded Sei",
-        "symbol": "BSEI"
+        "symbol": "BSEI",
+        "decimals": 6
       }
     },
     "label": "custody bond sei contract",
     "filePath": null,
     "deploy": false
-  }
+  },
+  "convertPairs": [
+    {
+      "native_denom": "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/stsei",
+      "converter": {
+        "admin": null,
+        "initMsg": {
+          "owner": null
+        },
+        "label": "basset and native token convert contract",
+        "filePath": null,
+        "deploy": false
+      },
+      "btoken": {
+        "admin": null,
+        "initMsg": {
+          "name": "bstsei",
+          "symbol": "BSTSEI",
+          "decimals": 6,
+          "initial_balances": []
+        },
+        "label": "bond stride stSei to cw20 token",
+        "filePath": null,
+        "deploy": false
+      },
+      "custody": {
+        "admin": null,
+        "initMsg": {
+          "owner": null,
+          "basset_info": {
+            "name": "Bonded stSei",
+            "symbol": "BSTSEI",
+            "decimals": 6
+          }
+        },
+        "label": "custody bond stsei contract",
+        "filePath": null,
+        "deploy": false
+      }
+    },
+    {
+      "native_denom": "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/slsdi",
+      "converter": {
+        "admin": null,
+        "initMsg": {
+          "owner": null
+        },
+        "label": "bslsdi and slsdi convert contract",
+        "filePath": null,
+        "deploy": false
+      },
+      "btoken": {
+        "admin": null,
+        "initMsg": {
+          "name": "bslsdi",
+          "symbol": "BSLSDI",
+          "decimals": 6,
+          "initial_balances": []
+        },
+        "label": "bond slsdi to cw20 token",
+        "filePath": null,
+        "deploy": false
+      },
+      "custody": {
+        "admin": null,
+        "initMsg": {
+          "owner": null,
+          "basset_info": {
+            "name": "Bonded slsdi",
+            "symbol": "BSLSDI",
+            "decimals": 6
+          }
+        },
+        "label": "custody bond slsdi contract",
+        "filePath": null,
+        "deploy": false
+      }
+    }
+  ]
 }
