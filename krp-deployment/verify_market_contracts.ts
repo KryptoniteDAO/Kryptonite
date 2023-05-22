@@ -31,7 +31,7 @@ async function main(): Promise<void> {
 
   /// 2. market deposit_stable test
   /// 2.1. deposit stable to money market
-  // console.log();
+  console.log();
   console.warn("Do market.address deposit_stable enter");
   const marketDepositStableRes = await executeContractByWalletData(walletData, market.address, { deposit_stable: {} }, "", coins(10_000_000_000, walletData.stable_coin_denom));
   console.log("Do market.address deposit_stable ok. \n", marketDepositStableRes?.transactionHash);
@@ -45,33 +45,24 @@ async function main(): Promise<void> {
   let receiverStableCoinBalance = walletData.addressesBalances.find(v => receiverAddress === v?.address && walletData.stable_coin_denom === v?.balance?.denom)?.balance?.amount;
   const sendUseiAmount = "10";
   const sendStableCoinAmount = "1000";
-  await sendCoinToOtherAddress(walletData, receiverAddress, walletData.nativeCurrency.coinMinimalDenom, sendUseiAmount, senderUseiBalance, receiverUseiBalance);
-  await sendCoinToOtherAddress(walletData, receiverAddress, walletData.stable_coin_denom, sendStableCoinAmount, senderStableCoinBalance, receiverStableCoinBalance);
+  // await sendCoinToOtherAddress(walletData, receiverAddress, walletData.nativeCurrency.coinMinimalDenom, sendUseiAmount, senderUseiBalance, receiverUseiBalance);
+  // await sendCoinToOtherAddress(walletData, receiverAddress, walletData.stable_coin_denom, sendStableCoinAmount, senderStableCoinBalance, receiverStableCoinBalance);
 
   /// 3. CustodyBSei deposits collateral.
   /// Issued when a user sends bAsset tokens to the Custody contract.
   console.log();
-  console.log("Do custodyBSei.address deposit_collateral enter");
+  console.log("Do custodyBSei.address deposit collateral and lock collateral enter");
   const custodyBSeiDepositCollateralRes = await executeContractByWalletData(walletData, bSeiToken.address, {
     send: {
       contract: custodyBSei.address,
-      amount: "1000000",
+      amount: "2000000",
       msg: Buffer.from(JSON.stringify({ deposit_collateral: {} })).toString("base64")
     }
   });
-  console.log("Do custodyBSei.address deposit_collateral ok. \n", custodyBSeiDepositCollateralRes?.transactionHash);
+  console.log("Do custodyBSei.address deposit and lock collateral ok. \n", custodyBSeiDepositCollateralRes?.transactionHash);
 
-  // 4. Overseer lock collateral
-  console.log();
-  console.log("Do overseer.address lock_collateral enter");
-  const overseerLockCollateralRes = await executeContractByWalletData(walletData, overseer.address, {
-    lock_collateral: {
-      collaterals: [[bSeiToken.address, "1000000"]]
-    }
-  });
-  console.log("Do overseer.address lock_collateral ok. \n", overseerLockCollateralRes?.transactionHash);
 
-  /// 5. Overseer register feeder for asset in oracle contract
+  /// 4. Overseer register feeder for asset in oracle contract
   console.log();
   console.log("Do overseer.address register_feeder enter");
   let overseerRegisterFeederRes = await executeContractByWalletData(walletData, oracle.address, {
@@ -82,7 +73,8 @@ async function main(): Promise<void> {
   });
   console.log("Do overseer.address register_feeder ok. \n", overseerRegisterFeederRes?.transactionHash);
 
-  ///  5.1 feed Price
+
+  ///  4.1 feed Price
   /// Feeds new price data. Can only be issued by the owner.
   console.log();
   console.log("Do oracle.address feed_price enter");
@@ -92,6 +84,23 @@ async function main(): Promise<void> {
     }
   });
   console.log("Do oracle.address feed_price ok. \n", oracleFeedPriceRes?.transactionHash);
+
+ //step5: unlock collateral and withdraw bSeiToken 
+ console.log();
+ console.log("Do custodyBase.address unlock collateral and withdraw collateral enter");
+ const withdrawBSTSeiCollateralRes = await executeContractByWalletData(
+   walletData,
+   overseer.address,
+   {
+     unlock_collateral: {
+       collaterals: [
+         [bSeiToken.address, "1000000"], // (CW20 contract address, Amount to unlock)
+
+       ]
+     }
+   },
+   "unlock and withdraw collateral");
+ console.log("Do custodyBase.address unlock and withdraw collateral ok. \n", withdrawBSTSeiCollateralRes?.transactionHash);
 
   /// 6. borrow stable
   /// Borrows stable coins from Anchor.
@@ -124,7 +133,7 @@ async function main(): Promise<void> {
   console.log("Do oracle.address feed_price 2 enter");
   let oracleFeedPriceRes2 = await executeContractByWalletData(walletData, oracle.address, {
     feed_price: {
-      prices: [[bSeiToken.address, "50"]]
+      prices: [[bSeiToken.address, "5"]]
     }
   });
   console.log("Do oracle.address feed_price 2 ok. \n", oracleFeedPriceRes2?.transactionHash);
