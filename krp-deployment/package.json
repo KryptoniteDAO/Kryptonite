@@ -4,6 +4,7 @@
     "deploy:market": "node --dns-result-order=ipv4first --loader ts-node/esm ./deploy_market_contracts.ts --require ./suppress-experimental.cjs",
     "verify:staking": "node --dns-result-order=ipv4first --loader ts-node/esm ./verify_staking_contracts.ts --require ./suppress-experimental.cjs",
     "verify:market": "node --dns-result-order=ipv4first --loader ts-node/esm ./verify_market_contracts.ts --require ./suppress-experimental.cjs",
+    "migrate": "node --dns-result-order=ipv4first --loader ts-node/esm ./migrate.ts --require ./suppress-experimental.cjs",
     "format": "prettier --write \"./**/*.{html,ts,js,json,md}\""
   },
   "dependencies": {
@@ -17,7 +18,7 @@
     "@types/bip39": "^3.0.0",
     "decimal.js": "^10.4.3",
     "dotenv": "^16.0.3",
-    "ethers": "^6.3.0"
+    "ethers": "^6.4.0"
   },
   "devDependencies": {
     "@types/secp256k1": "^4.0.3",

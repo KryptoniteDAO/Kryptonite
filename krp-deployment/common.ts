@@ -58,7 +58,7 @@ export async function storeCode(clientData: ClientData, contract_file: string, g
     const storeCodeTxResult = await clientData?.signingCosmWasmClient?.upload(clientData?.senderAddress, uint8Array, fee, memo);
     codeId = storeCodeTxResult.codeId;
     console.log();
-    console.log(`${contract_file} stored codeId = ${codeId}`, storeCodeTxResult?.transactionHash);
+    console.log(`${contract_file} stored codeId = ${codeId} / ${storeCodeTxResult?.transactionHash}`);
   } catch (error: any) {
     console.log();
     console.error("store code error：", contract_file, error);
@@ -75,7 +75,7 @@ export async function instantiateContract(clientData: ClientData, admin: string,
   const fee: StdFee = calculateFee(300_000, clientData?.gasPrice || "0.001usei");
 
   const instantiateTxResult = await clientData?.signingCosmWasmClient?.instantiate(clientData?.senderAddress, codeId, message, label, fee, { memo: "", funds: coins, admin });
-  console.log(`Instantiating stored codeId = ${codeId}`, instantiateTxResult?.transactionHash);
+  console.log(`Instantiating stored codeId = ${codeId} / ${instantiateTxResult?.transactionHash}`);
   return instantiateTxResult.contractAddress;
 }
 
@@ -89,7 +89,7 @@ export async function instantiateContract2(clientData: ClientData, admin: string
 
   const instantiateTxResult = await clientData?.signingCosmWasmClient?.instantiate(clientData?.senderAddress, codeId, message, label, fee, { memo: "", funds: coins, admin });
   //   console.log(`instantiate ret:${JSON.stringify(instantiateTxResult)}`);
-  console.log(`Instantiating stored codeId = ${codeId}`, instantiateTxResult?.transactionHash);
+  console.log(`Instantiating stored codeId = ${codeId} / ${instantiateTxResult?.transactionHash}`);
   return getContractAddresses(instantiateTxResult);
 }
 
@@ -119,6 +119,8 @@ export async function migrateContractByWalletData(walletData: WalletData, contra
   return migrateContract(getClientDataByWalletData(walletData), contractAddress, newCodeId, message, memo);
 }
 export async function migrateContract(clientData: ClientData, contractAddress: string, newCodeId: number, migrateMsg: object, memo?: string) {
+  console.log();
+  console.log(`migrate contract enter. address = ${contractAddress} / new_code_id = ${newCodeId}`);
   const fee: StdFee = calculateFee(2_000_000, clientData?.gasPrice || "0.001usei");
   return await clientData?.signingCosmWasmClient?.migrate(clientData?.senderAddress, contractAddress, newCodeId, migrateMsg, fee, memo);
 }
