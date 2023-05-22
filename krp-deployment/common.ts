@@ -10,17 +10,17 @@ import { Balance, WalletData, ClientData, DeployContract } from "./types";
 
 const Decimal = require("decimal.js");
 
-export function readArtifact(name: string = "artifact", from: string) {
+export function readArtifact(name: string = "artifact", from: string, prefix: string = "deployed_") {
   try {
-    const data = fs.readFileSync(path.join(from, `${name}.json`), "utf8");
+    const data = fs.readFileSync(path.join(from, `${prefix}${name}.json`), "utf8");
     return JSON.parse(data);
   } catch (e) {
     return {};
   }
 }
 
-export function writeArtifact(data: object, name: string = "artifact", to: string) {
-  fs.writeFileSync(path.join(to, `${name}.json`), JSON.stringify(data, null, 2));
+export function writeArtifact(data: object, name: string = "artifact", to: string, prefix: string = "deployed_") {
+  fs.writeFileSync(path.join(to, `${prefix}${name}.json`), JSON.stringify(data, null, 2));
 }
 
 export async function sleep(timeout: number) {
@@ -153,6 +153,15 @@ export async function queryWasmContractByWalletData(walletData: WalletData, cont
 }
 export async function queryWasmContract(signingCosmWasmClient: SigningCosmWasmClient, contractAddress: string, message: object) {
   return await signingCosmWasmClient.queryContractSmart(contractAddress, message);
+}
+
+export async function queryAddressTokenBalance(signingCosmWasmClient: SigningCosmWasmClient, userAddress: string, contractAddress: string) {
+  const queryMsg = {
+    balance: {
+      address: userAddress
+    }
+  };
+  return await queryWasmContract(signingCosmWasmClient, contractAddress, queryMsg);
 }
 
 export async function queryStaking(LCD_ENDPOINT: string) {

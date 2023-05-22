@@ -5,6 +5,7 @@
     "deploy:convert": "node --dns-result-order=ipv4first --loader ts-node/esm ./deploy_convert_contracts.ts --require ./suppress-experimental.cjs",
     "verify:staking": "node --dns-result-order=ipv4first --loader ts-node/esm ./verify_staking_contracts.ts --require ./suppress-experimental.cjs",
     "verify:market": "node --dns-result-order=ipv4first --loader ts-node/esm ./verify_market_contracts.ts --require ./suppress-experimental.cjs",
+    "verify:convert": "node --dns-result-order=ipv4first --loader ts-node/esm ./verify_convert_contracts.ts --require ./suppress-experimental.cjs",
     "migrate": "node --dns-result-order=ipv4first --loader ts-node/esm ./migrate.ts --require ./suppress-experimental.cjs",
     "format": "prettier --write \"./**/*.{html,ts,js,json,md}\""
   },

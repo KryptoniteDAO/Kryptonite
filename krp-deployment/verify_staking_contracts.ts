@@ -3,8 +3,6 @@ import { queryStakingDelegations, queryAddressBalance, queryStaking, queryStakin
 import { loadingWalletData, loadingStakingData, STAKING_ARTIFACTS_PATH } from "./env_data";
 import { DeployContract, WalletData } from "./types";
 
-require("dotenv").config();
-
 async function main(): Promise<void> {
 console.log(`--- --- verify deployed staking contracts enter --- ---`);
 
