@@ -28,13 +28,15 @@ cp .env.example .env
 contracts modules:
 - staking
 - market
+- convert
 
-**Deployment contracts modules order: `staking` -> `market`**
+**Deployment contracts modules order: `staking` -> `market` -> `convert`**
 
 ```sh
 # npm run deploy:[contracts modules]
 npm run deploy:staking
 npm run deploy:market
+npm run deploy:convert
 ...
 
 ```

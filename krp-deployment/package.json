@@ -2,6 +2,7 @@
   "scripts": {
     "deploy:staking": "node --dns-result-order=ipv4first --loader ts-node/esm ./deploy_staking_contracts.ts --require ./suppress-experimental.cjs",
     "deploy:market": "node --dns-result-order=ipv4first --loader ts-node/esm ./deploy_market_contracts.ts --require ./suppress-experimental.cjs",
+    "deploy:convert": "node --dns-result-order=ipv4first --loader ts-node/esm ./deploy_convert_contracts.ts --require ./suppress-experimental.cjs",
     "verify:staking": "node --dns-result-order=ipv4first --loader ts-node/esm ./verify_staking_contracts.ts --require ./suppress-experimental.cjs",
     "verify:market": "node --dns-result-order=ipv4first --loader ts-node/esm ./verify_market_contracts.ts --require ./suppress-experimental.cjs",
     "migrate": "node --dns-result-order=ipv4first --loader ts-node/esm ./migrate.ts --require ./suppress-experimental.cjs",
