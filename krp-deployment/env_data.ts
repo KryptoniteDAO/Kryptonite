@@ -1,58 +1,153 @@
 import { DirectSecp256k1Wallet, DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
+import { GasPrice } from "@cosmjs/stargate";
+import { getSigningClient, getSigningCosmWasmClient } from "@sei-js/core";
+import type { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
+import type { SigningStargateClient } from "@cosmjs/stargate";
 import { toBeArray } from "ethers";
-import { loadAddressesBalances } from "./common";
-import type { DeployContractInfo } from "./types";
-
+import { loadAddressesBalances, readArtifact } from "./common";
+import type { Config, BaseCurrencyInfo, DeployContract, WalletData } from "./types";
 require("dotenv").config();
 
-export async function loadingBaseData() {
+const prefix = "sei";
+const chain_id_default = "localsei";
+const gas_price_default = "0.0025";
+const nativeCurrency: BaseCurrencyInfo = {
+  coinDenom: "SEI",
+  coinMinimalDenom: "usei",
+  coinDecimals: 6
+};
+export const STAKING_ARTIFACTS_PATH = "../krp-staking-contracts/artifacts";
+export const MARKET_ARTIFACTS_PATH = "../krp-market-contracts/artifacts";
+export const CONVERT_ARTIFACTS_PATH = "../krp-basset-convert/artifacts";
+
+export const chainConfigs: Config = readArtifact(`${process.env.CHAIN_ID || chain_id_default}`, "configs");
+// console.log(process.env.CHAIN_ID);
+// console.log(chainConfigs);
+// console.log(loadingEnvData());
+
+async function loadingEnvData() {
   const LCD_ENDPOINT = process.env.LCD_ENDPOINT;
   const RPC_ENDPOINT = process.env.RPC_ENDPOINT;
+  const gasPriceValue = process.env.GAS_PRICE || gas_price_default + nativeCurrency.coinMinimalDenom;
+  const chainId = process.env.CHAIN_ID || chain_id_default;
   const mnemonic = process.env.MNEMONIC;
   const privateKey = process.env.PRIVATE_KEY;
   const mnemonic2 = process.env.MNEMONIC2;
   const privateKey2 = process.env.PRIVATE_KEY2;
-  const validator = process.env.validator;
-  const stable_coin_denom = process.env.stable_coin_denom;
-
-  if (!LCD_ENDPOINT || !RPC_ENDPOINT || !validator || !stable_coin_denom) {
-    console.log(`--- --- loading data error, missing some attributes --- ---`);
-    process.exit(0);
-    return;
-  }
-  if (!mnemonic && !privateKey) {
-    console.log(`--- --- loading data error, missing address1 info --- ---`);
-    process.exit(0);
-    return;
-  }
-  if (!mnemonic2 && !privateKey2) {
-    console.log(`--- --- loading data error, missing address2 info --- ---`);
-    process.exit(0);
-    return;
-  }
-
-  const prefix = process.env.PREFIX || "sei";
-  const wallet = privateKey ? await DirectSecp256k1Wallet.fromKey(toBeArray(privateKey), prefix) : await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, { prefix });
-  const [account] = await wallet.getAccounts();
-  const wallet2 = privateKey2 ? await DirectSecp256k1Wallet.fromKey(toBeArray(privateKey2), prefix) : await DirectSecp256k1HdWallet.fromMnemonic(mnemonic2, { prefix });
-  const [account2] = await wallet2.getAccounts();
-
-  const addressesBalances = await loadAddressesBalances(LCD_ENDPOINT, [account.address, account2.address], ["usei", stable_coin_denom]);
 
   return {
     LCD_ENDPOINT,
     RPC_ENDPOINT,
     mnemonic,
     privateKey,
-    wallet,
-    account,
     mnemonic2,
     privateKey2,
+    chainId,
+    gasPriceValue
+  };
+}
+
+export async function loadingWalletData(): Promise<WalletData> {
+  const { LCD_ENDPOINT, RPC_ENDPOINT, mnemonic, privateKey, mnemonic2, privateKey2, chainId, gasPriceValue } = await loadingEnvData();
+
+  if (!LCD_ENDPOINT) {
+    console.error("Set the LCD_ENDPOINT env variable to the LCD URL of the node to use");
+    process.exit(0);
+    return;
+  }
+  if (!RPC_ENDPOINT) {
+    console.error("Set the LCD_ENDPOINT env variable to the RPC URL of the node to use");
+    process.exit(0);
+    return;
+  }
+  // if (!process.env.GAS_PRICE) {
+  //   console.error("Set the GAS_PRICE env variable to the gas price to use when creating client");
+  //   process.exit(0);
+  //   return;
+  // }
+
+  if (!mnemonic && !privateKey) {
+    console.error("Set the PRIVATE_KEY or MNEMONIC env variable to the address1 to use");
+    process.exit(0);
+    return;
+  }
+  if (!mnemonic2 && !privateKey2) {
+    console.error("Set the PRIVATE_KEY2 or MNEMONIC2 env variable to the address2 to use");
+    process.exit(0);
+    return;
+  }
+
+  const validator = chainConfigs.validator;
+  const stable_coin_denom = chainConfigs.stable_coin_denom;
+  if (!validator) {
+    console.error("Set the validator in configuration file variable to the validator address of the node");
+    process.exit(0);
+    return;
+  }
+  if (!stable_coin_denom) {
+    console.error("Set the stable_coin_denom in configuration file variable to the stable coin denom");
+    process.exit(0);
+    return;
+  }
+  const wallet = privateKey ? await DirectSecp256k1Wallet.fromKey(toBeArray(privateKey), prefix) : await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, { prefix });
+  const [account] = await wallet.getAccounts();
+
+  if (!account || !account?.address) {
+    console.error("No account1 found in wallet");
+    process.exit(0);
+    return;
+  }
+  const address = account.address;
+  const gasPrice: GasPrice = GasPrice.fromString(gasPriceValue);
+  const signingCosmWasmClient = await getSigningCosmWasmClient(RPC_ENDPOINT, wallet, { gasPrice: gasPrice } as unknown as undefined);
+  const netChainId = await signingCosmWasmClient.getChainId();
+
+  if (netChainId !== chainId) {
+    console.error(`Chain ID mismatch. Expected ${chainId}, got ${netChainId}`);
+    process.exit(0);
+    return;
+  }
+  const signingStargateClient = await getSigningClient(RPC_ENDPOINT, wallet);
+
+  const wallet2 = privateKey2 ? await DirectSecp256k1Wallet.fromKey(toBeArray(privateKey2), prefix) : await DirectSecp256k1HdWallet.fromMnemonic(mnemonic2, { prefix });
+  const [account2] = await wallet2.getAccounts();
+  if (!account2 || !account2?.address) {
+    console.error("No account2 found in wallet");
+    process.exit(0);
+    return;
+  }
+  const address2 = account2.address;
+  const signingCosmWasmClient2 = await getSigningCosmWasmClient(RPC_ENDPOINT, wallet2, { gasPrice: gasPrice } as unknown as undefined);
+  const signingStargateClient2 = await getSigningClient(RPC_ENDPOINT, wallet2);
+
+  const addressList = [address, address2];
+  const denomList = [nativeCurrency.coinMinimalDenom, stable_coin_denom];
+  const addressesBalances = await loadAddressesBalances(LCD_ENDPOINT, addressList, denomList);
+
+  return {
+    nativeCurrency,
+    LCD_ENDPOINT,
+    RPC_ENDPOINT,
+    chainId,
+    gasPrice,
+
+    wallet,
+    account,
+    address,
+    signingCosmWasmClient,
+    signingStargateClient,
+
     wallet2,
     account2,
+    address2,
+    signingCosmWasmClient2,
+    signingStargateClient2,
+
     validator,
     stable_coin_denom,
-    prefix,
+
+    addressList,
+    denomList,
     addressesBalances
   };
 }
@@ -65,42 +160,30 @@ export async function loadingBaseData() {
  * validatorsRegistry,
  * stSeiToken,
  */
-export async function loadingStakingData() {
-  let hub: DeployContractInfo = {
-    codeId: (process.env.hubCodeId && Number(process.env.hubCodeId)) || 0,
-    address: process.env.hubAddress,
-    filePath: process.env.hubFilePath || "../krp-staking-contracts/artifacts/basset_sei_hub.wasm",
-    deploy: false
+export async function loadingStakingData(network: any = {}) {
+  let hub: DeployContract = {
+    codeId: (network?.hub?.codeId && Number(network?.hub?.codeId)) || 0,
+    address: network?.hub?.address
   };
-  let reward: DeployContractInfo = {
-    codeId: (process.env.rewardCodeId && Number(process.env.rewardCodeId)) || 0,
-    address: process.env.rewardAddress,
-    filePath: process.env.rewardFilePath || "../krp-staking-contracts/artifacts/basset_sei_reward.wasm",
-    deploy: false
+  let reward: DeployContract = {
+    codeId: (network?.reward?.codeId && Number(network?.reward?.codeId)) || 0,
+    address: network?.reward?.address
   };
-  let bSeiToken: DeployContractInfo = {
-    codeId: (process.env.bSeiTokenCodeId && Number(process.env.bSeiTokenCodeId)) || 0,
-    address: process.env.bSeiTokenAddress,
-    filePath: process.env.bSeiTokenFilePath || "../krp-staking-contracts/artifacts/basset_sei_token_bsei.wasm",
-    deploy: false
+  let bSeiToken: DeployContract = {
+    codeId: (network?.bSeiToken?.codeId && Number(network?.bSeiToken?.codeId)) || 0,
+    address: network?.bSeiToken?.address
   };
-  let rewardsDispatcher: DeployContractInfo = {
-    codeId: (process.env.rewardsDispatcherCodeId && Number(process.env.rewardsDispatcherCodeId)) || 0,
-    address: process.env.rewardsDispatcherAddress,
-    filePath: process.env.rewardsDispatcherFilePath || "../krp-staking-contracts/artifacts/basset_sei_rewards_dispatcher.wasm",
-    deploy: false
+  let rewardsDispatcher: DeployContract = {
+    codeId: (network?.rewardsDispatcher?.codeId && Number(network?.rewardsDispatcher?.codeId)) || 0,
+    address: network?.rewardsDispatcher?.address
   };
-  let validatorsRegistry: DeployContractInfo = {
-    codeId: (process.env.validatorsRegistryCodeId && Number(process.env.validatorsRegistryCodeId)) || 0,
-    address: process.env.validatorsRegistryAddress,
-    filePath: process.env.validatorsRegistryFilePath || "../krp-staking-contracts/artifacts/basset_sei_validators_registry.wasm",
-    deploy: false
+  let validatorsRegistry: DeployContract = {
+    codeId: (network?.validatorsRegistry?.codeId && Number(network?.validatorsRegistry?.codeId)) || 0,
+    address: network?.validatorsRegistry?.address
   };
-  let stSeiToken: DeployContractInfo = {
-    codeId: (process.env.stSeiTokenCodeId && Number(process.env.stSeiTokenCodeId)) || 0,
-    address: process.env.stSeiTokenAddress,
-    filePath: process.env.stSeiTokenFilePath || "../krp-staking-contracts/artifacts/basset_sei_token_stsei.wasm",
-    deploy: false
+  let stSeiToken: DeployContract = {
+    codeId: (network?.stSeiToken?.codeId && Number(network?.stSeiToken?.codeId)) || 0,
+    address: network?.stSeiToken?.address
   };
 
   return {
@@ -114,73 +197,57 @@ export async function loadingStakingData() {
 }
 
 /**
- * market
  * aToken
+ * market
  * interestModel
  * distributionModel
  * oracle
- * liquidationQueue
  * overseer
+ * liquidationQueue
  * custodyBSei
  */
-export async function loadingMarketData() {
-  let overseer: DeployContractInfo = {
-    codeId: (process.env.overseerCodeId && Number(process.env.overseerCodeId)) || 0,
-    address: process.env.overseerAddress,
-    filePath: process.env.overseerFilePath || "../krp-market-contracts/artifacts/moneymarket_overseer.wasm",
-    deploy: false
+export async function loadingMarketData(network: any = {}) {
+  let aToken: DeployContract = {
+    codeId: (network?.aToken?.codeId && Number(network?.aToken?.codeId)) || 0,
+    address: network?.aToken?.address
   };
-  let market: DeployContractInfo = {
-    codeId: (process.env.marketCodeId && Number(process.env.marketCodeId)) || 0,
-    address: process.env.marketAddress,
-    filePath: process.env.marketFilePath || "../krp-market-contracts/artifacts/moneymarket_market.wasm",
-    deploy: false
+  let market: DeployContract = {
+    codeId: (network?.market?.codeId && Number(network?.market?.codeId)) || 0,
+    address: network?.market?.address
   };
-  let custodyBSei: DeployContractInfo = {
-    codeId: (process.env.custodyBSeiCodeId && Number(process.env.custodyBSeiCodeId)) || 0,
-    address: process.env.custodyBSeiAddress,
-    filePath: process.env.custodyBSeiFilePath || "../krp-market-contracts/artifacts/moneymarket_custody_bsei.wasm",
-    deploy: false
+  let interestModel: DeployContract = {
+    codeId: (network?.interestModel?.codeId && Number(network?.interestModel?.codeId)) || 0,
+    address: network?.interestModel?.address
   };
-  let interestModel: DeployContractInfo = {
-    codeId: (process.env.interestModelCodeId && Number(process.env.interestModelCodeId)) || 0,
-    address: process.env.interestModelAddress,
-    filePath: process.env.interestModelFilePath || "../krp-market-contracts/artifacts/moneymarket_interest_model.wasm",
-    deploy: false
+  let distributionModel: DeployContract = {
+    codeId: (network?.distributionModel?.codeId && Number(network?.distributionModel?.codeId)) || 0,
+    address: network?.distributionModel?.address
   };
-  let distributionModel: DeployContractInfo = {
-    codeId: (process.env.distributionModelCodeId && Number(process.env.distributionModelCodeId)) || 0,
-    address: process.env.distributionModelAddress,
-    filePath: process.env.distributionModelFilePath || "../krp-market-contracts/artifacts/moneymarket_distribution_model.wasm",
-    deploy: false
+  let oracle: DeployContract = {
+    codeId: (network?.oracle?.codeId && Number(network?.oracle?.codeId)) || 0,
+    address: network?.oracle?.address
   };
-  let oracle: DeployContractInfo = {
-    codeId: (process.env.oracleCodeId && Number(process.env.oracleCodeId)) || 0,
-    address: process.env.oracleAddress,
-    filePath: process.env.oracleFilePath || "../krp-market-contracts/artifacts/moneymarket_oracle.wasm",
-    deploy: false
+  let overseer: DeployContract = {
+    codeId: (network?.overseer?.codeId && Number(network?.overseer?.codeId)) || 0,
+    address: network?.overseer?.address
   };
-  let aToken: DeployContractInfo = {
-    codeId: (process.env.aTokenCodeId && Number(process.env.aTokenCodeId)) || 0,
-    address: process.env.aTokenAddress,
-    filePath: process.env.aTokenFilePath || "../cw-plus/artifacts/cw20_base.wasm",
-    deploy: false
+  let liquidationQueue: DeployContract = {
+    codeId: (network?.liquidationQueue?.codeId && Number(network?.liquidationQueue?.codeId)) || 0,
+    address: network?.liquidationQueue?.address
   };
-  let liquidationQueue: DeployContractInfo = {
-    codeId: (process.env.liquidationQueueCodeId && Number(process.env.liquidationQueueCodeId)) || 0,
-    address: process.env.liquidationQueueAddress,
-    filePath: process.env.liquidationQueueFilePath || "../krp-market-contracts/artifacts/moneymarket_liquidation_queue.wasm",
-    deploy: false
+  let custodyBSei: DeployContract = {
+    codeId: (network?.custodyBSei?.codeId && Number(network?.custodyBSei?.codeId)) || 0,
+    address: network?.custodyBSei?.address
   };
 
   return {
-    overseer,
+    aToken,
     market,
-    custodyBSei,
     interestModel,
     distributionModel,
     oracle,
-    aToken,
-    liquidationQueue
+    overseer,
+    liquidationQueue,
+    custodyBSei
   };
 }

@@ -4,3 +4,6 @@
 [submodule "krp-staking-contracts"]
 	path = krp-staking-contracts
 	url = git@github.com:KryptoniteDAO/krp-staking-contracts.git
+[submodule "krp-basset-convert"]
+	path = krp-basset-convert
+	url = git@github.com:KryptoniteDAO/krp-basset-convert.git
