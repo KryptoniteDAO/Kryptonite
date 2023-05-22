@@ -19,7 +19,7 @@ export async function storeCode(RPC_ENDPOINT: string, wallet: DirectSecp256k1HdW
     codeId = storeCodeTxResult.codeId;
     console.log(`${contract_file} stored codeId = ${codeId}`, storeCodeTxResult?.transactionHash);
   } catch (error: any) {
-    console.error("store code error：", contract_file, error);
+    console.error("store code error:", contract_file, error);
   }
   return codeId;
 }
@@ -58,10 +58,15 @@ function getContractAddresses(txResult: InstantiateResult, msgIndex = 0): [strin
 }
 
 export async function executeContract(RPC_ENDPOINT: string, wallet: DirectSecp256k1HdWallet | DirectSecp256k1Wallet, contractAddress: string, message: object, label: string = "", coins: Coin[] = []) {
+  try {
   const fee = calculateFee(2_000_000, "0.1usei");
   const [firstAccount] = await wallet.getAccounts();
   const signCosmWasmClient = await getSigningCosmWasmClient(RPC_ENDPOINT, wallet);
   return await signCosmWasmClient.execute(firstAccount.address, contractAddress, message, fee, label, coins);
+  } catch(error) {
+    console.error("Error caught in execute contract:", error);
+    throw error;
+  }
 }
 
 export async function migrateContract(RPC_ENDPOINT: string, wallet: DirectSecp256k1HdWallet | DirectSecp256k1Wallet, contractAddress: string, newCodeId: number, migrateMsg: object, memo: string) {

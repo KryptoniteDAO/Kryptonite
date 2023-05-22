@@ -42,11 +42,6 @@ async function main(): Promise<void> {
   console.log("Do hub.address bond_for_st_sei 1 ok. \n", hubBondStSeiRes?.transactionHash);
 
   console.log();
-  console.log("Do hub.address bond_for_st_sei 2 enter");
-  const hubBondStSeiRes2 = await executeContract(RPC_ENDPOINT, wallet, hub.address, { bond_for_st_sei: {} }, "", parseCoins("500000usei"));
-  console.log("Do hub.address bond_for_st_sei 2 ok. \n", hubBondStSeiRes2?.transactionHash);
-
-  console.log();
   console.log("Do hub.address bond enter");
   const hubBondRes = await executeContract(RPC_ENDPOINT, wallet, hub.address, { bond: {} }, "", parseCoins("5000000usei"));
   console.log("Do hub.address bond ok. \n", hubBondRes?.transactionHash);
@@ -99,7 +94,8 @@ async function main(): Promise<void> {
 
   console.log();
   console.log("Query hub.address staking delegations enter");
-  const stakingDelegationsRes = await queryStakingDelegations(LCD_ENDPOINT, hub.address, validator);
+  let alias_vildator = validator + "/";
+  const stakingDelegationsRes = await queryStakingDelegations(LCD_ENDPOINT, hub.address, alias_vildator);
   console.log("Query hub.address staking delegations ok. \n", JSON.stringify(stakingDelegationsRes));
 
   console.log();

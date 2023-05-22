@@ -132,7 +132,7 @@ async function main(): Promise<void> {
         {
           anc_purchase_factor: "0.1",
           buffer_distribution_factor: "0.1",
-          collector_contract: "sei1xxrlcs6kekmh63ks26yuf47qxdrkkqw0srvh7w", //ANC里面一个合约协议收入10%(暂时用一个临时地址代替)
+          collector_contract: "sei1xxrlcs6kekmh63ks26yuf47qxdrkkqw0srvh7w", // protocol fee About 10% of earner (temporarily replaced by a temporary address)
           epoch_period: 1681,
           liquidation_contract: liquidationQueue.address || account.address,
           market_contract: market.address,
