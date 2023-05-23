@@ -61,7 +61,6 @@ async function main(): Promise<void> {
   });
   console.log("Do custodyBSei.address deposit and lock collateral ok. \n", custodyBSeiDepositCollateralRes?.transactionHash);
 
-
   /// 4. Overseer register feeder for asset in oracle contract
   console.log();
   console.log("Do overseer.address register_feeder enter");
@@ -72,7 +71,6 @@ async function main(): Promise<void> {
     }
   });
   console.log("Do overseer.address register_feeder ok. \n", overseerRegisterFeederRes?.transactionHash);
-
 
   ///  4.1 feed Price
   /// Feeds new price data. Can only be issued by the owner.
@@ -85,22 +83,22 @@ async function main(): Promise<void> {
   });
   console.log("Do oracle.address feed_price ok. \n", oracleFeedPriceRes?.transactionHash);
 
- //step5: unlock collateral and withdraw bSeiToken 
- console.log();
- console.log("Do custodyBase.address unlock collateral and withdraw collateral enter");
- const withdrawBSTSeiCollateralRes = await executeContractByWalletData(
-   walletData,
-   overseer.address,
-   {
-     unlock_collateral: {
-       collaterals: [
-         [bSeiToken.address, "1000000"], // (CW20 contract address, Amount to unlock)
-
-       ]
-     }
-   },
-   "unlock and withdraw collateral");
- console.log("Do custodyBase.address unlock and withdraw collateral ok. \n", withdrawBSTSeiCollateralRes?.transactionHash);
+  //step5: unlock collateral and withdraw bSeiToken
+  console.log();
+  console.log("Do custodyBase.address unlock collateral and withdraw collateral enter");
+  const withdrawBSTSeiCollateralRes = await executeContractByWalletData(
+    walletData,
+    overseer.address,
+    {
+      unlock_collateral: {
+        collaterals: [
+          [bSeiToken.address, "1000000"] // (CW20 contract address, Amount to unlock)
+        ]
+      }
+    },
+    "unlock and withdraw collateral"
+  );
+  console.log("Do custodyBase.address unlock and withdraw collateral ok. \n", withdrawBSTSeiCollateralRes?.transactionHash);
 
   /// 6. borrow stable
   /// Borrows stable coins from Anchor.

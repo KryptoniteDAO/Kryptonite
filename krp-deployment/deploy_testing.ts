@@ -7,7 +7,6 @@ import { DirectSecp256k1HdWallet, DirectSecp256k1Wallet } from "@cosmjs/proto-si
 require("dotenv").config();
 
 async function main(): Promise<void> {
-
   const { LCD_ENDPOINT, RPC_ENDPOINT, mnemonic, privateKey, wallet, account, mnemonic2, privateKey2, wallet2, account2, validator, stable_coin_denom, prefix, addressesBalances } = await loadingBaseData();
 
   const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData();
@@ -23,7 +22,6 @@ async function main(): Promise<void> {
     process.exit(0);
     return;
   }
-
 
   console.log("--- -- test support stSEI and SLSTI asset start --- ---");
   //const strideSeiDenom = "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/stsei";
@@ -54,8 +52,8 @@ async function main(): Promise<void> {
     codeId: 0,
     address: "",
     filePath: "../krp-basset-convert/artifacts/krp_basset_converter.wasm",
-    deploy: false,
-  }
+    deploy: false
+  };
   bassertConverter.codeId = 526;
   bassertConverter.address = "sei16lwqvzljtvas043u45tvh8le097xeved6k7nxajwzh85zte7syms22j0ps";
   // bassertConverter.codeId = await storeCode(RPC_ENDPOINT, wallet, bassertConverter.filePath);
@@ -71,13 +69,12 @@ async function main(): Promise<void> {
   bassertConverter.deploy = true;
   console.log(`bstsei_native_convert: `, JSON.stringify(bassertConverter));
 
-
   let bstSEI: DeployContractInfo = {
     codeId: 0,
     address: "",
     filePath: "../krp-basset-convert/artifacts/krp_basset_token.wasm",
-    deploy: false,
-  }
+    deploy: false
+  };
   bstSEI.codeId = 527;
   bstSEI.address = "sei1rp8hkjedps3xnpjzrmdrmh3tghjgkmje0akd2qqxlxqa0vz0g63snw78gx";
   // bstSEI.codeId = await storeCode(RPC_ENDPOINT, wallet, bstSEI.filePath);
@@ -97,7 +94,7 @@ async function main(): Promise<void> {
   bstSEI.deploy = true;
   console.log(`bst_sei: `, JSON.stringify(bstSEI));
 
-  //register two native coin and cw20 token 
+  //register two native coin and cw20 token
   // console.log();
   // console.log("Do register native coin and cw20 token address enter");
   // let convertRegisterRes = await executeContract(RPC_ENDPOINT, wallet, bassertConverter.address, {
@@ -129,8 +126,6 @@ async function main(): Promise<void> {
   //     msg: Buffer.from(JSON.stringify({ convert_basset_to_native: {} })).toString("base64")
   //   }
   // })
-
-
 
   // store custdy_base contract
   let custodyBasebstSEI: DeployContractInfo = {
@@ -191,8 +186,7 @@ async function main(): Promise<void> {
   // });
   // console.log("Do liquidationQueue's whitelist_collateral bstSEI ok. \n", liquidationQueueWhitelistCollateralRes?.transactionHash);
 
-
-  /// configure oracle contract 
+  /// configure oracle contract
   // console.log();
   // console.log("Do oracle.address register_feeder enter");
   // let overseerRegisterFeederRes = await executeContract(RPC_ENDPOINT, wallet, oracle.address, {
@@ -204,7 +198,7 @@ async function main(): Promise<void> {
   // });
   // console.log("Do oracle.address register_feeder ok. \n", overseerRegisterFeederRes?.transactionHash);
 
-  /// feed price  
+  /// feed price
   // console.log();
   // console.log("Do oracle.address feed_price enter");
   // let oracleFeedPriceRes = await executeContract(RPC_ENDPOINT, wallet, oracle.address, {
@@ -217,11 +211,9 @@ async function main(): Promise<void> {
   console.log();
   console.log("Query oracle bstSEI price enter");
   let oracleQuery = await queryWasmContract(RPC_ENDPOINT, wallet, oracle.address, {
-    prices : { }
-  })
+    prices: {}
+  });
   console.log("Query price :\n", JSON.stringify(oracleQuery));
-
-
 
   //*************************************************************************************************************************************
   //**********************************************deploy SLSTI asset begin*********************************************************
@@ -231,21 +223,20 @@ async function main(): Promise<void> {
     codeId: 0,
     address: "",
     filePath: "../krp-basset-convert/artifacts/krp_basset_converter.wasm",
-    deploy: false,
-  }
+    deploy: false
+  };
 
   bassertSlstiConverter.address = "sei1s5qxh87j33n059xgpfghgxv26fkyr2kzz76nncqwaapcp64nj95s38dcjr";
   // bassertSlstiConverter.address = await instantiateContract(RPC_ENDPOINT, wallet, bassertConverter.codeId, { owner: account.address, }, "bslsti and slsti convert contract");
   bassertSlstiConverter.deploy = true;
   console.log(`bassert slsdi Converter: `, JSON.stringify(bassertSlstiConverter));
 
-
   let bSlstiToken: DeployContractInfo = {
     codeId: 0,
     address: "",
     filePath: "../krp-basset-convert/artifacts/krp_basset_token.wasm",
-    deploy: false,
-  }
+    deploy: false
+  };
 
   // bSlstiToken.codeId = await storeCode(RPC_ENDPOINT, wallet, bSlstiToken.filePath);
   bSlstiToken.address = "sei17qz3cgc9ehyt8n0sv8cyk3ahc4pl9qxhxtf883kc8tef4lfp7hvsk885el";
@@ -265,7 +256,7 @@ async function main(): Promise<void> {
   // bSlstiToken.deploy = true;
   console.log(`bslsdi: `, JSON.stringify(bSlstiToken));
 
-  //register two native coin and cw20 token 
+  //register two native coin and cw20 token
   // console.log();
   // console.log("Do register native coin and cw20 token address enter");
   // const convertSlsdiRegisterRes = await executeContract(RPC_ENDPOINT, wallet, bassertSlstiConverter.address, {
@@ -327,7 +318,6 @@ async function main(): Promise<void> {
   //   "custody bond sei contract"
   // );
 
-
   //overseer contract add collateral to whitelist
   // console.log();
   // console.log("Do overseer's add collateral bstSEI whitelist enter");
@@ -355,8 +345,7 @@ async function main(): Promise<void> {
   // });
   // console.log("Do liquidationQueue's whitelist_collateral bslsdi ok. \n", liquidationQueueWhitelistCollateraSlsdilRes?.transactionHash);
 
-
-  // /// configure oracle contract 
+  // /// configure oracle contract
   // console.log();
   // console.log("Do oracle.address register_feeder enter");
   // let overseerRegisterSlsdiFeederRes = await executeContract(RPC_ENDPOINT, wallet, oracle.address, {
@@ -367,7 +356,7 @@ async function main(): Promise<void> {
   // });
   // console.log("Do oracle.address register_feeder ok. \n", overseerRegisterSlsdiFeederRes?.transactionHash);
 
-  // /// feed price  
+  // /// feed price
   // console.log();
   // console.log("Do oracle.address feed_price enter");
   // let oracleFeedSlsdiPriceRes = await executeContract(RPC_ENDPOINT, wallet, oracle.address, {
@@ -376,24 +365,22 @@ async function main(): Promise<void> {
   //   }
   // });
   // console.log("Do oracle.address feed_price ok. \n", oracleFeedSlsdiPriceRes?.transactionHash);
- console.log();
+  console.log();
   console.log("Do oracle.address register_feeder enter");
   let overseerRegisterFeederRes = await executeContract(RPC_ENDPOINT, wallet, oracle.address, {
     register_feeder: {
       asset: bSlstiToken.address,
-     // feeder: account.address
-     feeder: "sei1xm3mccak0yjfts96jszdldxka6xkw00ywv6au0"
+      // feeder: account.address
+      feeder: "sei1xm3mccak0yjfts96jszdldxka6xkw00ywv6au0"
     }
   });
   console.log("Do oracle.address register_feeder ok. \n", overseerRegisterFeederRes?.transactionHash);
-
 
   console.log();
   console.log(`# new contracts uploaded codeId [optional]`);
   console.log(`convertCodeId: "${bassertConverter.codeId}"`);
   console.log(`bAssetTokenCodeId: "${bstSEI.codeId}"`);
   console.log(`custodyBaseCodeId: "${custodyBasebstSEI.codeId}"`);
-
 
   console.log();
   console.log(`# new contracts deployed address [optional]`);
@@ -409,7 +396,6 @@ async function main(): Promise<void> {
   //*************************************************************************************************************************************
   //**********************************************deploy SLSTI STSEI asset end***********************************************************
   //*************************************************************************************************************************************
-
 }
 
 main().catch(console.log);
