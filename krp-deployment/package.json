@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "deploy:all": "npm run deploy:staking && npm run deploy:market && npm run deploy:convert",
     "deploy:staking": "node --dns-result-order=ipv4first --loader ts-node/esm ./deploy_staking_contracts.ts --require ./suppress-experimental.cjs",
     "deploy:market": "node --dns-result-order=ipv4first --loader ts-node/esm ./deploy_market_contracts.ts --require ./suppress-experimental.cjs",
     "deploy:convert": "node --dns-result-order=ipv4first --loader ts-node/esm ./deploy_convert_contracts.ts --require ./suppress-experimental.cjs",
