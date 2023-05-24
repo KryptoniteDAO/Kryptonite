@@ -7,3 +7,6 @@
 [submodule "krp-basset-convert"]
 	path = krp-basset-convert
 	url = git@github.com:KryptoniteDAO/krp-basset-convert.git
+[submodule "swap-extention"]
+	path = swap-extention
+	url = git@github.com:KryptoniteDAO/swap-extention.git
