@@ -121,7 +121,7 @@ async function doConvertBassetToNative(walletData: WalletData, nativeDenom: stri
     {
       send: {
         contract: converter.address,
-        amount: amount,
+        amount: amount+"",
         msg: Buffer.from(JSON.stringify({ convert_basset_to_native: {} })).toString("base64")
       }
     },

@@ -214,7 +214,6 @@ async function main(): Promise<void> {
     prices: {}
   });
   console.log("Query price :\n", JSON.stringify(oracleQuery));
-
   //*************************************************************************************************************************************
   //**********************************************deploy SLSTI asset begin*********************************************************
   //*************************************************************************************************************************************
@@ -345,7 +344,6 @@ async function main(): Promise<void> {
   // });
   // console.log("Do liquidationQueue's whitelist_collateral bslsdi ok. \n", liquidationQueueWhitelistCollateraSlsdilRes?.transactionHash);
 
-  // /// configure oracle contract
   // console.log();
   // console.log("Do oracle.address register_feeder enter");
   // let overseerRegisterSlsdiFeederRes = await executeContract(RPC_ENDPOINT, wallet, oracle.address, {
@@ -356,7 +354,6 @@ async function main(): Promise<void> {
   // });
   // console.log("Do oracle.address register_feeder ok. \n", overseerRegisterSlsdiFeederRes?.transactionHash);
 
-  // /// feed price
   // console.log();
   // console.log("Do oracle.address feed_price enter");
   // let oracleFeedSlsdiPriceRes = await executeContract(RPC_ENDPOINT, wallet, oracle.address, {
@@ -365,7 +362,6 @@ async function main(): Promise<void> {
   //   }
   // });
   // console.log("Do oracle.address feed_price ok. \n", oracleFeedSlsdiPriceRes?.transactionHash);
-  console.log();
   console.log("Do oracle.address register_feeder enter");
   let overseerRegisterFeederRes = await executeContract(RPC_ENDPOINT, wallet, oracle.address, {
     register_feeder: {
