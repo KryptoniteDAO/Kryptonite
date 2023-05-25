@@ -20,14 +20,14 @@ async function main(): Promise<void> {
     {
       name: "strideSei",
       address: "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/stsei",
-      convertNativeToBasset: 1_000_000,
-      convertBassetToNative: 1_000_000
+      convertNativeToBasset: "1000000",
+      convertBassetToNative: "1000000"
     },
     {
       name: "slsdi",
       address: "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/slsdi",
-      convertNativeToBasset: 1_000_000,
-      convertBassetToNative: 1_000_000
+      convertNativeToBasset: "1000000",
+      convertBassetToNative: "1000000"
     }
   ];
 
@@ -48,7 +48,7 @@ async function main(): Promise<void> {
     const btokenNetwork = convertPairsNetwork?.btoken;
     const custodyNetwork = convertPairsNetwork?.custody;
 
-    await doConvertNativeToBasset(walletData, nativeDenom, converterNetwork, nativeDenomItem?.convertNativeToBasset);
+    await doConvertNativeToBasset(walletData, nativeDenom, converterNetwork, btokenNetwork, nativeDenomItem?.convertNativeToBasset);
     await doConvertBassetToNative(walletData, nativeDenom, btokenNetwork, converterNetwork, nativeDenomItem?.convertBassetToNative);
   }
 
@@ -63,8 +63,8 @@ async function main(): Promise<void> {
 }
 
 /// convert native coin to cw20 token
-async function doConvertNativeToBasset(walletData: WalletData, nativeDenom: string, converter: DeployContract, amount: number | string): Promise<void> {
-  if (!converter?.address) {
+async function doConvertNativeToBasset(walletData: WalletData, nativeDenom: string, converter: DeployContract, btoken: DeployContract, amount: number | string): Promise<void> {
+  if (!converter?.address || !btoken?.address) {
     return;
   }
   if (!amount || new Decimal(amount).comparedTo(0) < 0) {
@@ -72,21 +72,29 @@ async function doConvertNativeToBasset(walletData: WalletData, nativeDenom: stri
     console.error(`The amount is missing.`);
     return;
   }
-  const balanceRes = await queryAddressBalance(walletData.LCD_ENDPOINT, walletData.address, nativeDenom);
-  if (new Decimal(balanceRes?.balance?.amount ?? 0).comparedTo(new Decimal(amount)) < 0) {
+  console.log();
+  console.log(`Do convert native coin to cw20 token enter. nativeDenom: ${nativeDenom} / amount: ${amount}`);
+  const beforeNativeBalanceRes = await queryAddressBalance(walletData.LCD_ENDPOINT, walletData.address, nativeDenom);
+  if (new Decimal(beforeNativeBalanceRes?.balance?.amount ?? 0).comparedTo(new Decimal(amount)) < 0) {
     console.log();
-    console.error(`The nativeDenom balance is insufficient. ${amount} but ${balanceRes?.balance?.amount ?? 0}`);
+    console.error(`********** ********** The nativeDenom balance is insufficient. ${amount} but ${beforeNativeBalanceRes?.balance?.amount ?? 0}`);
     return;
   }
+  const beforeTokenBalanceRes = await queryAddressTokenBalance(walletData.signingCosmWasmClient, walletData.address, btoken.address);
+  console.log(`before native balance: ${beforeNativeBalanceRes.balance.amount} ${nativeDenom}`);
+  console.log(`before token balance: ${beforeTokenBalanceRes.balance} ${btoken.address}`);
 
-  console.log();
-  console.log(`Do convert native coin to cw20 token enter. nativeDenom: ${nativeDenom}`);
   const convertRes = await executeContractByWalletData(walletData, converter.address, { convert_native_to_basset: {} }, "convert native to cw20", coins(amount, nativeDenom));
-  console.log(`Do convert native coin to cw20 token ok. nativeDenom: ${nativeDenom} / convert amount: ${amount} \n${convertRes?.transactionHash}`);
+  console.log(`Do convert native coin to cw20 token ok. \n${convertRes?.transactionHash}`);
+
+  const afterBalanceRes = await queryAddressBalance(walletData.LCD_ENDPOINT, walletData.address, nativeDenom);
+  console.log(`after native balance: ${afterBalanceRes.balance.amount} ${nativeDenom}`);
+  const afterTokenBalanceRes = await queryAddressTokenBalance(walletData.signingCosmWasmClient, walletData.address, btoken.address);
+  console.log(`after token balance: ${afterTokenBalanceRes.balance} ${btoken.address}`);
 }
 
 /// convert cw20 token to native coin
-async function doConvertBassetToNative(walletData: WalletData, nativeDenom: string, btoken: DeployContract, converter: DeployContract, amount: number | string): Promise<void> {
+async function doConvertBassetToNative(walletData: WalletData, nativeDenom: string, btoken: DeployContract, converter: DeployContract, amount: string): Promise<void> {
   if (!btoken?.address || !converter?.address) {
     return;
   }
@@ -95,16 +103,18 @@ async function doConvertBassetToNative(walletData: WalletData, nativeDenom: stri
     console.error(`The amount is missing.`);
     return;
   }
-  const balanceRes = await queryAddressTokenBalance(walletData.signingCosmWasmClient, walletData.address, btoken.address);
-  if (new Decimal(balanceRes?.balance ?? 0).comparedTo(new Decimal(amount)) < 0) {
+  console.log();
+  console.log(`Do convert cw20 token to native coin enter. nativeDenom: ${nativeDenom} / amount: ${amount}`);
+  const beforeTokenBalanceRes = await queryAddressTokenBalance(walletData.signingCosmWasmClient, walletData.address, btoken.address);
+  if (new Decimal(beforeTokenBalanceRes?.balance ?? 0).comparedTo(new Decimal(amount)) < 0) {
     console.log();
-    console.error(`The nativeDenom balance is insufficient. ${amount} but ${balanceRes?.balance ?? 0}`);
+    console.error(`********** ********** The nativeDenom balance is insufficient. ${amount} but ${beforeTokenBalanceRes?.balance ?? 0}`);
     return;
   }
+  const beforeNativeBalanceRes = await queryAddressBalance(walletData.LCD_ENDPOINT, walletData.address, nativeDenom);
+  console.log(`before native balance: ${beforeNativeBalanceRes.balance.amount} ${nativeDenom}`);
+  console.log(`before token balance: ${beforeTokenBalanceRes.balance} ${btoken.address}`);
 
-  console.log(balanceRes, btoken.address, converter.address);
-  console.log();
-  console.log(`Do convert cw20 token to native coin enter. nativeDenom: ${nativeDenom}`);
   const convertRes = await executeContractByWalletData(
     walletData,
     btoken.address,
@@ -117,5 +127,10 @@ async function doConvertBassetToNative(walletData: WalletData, nativeDenom: stri
     },
     "convert cw20 to native"
   );
-  console.log(`Do convert cw20 token to native coin enter. nativeDenom: ${nativeDenom} / convert amount: ${amount} \n${convertRes?.transactionHash}`);
+  console.log(`Do convert cw20 token to native coin ok. \n${convertRes?.transactionHash}`);
+
+  const afterBalanceRes = await queryAddressBalance(walletData.LCD_ENDPOINT, walletData.address, nativeDenom);
+  console.log(`after native balance: ${afterBalanceRes.balance.amount} ${nativeDenom}`);
+  const afterTokenBalanceRes = await queryAddressTokenBalance(walletData.signingCosmWasmClient, walletData.address, btoken.address);
+  console.log(`after token balance: ${afterTokenBalanceRes.balance} ${btoken.address}`);
 }

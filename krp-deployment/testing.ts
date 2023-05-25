@@ -7,7 +7,6 @@ import { DirectSecp256k1HdWallet, DirectSecp256k1Wallet } from "@cosmjs/proto-si
 require("dotenv").config();
 
 async function main(): Promise<void> {
-
   const { LCD_ENDPOINT, RPC_ENDPOINT, mnemonic, privateKey, wallet, account, mnemonic2, privateKey2, wallet2, account2, validator, stable_coin_denom, prefix, addressesBalances } = await loadingBaseData();
 
   const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData();
@@ -24,25 +23,22 @@ async function main(): Promise<void> {
     return;
   }
 
-  // create new mnemonic world 
+  // create new mnemonic world
   // const new_mnemonic = "slow police brother honey train asset vital hand alter glare wrong foil steel across laptop butter airport error old print firm figure dune thumb";
   // //let new_wallet = DirectSecp256k1HdWallet.generate(24, {prefix});
   // const new_wallet = await DirectSecp256k1HdWallet.fromMnemonic(new_mnemonic, { prefix });
   // const [new_account] = await new_wallet.getAccounts();
   // console.log("new account address:\n", new_account.address);
 
-
   // console.log(`--- --- test stride enter --- ---`);
   // let testAddress = account.address;
   // let qryBalance = await queryAddressAllBalances(LCD_ENDPOINT, testAddress);
   // console.log(`address ${testAddress} balance:\n${JSON.stringify(qryBalance)}`);
 
-  // //##add collateral asset stride stSEI  
+  // //##add collateral asset stride stSEI
   // const ibc_stsei_denom = "ibc/326D2E9FFBF7AE39CC404A58DED81054E23F107BC8D926D5D981C0231F1ECD2D";
 
-
   //   let custodystrideCodeId = await storeCode(RPC_ENDPOINT, wallet, "../krp-market-contracts/artifacts/moneymarket_custody_base.wasm");
-
 
   //   let custodystrideAddress = await instantiateContract(
   //       RPC_ENDPOINT,
@@ -75,9 +71,7 @@ async function main(): Promise<void> {
   // qryBalance = await queryAddressAllBalances(LCD_ENDPOINT,  account2.address);
   // console.log(`address ${account2.address} balance:\n${JSON.stringify(qryBalance)}`);
 
-
   // console.log(`--- --- test stride end --- ---`);
-
 
   // console.log(`--- --- test migrate contract enter --- ---`);
 
@@ -133,13 +127,12 @@ async function main(): Promise<void> {
   // bassertConverter.deploy = true;
   // console.log(`bassert_convert: `, JSON.stringify(bassertConverter));
 
-
   let bstSEI: DeployContractInfo = {
     codeId: 0,
     address: "",
     filePath: "../krp-basset-convert/artifacts/krp_basset_token.wasm",
-    deploy: false,
-  }
+    deploy: false
+  };
   bstSEI.address = "sei12g87edhzyhwdqg9w9ft95v7uxjxgjtsae3x7v0t0p0sf46nk298sxzu5qp";
   // bstSEI.codeId = await storeCode(RPC_ENDPOINT, wallet, bstSEI.filePath);
   // bstSEI.address = await instantiateContract(
@@ -159,7 +152,7 @@ async function main(): Promise<void> {
   // bstSEI.deploy = true;
   // console.log(`bst_sei: `, JSON.stringify(bstSEI));
 
-  // register two native coin and cw20 token 
+  // register two native coin and cw20 token
   // console.log();
   // console.log("Do register native coin and cw20 token address enter");
   // const convertRegisterRes = await executeContract(RPC_ENDPOINT, wallet, bassertConverter.address, {
@@ -178,7 +171,6 @@ async function main(): Promise<void> {
   // const convertToCw20Res = await executeContract(RPC_ENDPOINT, wallet, bassertConverter.address, { convert_native_to_basset: {} }, "convert native to cw20", coins("100000000", strideSeiDenom))
   // console.log("Do convert native coin to cw20 token ok. \n", convertToCw20Res?.transactionHash);
 
-
   // convert cw20 coin to native token
   // console.log();
   // console.log("Do convert cw20 token to native coin enter");
@@ -191,13 +183,13 @@ async function main(): Promise<void> {
   // })
 
   // // store custdy_base contract
-    let custodyBaseBstsei: DeployContractInfo = {
-      codeId: 0,
-      address: "",
-      filePath: "../krp-market-contracts/artifacts/moneymarket_custody_base.wasm",
-      deploy: false
-    };
-    custodyBaseBstsei.address = "sei15262862m8qmu5fdcvzvzy0w48tnzhagaz8pq508kjkusvew42qtq3wvyk8";
+  let custodyBaseBstsei: DeployContractInfo = {
+    codeId: 0,
+    address: "",
+    filePath: "../krp-market-contracts/artifacts/moneymarket_custody_base.wasm",
+    deploy: false
+  };
+  custodyBaseBstsei.address = "sei15262862m8qmu5fdcvzvzy0w48tnzhagaz8pq508kjkusvew42qtq3wvyk8";
   // custodyBase.codeId = await storeCode(RPC_ENDPOINT, wallet, custodyBase.filePath);
   // custodyBase.address = await instantiateContract(
   //   RPC_ENDPOINT,
@@ -247,8 +239,7 @@ async function main(): Promise<void> {
   // });
   // console.log("Do liquidationQueue's whitelist_collateral bstSEI ok. \n", liquidationQueueWhitelistCollateralRes?.transactionHash);
 
-
-  // /// configure oracle contract 
+  // /// configure oracle contract
   // console.log();
   // console.log("Do oracle.address register_feeder enter");
   // let overseerRegisterbstseiFeederRes = await executeContract(RPC_ENDPOINT, wallet, oracle.address, {
@@ -259,7 +250,7 @@ async function main(): Promise<void> {
   // });
   // console.log("Do oracle.address register_feeder ok. \n", overseerRegisterbstseiFeederRes?.transactionHash);
 
-  // /// feed price  
+  // /// feed price
   // console.log();
   // console.log("Do oracle.address feed_price enter");
   // let oracleFeedPriceRes = await executeContract(RPC_ENDPOINT, wallet, oracle.address, {
@@ -269,7 +260,7 @@ async function main(): Promise<void> {
   // });
   // console.log("Do oracle.address feed_price ok. \n", oracleFeedPriceRes?.transactionHash);
 
-   // // migrage custody_base contract
+  // // migrage custody_base contract
   // custodyBase.codeId = await storeCode(RPC_ENDPOINT, wallet, custodyBase.filePath);
   // let custodyBaseMigrateRes = await migrateContract(RPC_ENDPOINT, wallet, custodyBase.address, custodyBase.codeId, {}, "update custody_base contract");
   // console.log("upgrade custody_base succeed!");
@@ -286,7 +277,7 @@ async function main(): Promise<void> {
   // let custodyBseiMigrateRes = await migrateContract(RPC_ENDPOINT, wallet, custodyBSei.address, custodyBSei.codeId, {}, "update custody_bsei contract");
   // console.log("upgrade custody_bsei succeed!");
 
-  // //step1: depoist stSei and lock collateral 
+  // //step1: depoist stSei and lock collateral
   // console.log();
   // console.log("Do custodyBase.address deposit collateral enter");
   // const custodyBSeiDepositCollateralRes = await executeContract(
@@ -306,8 +297,7 @@ async function main(): Promise<void> {
   // collateralBalanceRes = await queryWasmContract(RPC_ENDPOINT, wallet, bstSEI.address, { balance: { address: account.address } });
   // console.log("Query bstSEI balance:\n", JSON.stringify(collateralBalanceRes));
 
-
-  // //step2: unlock collateral and withdraw bstSEI 
+  // //step2: unlock collateral and withdraw bstSEI
   // console.log();
   // console.log("Do custodyBase.address unlock collateral enter");
   // const withdrawBSTSeiCollateralRes = await executeContract(
@@ -326,7 +316,6 @@ async function main(): Promise<void> {
   // console.log("Do custodyBase.address unlock collateral ok. \n", withdrawBSTSeiCollateralRes?.transactionHash);
   // collateralBalanceRes = await queryWasmContract(RPC_ENDPOINT, wallet, bstSEI.address, { balance: { address: account.address } });
   // console.log("Query bstSEI balance:\n", JSON.stringify(collateralBalanceRes));
-
 
   // /// step2. borrow stable
   // /// Borrows stable coins from Kryptonite.
@@ -350,7 +339,7 @@ async function main(): Promise<void> {
   // });
   // console.log("Query market.address borrower_info ok. \n", JSON.stringify(marketBorrowerInfoRes));
 
-  // /// step4. repay stable coin 
+  // /// step4. repay stable coin
   // console.log()
   // console.log("repay stable coin");
 
@@ -391,13 +380,12 @@ async function main(): Promise<void> {
   // bassertSlsdiConverter.deploy = true;
   // console.log(`bassert slsdi Converter: `, JSON.stringify(bassertSlsdiConverter));
 
-
   let bSlsdiToken: DeployContractInfo = {
     codeId: 0,
     address: "",
     filePath: "../krp-basset-convert/artifacts/krp_basset_token.wasm",
-    deploy: false,
-  }
+    deploy: false
+  };
   bSlsdiToken.address = "sei1r4q3x3ps8tl6lu7j2lmkedht8jegu6uacfm9qq3y79sxffhkl2wq5z8m95";
   // bSlsdiToken.codeId = await storeCode(RPC_ENDPOINT, wallet, bSlsdiToken.filePath);
   // bSlsdiToken.address = await instantiateContract(
@@ -416,7 +404,7 @@ async function main(): Promise<void> {
   // bSlsdiToken.deploy = true;
   // console.log(`bslsdi: `, JSON.stringify(bSlsdiToken));
 
-  // //register two native coin and cw20 token 
+  // //register two native coin and cw20 token
   // console.log();
   // console.log("Do register native coin and cw20 token address enter");
   // const convertRegisterRes = await executeContract(RPC_ENDPOINT, wallet, bassertSlsdiConverter.address, {
@@ -435,7 +423,6 @@ async function main(): Promise<void> {
   // const convertToCw20Res = await executeContract(RPC_ENDPOINT, wallet, bassertSlsdiConverter.address, { convert_native_to_basset: {} }, "convert native to cw20", coins("100000000", slsdiSeiDenom))
   // console.log("Do convert native coin to cw20 token ok. \n", convertToCw20Res?.transactionHash);
 
-
   // //convert cw20 coin to native token
   // console.log();
   // console.log("Do convert cw20 token to native coin enter");
@@ -448,300 +435,289 @@ async function main(): Promise<void> {
   // })
   // console.log("Do convert cw20 token to slsdi native coin ok. \n", convertToNativeRes?.transactionHash);
 
-    let custodyBaseSLSDI: DeployContractInfo = {
-      codeId: 0,
-      address: "",
-      filePath: "../krp-market-contracts/artifacts/moneymarket_custody_base.wasm",
-      deploy: false
-    };
-    custodyBaseSLSDI.address = "sei1ufcfvdp7qkgewye454w2r3m0788zr28caxqwhe4wtcear6a2tkdsf95ggq";
-    // custodyBaseSLSDI.codeId = await storeCode(RPC_ENDPOINT, wallet, custodyBaseSLSDI.filePath);
-    // custodyBaseSLSDI.address = await instantiateContract(
-    //   RPC_ENDPOINT,
-    //   wallet,
-    //   custodyBaseSLSDI.codeId,
-    //   {
-    //     basset_info: {
-    //       decimals: 6,
-    //       name: "bond defund SLSDI",
-    //       symbol: "bSLSDI"
-    //     },
-    //     collateral_token: bSlsdiToken.address,
-    //     liquidation_contract: liquidationQueue.address,
-    //     market_contract: market.address,
-    //     overseer_contract: overseer.address,
-    //     owner: account.address,
-    //     reward_contract: reward.address,
-    //     stable_denom: stable_coin_denom
-    //   },
-    //   "custody bond sei contract"
-    // );
+  let custodyBaseSLSDI: DeployContractInfo = {
+    codeId: 0,
+    address: "",
+    filePath: "../krp-market-contracts/artifacts/moneymarket_custody_base.wasm",
+    deploy: false
+  };
+  custodyBaseSLSDI.address = "sei1ufcfvdp7qkgewye454w2r3m0788zr28caxqwhe4wtcear6a2tkdsf95ggq";
+  // custodyBaseSLSDI.codeId = await storeCode(RPC_ENDPOINT, wallet, custodyBaseSLSDI.filePath);
+  // custodyBaseSLSDI.address = await instantiateContract(
+  //   RPC_ENDPOINT,
+  //   wallet,
+  //   custodyBaseSLSDI.codeId,
+  //   {
+  //     basset_info: {
+  //       decimals: 6,
+  //       name: "bond defund SLSDI",
+  //       symbol: "bSLSDI"
+  //     },
+  //     collateral_token: bSlsdiToken.address,
+  //     liquidation_contract: liquidationQueue.address,
+  //     market_contract: market.address,
+  //     overseer_contract: overseer.address,
+  //     owner: account.address,
+  //     reward_contract: reward.address,
+  //     stable_denom: stable_coin_denom
+  //   },
+  //   "custody bond sei contract"
+  // );
 
-    // query overseer contract config
-    // console.log();
-    // console.log("Do overseer's query collateral whitelist enter");
-    // const queryOverseerWhitelistRes = await queryWasmContract(RPC_ENDPOINT, wallet, overseer.address, {whitelist:{}});
-    // console.log("query collateral token list:\n", JSON.stringify(queryOverseerWhitelistRes));
+  // query overseer contract config
+  // console.log();
+  // console.log("Do overseer's query collateral whitelist enter");
+  // const queryOverseerWhitelistRes = await queryWasmContract(RPC_ENDPOINT, wallet, overseer.address, {whitelist:{}});
+  // console.log("query collateral token list:\n", JSON.stringify(queryOverseerWhitelistRes));
 
+  //overseer contract add collateral to whitelist
+  // console.log();
+  // console.log("Do overseer's add collateral bstSEI whitelist enter");
+  // const overseerWhitelistRes = await executeContract(RPC_ENDPOINT, wallet, overseer.address, {
+  //   whitelist: {
+  //     name: "Bond slsdi",
+  //     symbol: "bSLSDI",
+  //     collateral_token: bSlsdiToken.address,
+  //     custody_contract: custodyBaseSLSDI.address,
+  //     max_ltv: "0.65"
+  //   }
+  // });
+  // console.log("Do overseer's add collateral bstsei whitelist ok. \n", overseerWhitelistRes?.transactionHash);
 
-    //overseer contract add collateral to whitelist
-    // console.log();
-    // console.log("Do overseer's add collateral bstSEI whitelist enter");
-    // const overseerWhitelistRes = await executeContract(RPC_ENDPOINT, wallet, overseer.address, {
-    //   whitelist: {
-    //     name: "Bond slsdi",
-    //     symbol: "bSLSDI",
-    //     collateral_token: bSlsdiToken.address,
-    //     custody_contract: custodyBaseSLSDI.address,
-    //     max_ltv: "0.65"
-    //   }
-    // });
-    // console.log("Do overseer's add collateral bstsei whitelist ok. \n", overseerWhitelistRes?.transactionHash);
+  //configure liquidate_queue contract
+  // console.log();
+  // console.log("Do liquidationQueue's whitelist_collateral bslsdi enter");
+  // const liquidationQueueWhitelistCollateralRes = await executeContract(RPC_ENDPOINT, wallet, liquidationQueue.address, {
+  //   whitelist_collateral: {
+  //     collateral_token: bSlsdiToken.address,
+  //     bid_threshold: "500000000",
+  //     max_slot: 30,
+  //     premium_rate_per_slot: "0.01"
+  //   }
+  // });
+  // console.log("Do liquidationQueue's whitelist_collateral bslsdi ok. \n", liquidationQueueWhitelistCollateralRes?.transactionHash);
 
-    //configure liquidate_queue contract
-    // console.log();
-    // console.log("Do liquidationQueue's whitelist_collateral bslsdi enter");
-    // const liquidationQueueWhitelistCollateralRes = await executeContract(RPC_ENDPOINT, wallet, liquidationQueue.address, {
-    //   whitelist_collateral: {
-    //     collateral_token: bSlsdiToken.address,
-    //     bid_threshold: "500000000",
-    //     max_slot: 30,
-    //     premium_rate_per_slot: "0.01"
-    //   }
-    // });
-    // console.log("Do liquidationQueue's whitelist_collateral bslsdi ok. \n", liquidationQueueWhitelistCollateralRes?.transactionHash);
+  /// configure oracle contract
+  // console.log();
+  // console.log("Do oracle.address register_feeder bslsditoken enter");
+  // let overseerRegisterFeederRes = await executeContract(RPC_ENDPOINT, wallet, oracle.address, {
+  //   register_feeder: {
+  //     asset: bSlsdiToken.address,
+  //     feeder: account.address
+  //   }
+  // });
+  // console.log("Do oracle.address register_feeder bslsditoken ok. \n", overseerRegisterFeederRes?.transactionHash);
 
+  // console.log();
+  // console.log("Do oracle.address register_feeder bseitoken enter");
+  // let overseerRegisterFeederRes = await executeContract(RPC_ENDPOINT, wallet, oracle.address, {
+  //   register_feeder: {
+  //     asset: bSeiToken.address,
+  //     feeder: account.address
+  //   }
+  // });
+  // console.log("Do oracle.address register_feeder bseitoken ok. \n", overseerRegisterFeederRes?.transactionHash);
 
-    /// configure oracle contract 
-    // console.log();
-    // console.log("Do oracle.address register_feeder bslsditoken enter");
-    // let overseerRegisterFeederRes = await executeContract(RPC_ENDPOINT, wallet, oracle.address, {
-    //   register_feeder: {
-    //     asset: bSlsdiToken.address,
-    //     feeder: account.address
-    //   }
-    // });
-    // console.log("Do oracle.address register_feeder bslsditoken ok. \n", overseerRegisterFeederRes?.transactionHash);
+  /// feed price
+  console.log();
+  console.log("Do oracle.address feed_price enter");
+  let oracleFeedPriceRes = await executeContract(RPC_ENDPOINT, wallet, oracle.address, {
+    feed_price: {
+      prices: [
+        [bSlsdiToken.address, "200.68"],
+        [bstSEI.address, "106.18"],
+        [bSeiToken.address, "99.98"]
+      ]
+    }
+  });
+  console.log("Do oracle.address feed_price ok. \n", oracleFeedPriceRes?.transactionHash);
 
+  // update collateral max ltv
+  // console.log("Do update collater whitelist slsdi ltv enter. ");
+  // let updateWhiteList = await executeContract(RPC_ENDPOINT, wallet, overseer.address, {
+  //     update_whitelist: {
+  //       collateral_token: bSlsdiToken.address,
+  //       custody_contract: custodyBaseSLSDI.address,
+  //       max_ltv: "0.75"
+  //     }
+  // })
+  // console.log("Do update collater whitelist ltv enter. \n", updateWhiteList?.transactionHash);
 
-    // console.log();
-    // console.log("Do oracle.address register_feeder bseitoken enter");
-    // let overseerRegisterFeederRes = await executeContract(RPC_ENDPOINT, wallet, oracle.address, {
-    //   register_feeder: {
-    //     asset: bSeiToken.address,
-    //     feeder: account.address
-    //   }
-    // });
-    // console.log("Do oracle.address register_feeder bseitoken ok. \n", overseerRegisterFeederRes?.transactionHash);
+  // console.log("Do update collater whitelist bsei ltv enter. ");
+  // updateWhiteList = await executeContract(RPC_ENDPOINT, wallet, overseer.address, {
+  //     update_whitelist: {
+  //       collateral_token: bSeiToken.address,
+  //       custody_contract: custodyBSei.address,
+  //       max_ltv: "0.6"
+  //     }
+  // })
+  // console.log("Do update collater whitelist bsei ltv ok. \n", updateWhiteList?.transactionHash);
 
-    /// feed price  
-    console.log();
-    console.log("Do oracle.address feed_price enter");
-    let oracleFeedPriceRes = await executeContract(RPC_ENDPOINT, wallet, oracle.address, {
-      feed_price: {
-        prices: [
-          [bSlsdiToken.address, "200.68"],
-          [bstSEI.address, "106.18"],
-          [bSeiToken.address, "99.98"],
-        ]
-      }
-    });
-    console.log("Do oracle.address feed_price ok. \n", oracleFeedPriceRes?.transactionHash);
+  // console.log("Do update collater whitelist stSei ltv enter. ");
+  // updateWhiteList = await executeContract(RPC_ENDPOINT, wallet, overseer.address, {
+  //     update_whitelist: {
+  //       collateral_token: bstSEI.address,
+  //       custody_contract: custodyBaseBstsei.address,
+  //       max_ltv: "0.6"
+  //     }
+  // })
+  // console.log("Do update collater whitelist stSei ltv ok. \n", updateWhiteList?.transactionHash);
 
-    // update collateral max ltv
-    // console.log("Do update collater whitelist slsdi ltv enter. ");
-    // let updateWhiteList = await executeContract(RPC_ENDPOINT, wallet, overseer.address, {      
-    //     update_whitelist: {
-    //       collateral_token: bSlsdiToken.address, 
-    //       custody_contract: custodyBaseSLSDI.address, 
-    //       max_ltv: "0.75" 
-    //     }
-    // })
-    // console.log("Do update collater whitelist ltv enter. \n", updateWhiteList?.transactionHash);
-    
-    // console.log("Do update collater whitelist bsei ltv enter. ");
-    // updateWhiteList = await executeContract(RPC_ENDPOINT, wallet, overseer.address, {      
-    //     update_whitelist: {
-    //       collateral_token: bSeiToken.address, 
-    //       custody_contract: custodyBSei.address, 
-    //       max_ltv: "0.6" 
-    //     }
-    // })
-    // console.log("Do update collater whitelist bsei ltv ok. \n", updateWhiteList?.transactionHash);
+  // let collateralBalanceRes = await queryWasmContract(RPC_ENDPOINT, wallet, bSlsdiToken.address, { balance: { address: account.address } });
+  // console.log("Query bSlsdiToken balance:\n", JSON.stringify(collateralBalanceRes));
 
-    // console.log("Do update collater whitelist stSei ltv enter. ");
-    // updateWhiteList = await executeContract(RPC_ENDPOINT, wallet, overseer.address, {      
-    //     update_whitelist: {
-    //       collateral_token: bstSEI.address, 
-    //       custody_contract: custodyBaseBstsei.address, 
-    //       max_ltv: "0.6" 
-    //     }
-    // })
-    // console.log("Do update collater whitelist stSei ltv ok. \n", updateWhiteList?.transactionHash);
+  // //step1: depoist stSei and lock collateral
+  // console.log();
+  // console.log("Do custodyBaseSLSDI.address deposit collateral enter");
+  // const custodyBSLSDIDepositCollateralRes = await executeContract(
+  //   RPC_ENDPOINT,
+  //   wallet,
+  //   bSlsdiToken.address,
+  //   {
+  //     send: {
+  //       contract: custodyBaseSLSDI.address,
+  //       amount: "3000000",
+  //       msg: Buffer.from(JSON.stringify({ deposit_collateral: {} })).toString("base64")
+  //     }
+  //   },
+  //   "deposit collateral");
+  // console.log("Do custodyBaseSLSDI.address deposit_collateral ok. \n", custodyBSLSDIDepositCollateralRes?.transactionHash);
 
-    // let collateralBalanceRes = await queryWasmContract(RPC_ENDPOINT, wallet, bSlsdiToken.address, { balance: { address: account.address } });
-    // console.log("Query bSlsdiToken balance:\n", JSON.stringify(collateralBalanceRes));
+  // collateralBalanceRes = await queryWasmContract(RPC_ENDPOINT, wallet, bSlsdiToken.address, { balance: { address: account.address } });
+  // console.log("Query bSlsdiToken balance:\n", JSON.stringify(collateralBalanceRes));
 
-    // //step1: depoist stSei and lock collateral 
-    // console.log();
-    // console.log("Do custodyBaseSLSDI.address deposit collateral enter");
-    // const custodyBSLSDIDepositCollateralRes = await executeContract(
-    //   RPC_ENDPOINT,
-    //   wallet,
-    //   bSlsdiToken.address,
-    //   {
-    //     send: {
-    //       contract: custodyBaseSLSDI.address,
-    //       amount: "3000000",
-    //       msg: Buffer.from(JSON.stringify({ deposit_collateral: {} })).toString("base64")
-    //     }
-    //   },
-    //   "deposit collateral");
-    // console.log("Do custodyBaseSLSDI.address deposit_collateral ok. \n", custodyBSLSDIDepositCollateralRes?.transactionHash);
+  // //step2: unlock collateral and withdraw bstSEI
+  // console.log();
+  // console.log("Do custodyBaseSLSDI.address unlock collateral enter");
+  // const withdrawBslsdiCollateralRes = await executeContract(
+  //   RPC_ENDPOINT,
+  //   wallet,
+  //   overseer.address,
+  //   {
+  //     unlock_collateral: {
+  //       collaterals: [
+  //         [bSlsdiToken.address, "2000000"], // (CW20 contract address, Amount to unlock)
 
-    // collateralBalanceRes = await queryWasmContract(RPC_ENDPOINT, wallet, bSlsdiToken.address, { balance: { address: account.address } });
-    // console.log("Query bSlsdiToken balance:\n", JSON.stringify(collateralBalanceRes));
+  //       ]
+  //     }
+  //   },
+  //   "deposit collateral");
+  // console.log("Do custodyBaseSLSDI.address unlock collateral ok. \n", withdrawBslsdiCollateralRes?.transactionHash);
+  // collateralBalanceRes = await queryWasmContract(RPC_ENDPOINT, wallet, bSlsdiToken.address, { balance: { address: account.address } });
+  // console.log("Query bSlsdiToken balance:\n", JSON.stringify(collateralBalanceRes));
 
+  // /// step2. borrow stable
+  // /// Borrows stable coins from Kryptonite.
+  // console.log();
+  // console.log("Do market.address borrow_stable enter");
+  // const marketBorrowStableRes = await executeContract(RPC_ENDPOINT, wallet, market.address, {
+  //   borrow_stable: {
+  //     borrow_amount: "10000000",
+  //     to: account.address
+  //   }
+  // });
+  // console.log("Do market.address borrow_stable ok. \n", marketBorrowStableRes?.transactionHash);
 
-    // //step2: unlock collateral and withdraw bstSEI 
-    // console.log();
-    // console.log("Do custodyBaseSLSDI.address unlock collateral enter");
-    // const withdrawBslsdiCollateralRes = await executeContract(
-    //   RPC_ENDPOINT,
-    //   wallet,
-    //   overseer.address,
-    //   {
-    //     unlock_collateral: {
-    //       collaterals: [
-    //         [bSlsdiToken.address, "2000000"], // (CW20 contract address, Amount to unlock)
+  // /// step3. query borrow stable coin info
+  // console.log();
+  // console.log("Query market.address borrower_info enter");
+  // const marketBorrowerInfoRes = await queryWasmContract(RPC_ENDPOINT, wallet, market.address, {
+  //   borrower_info: {
+  //     borrower: account.address
+  //   }
+  // });
+  // console.log("Query market.address borrower_info ok. \n", JSON.stringify(marketBorrowerInfoRes));
 
-    //       ]
-    //     }
-    //   },
-    //   "deposit collateral");
-    // console.log("Do custodyBaseSLSDI.address unlock collateral ok. \n", withdrawBslsdiCollateralRes?.transactionHash);
-    // collateralBalanceRes = await queryWasmContract(RPC_ENDPOINT, wallet, bSlsdiToken.address, { balance: { address: account.address } });
-    // console.log("Query bSlsdiToken balance:\n", JSON.stringify(collateralBalanceRes));
+  // /// step4. repay stable coin
+  // console.log()
+  // console.log("repay stable coin");
 
+  // /// step5. query collateral balance
+  // console.log("Query custody contract collateral balance enter");
+  // collateralBalanceRes = await queryWasmContract(RPC_ENDPOINT, wallet, custodyBaseSLSDI.address, {
+  //   borrower: {
+  //     address: account.address
+  //   }
+  // });
+  // console.log("Query address borrower collateral balance:\n", JSON.stringify(collateralBalanceRes));
+  // // step6: query borrow limit;
+  // console.log("Query overseer.address borrow_limit enter");
+  // const currentTimestamp2 = Date.parse(new Date().toString()) / 1000;
+  // const overseerBorrowLimitRes2 = await queryWasmContract(RPC_ENDPOINT, wallet, overseer.address, {
+  //   borrow_limit: {
+  //     borrower: account.address,
+  //     block_time: currentTimestamp2
+  //   }
+  // });
+  // console.log("Query address borrow limit:\n", JSON.stringify(overseerBorrowLimitRes2));
 
-    // /// step2. borrow stable
-    // /// Borrows stable coins from Kryptonite.
-    // console.log();
-    // console.log("Do market.address borrow_stable enter");
-    // const marketBorrowStableRes = await executeContract(RPC_ENDPOINT, wallet, market.address, {
-    //   borrow_stable: {
-    //     borrow_amount: "10000000",
-    //     to: account.address
-    //   }
-    // });
-    // console.log("Do market.address borrow_stable ok. \n", marketBorrowStableRes?.transactionHash);
-
-    // /// step3. query borrow stable coin info
-    // console.log();
-    // console.log("Query market.address borrower_info enter");
-    // const marketBorrowerInfoRes = await queryWasmContract(RPC_ENDPOINT, wallet, market.address, {
-    //   borrower_info: {
-    //     borrower: account.address
-    //   }
-    // });
-    // console.log("Query market.address borrower_info ok. \n", JSON.stringify(marketBorrowerInfoRes));
-
-    // /// step4. repay stable coin 
-    // console.log()
-    // console.log("repay stable coin");
-
-    // /// step5. query collateral balance
-    // console.log("Query custody contract collateral balance enter");
-    // collateralBalanceRes = await queryWasmContract(RPC_ENDPOINT, wallet, custodyBaseSLSDI.address, {
-    //   borrower: {
-    //     address: account.address
-    //   }
-    // });
-    // console.log("Query address borrower collateral balance:\n", JSON.stringify(collateralBalanceRes));
-    // // step6: query borrow limit;
-    // console.log("Query overseer.address borrow_limit enter");
-    // const currentTimestamp2 = Date.parse(new Date().toString()) / 1000;
-    // const overseerBorrowLimitRes2 = await queryWasmContract(RPC_ENDPOINT, wallet, overseer.address, {
-    //   borrow_limit: {
-    //     borrower: account.address,
-    //     block_time: currentTimestamp2
-    //   }
-    // });
-    // console.log("Query address borrow limit:\n", JSON.stringify(overseerBorrowLimitRes2));
-
-      /// 2. market deposit_stable test
+  /// 2. market deposit_stable test
   /// 2.1. deposit stable to money market
   // console.log();
   // console.log("Do market.address deposit_stable enter");
   // const marketDepositStableRes = await executeContract(RPC_ENDPOINT, wallet, market.address, { deposit_stable: {} }, "", coins(10_000_000_000, stable_coin_denom));
   // console.log("Do market.address deposit_stable ok. \n", marketDepositStableRes?.transactionHash);
 
-      // console.log();
-      // console.log("Do hub.address bond enter");
-      // const hubBondRes = await executeContract(RPC_ENDPOINT, wallet, hub.address, { bond: {} }, "", parseCoins("5000000usei"));
-      // console.log("Do hub.address bond ok. \n", hubBondRes?.transactionHash);
+  // console.log();
+  // console.log("Do hub.address bond enter");
+  // const hubBondRes = await executeContract(RPC_ENDPOINT, wallet, hub.address, { bond: {} }, "", parseCoins("5000000usei"));
+  // console.log("Do hub.address bond ok. \n", hubBondRes?.transactionHash);
 
-      // let collateralBalanceRes = await queryWasmContract(RPC_ENDPOINT, wallet, bSeiToken.address, { balance: { address: account.address } });
-      // console.log("Query bSeiToken balance:\n", JSON.stringify(collateralBalanceRes));
+  // let collateralBalanceRes = await queryWasmContract(RPC_ENDPOINT, wallet, bSeiToken.address, { balance: { address: account.address } });
+  // console.log("Query bSeiToken balance:\n", JSON.stringify(collateralBalanceRes));
 
-      // //step1: depoist bSei and lock collateral 
-      // console.log();
-      // console.log("Do custodyBsei.address deposit collateral enter");
-      // const custodyBSLSDIDepositCollateralRes = await executeContract(
-      //   RPC_ENDPOINT,
-      //   wallet,
-      //   bSeiToken.address,
-      //   {
-      //     send: {
-      //       contract: custodyBSei.address,
-      //       amount: "3000000",
-      //       msg: Buffer.from(JSON.stringify({ deposit_collateral: {} })).toString("base64")
-      //     }
-      //   },
-      //   "deposit collateral");
-      // console.log("Do custodyBsei.address deposit_collateral ok. \n", custodyBSLSDIDepositCollateralRes?.transactionHash);
+  // //step1: depoist bSei and lock collateral
+  // console.log();
+  // console.log("Do custodyBsei.address deposit collateral enter");
+  // const custodyBSLSDIDepositCollateralRes = await executeContract(
+  //   RPC_ENDPOINT,
+  //   wallet,
+  //   bSeiToken.address,
+  //   {
+  //     send: {
+  //       contract: custodyBSei.address,
+  //       amount: "3000000",
+  //       msg: Buffer.from(JSON.stringify({ deposit_collateral: {} })).toString("base64")
+  //     }
+  //   },
+  //   "deposit collateral");
+  // console.log("Do custodyBsei.address deposit_collateral ok. \n", custodyBSLSDIDepositCollateralRes?.transactionHash);
 
-      // collateralBalanceRes = await queryWasmContract(RPC_ENDPOINT, wallet, bSeiToken.address, { balance: { address: account.address } });
-      // console.log("Query bSeiToken balance:\n", JSON.stringify(collateralBalanceRes));
+  // collateralBalanceRes = await queryWasmContract(RPC_ENDPOINT, wallet, bSeiToken.address, { balance: { address: account.address } });
+  // console.log("Query bSeiToken balance:\n", JSON.stringify(collateralBalanceRes));
 
-
-      // //step2: unlock collateral and withdraw bSEI 
-      // console.log();
-      // console.log("Do custodyBsei.address unlock collateral enter");
-      // const withdrawBslsdiCollateralRes = await executeContract(
-      //   RPC_ENDPOINT,
-      //   wallet,
-      //   overseer.address,
-      //   {
-      //     unlock_collateral: {
-      //       collaterals: [
-      //         [bSeiToken.address, "2000000"], // (CW20 contract address, Amount to unlock)
-      //       ]
-      //     }
-      //   },
-      //   "deposit collateral");
-      // console.log("Do custodyBsei.address unlock collateral ok. \n", withdrawBslsdiCollateralRes?.transactionHash);
-      // collateralBalanceRes = await queryWasmContract(RPC_ENDPOINT, wallet, bSeiToken.address, { balance: { address: account.address } });
-      // console.log("Query bSeiToken balance:\n", JSON.stringify(collateralBalanceRes));
-
+  // //step2: unlock collateral and withdraw bSEI
+  // console.log();
+  // console.log("Do custodyBsei.address unlock collateral enter");
+  // const withdrawBslsdiCollateralRes = await executeContract(
+  //   RPC_ENDPOINT,
+  //   wallet,
+  //   overseer.address,
+  //   {
+  //     unlock_collateral: {
+  //       collaterals: [
+  //         [bSeiToken.address, "2000000"], // (CW20 contract address, Amount to unlock)
+  //       ]
+  //     }
+  //   },
+  //   "deposit collateral");
+  // console.log("Do custodyBsei.address unlock collateral ok. \n", withdrawBslsdiCollateralRes?.transactionHash);
+  // collateralBalanceRes = await queryWasmContract(RPC_ENDPOINT, wallet, bSeiToken.address, { balance: { address: account.address } });
+  // console.log("Query bSeiToken balance:\n", JSON.stringify(collateralBalanceRes));
 
   let address = "sei1vzekeq7mfnxcvlcf9d5gpxhlp2kdzzwg676t4z";
-  let collaterRes = await queryWasmContract(RPC_ENDPOINT, wallet, overseer.address, {collaterals : { borrower: address }})
+  let collaterRes = await queryWasmContract(RPC_ENDPOINT, wallet, overseer.address, { collaterals: { borrower: address } });
   console.log("Query collaterals list:\n", JSON.stringify(collaterRes));
 
-  let unlockRes = await queryWasmContract(RPC_ENDPOINT, wallet, custodyBSei.address, {borrower: {address : address}});
+  let unlockRes = await queryWasmContract(RPC_ENDPOINT, wallet, custodyBSei.address, { borrower: { address: address } });
   console.log("Query collaterals bsei list:\n", JSON.stringify(unlockRes));
 
-
-  unlockRes = await queryWasmContract(RPC_ENDPOINT, wallet, custodyBaseBstsei.address, {borrower: {address : address}});
+  unlockRes = await queryWasmContract(RPC_ENDPOINT, wallet, custodyBaseBstsei.address, { borrower: { address: address } });
   console.log("Query collaterals bsei list:\n", JSON.stringify(unlockRes));
 
-  
-  unlockRes = await queryWasmContract(RPC_ENDPOINT, wallet, custodyBaseSLSDI.address, {borrower: {address : address}});
+  unlockRes = await queryWasmContract(RPC_ENDPOINT, wallet, custodyBaseSLSDI.address, { borrower: { address: address } });
   console.log("Query collaterals bsei list:\n", JSON.stringify(unlockRes));
   console.log(`--- --- test support stSEI and SLSDI asset end --- ---`);
-
-
 
   //console.log (`--- --- test borrow module start --- ---`);
   // //***step1: bond to get bSei asset
@@ -777,7 +753,7 @@ async function main(): Promise<void> {
   // const ret = await queryWasmContract(RPC_ENDPOINT, wallet, oracle.address, {
   //   price:{
   //     base: bSeiToken.address,   // Asset token contract HumanAddr in String form
-  //     quote: stable_coin_denom, 
+  //     quote: stable_coin_denom,
   //   }
   // })
   // console.log("Query oracle price ok. \n", JSON.stringify(ret))

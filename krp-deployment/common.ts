@@ -252,3 +252,26 @@ export async function queryContractConfig(walletData: WalletData, deployContract
   }
   return { initFlag, config };
 }
+
+
+export async function queryContractQueryConfig(walletData: WalletData, deployContract: DeployContract, print: boolean = true): Promise<{ initFlag; config }> {
+  if (!deployContract?.address) {
+    return;
+  }
+  let config = null;
+  let initFlag = true;
+  try {
+    print && console.log();
+    print && console.log(`Query deployed.address config enter. address: ${deployContract.address}`);
+    config = await queryWasmContractByWalletData(walletData, deployContract.address, { query_config: {} });
+    print && console.log(`Query deployed.address config ok. address: ${deployContract.address} \n${JSON.stringify(config)}`);
+  } catch (error: any) {
+    if (error?.toString().includes("addr_humanize")) {
+      initFlag = false;
+      console.error(`deployed.config: need update config`);
+    } else {
+      throw new Error(error);
+    }
+  }
+  return { initFlag, config };
+}

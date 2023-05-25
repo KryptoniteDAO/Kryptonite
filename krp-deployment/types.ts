@@ -4,6 +4,15 @@ import type { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 import type { SigningStargateClient } from "@cosmjs/stargate";
 import type { Coin } from "@cosmjs/amino";
 
+export enum ChainId {
+  LOCAL_SEI = "localsei",
+  SEI_CHAIN = "sei-chain",
+  ATLANTIC_2 = "atlantic-2",
+  "localsei" = "localsei",
+  "sei-chain" = "sei-chain",
+  "atlantic-2" = "atlantic-2"
+}
+
 export type Balance = {
   address: string;
   balance: any;
@@ -212,6 +221,13 @@ export interface CustodyBSeiContract extends BaseContract {
   };
 }
 
+export interface OraclePythContract extends BaseContract {
+  initMsg: {
+    owner: string;
+    pyth_contract: string;
+  };
+}
+
 export interface ConvertConverterContract extends BaseContract {
   initMsg: {
     owner: string;
@@ -240,6 +256,13 @@ export interface ConvertPairs {
   custody: ConvertCustodyContract;
 }
 
+export interface SwapExtentionContract extends BaseContract {
+  initMsg: {
+    owner: string;
+  };
+}
+
+
 export interface Config {
   validator: string;
   stable_coin_denom: string;
@@ -259,6 +282,13 @@ export interface Config {
   overseer: OverseerContract;
   liquidationQueue: LiquidationQueueContract;
   custodyBSei: CustodyBSeiContract;
+  oraclePyth: OraclePythContract;
 
   convertPairs: ConvertPairs[];
+
+  swapExtention: SwapExtentionContract;
 }
+
+export type Token = { token: { contract_addr: string } };
+export type NativeToken = { native_token: { denom: string } };
+export type AssetInfo = Token | NativeToken;

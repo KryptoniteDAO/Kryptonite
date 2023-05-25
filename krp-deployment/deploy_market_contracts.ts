@@ -29,6 +29,7 @@ async function main(): Promise<void> {
   await deployOverseer(walletData, network);
   await deployLiquidationQueue(walletData, network);
   await deployCustodyBSei(walletData, network, reward?.address, bSeiToken?.address);
+  await deployOraclePyth(walletData, network);
 
   console.log();
   console.log(`--- --- market contracts storeCode & instantiateContract end --- ---`);
@@ -311,6 +312,35 @@ async function deployCustodyBSei(walletData: WalletData, network: any, rewardAdd
       chainConfigs.custodyBSei.deploy = true;
     }
     console.log(`custodyBSei: `, JSON.stringify(network?.custodyBSei));
+  }
+}
+
+async function deployOraclePyth(walletData: WalletData, network: any): Promise<void> {
+  if ("atlantic-2" !== walletData.chainId) {
+    return;
+  }
+
+  if (!network?.oraclePyth?.address) {
+    if (!network?.oraclePyth) {
+      network.oraclePyth = {};
+    }
+
+    if (!network?.oraclePyth?.codeId || network?.oraclePyth?.codeId <= 0) {
+      const filePath = chainConfigs?.oraclePyth?.filePath || "../krp-market-contracts/artifacts/moneymarket_oracle_pyth.wasm";
+      network.oraclePyth.codeId = await storeCodeByWalletData(walletData, filePath);
+      writeArtifact(network, walletData.chainId, MARKET_ARTIFACTS_PATH);
+    }
+    if (network?.oraclePyth?.codeId > 0) {
+      const admin = chainConfigs?.oraclePyth?.admin || walletData.address;
+      const label = chainConfigs?.oraclePyth?.label;
+      const initMsg = Object.assign({}, chainConfigs?.oraclePyth?.initMsg, {
+        owner: chainConfigs?.oraclePyth?.initMsg?.owner || walletData.address
+      });
+      network.oraclePyth.address = await instantiateContractByWalletData(walletData, admin, network.oraclePyth.codeId, initMsg, label);
+      writeArtifact(network, walletData.chainId, MARKET_ARTIFACTS_PATH);
+      chainConfigs.oraclePyth.deploy = true;
+    }
+    console.log(`oraclePyth: `, JSON.stringify(network?.oraclePyth));
   }
 }
 
@@ -601,7 +631,8 @@ async function printDeployedContracts({ aToken, market, interestModel, distribut
     { name: `oracle`, deploy: chainConfigs?.oracle?.deploy, ...oracle },
     { name: `overseer`, deploy: chainConfigs?.overseer?.deploy, ...overseer },
     { name: `liquidationQueue`, deploy: chainConfigs?.liquidationQueue?.deploy, ...liquidationQueue },
-    { name: `custodyBSei`, deploy: chainConfigs?.custodyBSei?.deploy, ...custodyBSei }
+    { name: `custodyBSei`, deploy: chainConfigs?.custodyBSei?.deploy, ...custodyBSei },
+    { name: `oraclePyth`, deploy: chainConfigs?.oraclePyth?.deploy, ...oracle },
   ];
   console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
 }
