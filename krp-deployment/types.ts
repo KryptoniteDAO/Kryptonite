@@ -262,7 +262,6 @@ export interface SwapExtentionContract extends BaseContract {
   };
 }
 
-
 export interface Config {
   validator: string;
   stable_coin_denom: string;
@@ -288,7 +287,3 @@ export interface Config {
 
   swapExtention: SwapExtentionContract;
 }
-
-export type Token = { token: { contract_addr: string } };
-export type NativeToken = { native_token: { denom: string } };
-export type AssetInfo = Token | NativeToken;

@@ -121,6 +121,8 @@ export async function loadingWalletData(): Promise<WalletData> {
   const signingCosmWasmClient2 = await getSigningCosmWasmClient(RPC_ENDPOINT, wallet2, { gasPrice: gasPrice } as unknown as undefined);
   const signingStargateClient2 = await getSigningClient(RPC_ENDPOINT, wallet2);
 
+  console.log(`\nchainId: ${chainId} / address1: ${address} / address2: ${address2}`);
+
   const addressList = [address, address2];
   const denomList = [nativeCurrency.coinMinimalDenom, stable_coin_denom];
   const addressesBalances = await loadAddressesBalances(LCD_ENDPOINT, addressList, denomList);
