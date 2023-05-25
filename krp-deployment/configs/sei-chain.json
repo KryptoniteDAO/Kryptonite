@@ -187,6 +187,16 @@
     "filePath": null,
     "deploy": false
   },
+  "oraclePyth": {
+    "admin": null,
+    "initMsg": {
+      "owner": null,
+      "pyth_contract": "sei142c4zd0v44yfwxxk9khak7dvn369dttc99ryj2dgpdz95q25jf2q3904d2"
+    },
+    "label": "oracle pyth contract",
+    "filePath": null,
+    "deploy": false
+  },
   "convertPairs": [
     {
       "native_denom": "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/stsei",
@@ -264,5 +274,14 @@
         "deploy": false
       }
     }
-  ]
+  ],
+  "swapExtention": {
+    "admin": null,
+    "initMsg": {
+      "owner": null
+    },
+    "label": "swapExtention",
+    "filePath": null,
+    "deploy": false
+  }
 }

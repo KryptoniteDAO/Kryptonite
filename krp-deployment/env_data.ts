@@ -19,6 +19,7 @@ const nativeCurrency: BaseCurrencyInfo = {
 export const STAKING_ARTIFACTS_PATH = "../krp-staking-contracts/artifacts";
 export const MARKET_ARTIFACTS_PATH = "../krp-market-contracts/artifacts";
 export const CONVERT_ARTIFACTS_PATH = "../krp-basset-convert/artifacts";
+export const SWAP_EXTENSION_ARTIFACTS_PATH = "../swap-extention/artifacts";
 
 export const chainConfigs: Config = readArtifact(`${process.env.CHAIN_ID_KEY || chain_id_default}`, "configs", "");
 // console.log(process.env.CHAIN_ID);
@@ -239,6 +240,10 @@ export async function loadingMarketData(network: any = {}) {
     codeId: (network?.custodyBSei?.codeId && Number(network?.custodyBSei?.codeId)) || 0,
     address: network?.custodyBSei?.address
   };
+  let oraclePyth: DeployContract = {
+    codeId: (network?.oraclePyth?.codeId && Number(network?.oraclePyth?.codeId)) || 0,
+    address: network?.oraclePyth?.address
+  };
 
   return {
     aToken,
@@ -248,6 +253,7 @@ export async function loadingMarketData(network: any = {}) {
     oracle,
     overseer,
     liquidationQueue,
-    custodyBSei
+    custodyBSei,
+    oraclePyth
   };
 }
