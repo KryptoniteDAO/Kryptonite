@@ -4,10 +4,10 @@
   "hub": {
     "admin": null,
     "initMsg": {
-      "epoch_period": 30,
+      "epoch_period": 259200,
       "er_threshold": "1.0",
-      "peg_recovery_fee": "0",
-      "unbonding_period": 120
+      "peg_recovery_fee": "0.005",
+      "unbonding_period": 259200
     },
     "label": "sei hub",
     "filePath": null,
