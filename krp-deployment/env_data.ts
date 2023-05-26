@@ -21,6 +21,11 @@ export const MARKET_ARTIFACTS_PATH = "../krp-market-contracts/artifacts";
 export const CONVERT_ARTIFACTS_PATH = "../krp-basset-convert/artifacts";
 export const SWAP_EXTENSION_ARTIFACTS_PATH = "../swap-extention/artifacts";
 
+export const STAKING_MODULE_NAME = "staking";
+export const MARKET_MODULE_NAME = "market";
+export const CONVERT_MODULE_NAME = "convert";
+export const SWAP_EXTENSION_MODULE_NAME = "swap-extention";
+
 export const chainConfigs: Config = readArtifact(`${process.env.CHAIN_ID_KEY || chain_id_default}`, "configs", "");
 // console.log(process.env.CHAIN_ID);
 // console.log(chainConfigs);

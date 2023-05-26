@@ -287,3 +287,39 @@ export interface Config {
 
   swapExtention: SwapExtentionContract;
 }
+
+export interface SwapDeployContracts {
+  swapExtention: DeployContract;
+}
+
+export interface StakingDeployContracts {
+  hub: DeployContract;
+  reward: DeployContract;
+  bSeiToken: DeployContract;
+  rewardsDispatcher: DeployContract;
+  validatorsRegistry: DeployContract;
+  stSeiToken: DeployContract;
+}
+
+export interface MarketDeployContracts {
+  aToken: DeployContract;
+  market: DeployContract;
+  interestModel: DeployContract;
+  distributionModel: DeployContract;
+  oracle: DeployContract;
+  overseer: DeployContract;
+  liquidationQueue: DeployContract;
+  custodyBSei: DeployContract;
+  oraclePyth: DeployContract;
+}
+
+export interface ConvertPairsDeployContracts {
+  native_denom?: string;
+  converter?: DeployContract;
+  btoken?: DeployContract;
+  custody?: DeployContract;
+}
+
+export interface ConvertDeployContracts {
+  convertPairs?: ConvertPairsDeployContracts[];
+}

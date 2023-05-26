@@ -1,33 +1,37 @@
 import { readArtifact, writeArtifact, storeCodeByWalletData, instantiateContractByWalletData, executeContractByWalletData, queryWasmContractByWalletData, logChangeBalancesByWalletData } from "./common";
-import { loadingWalletData, loadingStakingData, chainConfigs, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH, SWAP_EXTENSION_ARTIFACTS_PATH } from "./env_data";
-import type { DeployContract, WalletData } from "./types";
-
+import { loadingWalletData, loadingStakingData, chainConfigs, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH, SWAP_EXTENSION_ARTIFACTS_PATH, CONVERT_ARTIFACTS_PATH } from "./env_data";
+import type { ConvertDeployContracts, DeployContract, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts, WalletData } from "./types";
 
 async function main(): Promise<void> {
   console.log(`--- --- deploy staking contracts enter --- ---`);
 
   const walletData = await loadingWalletData();
-  const network = readArtifact(walletData.chainId, STAKING_ARTIFACTS_PATH);
-  const network_market = readArtifact(walletData.chainId, MARKET_ARTIFACTS_PATH);
-  const network_swap = readArtifact(walletData.chainId, SWAP_EXTENSION_ARTIFACTS_PATH);
+
+  const networkStaking = readArtifact(walletData.chainId, STAKING_ARTIFACTS_PATH) as StakingDeployContracts;
+  const networkMarket = readArtifact(walletData.chainId, MARKET_ARTIFACTS_PATH) as MarketDeployContracts;
+  const networkSwap = readArtifact(walletData.chainId, SWAP_EXTENSION_ARTIFACTS_PATH) as SwapDeployContracts;
+  const networkConvert = readArtifact(walletData.chainId, CONVERT_ARTIFACTS_PATH) as ConvertDeployContracts;
+  // console.log(networkStaking);
+  // console.log(networkMarket);
+  // console.log(networkSwap);
+  // console.log(networkConvert);
+
   console.log(`--- --- staking contracts storeCode & instantiateContract enter --- ---`);
   console.log();
 
+  await deployOraclePyth(walletData, networkMarket);
 
-  await deployOraclePyth(walletData, network_market);
-
-  await deployHub(walletData, network, network_swap.swapExtention.address);
-  await deployReward(walletData, network, network_swap.swapExtention.address);
-  await deployBSeiToken(walletData, network);
-  await deployRewardsDispatcher(walletData, network, network_swap.swapExtention.address, network_market.oraclePyth.address);
-  await deployValidatorsRegistry(walletData, network);
-  await deployStSeiToken(walletData, network);
-
+  await deployHub(walletData, networkStaking, networkSwap.swapExtention.address);
+  await deployReward(walletData, networkStaking, networkSwap.swapExtention.address);
+  await deployBSeiToken(walletData, networkStaking);
+  await deployRewardsDispatcher(walletData, networkStaking, networkSwap.swapExtention.address, networkMarket.oraclePyth.address);
+  await deployValidatorsRegistry(walletData, networkStaking);
+  await deployStSeiToken(walletData, networkStaking);
 
   console.log();
   console.log(`--- --- staking contracts storeCode & instantiateContract end --- ---`);
 
-  const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(network);
+  const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(networkStaking);
 
   await printDeployedContracts({ hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken });
 
@@ -40,19 +44,17 @@ async function main(): Promise<void> {
   await queryHubConfig(walletData, hub);
   await queryHubParameters(walletData, hub);
 
-  
-  
-  console.log()
-  console.log("Do hub's update_params enter");
-  const hubUpdateParamsRes = await executeContractByWalletData(walletData, hub.address, {
-    update_params: {
-      epoch_period: 260000,
-      unbonding_period: 259200,
-      peg_recovery_fee: "0.005",
-      er_threshold: "1.0",
-    }
-  })
-   console.log("Do hub's update_params ok. \n", hubUpdateParamsRes?.transactionHash);
+  // console.log()
+  // console.log("Do hub's update_params enter");
+  // const hubUpdateParamsRes = await executeContractByWalletData(walletData, hub.address, {
+  //   update_params: {
+  //     epoch_period: 260000,
+  //     unbonding_period: 259200,
+  //     peg_recovery_fee: "0.005",
+  //     er_threshold: "1.0",
+  //   }
+  // })
+  //  console.log("Do hub's update_params ok. \n", hubUpdateParamsRes?.transactionHash);
   //======================deployed contracts，change creator to update_global_index=======================================//
   // change creator，
   // await executeContractByWalletData(walletData, hub.address,
@@ -95,7 +97,7 @@ async function deployHub(walletData: WalletData, network: any, swapExtention: st
           reward_denom: walletData.stable_coin_denom,
           underlying_coin_denom: walletData.nativeCurrency.coinMinimalDenom,
           validator: walletData.validator,
-          swap_contract: swapExtention,
+          swap_contract: swapExtention
         },
         chainConfigs?.hub?.initMsg
       );
@@ -108,7 +110,7 @@ async function deployHub(walletData: WalletData, network: any, swapExtention: st
   }
 }
 
-async function deployReward(walletData: WalletData, network: any, swapContract:string): Promise<void> {
+async function deployReward(walletData: WalletData, network: any, swapContract: string): Promise<void> {
   const hubAddress = network?.hub?.address;
   if (!hubAddress) {
     return;
@@ -132,7 +134,7 @@ async function deployReward(walletData: WalletData, network: any, swapContract:s
           hub_contract: hubAddress,
           reward_denom: walletData.stable_coin_denom,
           swap_contract: swapContract,
-          swap_denoms : ["usei"],
+          swap_denoms: ["usei"]
         },
         chainConfigs?.reward?.initMsg,
         {
@@ -208,8 +210,8 @@ async function deployRewardsDispatcher(walletData: WalletData, network: any, swa
           stsei_reward_denom: walletData.nativeCurrency.coinMinimalDenom,
           bsei_reward_denom: walletData.stable_coin_denom,
           swap_contract: swapExtention,
-          swap_denoms:["usei"],
-          oracle_contract: oracelAddress,
+          swap_denoms: ["usei"],
+          oracle_contract: oracelAddress
         },
         chainConfigs?.rewardsDispatcher?.initMsg,
         {
@@ -357,32 +359,28 @@ async function printDeployedContracts({ hub, reward, bSeiToken, rewardsDispatche
   console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
 }
 
-
 async function addValidator(walletData: WalletData, validatorRegister: DeployContract): Promise<any> {
   console.log();
   console.warn("Do register validator enter");
   const registerValidatorRes = await executeContractByWalletData(walletData, validatorRegister.address, {
-    add_validator:
-    { 
-      validator: 
-      {
-        address:walletData.validator 
-      }  
+    add_validator: {
+      validator: {
+        address: walletData.validator
+      }
     }
   });
   console.log("Do register validator  ok. \n", registerValidatorRes?.transactionHash);
 }
 
-
-async function removeValidator(walletData: WalletData, validatorRegister: DeployContract, validator:string): Promise<any> {
+async function removeValidator(walletData: WalletData, validatorRegister: DeployContract, validator: string): Promise<any> {
   console.log();
   console.warn("Do remove validator register enter");
   const registerValidatorRes = await executeContractByWalletData(walletData, validatorRegister.address, {
     remove_validator: {
-      address : validator
-     }
+      address: validator
+    }
   });
-  console.log("Do remove validator register ok. \n",registerValidatorRes?.transactionHash);
+  console.log("Do remove validator register ok. \n", registerValidatorRes?.transactionHash);
 }
 async function deployOraclePyth(walletData: WalletData, network: any): Promise<void> {
   // if ("atlantic-2" !== walletData.chainId) {
