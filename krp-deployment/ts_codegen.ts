@@ -13,6 +13,10 @@ type ContractConfig = {
   dir: string;
 };
 
+/**
+ * after do it
+ * 1. replaceAll in `OraclePyth.client.ts`: `<Query` => `<`
+ */
 async function main(): Promise<void> {
   console.log("✨✨✨ do code generate enter!");
   const contracts: ContractConfig[] = [];

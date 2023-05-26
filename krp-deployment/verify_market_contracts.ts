@@ -25,9 +25,9 @@ async function main(): Promise<void> {
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  // //just a few simple tests to make sure the contracts are not failing
-  // //for more accurate tests we must use integration-tests repo
+  // // just a few simple tests to make sure the contracts are not failing
+  // // for more accurate tests we must use integration-tests repo
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   /// 2. market deposit_stable test
   /// 2.1. deposit stable to money market
