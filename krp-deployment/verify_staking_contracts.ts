@@ -31,7 +31,7 @@ async function main(): Promise<void> {
     return;
   }
 
- 
+  // await doHubBondForStsei(walletData, walletData.nativeCurrency.coinMinimalDenom, hub, stSeiToken, "100000");
   await doHubBondForBsei(walletData, walletData.nativeCurrency.coinMinimalDenom, hub, bSeiToken, "1000000");
   await doHubUnbondBseiToNative(walletData, walletData.nativeCurrency.coinMinimalDenom, bSeiToken, hub, "100000");
   await doHubWithdrawUnbondedToNative(walletData, walletData.nativeCurrency.coinMinimalDenom, hub);
@@ -174,7 +174,12 @@ async function doHubWithdrawUnbondedToNative(walletData: WalletData, nativeDenom
   console.log("Do hub.address withdraw unbonded enter");
 
   const beforeWithdrawAbleRes = await queryWasmContractByWalletData(walletData, hub.address, { withdrawable_unbonded: { address: walletData.address } });
- 
+  console.log(`Query hub.address withdrawable_unbonded ok. address: ${walletData.address} \n${JSON.stringify(beforeWithdrawAbleRes)}`);
+  if (!beforeWithdrawAbleRes?.["withdrawable"] || new Decimal(beforeWithdrawAbleRes?.["withdrawable"]).comparedTo(0) <= 0) {
+    console.log();
+    console.error(`********** ********** unable to withdraw`);
+    return;
+  }
   const beforeNativeBalanceRes = await queryAddressBalance(walletData.LCD_ENDPOINT, walletData.address, nativeDenom);
   console.log(`before native balance: ${beforeNativeBalanceRes.balance.amount} ${nativeDenom}`);
 

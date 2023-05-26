@@ -314,12 +314,12 @@ export interface MarketDeployContracts {
 }
 
 export interface ConvertPairsDeployContracts {
-  native_denom: string;
-  converter: DeployContract;
-  btoken: DeployContract;
-  custody: DeployContract;
+  native_denom?: string;
+  converter?: DeployContract;
+  btoken?: DeployContract;
+  custody?: DeployContract;
 }
 
 export interface ConvertDeployContracts {
-  convertPairs: ConvertPairsDeployContracts[];
+  convertPairs?: ConvertPairsDeployContracts[];
 }
