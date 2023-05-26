@@ -22,6 +22,7 @@ async function main(): Promise<void> {
   console.log(`--- --- market contracts storeCode & instantiateContract enter --- ---`);
   console.log();
 
+  await deployOraclePyth(walletData, network);
   await deployMarket(walletData, network);
   await deployInterestModel(walletData, network);
   await deployDistributionModel(walletData, network);
@@ -29,12 +30,12 @@ async function main(): Promise<void> {
   await deployOverseer(walletData, network);
   await deployLiquidationQueue(walletData, network);
   await deployCustodyBSei(walletData, network, reward?.address, bSeiToken?.address);
-  await deployOraclePyth(walletData, network);
+
 
   console.log();
   console.log(`--- --- market contracts storeCode & instantiateContract end --- ---`);
 
-  const { aToken, market, interestModel, distributionModel, oracle, overseer, liquidationQueue, custodyBSei } = await loadingMarketData(network);
+  const { aToken, market, interestModel, distributionModel, oracle, oraclePyth, overseer, liquidationQueue, custodyBSei } = await loadingMarketData(network);
 
   await printDeployedContracts({ aToken, market, interestModel, distributionModel, oracle, overseer, liquidationQueue, custodyBSei });
 
@@ -43,6 +44,7 @@ async function main(): Promise<void> {
   console.log();
   console.log(`--- --- market contracts configure enter --- ---`);
 
+  /**oracle for local test, because local test enviroment has no oracle_pyth*/
   const marketConfigRes = await queryContractConfig(walletData, market, false);
   const interestModelConfigRes = await queryContractConfig(walletData, interestModel, false);
   const distributionModelConfigRes = await queryContractConfig(walletData, distributionModel, false);
@@ -55,7 +57,7 @@ async function main(): Promise<void> {
   await doMarketConfig(walletData, marketConfigRes.initFlag, marketConfigRes?.config, market, interestModel, distributionModel, overseer, bSeiToken, rewardsDispatcher);
   await doOverseerConfig(walletData, overseerConfigRes?.config, overseer, liquidationQueue);
   await doCustodyBSeiConfig(walletData, custodyBSeiConfigRes?.config, custodyBSei, liquidationQueue);
-  await doLiquidationQueueConfig(walletData, liquidationQueueConfigRes?.config, liquidationQueue, oracle, overseer);
+  await doLiquidationQueueConfig(walletData, liquidationQueueConfigRes?.config, liquidationQueue, oraclePyth, overseer);
   await doOverseerWhitelist(walletData, overseerWhitelistRes, overseer, custodyBSei, bSeiToken);
   await doLiquidationQueueWhitelistCollateral(walletData, liquidationQueue, bSeiToken);
 
@@ -194,7 +196,7 @@ async function deployOracle(walletData: WalletData, network: any): Promise<void>
 
 async function deployOverseer(walletData: WalletData, network: any): Promise<void> {
   const marketAddress = network?.market?.address;
-  const oracleAddress = network?.oracle?.address;
+  const oracleAddress = network?.oraclePyth?.address;
   const liquidationQueueAddress = network?.liquidationQueue?.address;
   if (!marketAddress || !oracleAddress) {
     return;
@@ -234,7 +236,7 @@ async function deployOverseer(walletData: WalletData, network: any): Promise<voi
 }
 
 async function deployLiquidationQueue(walletData: WalletData, network: any): Promise<void> {
-  const oracleAddress = network?.oracle?.address;
+  const oracleAddress = network?.oraclePyth?.address;
   const overseerAddress = network?.overseer?.address;
   if (!oracleAddress) {
     return;
@@ -413,18 +415,18 @@ async function doCustodyBSeiConfig(walletData: WalletData, custodyBSeiConfigRes:
   }
 }
 
-async function doLiquidationQueueConfig(walletData: WalletData, liquidationQueueConfigRes: any, liquidationQueue: DeployContract, oracle: DeployContract, overseer: DeployContract): Promise<void> {
-  if (!liquidationQueue?.address || !oracle?.address || !overseer?.address) {
+async function doLiquidationQueueConfig(walletData: WalletData, liquidationQueueConfigRes: any, liquidationQueue: DeployContract, oraclePyth: DeployContract, overseer: DeployContract): Promise<void> {
+  if (!liquidationQueue?.address || !oraclePyth?.address || !overseer?.address) {
     return;
   }
   // {"owner":"","oracle_contract":"","stable_denom":"","safe_ratio":"","bid_fee":"","liquidator_fee":"","liquidation_threshold":"","price_timeframe": “”,"waiting_period":“”,"overseer":""}
-  const liquidationQueueConfigFlag: boolean = oracle.address === liquidationQueueConfigRes?.oracle_contract && overseer.address === liquidationQueueConfigRes?.overseer;
+  const liquidationQueueConfigFlag: boolean = oraclePyth.address === liquidationQueueConfigRes?.oracle_contract && overseer.address === liquidationQueueConfigRes?.overseer;
   if (!liquidationQueueConfigFlag) {
     console.log();
     console.warn("Do liquidationQueue's config enter");
     const liquidationQueueUpdateConfigRes = await executeContractByWalletData(walletData, liquidationQueue.address, {
       update_config: {
-        oracle_contract: oracle.address,
+        oracle_contract: oraclePyth.address,
         overseer: overseer.address
         // owner: chainConfigs?.liquidationQueue?.initMsg?.owner || walletData.address,
         // safe_ratio: "0.8",

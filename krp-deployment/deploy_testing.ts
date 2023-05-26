@@ -1,6 +1,7 @@
 import { readArtifact, writeArtifact, storeCodeByWalletData, instantiateContractByWalletData, executeContractByWalletData, queryWasmContractByWalletData, logChangeBalancesByWalletData } from "./common";
-import { loadingWalletData, loadingStakingData, loadingMarketData, chainConfigs, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH, SWAP_EXTENSION_ARTIFACTS_PATH } from "./env_data";
-import type { DeployContract, WalletData } from "./types";
+import { CustodyBaseClient } from "./contracts/CustodyBase.client";
+import { loadingWalletData, loadingStakingData, loadingMarketData, chainConfigs, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH, SWAP_EXTENSION_ARTIFACTS_PATH, CONVERT_ARTIFACTS_PATH } from "./env_data";
+import type { ConvertPairs, DeployContract, WalletData } from "./types";
 
 
 require("dotenv").config();
@@ -14,6 +15,7 @@ async function main(): Promise<void> {
   const network = readArtifact(walletData.chainId, STAKING_ARTIFACTS_PATH);
   const network_market = readArtifact(walletData.chainId, MARKET_ARTIFACTS_PATH);
   const network_swap = readArtifact(walletData.chainId, SWAP_EXTENSION_ARTIFACTS_PATH);
+  const network_convert = readArtifact(walletData.chainId, CONVERT_ARTIFACTS_PATH);
   console.log(`--- --- staking contracts storeCode & instantiateContract enter --- ---`);
   console.log();
 
@@ -31,6 +33,10 @@ async function main(): Promise<void> {
     return;
   }
 
+  const swapExtention = network_swap?.swapExtention;
+
+  
+
   console.log("--- -- test support stSEI and SLSTI asset start --- ---");
   //const strideSeiDenom = "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/stsei";
   //const slstiSeiDenom = "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/slsdi";
@@ -39,18 +45,46 @@ async function main(): Promise<void> {
 
 
 
-  
-  console.log();
-  console.log("Query validators Registry enter");
-  let validatorAddress = "sei1d28hqavdcdpavq4dkhm6rtvyuqwg2mela6m9ccdf4gs9hlwwvpts69tl4v";
-  const registerRes1 = await queryWasmContractByWalletData(walletData, validatorsRegistry.address, { get_validators_for_delegation :{} });
-  console.log(`registerRes1.config: \n${JSON.stringify(registerRes1)}`);
-  
 
-  const registerRes2 = await queryWasmContractByWalletData(walletData, validatorAddress, { get_validators_for_delegation :{} });
-  console.log(`registerRes2.config: \n${JSON.stringify(registerRes2)}`);
   
-  
+  //**configure overseer、liquidation_queue、 custody array */
+  const nativeDenomList = [
+    {
+      name: "strideSei",
+      address: "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/stsei",
+      convertNativeToBasset: "1000000",
+      convertBassetToNative: "1000000"
+    },
+    {
+      name: "slsdi",
+      address: "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/slsdi",
+      convertNativeToBasset: "1000000",
+      convertBassetToNative: "1000000"
+    }
+  ];
+
+
+  for (let nativeDenomItem of nativeDenomList) {
+    const nativeDenom = nativeDenomItem?.address;
+    const convertPairsConfig: ConvertPairs = chainConfigs?.convertPairs?.find((v: ConvertPairs) => nativeDenom === v.native_denom);
+    const convertPairsNetwork = network_convert?.convertPairs?.find((v: any) => nativeDenom === v.native_denom);
+    if (!convertPairsConfig || !convertPairsNetwork) {
+      continue;
+    }
+    // const converterConfig = convertPairsConfig?.converter;
+    // const btokenConfig = convertPairsConfig?.btoken;
+    // const custodyConfig = convertPairsConfig?.custody;
+
+    const converterNetwork = convertPairsNetwork?.converter;
+    const btokenNetwork = convertPairsNetwork?.btoken;
+    const custodyNetwork = convertPairsNetwork?.custody;
+
+
+    
+    await executeContractByWalletData(walletData, custodyNetwork.address, {update_swap_contract:{ swap_contract : network_swap.}});
+
+    await executeContractByWalletData()
+
 
   //**********************************************upgrade custody_bsei and overseer contract begin*************************************
 

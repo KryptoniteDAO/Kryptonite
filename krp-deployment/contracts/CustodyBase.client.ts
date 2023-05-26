@@ -118,9 +118,9 @@ export interface CustodyBaseInterface extends CustodyBaseReadOnlyInterface {
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class CustodyBaseClient extends CustodyBaseQueryClient implements CustodyBaseInterface {
-  client: SigningCosmWasmClient;
+  declare client: SigningCosmWasmClient;
   sender: string;
-  contractAddress: string;
+  declare contractAddress: string;
 
   constructor(client: SigningCosmWasmClient, sender: string, contractAddress: string) {
     super(client, contractAddress);
