@@ -61,27 +61,6 @@ async function main(): Promise<void> {
   });
   console.log("Do custodyBSei.address deposit and lock collateral ok. \n", custodyBSeiDepositCollateralRes?.transactionHash);
 
-  /// 4. Overseer register feeder for asset in oracle contract
-  console.log();
-  console.log("Do overseer.address register_feeder enter");
-  let overseerRegisterFeederRes = await executeContractByWalletData(walletData, oracle.address, {
-    register_feeder: {
-      asset: bSeiToken.address,
-      feeder: walletData.address
-    }
-  });
-  console.log("Do overseer.address register_feeder ok. \n", overseerRegisterFeederRes?.transactionHash);
-
-  ///  4.1 feed Price
-  /// Feeds new price data. Can only be issued by the owner.
-  console.log();
-  console.log("Do oracle.address feed_price enter");
-  let oracleFeedPriceRes = await executeContractByWalletData(walletData, oracle.address, {
-    feed_price: {
-      prices: [[bSeiToken.address, "100"]]
-    }
-  });
-  console.log("Do oracle.address feed_price ok. \n", oracleFeedPriceRes?.transactionHash);
 
   //step5: unlock collateral and withdraw bSeiToken
   console.log();
