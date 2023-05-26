@@ -33,7 +33,7 @@ async function main(): Promise<void> {
 
   const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(networkStaking);
 
-  await printDeployedContracts(networkStaking);
+  await printDeployedStakingContracts(networkStaking);
 
   // //////////////////////////////////////configure contracts///////////////////////////////////////////
 
@@ -323,7 +323,7 @@ async function queryHubParameters(walletData: WalletData, hub: DeployContract): 
   return hubParametersRes;
 }
 
-async function printDeployedContracts(networkStaking: StakingDeployContracts): Promise<void> {
+async function printDeployedStakingContracts(networkStaking: StakingDeployContracts): Promise<void> {
   console.log();
   console.log(`--- --- deployed staking contracts info --- ---`);
   const tableData = [

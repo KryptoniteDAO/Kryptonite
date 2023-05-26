@@ -1,7 +1,7 @@
 import { coins } from "@cosmjs/stargate";
 import { readArtifact, executeContractByWalletData, logChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance } from "./common";
 import { loadingWalletData, chainConfigs, CONVERT_ARTIFACTS_PATH } from "./env_data";
-import { ConvertPairs, DeployContract, WalletData } from "./types";
+import { ConvertDeployContracts, ConvertPairs, DeployContract, WalletData } from "./types";
 import Decimal from "decimal.js";
 
 main().catch(console.error);
@@ -12,44 +12,23 @@ async function main(): Promise<void> {
   const walletData = await loadingWalletData();
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
   // //just a few simple tests to make sure the contracts are not failing
   // //for more accurate tests we must use integration-tests repo
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  const nativeDenomList = [
-    {
-      name: "strideSei",
-      address: "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/stsei",
-      convertNativeToBasset: "1000000",
-      convertBassetToNative: "1000000"
-    },
-    {
-      name: "slsdi",
-      address: "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/slsdi",
-      convertNativeToBasset: "1000000",
-      convertBassetToNative: "1000000"
+  const networkConvert = readArtifact(walletData.chainId, CONVERT_ARTIFACTS_PATH) as ConvertDeployContracts;
+
+  if (networkConvert?.convertPairs && networkConvert.convertPairs.length > 0) {
+    for (let convertPairsNetwork of networkConvert.convertPairs) {
+      const nativeDenom = convertPairsNetwork?.native_denom;
+
+      const converterNetwork = convertPairsNetwork?.converter;
+      const btokenNetwork = convertPairsNetwork?.btoken;
+      const custodyNetwork = convertPairsNetwork?.custody;
+
+      await doConvertNativeToBasset(walletData, nativeDenom, converterNetwork, btokenNetwork, "1000000");
+      await doConvertBassetToNative(walletData, nativeDenom, btokenNetwork, converterNetwork, "1000000");
     }
-  ];
-
-  const network = readArtifact(walletData.chainId, CONVERT_ARTIFACTS_PATH);
-
-  for (let nativeDenomItem of nativeDenomList) {
-    const nativeDenom = nativeDenomItem?.address;
-    const convertPairsConfig: ConvertPairs = chainConfigs?.convertPairs?.find((v: ConvertPairs) => nativeDenom === v.native_denom);
-    const convertPairsNetwork = network?.convertPairs?.find((v: any) => nativeDenom === v.native_denom);
-    if (!convertPairsConfig || !convertPairsNetwork) {
-      continue;
-    }
-    // const converterConfig = convertPairsConfig?.converter;
-    // const btokenConfig = convertPairsConfig?.btoken;
-    // const custodyConfig = convertPairsConfig?.custody;
-
-    const converterNetwork = convertPairsNetwork?.converter;
-    const btokenNetwork = convertPairsNetwork?.btoken;
-    const custodyNetwork = convertPairsNetwork?.custody;
-
-    await doConvertNativeToBasset(walletData, nativeDenom, converterNetwork, btokenNetwork, nativeDenomItem?.convertNativeToBasset);
-    await doConvertBassetToNative(walletData, nativeDenom, btokenNetwork, converterNetwork, nativeDenomItem?.convertBassetToNative);
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -121,7 +100,7 @@ async function doConvertBassetToNative(walletData: WalletData, nativeDenom: stri
     {
       send: {
         contract: converter.address,
-        amount: amount+"",
+        amount: amount + "",
         msg: Buffer.from(JSON.stringify({ convert_basset_to_native: {} })).toString("base64")
       }
     },

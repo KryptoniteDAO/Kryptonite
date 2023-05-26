@@ -3,8 +3,6 @@ import { loadingWalletData, loadingMarketData, loadingStakingData, chainConfigs,
 import type { DeployContract, WalletData } from "./types";
 import { ConvertDeployContracts, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts } from "./types";
 import { ConfigSwapPairConfigList, deploySwapExtention, doSwapExtentionSetWhitelist, doSwapExtentionUpdatePairConfig, printDeployedSwapContracts } from "./modules/swap";
-import { Addr, AssetInfo, Decimal } from "./contracts/SwapExtention.types";
-import { SwapExtentionClient, SwapExtentionQueryClient } from "./contracts/SwapExtention.client";
 
 main().catch(console.error);
 
