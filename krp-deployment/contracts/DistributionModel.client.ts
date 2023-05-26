@@ -59,7 +59,7 @@ export class DistributionModelQueryClient implements DistributionModelReadOnlyIn
     });
   };
 }
-export interface DistributionModelInterface extends DistributionModelReadOnlyInterface {
+export interface DistributionModelInterface {
   contractAddress: string;
   sender: string;
   updateConfig: ({
@@ -76,13 +76,12 @@ export interface DistributionModelInterface extends DistributionModelReadOnlyInt
     owner?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
-export class DistributionModelClient extends DistributionModelQueryClient implements DistributionModelInterface {
+export class DistributionModelClient implements DistributionModelInterface {
   client: SigningCosmWasmClient;
   sender: string;
   contractAddress: string;
 
   constructor(client: SigningCosmWasmClient, sender: string, contractAddress: string) {
-    super(client, contractAddress);
     this.client = client;
     this.sender = sender;
     this.contractAddress = contractAddress;

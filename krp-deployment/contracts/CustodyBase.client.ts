@@ -66,7 +66,7 @@ export class CustodyBaseQueryClient implements CustodyBaseReadOnlyInterface {
     });
   };
 }
-export interface CustodyBaseInterface extends CustodyBaseReadOnlyInterface {
+export interface CustodyBaseInterface {
   contractAddress: string;
   sender: string;
   receive: ({
@@ -117,13 +117,12 @@ export interface CustodyBaseInterface extends CustodyBaseReadOnlyInterface {
     borrower: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
-export class CustodyBaseClient extends CustodyBaseQueryClient implements CustodyBaseInterface {
-  declare client: SigningCosmWasmClient;
+export class CustodyBaseClient implements CustodyBaseInterface {
+  client: SigningCosmWasmClient;
   sender: string;
-  declare contractAddress: string;
+  contractAddress: string;
 
   constructor(client: SigningCosmWasmClient, sender: string, contractAddress: string) {
-    super(client, contractAddress);
     this.client = client;
     this.sender = sender;
     this.contractAddress = contractAddress;

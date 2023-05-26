@@ -88,7 +88,7 @@ export class OracleQueryClient implements OracleReadOnlyInterface {
     });
   };
 }
-export interface OracleInterface extends OracleReadOnlyInterface {
+export interface OracleInterface {
   contractAddress: string;
   sender: string;
   updateConfig: ({
@@ -109,13 +109,12 @@ export interface OracleInterface extends OracleReadOnlyInterface {
     prices: string[][];
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
-export class OracleClient extends OracleQueryClient implements OracleInterface {
+export class OracleClient implements OracleInterface {
   client: SigningCosmWasmClient;
   sender: string;
   contractAddress: string;
 
   constructor(client: SigningCosmWasmClient, sender: string, contractAddress: string) {
-    super(client, contractAddress);
     this.client = client;
     this.sender = sender;
     this.contractAddress = contractAddress;

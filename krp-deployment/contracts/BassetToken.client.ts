@@ -122,7 +122,7 @@ export class BassetTokenQueryClient implements BassetTokenReadOnlyInterface {
     });
   };
 }
-export interface BassetTokenInterface extends BassetTokenReadOnlyInterface {
+export interface BassetTokenInterface {
   contractAddress: string;
   sender: string;
   transfer: ({
@@ -199,13 +199,12 @@ export interface BassetTokenInterface extends BassetTokenReadOnlyInterface {
     owner: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
-export class BassetTokenClient extends BassetTokenQueryClient implements BassetTokenInterface {
+export class BassetTokenClient implements BassetTokenInterface {
   client: SigningCosmWasmClient;
   sender: string;
   contractAddress: string;
 
   constructor(client: SigningCosmWasmClient, sender: string, contractAddress: string) {
-    super(client, contractAddress);
     this.client = client;
     this.sender = sender;
     this.contractAddress = contractAddress;

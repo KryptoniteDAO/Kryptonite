@@ -104,7 +104,7 @@ export class HubQueryClient implements HubReadOnlyInterface {
     });
   };
 }
-export interface HubInterface extends HubReadOnlyInterface {
+export interface HubInterface {
   contractAddress: string;
   sender: string;
   updateConfig: ({
@@ -191,13 +191,12 @@ export interface HubInterface extends HubReadOnlyInterface {
     limit?: number;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
-export class HubClient extends HubQueryClient implements HubInterface {
+export class HubClient implements HubInterface {
   client: SigningCosmWasmClient;
   sender: string;
   contractAddress: string;
 
   constructor(client: SigningCosmWasmClient, sender: string, contractAddress: string) {
-    super(client, contractAddress);
     this.client = client;
     this.sender = sender;
     this.contractAddress = contractAddress;

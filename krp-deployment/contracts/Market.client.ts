@@ -110,7 +110,7 @@ export class MarketQueryClient implements MarketReadOnlyInterface {
     });
   };
 }
-export interface MarketInterface extends MarketReadOnlyInterface {
+export interface MarketInterface {
   contractAddress: string;
   sender: string;
   receive: ({
@@ -179,13 +179,12 @@ export interface MarketInterface extends MarketReadOnlyInterface {
     to?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
-export class MarketClient extends MarketQueryClient implements MarketInterface {
+export class MarketClient implements MarketInterface {
   client: SigningCosmWasmClient;
   sender: string;
   contractAddress: string;
 
   constructor(client: SigningCosmWasmClient, sender: string, contractAddress: string) {
-    super(client, contractAddress);
     this.client = client;
     this.sender = sender;
     this.contractAddress = contractAddress;

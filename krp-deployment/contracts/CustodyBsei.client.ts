@@ -66,7 +66,7 @@ export class CustodyBseiQueryClient implements CustodyBseiReadOnlyInterface {
     });
   };
 }
-export interface CustodyBseiInterface extends CustodyBseiReadOnlyInterface {
+export interface CustodyBseiInterface {
   contractAddress: string;
   sender: string;
   receive: ({
@@ -117,13 +117,12 @@ export interface CustodyBseiInterface extends CustodyBseiReadOnlyInterface {
     borrower: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
-export class CustodyBseiClient extends CustodyBseiQueryClient implements CustodyBseiInterface {
+export class CustodyBseiClient implements CustodyBseiInterface {
   client: SigningCosmWasmClient;
   sender: string;
   contractAddress: string;
 
   constructor(client: SigningCosmWasmClient, sender: string, contractAddress: string) {
-    super(client, contractAddress);
     this.client = client;
     this.sender = sender;
     this.contractAddress = contractAddress;

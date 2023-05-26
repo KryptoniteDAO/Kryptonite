@@ -17,8 +17,8 @@ async function main(): Promise<void> {
   }
 
   const networkMarket = readArtifact(walletData.chainId, MARKET_ARTIFACTS_PATH);
-  const { aToken, market, interestModel, distributionModel, oracle, overseer, liquidationQueue, custodyBSei } = await loadingMarketData(networkMarket);
-  if (!aToken?.address || !market?.address || !interestModel?.address || !distributionModel?.address || !oracle?.address || !overseer?.address || !liquidationQueue?.address || !custodyBSei?.address) {
+  const { aToken, market, interestModel, distributionModel, overseer, liquidationQueue, custodyBSei } = await loadingMarketData(networkMarket);
+  if (!aToken?.address || !market?.address || !interestModel?.address || !distributionModel?.address || !overseer?.address || !liquidationQueue?.address || !custodyBSei?.address) {
     console.log(`--- --- verify deployed error, missing some deployed market address info --- ---`);
     process.exit(0);
     return;
@@ -106,14 +106,14 @@ async function main(): Promise<void> {
 
   /// 14.2 feed Price
   /// Feeds new price data. Can only be issued by the owner.
-  console.log();
-  console.log("Do oracle.address feed_price 2 enter");
-  let oracleFeedPriceRes2 = await executeContractByWalletData(walletData, oracle.address, {
-    feed_price: {
-      prices: [[bSeiToken.address, "5"]]
-    }
-  });
-  console.log("Do oracle.address feed_price 2 ok. \n", oracleFeedPriceRes2?.transactionHash);
+  // console.log();
+  // console.log("Do oracle.address feed_price 2 enter");
+  // let oracleFeedPriceRes2 = await executeContractByWalletData(walletData, oracle.address, {
+  //   feed_price: {
+  //     prices: [[bSeiToken.address, "5"]]
+  //   }
+  // });
+  // console.log("Do oracle.address feed_price 2 ok. \n", oracleFeedPriceRes2?.transactionHash);
 
   /// 15.Liquidate Collateral
   /// 15.2 query collateral borrow limit
@@ -164,14 +164,14 @@ async function main(): Promise<void> {
   console.log("Query custodyBSei.address borrower ok. \n", JSON.stringify(custodyBSeiBorrowerRes));
 
   /// Feeds new price data. Can only be issued by the owner.
-  console.log();
-  console.log("Do oracle.address feed_price 3 enter");
-  let oracleFeedPriceRes3 = await executeContractByWalletData(walletData, oracle.address, {
-    feed_price: {
-      prices: [[bSeiToken.address, "5"]]
-    }
-  });
-  console.log("Do oracle.address feed_price 3 ok. \n", oracleFeedPriceRes3?.transactionHash);
+  // console.log();
+  // console.log("Do oracle.address feed_price 3 enter");
+  // let oracleFeedPriceRes3 = await executeContractByWalletData(walletData, oracle.address, {
+  //   feed_price: {
+  //     prices: [[bSeiToken.address, "5"]]
+  //   }
+  // });
+  // console.log("Do oracle.address feed_price 3 ok. \n", oracleFeedPriceRes3?.transactionHash);
 
   /// 12.1 query borrow stable coin info
   console.log();

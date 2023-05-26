@@ -90,7 +90,7 @@ export class RewardQueryClient implements RewardReadOnlyInterface {
     });
   };
 }
-export interface RewardInterface extends RewardReadOnlyInterface {
+export interface RewardInterface {
   contractAddress: string;
   sender: string;
   swapToRewardDenom: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
@@ -115,13 +115,12 @@ export interface RewardInterface extends RewardReadOnlyInterface {
     recipient?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
-export class RewardClient extends RewardQueryClient implements RewardInterface {
+export class RewardClient implements RewardInterface {
   client: SigningCosmWasmClient;
   sender: string;
   contractAddress: string;
 
   constructor(client: SigningCosmWasmClient, sender: string, contractAddress: string) {
-    super(client, contractAddress);
     this.client = client;
     this.sender = sender;
     this.contractAddress = contractAddress;

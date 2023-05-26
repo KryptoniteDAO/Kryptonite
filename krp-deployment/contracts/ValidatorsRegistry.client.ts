@@ -34,7 +34,7 @@ export class ValidatorsRegistryQueryClient implements ValidatorsRegistryReadOnly
     });
   };
 }
-export interface ValidatorsRegistryInterface extends ValidatorsRegistryReadOnlyInterface {
+export interface ValidatorsRegistryInterface {
   contractAddress: string;
   sender: string;
   addValidator: ({
@@ -55,13 +55,12 @@ export interface ValidatorsRegistryInterface extends ValidatorsRegistryReadOnlyI
     owner?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
-export class ValidatorsRegistryClient extends ValidatorsRegistryQueryClient implements ValidatorsRegistryInterface {
+export class ValidatorsRegistryClient implements ValidatorsRegistryInterface {
   client: SigningCosmWasmClient;
   sender: string;
   contractAddress: string;
 
   constructor(client: SigningCosmWasmClient, sender: string, contractAddress: string) {
-    super(client, contractAddress);
     this.client = client;
     this.sender = sender;
     this.contractAddress = contractAddress;

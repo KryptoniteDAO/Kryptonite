@@ -83,7 +83,7 @@ async function doHubBondForStsei(walletData: WalletData, nativeDenom: string, hu
   const beforeNativeBalanceRes = await queryAddressBalance(walletData.LCD_ENDPOINT, walletData.address, nativeDenom);
   if (new Decimal(beforeNativeBalanceRes?.balance?.amount ?? 0).comparedTo(new Decimal(amount)) < 0) {
     console.log();
-    console.error(`********** ********** The nativeDenom balance is insufficient. ${amount} but ${beforeNativeBalanceRes?.balance?.amount ?? 0}`);
+    console.error(`********* The nativeDenom balance is insufficient. ${amount} but ${beforeNativeBalanceRes?.balance?.amount ?? 0}`);
     return;
   }
   const beforeTokenBalanceRes = await queryAddressTokenBalance(walletData.signingCosmWasmClient, walletData.address, stsei.address);
@@ -112,7 +112,7 @@ async function doHubBondForBsei(walletData: WalletData, nativeDenom: string, hub
   const beforeNativeBalanceRes = await queryAddressBalance(walletData.LCD_ENDPOINT, walletData.address, nativeDenom);
   if (new Decimal(beforeNativeBalanceRes?.balance?.amount ?? 0).comparedTo(new Decimal(amount)) < 0) {
     console.log();
-    console.error(`********** ********** The nativeDenom balance is insufficient. ${amount} but ${beforeNativeBalanceRes?.balance?.amount ?? 0}`);
+    console.error(`********* The nativeDenom balance is insufficient. ${amount} but ${beforeNativeBalanceRes?.balance?.amount ?? 0}`);
     return;
   }
 
@@ -141,7 +141,7 @@ async function doHubUnbondBseiToNative(walletData: WalletData, nativeDenom: stri
   const beforeTokenBalanceRes = await queryAddressTokenBalance(walletData.signingCosmWasmClient, walletData.address, btoken.address);
   if (new Decimal(beforeTokenBalanceRes?.balance ?? 0).comparedTo(new Decimal(amount)) < 0) {
     console.log();
-    console.error(`********** ********** The nativeDenom balance is insufficient. ${amount} but ${beforeTokenBalanceRes?.balance ?? 0}`);
+    console.error(`********* The nativeDenom balance is insufficient. ${amount} but ${beforeTokenBalanceRes?.balance ?? 0}`);
     return;
   }
   const beforeUnbondRequestRes = await queryWasmContractByWalletData(walletData, hub.address, { unbond_requests: { address: walletData.address } });
@@ -177,7 +177,7 @@ async function doHubWithdrawUnbondedToNative(walletData: WalletData, nativeDenom
   console.log(`Query hub.address withdrawable_unbonded ok. address: ${walletData.address} \n${JSON.stringify(beforeWithdrawAbleRes)}`);
   if (!beforeWithdrawAbleRes?.["withdrawable"] || new Decimal(beforeWithdrawAbleRes?.["withdrawable"]).comparedTo(0) <= 0) {
     console.log();
-    console.error(`********** ********** unable to withdraw`);
+    console.error(`********* unable to withdraw`);
     return;
   }
   const beforeNativeBalanceRes = await queryAddressBalance(walletData.LCD_ENDPOINT, walletData.address, nativeDenom);
@@ -206,7 +206,7 @@ async function doHubUpdateRewards(walletData: WalletData, nativeDenom: string, h
   const beforeRewardsDemonBalanceRes = await queryAddressBalance(walletData.LCD_ENDPOINT, walletData.address, rewardDemon);
   if (new Decimal(beforeRewardsDemonBalanceRes?.balance?.amount ?? 0).comparedTo(new Decimal(amount)) < 0) {
     console.log();
-    console.error(`********** ********** The rewardDemon balance is insufficient. ${amount} but ${beforeRewardsDemonBalanceRes?.balance?.amount ?? 0}`);
+    console.error(`********* The rewardDemon balance is insufficient. ${amount} but ${beforeRewardsDemonBalanceRes?.balance?.amount ?? 0}`);
     return;
   }
 
@@ -238,7 +238,7 @@ async function doClaimRewards(walletData: WalletData, nativeDenom: string, rewar
   console.log(`Query reward.address accrued_rewards ok. address: ${walletData.address} \n${JSON.stringify(beforeAccruedRewardsRes)}`);
   if (!beforeAccruedRewardsRes?.["rewards"] || new Decimal(beforeAccruedRewardsRes?.["rewards"]).comparedTo(0) <= 0) {
     console.log();
-    console.error(`********** ********** unable to claim`);
+    console.error(`********* unable to claim`);
     return;
   }
 
