@@ -127,9 +127,9 @@ export interface SwapExtentionInterface extends SwapExtentionReadOnlyInterface {
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class SwapExtentionClient extends SwapExtentionQueryClient implements SwapExtentionInterface {
-  client: SigningCosmWasmClient;
+  declare client: SigningCosmWasmClient;
   sender: string;
-  contractAddress: string;
+  declare contractAddress: string;
 
   constructor(client: SigningCosmWasmClient, sender: string, contractAddress: string) {
     super(client, contractAddress);
