@@ -21,10 +21,10 @@ async function main(): Promise<void> {
 
   await deployOraclePyth(walletData, networkMarket);
 
-  await deployHub(walletData, networkStaking, networkSwap.swapExtention.address);
-  await deployReward(walletData, networkStaking, networkSwap.swapExtention.address);
+  await deployHub(walletData, networkStaking, networkSwap?.swapExtention);
+  await deployReward(walletData, networkStaking, networkSwap?.swapExtention);
   await deployBSeiToken(walletData, networkStaking);
-  await deployRewardsDispatcher(walletData, networkStaking, networkSwap.swapExtention.address, networkMarket.oraclePyth.address);
+  await deployRewardsDispatcher(walletData, networkStaking, networkSwap?.swapExtention, networkMarket?.oraclePyth);
   await deployValidatorsRegistry(walletData, networkStaking);
   await deployStSeiToken(walletData, networkStaking);
 
@@ -78,18 +78,18 @@ async function main(): Promise<void> {
   console.log();
 }
 
-async function deployHub(walletData: WalletData, network: any, swapExtention: string): Promise<void> {
-  if (!network?.hub?.address) {
-    if (!network?.hub) {
-      network.hub = {};
+async function deployHub(walletData: WalletData, networkStaking: StakingDeployContracts, swapExtention: DeployContract): Promise<void> {
+  if (!networkStaking?.hub?.address || !swapExtention?.address) {
+    if (!networkStaking?.hub) {
+      networkStaking.hub = {};
     }
 
-    if (!network?.hub?.codeId || network?.hub?.codeId <= 0) {
+    if (!networkStaking?.hub?.codeId || networkStaking?.hub?.codeId <= 0) {
       const filePath = chainConfigs?.hub?.filePath || "../krp-staking-contracts/artifacts/basset_sei_hub.wasm";
-      network.hub.codeId = await storeCodeByWalletData(walletData, filePath);
-      writeArtifact(network, walletData.chainId, STAKING_ARTIFACTS_PATH);
+      networkStaking.hub.codeId = await storeCodeByWalletData(walletData, filePath);
+      writeArtifact(networkStaking, walletData.chainId, STAKING_ARTIFACTS_PATH);
     }
-    if (network?.hub?.codeId > 0) {
+    if (networkStaking?.hub?.codeId > 0) {
       const admin = chainConfigs?.hub?.admin || walletData.address;
       const label = chainConfigs?.hub?.label;
       const initMsg = Object.assign(
@@ -97,22 +97,22 @@ async function deployHub(walletData: WalletData, network: any, swapExtention: st
           reward_denom: walletData.stable_coin_denom,
           underlying_coin_denom: walletData.nativeCurrency.coinMinimalDenom,
           validator: walletData.validator,
-          swap_contract: swapExtention
+          swap_contract: swapExtention?.address
         },
         chainConfigs?.hub?.initMsg
       );
       console.log(initMsg);
-      network.hub.address = await instantiateContractByWalletData(walletData, admin, network.hub.codeId, initMsg, label);
-      writeArtifact(network, walletData.chainId, STAKING_ARTIFACTS_PATH);
+      networkStaking.hub.address = await instantiateContractByWalletData(walletData, admin, networkStaking.hub.codeId, initMsg, label);
+      writeArtifact(networkStaking, walletData.chainId, STAKING_ARTIFACTS_PATH);
       chainConfigs.hub.deploy = true;
     }
-    console.log(`hub: `, JSON.stringify(network?.hub));
+    console.log(`hub: `, JSON.stringify(networkStaking?.hub));
   }
 }
 
-async function deployReward(walletData: WalletData, network: any, swapContract: string): Promise<void> {
+async function deployReward(walletData: WalletData, network: any, swapExtention: DeployContract): Promise<void> {
   const hubAddress = network?.hub?.address;
-  if (!hubAddress) {
+  if (!hubAddress || !swapExtention?.address) {
     return;
   }
 
@@ -133,8 +133,8 @@ async function deployReward(walletData: WalletData, network: any, swapContract: 
         {
           hub_contract: hubAddress,
           reward_denom: walletData.stable_coin_denom,
-          swap_contract: swapContract,
-          swap_denoms: ["usei"]
+          swap_contract: swapExtention?.address,
+          swap_denoms: [walletData.nativeCurrency.coinMinimalDenom]
         },
         chainConfigs?.reward?.initMsg,
         {
@@ -183,13 +183,12 @@ async function deployBSeiToken(walletData: WalletData, network: any): Promise<vo
   }
 }
 
-async function deployRewardsDispatcher(walletData: WalletData, network: any, swapExtention: string, oracelAddress: string): Promise<void> {
+async function deployRewardsDispatcher(walletData: WalletData, network: any, swapExtention: DeployContract, oraclePyth: DeployContract): Promise<void> {
   const hubAddress = network?.hub?.address;
   const rewardAddress = network?.reward?.address;
-  if (!hubAddress || !rewardAddress) {
+  if (!hubAddress || !rewardAddress || !swapExtention?.address || !oraclePyth?.address) {
     return;
   }
-
   if (!network?.rewardsDispatcher?.address) {
     if (!network?.rewardsDispatcher) {
       network.rewardsDispatcher = {};
@@ -209,9 +208,9 @@ async function deployRewardsDispatcher(walletData: WalletData, network: any, swa
           bsei_reward_contract: rewardAddress,
           stsei_reward_denom: walletData.nativeCurrency.coinMinimalDenom,
           bsei_reward_denom: walletData.stable_coin_denom,
-          swap_contract: swapExtention,
-          swap_denoms: ["usei"],
-          oracle_contract: oracelAddress
+          swap_contract: swapExtention?.address,
+          swap_denoms: [walletData.nativeCurrency.coinMinimalDenom],
+          oracle_contract: oraclePyth?.address
         },
         chainConfigs?.rewardsDispatcher?.initMsg,
         {
