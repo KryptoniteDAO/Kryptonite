@@ -16,10 +16,10 @@ type ContractConfig = {
 async function main(): Promise<void> {
   console.log("✨✨✨ do code generate enter!");
   const contracts: ContractConfig[] = [];
-  // contracts.push(...getContractConfigByPath(STAKING_CONTRACTS_PATH));
-  // contracts.push(...getContractConfigByPath(MARKET_CONTRACTS_PATH));
-  // contracts.push(...getContractConfigByPath(CONVERT_CONTRACTS_PATH));
-  // contracts.push(...getContractConfigByPath(SWAP_EXTENSION_CONTRACTS_PATH));
+  contracts.push(...getContractConfigByPath(STAKING_CONTRACTS_PATH));
+  contracts.push(...getContractConfigByPath(MARKET_CONTRACTS_PATH));
+  contracts.push(...getContractConfigByPath(CONVERT_CONTRACTS_PATH));
+  contracts.push(...getContractConfigByPath(SWAP_EXTENSION_CONTRACTS_PATH));
 
   // rename & print it
   contracts.map((value: ContractConfig) => {
@@ -53,7 +53,7 @@ async function doCodegen(contracts): Promise<void> {
       },
       client: {
         enabled: true,
-        execExtendsQuery: true,
+        execExtendsQuery: false,
         noImplicitOverride: false
       },
       reactQuery: {

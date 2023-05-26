@@ -174,7 +174,7 @@ export class LiquidationQueueQueryClient implements LiquidationQueueReadOnlyInte
     });
   };
 }
-export interface LiquidationQueueInterface extends LiquidationQueueReadOnlyInterface {
+export interface LiquidationQueueInterface {
   contractAddress: string;
   sender: string;
   receive: ({
@@ -269,13 +269,12 @@ export interface LiquidationQueueInterface extends LiquidationQueueReadOnlyInter
     repayAddress: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
-export class LiquidationQueueClient extends LiquidationQueueQueryClient implements LiquidationQueueInterface {
+export class LiquidationQueueClient implements LiquidationQueueInterface {
   client: SigningCosmWasmClient;
   sender: string;
   contractAddress: string;
 
   constructor(client: SigningCosmWasmClient, sender: string, contractAddress: string) {
-    super(client, contractAddress);
     this.client = client;
     this.sender = sender;
     this.contractAddress = contractAddress;

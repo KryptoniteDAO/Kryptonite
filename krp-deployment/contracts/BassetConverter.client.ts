@@ -27,7 +27,7 @@ export class BassetConverterQueryClient implements BassetConverterReadOnlyInterf
     });
   };
 }
-export interface BassetConverterInterface extends BassetConverterReadOnlyInterface {
+export interface BassetConverterInterface {
   contractAddress: string;
   sender: string;
   receive: ({
@@ -48,13 +48,12 @@ export interface BassetConverterInterface extends BassetConverterReadOnlyInterfa
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   convertNativeToBasset: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
-export class BassetConverterClient extends BassetConverterQueryClient implements BassetConverterInterface {
+export class BassetConverterClient implements BassetConverterInterface {
   client: SigningCosmWasmClient;
   sender: string;
   contractAddress: string;
 
   constructor(client: SigningCosmWasmClient, sender: string, contractAddress: string) {
-    super(client, contractAddress);
     this.client = client;
     this.sender = sender;
     this.contractAddress = contractAddress;

@@ -122,7 +122,7 @@ export class TokenBseiQueryClient implements TokenBseiReadOnlyInterface {
     });
   };
 }
-export interface TokenBseiInterface extends TokenBseiReadOnlyInterface {
+export interface TokenBseiInterface {
   contractAddress: string;
   sender: string;
   transfer: ({
@@ -199,13 +199,12 @@ export interface TokenBseiInterface extends TokenBseiReadOnlyInterface {
     owner: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
-export class TokenBseiClient extends TokenBseiQueryClient implements TokenBseiInterface {
+export class TokenBseiClient implements TokenBseiInterface {
   client: SigningCosmWasmClient;
   sender: string;
   contractAddress: string;
 
   constructor(client: SigningCosmWasmClient, sender: string, contractAddress: string) {
-    super(client, contractAddress);
     this.client = client;
     this.sender = sender;
     this.contractAddress = contractAddress;

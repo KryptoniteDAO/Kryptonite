@@ -129,7 +129,7 @@ export class OverseerQueryClient implements OverseerReadOnlyInterface {
     });
   };
 }
-export interface OverseerInterface extends OverseerReadOnlyInterface {
+export interface OverseerInterface {
   contractAddress: string;
   sender: string;
   updateConfig: ({
@@ -217,13 +217,12 @@ export interface OverseerInterface extends OverseerReadOnlyInterface {
     borrower: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
-export class OverseerClient extends OverseerQueryClient implements OverseerInterface {
+export class OverseerClient implements OverseerInterface {
   client: SigningCosmWasmClient;
   sender: string;
   contractAddress: string;
 
   constructor(client: SigningCosmWasmClient, sender: string, contractAddress: string) {
-    super(client, contractAddress);
     this.client = client;
     this.sender = sender;
     this.contractAddress = contractAddress;

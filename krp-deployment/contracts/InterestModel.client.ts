@@ -54,7 +54,7 @@ export class InterestModelQueryClient implements InterestModelReadOnlyInterface 
     });
   };
 }
-export interface InterestModelInterface extends InterestModelReadOnlyInterface {
+export interface InterestModelInterface {
   contractAddress: string;
   sender: string;
   updateConfig: ({
@@ -67,13 +67,12 @@ export interface InterestModelInterface extends InterestModelReadOnlyInterface {
     owner?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
-export class InterestModelClient extends InterestModelQueryClient implements InterestModelInterface {
+export class InterestModelClient implements InterestModelInterface {
   client: SigningCosmWasmClient;
   sender: string;
   contractAddress: string;
 
   constructor(client: SigningCosmWasmClient, sender: string, contractAddress: string) {
-    super(client, contractAddress);
     this.client = client;
     this.sender = sender;
     this.contractAddress = contractAddress;

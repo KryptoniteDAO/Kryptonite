@@ -34,7 +34,7 @@ export class RewardsDispatcherQueryClient implements RewardsDispatcherReadOnlyIn
     });
   };
 }
-export interface RewardsDispatcherInterface extends RewardsDispatcherReadOnlyInterface {
+export interface RewardsDispatcherInterface {
   contractAddress: string;
   sender: string;
   swapToRewardDenom: ({
@@ -63,13 +63,12 @@ export interface RewardsDispatcherInterface extends RewardsDispatcherReadOnlyInt
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   dispatchRewards: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
-export class RewardsDispatcherClient extends RewardsDispatcherQueryClient implements RewardsDispatcherInterface {
+export class RewardsDispatcherClient implements RewardsDispatcherInterface {
   client: SigningCosmWasmClient;
   sender: string;
   contractAddress: string;
 
   constructor(client: SigningCosmWasmClient, sender: string, contractAddress: string) {
-    super(client, contractAddress);
     this.client = client;
     this.sender = sender;
     this.contractAddress = contractAddress;

@@ -7,25 +7,24 @@
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
 import { ChangeOwnerMsg, ConfigResponse, ExecuteMsg, Addr, InstantiateMsg, Decimal256, PriceResponse, Identifier, PythFeederConfigResponse, QueryMsg, SetConfigFeedValidMsg } from "./OraclePyth.types";
-import { PricesResponse } from "./Oracle.types";
 export interface OraclePythReadOnlyInterface {
   contractAddress: string;
   queryPrice: ({
     asset
   }: {
     asset: string;
-  }) => Promise<PriceResponse>;
+  }) => Promise<QueryPriceResponse>;
   queryPrices: ({
     assets
   }: {
     assets: string[];
-  }) => Promise<PricesResponse>;
-  queryConfig: () => Promise<ConfigResponse>;
+  }) => Promise<QueryPricesResponse>;
+  queryConfig: () => Promise<QueryConfigResponse>;
   queryPythFeederConfig: ({
     asset
   }: {
     asset: string;
-  }) => Promise<PythFeederConfigResponse>;
+  }) => Promise<QueryPythFeederConfigResponse>;
 }
 export class OraclePythQueryClient implements OraclePythReadOnlyInterface {
   client: CosmWasmClient;
@@ -44,7 +43,7 @@ export class OraclePythQueryClient implements OraclePythReadOnlyInterface {
     asset
   }: {
     asset: string;
-  }): Promise<PriceResponse> => {
+  }): Promise<QueryPriceResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       query_price: {
         asset
@@ -55,14 +54,14 @@ export class OraclePythQueryClient implements OraclePythReadOnlyInterface {
     assets
   }: {
     assets: string[];
-  }): Promise<PricesResponse> => {
+  }): Promise<QueryPricesResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       query_prices: {
         assets
       }
     });
   };
-  queryConfig = async (): Promise<ConfigResponse> => {
+  queryConfig = async (): Promise<QueryConfigResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       query_config: {}
     });
@@ -71,7 +70,7 @@ export class OraclePythQueryClient implements OraclePythReadOnlyInterface {
     asset
   }: {
     asset: string;
-  }): Promise<PythFeederConfigResponse> => {
+  }): Promise<QueryPythFeederConfigResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       query_pyth_feeder_config: {
         asset
@@ -79,7 +78,7 @@ export class OraclePythQueryClient implements OraclePythReadOnlyInterface {
     });
   };
 }
-export interface OraclePythInterface extends OraclePythReadOnlyInterface {
+export interface OraclePythInterface {
   contractAddress: string;
   sender: string;
   configFeedInfo: ({
@@ -110,13 +109,12 @@ export interface OraclePythInterface extends OraclePythReadOnlyInterface {
     newOwner: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
-export class OraclePythClient extends OraclePythQueryClient implements OraclePythInterface {
-  declare client: SigningCosmWasmClient;
+export class OraclePythClient implements OraclePythInterface {
+  client: SigningCosmWasmClient;
   sender: string;
-  declare contractAddress: string;
+  contractAddress: string;
 
   constructor(client: SigningCosmWasmClient, sender: string, contractAddress: string) {
-    super(client, contractAddress);
     this.client = client;
     this.sender = sender;
     this.contractAddress = contractAddress;

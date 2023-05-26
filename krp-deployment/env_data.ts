@@ -6,6 +6,7 @@ import type { SigningStargateClient } from "@cosmjs/stargate";
 import { toBeArray } from "ethers";
 import { loadAddressesBalances, readArtifact } from "./common";
 import type { Config, BaseCurrencyInfo, DeployContract, WalletData } from "./types";
+import { ConvertDeployContracts, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts } from "./types";
 require("dotenv").config();
 
 const prefix = "sei";
@@ -168,30 +169,30 @@ export async function loadingWalletData(): Promise<WalletData> {
  * validatorsRegistry,
  * stSeiToken,
  */
-export async function loadingStakingData(network: any = {}) {
+export async function loadingStakingData(networkStaking: StakingDeployContracts | undefined) {
   let hub: DeployContract = {
-    codeId: (network?.hub?.codeId && Number(network?.hub?.codeId)) || 0,
-    address: network?.hub?.address
+    codeId: networkStaking?.hub?.codeId || 0,
+    address: networkStaking?.hub?.address
   };
   let reward: DeployContract = {
-    codeId: (network?.reward?.codeId && Number(network?.reward?.codeId)) || 0,
-    address: network?.reward?.address
+    codeId: networkStaking?.reward?.codeId || 0,
+    address: networkStaking?.reward?.address
   };
   let bSeiToken: DeployContract = {
-    codeId: (network?.bSeiToken?.codeId && Number(network?.bSeiToken?.codeId)) || 0,
-    address: network?.bSeiToken?.address
+    codeId: networkStaking?.bSeiToken?.codeId || 0,
+    address: networkStaking?.bSeiToken?.address
   };
   let rewardsDispatcher: DeployContract = {
-    codeId: (network?.rewardsDispatcher?.codeId && Number(network?.rewardsDispatcher?.codeId)) || 0,
-    address: network?.rewardsDispatcher?.address
+    codeId: networkStaking?.rewardsDispatcher?.codeId || 0,
+    address: networkStaking?.rewardsDispatcher?.address
   };
   let validatorsRegistry: DeployContract = {
-    codeId: (network?.validatorsRegistry?.codeId && Number(network?.validatorsRegistry?.codeId)) || 0,
-    address: network?.validatorsRegistry?.address
+    codeId: networkStaking?.validatorsRegistry?.codeId || 0,
+    address: networkStaking?.validatorsRegistry?.address
   };
   let stSeiToken: DeployContract = {
-    codeId: (network?.stSeiToken?.codeId && Number(network?.stSeiToken?.codeId)) || 0,
-    address: network?.stSeiToken?.address
+    codeId: networkStaking?.stSeiToken?.codeId || 0,
+    address: networkStaking?.stSeiToken?.address
   };
 
   return {
@@ -213,43 +214,44 @@ export async function loadingStakingData(network: any = {}) {
  * overseer
  * liquidationQueue
  * custodyBSei
+ * oraclePyth
  */
-export async function loadingMarketData(network: any = {}) {
+export async function loadingMarketData(networkMarket: MarketDeployContracts | undefined) {
   let aToken: DeployContract = {
-    codeId: (network?.aToken?.codeId && Number(network?.aToken?.codeId)) || 0,
-    address: network?.aToken?.address
+    codeId: networkMarket?.aToken?.codeId || 0,
+    address: networkMarket?.aToken?.address
   };
   let market: DeployContract = {
-    codeId: (network?.market?.codeId && Number(network?.market?.codeId)) || 0,
-    address: network?.market?.address
+    codeId: networkMarket?.market?.codeId || 0,
+    address: networkMarket?.market?.address
   };
   let interestModel: DeployContract = {
-    codeId: (network?.interestModel?.codeId && Number(network?.interestModel?.codeId)) || 0,
-    address: network?.interestModel?.address
+    codeId: networkMarket?.interestModel?.codeId || 0,
+    address: networkMarket?.interestModel?.address
   };
   let distributionModel: DeployContract = {
-    codeId: (network?.distributionModel?.codeId && Number(network?.distributionModel?.codeId)) || 0,
-    address: network?.distributionModel?.address
+    codeId: networkMarket?.distributionModel?.codeId || 0,
+    address: networkMarket?.distributionModel?.address
   };
   let oracle: DeployContract = {
-    codeId: (network?.oracle?.codeId && Number(network?.oracle?.codeId)) || 0,
-    address: network?.oracle?.address
+    codeId: networkMarket?.oracle?.codeId || 0,
+    address: networkMarket?.oracle?.address
   };
   let overseer: DeployContract = {
-    codeId: (network?.overseer?.codeId && Number(network?.overseer?.codeId)) || 0,
-    address: network?.overseer?.address
+    codeId: networkMarket?.overseer?.codeId || 0,
+    address: networkMarket?.overseer?.address
   };
   let liquidationQueue: DeployContract = {
-    codeId: (network?.liquidationQueue?.codeId && Number(network?.liquidationQueue?.codeId)) || 0,
-    address: network?.liquidationQueue?.address
+    codeId: networkMarket?.liquidationQueue?.codeId || 0,
+    address: networkMarket?.liquidationQueue?.address
   };
   let custodyBSei: DeployContract = {
-    codeId: (network?.custodyBSei?.codeId && Number(network?.custodyBSei?.codeId)) || 0,
-    address: network?.custodyBSei?.address
+    codeId: networkMarket?.custodyBSei?.codeId || 0,
+    address: networkMarket?.custodyBSei?.address
   };
   let oraclePyth: DeployContract = {
-    codeId: (network?.oraclePyth?.codeId && Number(network?.oraclePyth?.codeId)) || 0,
-    address: network?.oraclePyth?.address
+    codeId: networkMarket?.oraclePyth?.codeId || 0,
+    address: networkMarket?.oraclePyth?.address
   };
 
   return {

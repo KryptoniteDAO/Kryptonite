@@ -70,9 +70,33 @@ export type QueryMsg = {
   query_swap_info: {
     asset_infos: [AssetInfo, AssetInfo];
   };
+} | {
+  query_simulation: {
+    asset_infos: [AssetInfo, AssetInfo];
+    offer_asset: Asset;
+  };
+} | {
+  query_reverse_simulation: {
+    ask_asset: Asset;
+    asset_infos: [AssetInfo, AssetInfo];
+  };
+} | {
+  query_cumulative_prices: {
+    asset_infos: [AssetInfo, AssetInfo];
+  };
 };
+export interface Asset {
+  amount: Uint128;
+  info: AssetInfo;
+}
 export interface ConfigResponse {
   owner: Addr;
+}
+export interface CumulativePricesResponse {
+  assets: [Asset, Asset];
+  price0_cumulative_last: Uint128;
+  price1_cumulative_last: Uint128;
+  total_share: Uint128;
 }
 export type Boolean = boolean;
 export interface PairConfigResponse {
@@ -80,6 +104,16 @@ export interface PairConfigResponse {
   max_spread?: Decimal | null;
   pair_address: Addr;
   to?: Addr | null;
+}
+export interface ReverseSimulationResponse {
+  commission_amount: Uint128;
+  offer_amount: Uint128;
+  spread_amount: Uint128;
+}
+export interface SimulationResponse {
+  commission_amount: Uint128;
+  return_amount: Uint128;
+  spread_amount: Uint128;
 }
 export interface SwapInfoResponse {
   total_amount_in: Uint128;
