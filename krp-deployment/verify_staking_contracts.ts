@@ -25,8 +25,8 @@ async function main(): Promise<void> {
 
   // 1 + 1 + 1 + 0.5 + txFee
   let address1UseiBalance = walletData.addressesBalances.find(v => walletData.address === v?.address && walletData.nativeCurrency.coinMinimalDenom === v?.balance?.denom)?.balance?.amount;
-  if (Number(address1UseiBalance) < 10000000) {
-    console.error("********* wallet native balance insufficient 4_000_000. balance: " + address1UseiBalance);
+  if (Number(address1UseiBalance) < 4000000) {
+    console.error("********** ********** wallet native balance insufficient 4_000_000. balance: " + address1UseiBalance);
     process.exit(0);
     return;
   }
