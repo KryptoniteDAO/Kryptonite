@@ -1,22 +1,30 @@
-import { parseCoins, coins, coin } from "@cosmjs/stargate";
-import { storeCode, instantiateContract, executeContract, queryStakingDelegations, queryWasmContract, queryAddressBalance, queryStaking, queryStakingParameters, sendCoin, queryAddressAllBalances, loadAddressesBalances, migrateContract } from "./common";
-import { loadingBaseData, loadingStakingData, loadingMarketData } from "./env_data";
-import type { DeployContractInfo } from "./types";
-import { DirectSecp256k1HdWallet, DirectSecp256k1Wallet } from "@cosmjs/proto-signing";
+import { readArtifact, writeArtifact, storeCodeByWalletData, instantiateContractByWalletData, executeContractByWalletData, queryWasmContractByWalletData, logChangeBalancesByWalletData } from "./common";
+import { loadingWalletData, loadingStakingData, loadingMarketData, chainConfigs, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH, SWAP_EXTENSION_ARTIFACTS_PATH } from "./env_data";
+import type { DeployContract, WalletData } from "./types";
+
 
 require("dotenv").config();
 
 async function main(): Promise<void> {
-  const { LCD_ENDPOINT, RPC_ENDPOINT, mnemonic, privateKey, wallet, account, mnemonic2, privateKey2, wallet2, account2, validator, stable_coin_denom, prefix, addressesBalances } = await loadingBaseData();
 
-  const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData();
+
+  console.log(`--- --- deploy staking contracts enter --- ---`);
+
+  const walletData = await loadingWalletData();
+  const network = readArtifact(walletData.chainId, STAKING_ARTIFACTS_PATH);
+  const network_market = readArtifact(walletData.chainId, MARKET_ARTIFACTS_PATH);
+  const network_swap = readArtifact(walletData.chainId, SWAP_EXTENSION_ARTIFACTS_PATH);
+  console.log(`--- --- staking contracts storeCode & instantiateContract enter --- ---`);
+  console.log();
+
+  const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(network);
   if (!hub.address || !bSeiToken.address || !stSeiToken.address || !rewardsDispatcher.address || !validatorsRegistry.address || !reward.address) {
     console.log(`--- --- verify deployed error, missing some deployed staking address info --- ---`);
     process.exit(0);
     return;
   }
 
-  const { overseer, market, custodyBSei, interestModel, distributionModel, oracle, aToken, liquidationQueue } = await loadingMarketData();
+  const { overseer, market, custodyBSei, interestModel, distributionModel, oracle, aToken, liquidationQueue } = await loadingMarketData(network_market);
   if (!overseer.address || !market.address || !custodyBSei.address || !interestModel.address || !distributionModel.address || !oracle.address || !aToken.address || !liquidationQueue.address) {
     console.log(`--- --- verify deployed error, missing some deployed market address info --- ---`);
     process.exit(0);
@@ -28,6 +36,21 @@ async function main(): Promise<void> {
   //const slstiSeiDenom = "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/slsdi";
   const strideSeiDenom = "ibc/326D2E9FFBF7AE39CC404A58DED81054E23F107BC8D926D5D981C0231F1ECD2D";
   const slstiDenom = "ibc/53B6183707AF4C744EE26815613D9C4D0DE40E2C18083EA5B384FAF4F6BB0C06";
+
+
+
+  
+  console.log();
+  console.log("Query validators Registry enter");
+  let validatorAddress = "sei1d28hqavdcdpavq4dkhm6rtvyuqwg2mela6m9ccdf4gs9hlwwvpts69tl4v";
+  const registerRes1 = await queryWasmContractByWalletData(walletData, validatorsRegistry.address, { get_validators_for_delegation :{} });
+  console.log(`registerRes1.config: \n${JSON.stringify(registerRes1)}`);
+  
+
+  const registerRes2 = await queryWasmContractByWalletData(walletData, validatorAddress, { get_validators_for_delegation :{} });
+  console.log(`registerRes2.config: \n${JSON.stringify(registerRes2)}`);
+  
+  
 
   //**********************************************upgrade custody_bsei and overseer contract begin*************************************
 
@@ -48,14 +71,14 @@ async function main(): Promise<void> {
   //*************************************************************************************************************************************
   //**********************************************config STSEI asset begin***************************************************************
   //*************************************************************************************************************************************
-  let bassertConverter: DeployContractInfo = {
-    codeId: 0,
-    address: "",
-    filePath: "../krp-basset-convert/artifacts/krp_basset_converter.wasm",
-    deploy: false
-  };
-  bassertConverter.codeId = 526;
-  bassertConverter.address = "sei16lwqvzljtvas043u45tvh8le097xeved6k7nxajwzh85zte7syms22j0ps";
+  // let bassertConverter: DeployContractInfo = {
+  //   codeId: 0,
+  //   address: "",
+  //   filePath: "../krp-basset-convert/artifacts/krp_basset_converter.wasm",
+  //   deploy: false
+  // };
+  // bassertConverter.codeId = 526;
+  // bassertConverter.address = "sei16lwqvzljtvas043u45tvh8le097xeved6k7nxajwzh85zte7syms22j0ps";
   // bassertConverter.codeId = await storeCode(RPC_ENDPOINT, wallet, bassertConverter.filePath);
   // bassertConverter.address = await instantiateContract(
   //   RPC_ENDPOINT,
@@ -66,17 +89,17 @@ async function main(): Promise<void> {
   //   },
   //   " basset_stsei and native token convert contract"
   // );
-  bassertConverter.deploy = true;
-  console.log(`bstsei_native_convert: `, JSON.stringify(bassertConverter));
+  // bassertConverter.deploy = true;
+  // console.log(`bstsei_native_convert: `, JSON.stringify(bassertConverter));
 
-  let bstSEI: DeployContractInfo = {
-    codeId: 0,
-    address: "",
-    filePath: "../krp-basset-convert/artifacts/krp_basset_token.wasm",
-    deploy: false
-  };
-  bstSEI.codeId = 527;
-  bstSEI.address = "sei1rp8hkjedps3xnpjzrmdrmh3tghjgkmje0akd2qqxlxqa0vz0g63snw78gx";
+  // let bstSEI: DeployContractInfo = {
+  //   codeId: 0,
+  //   address: "",
+  //   filePath: "../krp-basset-convert/artifacts/krp_basset_token.wasm",
+  //   deploy: false
+  // };
+  // bstSEI.codeId = 527;
+  // bstSEI.address = "sei1rp8hkjedps3xnpjzrmdrmh3tghjgkmje0akd2qqxlxqa0vz0g63snw78gx";
   // bstSEI.codeId = await storeCode(RPC_ENDPOINT, wallet, bstSEI.filePath);
   // bstSEI.address = await instantiateContract(
   //   RPC_ENDPOINT,
@@ -91,8 +114,8 @@ async function main(): Promise<void> {
   //   },
   //   " bond stsei to cw20 token"
   // );
-  bstSEI.deploy = true;
-  console.log(`bst_sei: `, JSON.stringify(bstSEI));
+  // bstSEI.deploy = true;
+  // console.log(`bst_sei: `, JSON.stringify(bstSEI));
 
   //register two native coin and cw20 token
   // console.log();
@@ -104,8 +127,8 @@ async function main(): Promise<void> {
   //   }
   // });
 
-  let configRes = await queryWasmContract(RPC_ENDPOINT, wallet, bassertConverter.address, { config: {} });
-  console.log("query convert contract config:\n", JSON.stringify(configRes));
+  // let configRes = await queryWasmContract(RPC_ENDPOINT, wallet, bassertConverter.address, { config: {} });
+  // console.log("query convert contract config:\n", JSON.stringify(configRes));
 
   //convert native coin to cw20 token
   // console.log();
@@ -128,14 +151,14 @@ async function main(): Promise<void> {
   // })
 
   // store custdy_base contract
-  let custodyBasebstSEI: DeployContractInfo = {
-    codeId: 0,
-    address: "",
-    filePath: "../krp-market-contracts/artifacts/moneymarket_custody_base.wasm",
-    deploy: false
-  };
-  custodyBasebstSEI.codeId = 534;
-  custodyBasebstSEI.address = "sei142dfwrth7j9ax59n8xf606ex6asa6radg3kapapmw2ma9erpkrlq645s4e";
+  // let custodyBasebstSEI: DeployContractInfo = {
+  //   codeId: 0,
+  //   address: "",
+  //   filePath: "../krp-market-contracts/artifacts/moneymarket_custody_base.wasm",
+  //   deploy: false
+  // };
+  // custodyBasebstSEI.codeId = 534;
+  // custodyBasebstSEI.address = "sei142dfwrth7j9ax59n8xf606ex6asa6radg3kapapmw2ma9erpkrlq645s4e";
   //custodyBasebstSEI.codeId = await storeCode(RPC_ENDPOINT, wallet, custodyBasebstSEI.filePath);
   // custodyBasebstSEI.address = await instantiateContract(
   //   RPC_ENDPOINT,
@@ -157,7 +180,7 @@ async function main(): Promise<void> {
   //   },
   //   "custody bond stsei contract"
   // );
-  console.log(`custody_base_bstSEI: `, JSON.stringify(custodyBasebstSEI));
+  //console.log(`custody_base_bstSEI: `, JSON.stringify(custodyBasebstSEI));
 
   // overseer contract add collateral to whitelist
   // console.log();
@@ -208,37 +231,37 @@ async function main(): Promise<void> {
   // });
   // console.log("Do oracle.address feed_price ok. \n", oracleFeedPriceRes?.transactionHash);
 
-  console.log();
-  console.log("Query oracle bstSEI price enter");
-  let oracleQuery = await queryWasmContract(RPC_ENDPOINT, wallet, oracle.address, {
-    prices: {}
-  });
-  console.log("Query price :\n", JSON.stringify(oracleQuery));
+  // console.log();
+  // console.log("Query oracle bstSEI price enter");
+  // let oracleQuery = await queryWasmContract(RPC_ENDPOINT, wallet, oracle.address, {
+  //   prices: {}
+  // });
+  // console.log("Query price :\n", JSON.stringify(oracleQuery));
   //*************************************************************************************************************************************
   //**********************************************deploy SLSTI asset begin*********************************************************
   //*************************************************************************************************************************************
 
-  let bassertSlstiConverter: DeployContractInfo = {
-    codeId: 0,
-    address: "",
-    filePath: "../krp-basset-convert/artifacts/krp_basset_converter.wasm",
-    deploy: false
-  };
+  // let bassertSlstiConverter: DeployContractInfo = {
+  //   codeId: 0,
+  //   address: "",
+  //   filePath: "../krp-basset-convert/artifacts/krp_basset_converter.wasm",
+  //   deploy: false
+  // };
 
-  bassertSlstiConverter.address = "sei1s5qxh87j33n059xgpfghgxv26fkyr2kzz76nncqwaapcp64nj95s38dcjr";
-  // bassertSlstiConverter.address = await instantiateContract(RPC_ENDPOINT, wallet, bassertConverter.codeId, { owner: account.address, }, "bslsti and slsti convert contract");
-  bassertSlstiConverter.deploy = true;
-  console.log(`bassert slsdi Converter: `, JSON.stringify(bassertSlstiConverter));
+  // bassertSlstiConverter.address = "sei1s5qxh87j33n059xgpfghgxv26fkyr2kzz76nncqwaapcp64nj95s38dcjr";
+  // // bassertSlstiConverter.address = await instantiateContract(RPC_ENDPOINT, wallet, bassertConverter.codeId, { owner: account.address, }, "bslsti and slsti convert contract");
+  // bassertSlstiConverter.deploy = true;
+  // console.log(`bassert slsdi Converter: `, JSON.stringify(bassertSlstiConverter));
 
-  let bSlstiToken: DeployContractInfo = {
-    codeId: 0,
-    address: "",
-    filePath: "../krp-basset-convert/artifacts/krp_basset_token.wasm",
-    deploy: false
-  };
+  // let bSlstiToken: DeployContractInfo = {
+  //   codeId: 0,
+  //   address: "",
+  //   filePath: "../krp-basset-convert/artifacts/krp_basset_token.wasm",
+  //   deploy: false
+  // };
 
   // bSlstiToken.codeId = await storeCode(RPC_ENDPOINT, wallet, bSlstiToken.filePath);
-  bSlstiToken.address = "sei17qz3cgc9ehyt8n0sv8cyk3ahc4pl9qxhxtf883kc8tef4lfp7hvsk885el";
+  //bSlstiToken.address = "sei17qz3cgc9ehyt8n0sv8cyk3ahc4pl9qxhxtf883kc8tef4lfp7hvsk885el";
   // bSlstiToken.address = await instantiateContract(
   //   RPC_ENDPOINT,
   //   wallet,
@@ -253,7 +276,7 @@ async function main(): Promise<void> {
   //   " slsdi cw20 token"
   // );
   // bSlstiToken.deploy = true;
-  console.log(`bslsdi: `, JSON.stringify(bSlstiToken));
+  // console.log(`bslsdi: `, JSON.stringify(bSlstiToken));
 
   //register two native coin and cw20 token
   // console.log();
@@ -287,14 +310,14 @@ async function main(): Promise<void> {
   //  queryBalance = await queryWasmContract(RPC_ENDPOINT, wallet, bSlstiToken.address, {balance: {address:account.address}})
   // console.log("query bSlstiToken balance:\n", JSON.stringify(queryBalance));
 
-  let custodyBasebSLSTI: DeployContractInfo = {
-    codeId: 0,
-    address: "",
-    filePath: "../krp-market-contracts/artifacts/moneymarket_custody_base.wasm",
-    deploy: false
-  };
-  custodyBasebSLSTI.codeId = 534;
-  custodyBasebSLSTI.address = "sei1zhzyrf7pmacss6zu43yyg5lkr0ulcs80d4ym75yfjx60pjhqv98s5es07p";
+  // let custodyBasebSLSTI: DeployContractInfo = {
+  //   codeId: 0,
+  //   address: "",
+  //   filePath: "../krp-market-contracts/artifacts/moneymarket_custody_base.wasm",
+  //   deploy: false
+  // };
+  // custodyBasebSLSTI.codeId = 534;
+  // custodyBasebSLSTI.address = "sei1zhzyrf7pmacss6zu43yyg5lkr0ulcs80d4ym75yfjx60pjhqv98s5es07p";
   //custodyBasebSLSTI.codeId = await storeCode(RPC_ENDPOINT, wallet, custodyBasebSLSTI.filePath);
   // custodyBasebSLSTI.address = await instantiateContract(
   //   RPC_ENDPOINT,
@@ -362,33 +385,33 @@ async function main(): Promise<void> {
   //   }
   // });
   // console.log("Do oracle.address feed_price ok. \n", oracleFeedSlsdiPriceRes?.transactionHash);
-  console.log("Do oracle.address register_feeder enter");
-  let overseerRegisterFeederRes = await executeContract(RPC_ENDPOINT, wallet, oracle.address, {
-    register_feeder: {
-      asset: bSlstiToken.address,
-      // feeder: account.address
-      feeder: "sei1xm3mccak0yjfts96jszdldxka6xkw00ywv6au0"
-    }
-  });
-  console.log("Do oracle.address register_feeder ok. \n", overseerRegisterFeederRes?.transactionHash);
+  // console.log("Do oracle.address register_feeder enter");
+  // let overseerRegisterFeederRes = await executeContract(RPC_ENDPOINT, wallet, oracle.address, {
+  //   register_feeder: {
+  //     asset: bSlstiToken.address,
+  //     // feeder: account.address
+  //     feeder: "sei1xm3mccak0yjfts96jszdldxka6xkw00ywv6au0"
+  //   }
+  // });
+  // console.log("Do oracle.address register_feeder ok. \n", overseerRegisterFeederRes?.transactionHash);
 
-  console.log();
-  console.log(`# new contracts uploaded codeId [optional]`);
-  console.log(`convertCodeId: "${bassertConverter.codeId}"`);
-  console.log(`bAssetTokenCodeId: "${bstSEI.codeId}"`);
-  console.log(`custodyBaseCodeId: "${custodyBasebstSEI.codeId}"`);
+  // console.log();
+  // console.log(`# new contracts uploaded codeId [optional]`);
+  // console.log(`convertCodeId: "${bassertConverter.codeId}"`);
+  // console.log(`bAssetTokenCodeId: "${bstSEI.codeId}"`);
+  // console.log(`custodyBaseCodeId: "${custodyBasebstSEI.codeId}"`);
 
-  console.log();
-  console.log(`# new contracts deployed address [optional]`);
-  console.log(`bstseiConvertAddress: "${bassertConverter.address}"`);
-  console.log(`bstseiAddress: "${bstSEI.address}"`);
-  console.log(`custodyBaseBstseiAddress: "${custodyBasebstSEI.address}"`);
-  console.log(`bslstiConvertAddress: "${bassertSlstiConverter.address}"`);
-  console.log(`bslstiTokenAddress: "${bSlstiToken.address}"`);
-  console.log(`custodyBaseBslstiAddress: "${custodyBasebSLSTI.address}"`);
+  // console.log();
+  // console.log(`# new contracts deployed address [optional]`);
+  // console.log(`bstseiConvertAddress: "${bassertConverter.address}"`);
+  // console.log(`bstseiAddress: "${bstSEI.address}"`);
+  // console.log(`custodyBaseBstseiAddress: "${custodyBasebstSEI.address}"`);
+  // console.log(`bslstiConvertAddress: "${bassertSlstiConverter.address}"`);
+  // console.log(`bslstiTokenAddress: "${bSlstiToken.address}"`);
+  // console.log(`custodyBaseBslstiAddress: "${custodyBasebSLSTI.address}"`);
 
-  console.log();
-  console.log(`--- --- deployed staking contracts info --- ---`);
+  // console.log();
+  // console.log(`--- --- deployed staking contracts info --- ---`);
   //*************************************************************************************************************************************
   //**********************************************deploy SLSTI STSEI asset end***********************************************************
   //*************************************************************************************************************************************

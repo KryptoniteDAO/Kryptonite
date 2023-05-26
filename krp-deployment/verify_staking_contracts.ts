@@ -31,9 +31,9 @@ async function main(): Promise<void> {
     return;
   }
 
-  await doHubBondForStsei(walletData, walletData.nativeCurrency.coinMinimalDenom, hub, stSeiToken, "100000");
-  await doHubBondForBsei(walletData, walletData.nativeCurrency.coinMinimalDenom, hub, bSeiToken, "500000");
-  await doHubUnbondBseiToNative(walletData, walletData.nativeCurrency.coinMinimalDenom, bSeiToken, hub, "500000");
+ 
+  await doHubBondForBsei(walletData, walletData.nativeCurrency.coinMinimalDenom, hub, bSeiToken, "1000000");
+  await doHubUnbondBseiToNative(walletData, walletData.nativeCurrency.coinMinimalDenom, bSeiToken, hub, "100000");
   await doHubWithdrawUnbondedToNative(walletData, walletData.nativeCurrency.coinMinimalDenom, hub);
 
   await doHubUpdateRewards(walletData, walletData.nativeCurrency.coinMinimalDenom, hub, walletData.stable_coin_denom, "100000000");
@@ -174,17 +174,12 @@ async function doHubWithdrawUnbondedToNative(walletData: WalletData, nativeDenom
   console.log("Do hub.address withdraw unbonded enter");
 
   const beforeWithdrawAbleRes = await queryWasmContractByWalletData(walletData, hub.address, { withdrawable_unbonded: { address: walletData.address } });
-  console.log(`Query hub.address withdrawable_unbonded ok. address: ${walletData.address} \n${JSON.stringify(beforeWithdrawAbleRes)}`);
-  if (!beforeWithdrawAbleRes?.["withdrawable"] || new Decimal(beforeWithdrawAbleRes?.["withdrawable"]).comparedTo(0) <= 0) {
-    console.log();
-    console.error(`********** ********** unable to withdraw`);
-    return;
-  }
+ 
   const beforeNativeBalanceRes = await queryAddressBalance(walletData.LCD_ENDPOINT, walletData.address, nativeDenom);
   console.log(`before native balance: ${beforeNativeBalanceRes.balance.amount} ${nativeDenom}`);
 
-  const doRes = await executeContractByWalletData(walletData, hub.address, { withdraw_unbonded: {} });
-  console.log(`Do hub.address withdraw_unbonded ok. \n${doRes?.transactionHash}`);
+  // const doRes = await executeContractByWalletData(walletData, hub.address, { withdraw_unbonded: {} });
+  // console.log(`Do hub.address withdraw_unbonded ok. \n${doRes?.transactionHash}`);
   const afterNativeBalanceRes = await queryAddressBalance(walletData.LCD_ENDPOINT, walletData.address, nativeDenom);
   console.log(`after native balance: ${afterNativeBalanceRes.balance.amount} ${nativeDenom}`);
   const afterWithdrawAbleRes = await queryWasmContractByWalletData(walletData, hub.address, { withdrawable_unbonded: { address: walletData.address } });

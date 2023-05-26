@@ -31,10 +31,10 @@ async function main(): Promise<void> {
 
   /// 2. market deposit_stable test
   /// 2.1. deposit stable to money market
-  console.log();
-  console.warn("Do market.address deposit_stable enter");
-  const marketDepositStableRes = await executeContractByWalletData(walletData, market.address, { deposit_stable: {} }, "", coins(10_000_000_000, walletData.stable_coin_denom));
-  console.log("Do market.address deposit_stable ok. \n", marketDepositStableRes?.transactionHash);
+  // console.log();
+  // console.warn("Do market.address deposit_stable enter");
+  // const marketDepositStableRes = await executeContractByWalletData(walletData, market.address, { deposit_stable: {} }, "", coins(10_000_000_000, walletData.stable_coin_denom));
+  // console.log("Do market.address deposit_stable ok. \n", marketDepositStableRes?.transactionHash);
 
   ///  Send stable coin to other address
   const senderAddress = walletData.address;
@@ -55,7 +55,7 @@ async function main(): Promise<void> {
   const custodyBSeiDepositCollateralRes = await executeContractByWalletData(walletData, bSeiToken.address, {
     send: {
       contract: custodyBSei.address,
-      amount: "2000000",
+      amount: "200000",
       msg: Buffer.from(JSON.stringify({ deposit_collateral: {} })).toString("base64")
     }
   });
