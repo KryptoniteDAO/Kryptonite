@@ -6,11 +6,11 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { ExecuteMsg, Uint128, Decimal, InstantiateMsg, QueryMsg } from "./RewardsDispatcher.types";
+import { CanonicalAddr, Binary, Decimal, Config, ExecuteMsg, Uint128, GetBufferedRewardsResponse, InstantiateMsg, QueryMsg } from "./RewardsDispatcher.types";
 export interface RewardsDispatcherReadOnlyInterface {
   contractAddress: string;
   getBufferedRewards: () => Promise<GetBufferedRewardsResponse>;
-  config: () => Promise<ConfigResponse>;
+  config: () => Promise<Config>;
 }
 export class RewardsDispatcherQueryClient implements RewardsDispatcherReadOnlyInterface {
   client: CosmWasmClient;
@@ -28,7 +28,7 @@ export class RewardsDispatcherQueryClient implements RewardsDispatcherReadOnlyIn
       get_buffered_rewards: {}
     });
   };
-  config = async (): Promise<ConfigResponse> => {
+  config = async (): Promise<Config> => {
     return this.client.queryContractSmart(this.contractAddress, {
       config: {}
     });
@@ -62,6 +62,23 @@ export interface RewardsDispatcherInterface {
     stseiRewardDenom?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   dispatchRewards: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  updateSwapContract: ({
+    swapContract
+  }: {
+    swapContract: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  updateSwapDenom: ({
+    isAdd,
+    swapDenom
+  }: {
+    isAdd: boolean;
+    swapDenom: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  updateOracleContract: ({
+    oracleContract
+  }: {
+    oracleContract: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class RewardsDispatcherClient implements RewardsDispatcherInterface {
   client: SigningCosmWasmClient;
@@ -75,6 +92,9 @@ export class RewardsDispatcherClient implements RewardsDispatcherInterface {
     this.swapToRewardDenom = this.swapToRewardDenom.bind(this);
     this.updateConfig = this.updateConfig.bind(this);
     this.dispatchRewards = this.dispatchRewards.bind(this);
+    this.updateSwapContract = this.updateSwapContract.bind(this);
+    this.updateSwapDenom = this.updateSwapDenom.bind(this);
+    this.updateOracleContract = this.updateOracleContract.bind(this);
   }
 
   swapToRewardDenom = async ({
@@ -123,6 +143,42 @@ export class RewardsDispatcherClient implements RewardsDispatcherInterface {
   dispatchRewards = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       dispatch_rewards: {}
+    }, fee, memo, _funds);
+  };
+  updateSwapContract = async ({
+    swapContract
+  }: {
+    swapContract: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      update_swap_contract: {
+        swap_contract: swapContract
+      }
+    }, fee, memo, _funds);
+  };
+  updateSwapDenom = async ({
+    isAdd,
+    swapDenom
+  }: {
+    isAdd: boolean;
+    swapDenom: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      update_swap_denom: {
+        is_add: isAdd,
+        swap_denom: swapDenom
+      }
+    }, fee, memo, _funds);
+  };
+  updateOracleContract = async ({
+    oracleContract
+  }: {
+    oracleContract: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      update_oracle_contract: {
+        oracle_contract: oracleContract
+      }
     }, fee, memo, _funds);
   };
 }

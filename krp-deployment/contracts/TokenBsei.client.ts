@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { AllAccountsResponse, Uint128, Expiration, Timestamp, Uint64, AllAllowancesResponse, AllowanceInfo, AllowanceResponse, BalanceResponse, ExecuteMsg, Binary, QueryMsg, TokenInfoResponse, TokenInitMsg, Cw20Coin } from "./TokenBsei.types";
+import { AllAccountsResponse, Uint128, Expiration, Timestamp, Uint64, AllAllowancesResponse, AllowanceInfo, AllowanceResponse, BalanceResponse, ExecuteMsg, Binary, MinterResponse, QueryMsg, TokenInfoResponse, TokenInitMsg, Cw20Coin } from "./TokenBsei.types";
 export interface TokenBseiReadOnlyInterface {
   contractAddress: string;
   balance: ({

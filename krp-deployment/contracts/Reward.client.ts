@@ -114,6 +114,18 @@ export interface RewardInterface {
   }: {
     recipient?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  updateSwapContract: ({
+    swapContract
+  }: {
+    swapContract: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  updateSwapDenom: ({
+    isAdd,
+    swapDenom
+  }: {
+    isAdd: boolean;
+    swapDenom: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class RewardClient implements RewardInterface {
   client: SigningCosmWasmClient;
@@ -129,6 +141,8 @@ export class RewardClient implements RewardInterface {
     this.increaseBalance = this.increaseBalance.bind(this);
     this.decreaseBalance = this.decreaseBalance.bind(this);
     this.claimRewards = this.claimRewards.bind(this);
+    this.updateSwapContract = this.updateSwapContract.bind(this);
+    this.updateSwapDenom = this.updateSwapDenom.bind(this);
   }
 
   swapToRewardDenom = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
@@ -177,6 +191,31 @@ export class RewardClient implements RewardInterface {
     return await this.client.execute(this.sender, this.contractAddress, {
       claim_rewards: {
         recipient
+      }
+    }, fee, memo, _funds);
+  };
+  updateSwapContract = async ({
+    swapContract
+  }: {
+    swapContract: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      update_swap_contract: {
+        swap_contract: swapContract
+      }
+    }, fee, memo, _funds);
+  };
+  updateSwapDenom = async ({
+    isAdd,
+    swapDenom
+  }: {
+    isAdd: boolean;
+    swapDenom: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      update_swap_denom: {
+        is_add: isAdd,
+        swap_denom: swapDenom
       }
     }, fee, memo, _funds);
   };

@@ -25,6 +25,16 @@ export interface UnbondHistoryResponse {
   withdraw_rate: Decimal;
   [k: string]: unknown;
 }
+export interface ConfigResponse {
+  airdrop_registry_contract?: string | null;
+  bsei_token_contract?: string | null;
+  owner: string;
+  reward_dispatcher_contract?: string | null;
+  stsei_token_contract?: string | null;
+  token_contract?: string | null;
+  validators_registry_contract?: string | null;
+  [k: string]: unknown;
+}
 export type CanonicalAddr = Binary;
 export type Binary = string;
 export interface Config {

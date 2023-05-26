@@ -26,6 +26,13 @@ export interface OraclePythReadOnlyInterface {
   }: {
     asset: string;
   }) => Promise<PythFeederConfigResponse>;
+  queryExchangeRateByAssetLabel: ({
+    baseLabel,
+    quoteLabel
+  }: {
+    baseLabel: string;
+    quoteLabel: string;
+  }) => Promise<ExchangeRateByAssetLabelResponse>;
 }
 export class OraclePythQueryClient implements OraclePythReadOnlyInterface {
   client: CosmWasmClient;
@@ -38,6 +45,7 @@ export class OraclePythQueryClient implements OraclePythReadOnlyInterface {
     this.queryPrices = this.queryPrices.bind(this);
     this.queryConfig = this.queryConfig.bind(this);
     this.queryPythFeederConfig = this.queryPythFeederConfig.bind(this);
+    this.queryExchangeRateByAssetLabel = this.queryExchangeRateByAssetLabel.bind(this);
   }
 
   queryPrice = async ({
@@ -78,6 +86,20 @@ export class OraclePythQueryClient implements OraclePythReadOnlyInterface {
       }
     });
   };
+  queryExchangeRateByAssetLabel = async ({
+    baseLabel,
+    quoteLabel
+  }: {
+    baseLabel: string;
+    quoteLabel: string;
+  }): Promise<ExchangeRateByAssetLabelResponse> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      query_exchange_rate_by_asset_label: {
+        base_label: baseLabel,
+        quote_label: quoteLabel
+      }
+    });
+  };
 }
 export interface OraclePythInterface {
   contractAddress: string;
@@ -109,6 +131,11 @@ export interface OraclePythInterface {
   }: {
     newOwner: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  changePythContract: ({
+    pythContract
+  }: {
+    pythContract: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class OraclePythClient implements OraclePythInterface {
   client: SigningCosmWasmClient;
@@ -122,6 +149,7 @@ export class OraclePythClient implements OraclePythInterface {
     this.configFeedInfo = this.configFeedInfo.bind(this);
     this.setConfigFeedValid = this.setConfigFeedValid.bind(this);
     this.changeOwner = this.changeOwner.bind(this);
+    this.changePythContract = this.changePythContract.bind(this);
   }
 
   configFeedInfo = async ({
@@ -172,6 +200,17 @@ export class OraclePythClient implements OraclePythInterface {
     return await this.client.execute(this.sender, this.contractAddress, {
       change_owner: {
         new_owner: newOwner
+      }
+    }, fee, memo, _funds);
+  };
+  changePythContract = async ({
+    pythContract
+  }: {
+    pythContract: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      change_pyth_contract: {
+        pyth_contract: pythContract
       }
     }, fee, memo, _funds);
   };

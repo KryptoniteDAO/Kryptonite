@@ -24,6 +24,8 @@ export interface ConfigResponse {
   owner: string;
   reward_contract: string;
   stable_denom: string;
+  swap_contract?: string | null;
+  swap_denoms?: string[] | null;
   [k: string]: unknown;
 }
 export interface BAssetInfo {
@@ -74,6 +76,17 @@ export type ExecuteMsg = {
     borrower: string;
     [k: string]: unknown;
   };
+} | {
+  update_swap_contract: {
+    swap_contract: string;
+    [k: string]: unknown;
+  };
+} | {
+  update_swap_denom: {
+    is_add: boolean;
+    swap_denom: string;
+    [k: string]: unknown;
+  };
 };
 export type Uint128 = string;
 export type Binary = string;
@@ -91,6 +104,8 @@ export interface InstantiateMsg {
   owner: string;
   reward_contract: string;
   stable_denom: string;
+  swap_contract: string;
+  swap_denoms: string[];
   [k: string]: unknown;
 }
 export interface MigrateMsg {

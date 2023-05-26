@@ -4,6 +4,13 @@
 * and run the @cosmwasm/ts-codegen generate command to regenerate this file.
 */
 
+export type CanonicalAddr = Binary;
+export type Binary = string;
+export interface Config {
+  hub_contract: CanonicalAddr;
+  owner: CanonicalAddr;
+  [k: string]: unknown;
+}
 export type ExecuteMsg = {
   add_validator: {
     validator: Validator;

@@ -116,6 +116,18 @@ export interface CustodyBaseInterface {
     amount?: Uint256;
     borrower: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  updateSwapContract: ({
+    swapContract
+  }: {
+    swapContract: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  updateSwapDenom: ({
+    isAdd,
+    swapDenom
+  }: {
+    isAdd: boolean;
+    swapDenom: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class CustodyBaseClient implements CustodyBaseInterface {
   client: SigningCosmWasmClient;
@@ -133,6 +145,8 @@ export class CustodyBaseClient implements CustodyBaseInterface {
     this.distributeRewards = this.distributeRewards.bind(this);
     this.liquidateCollateral = this.liquidateCollateral.bind(this);
     this.withdrawCollateral = this.withdrawCollateral.bind(this);
+    this.updateSwapContract = this.updateSwapContract.bind(this);
+    this.updateSwapDenom = this.updateSwapDenom.bind(this);
   }
 
   receive = async ({
@@ -227,6 +241,31 @@ export class CustodyBaseClient implements CustodyBaseInterface {
       withdraw_collateral: {
         amount,
         borrower
+      }
+    }, fee, memo, _funds);
+  };
+  updateSwapContract = async ({
+    swapContract
+  }: {
+    swapContract: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      update_swap_contract: {
+        swap_contract: swapContract
+      }
+    }, fee, memo, _funds);
+  };
+  updateSwapDenom = async ({
+    isAdd,
+    swapDenom
+  }: {
+    isAdd: boolean;
+    swapDenom: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      update_swap_denom: {
+        is_add: isAdd,
+        swap_denom: swapDenom
       }
     }, fee, memo, _funds);
   };
