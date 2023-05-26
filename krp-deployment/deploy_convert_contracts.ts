@@ -35,7 +35,7 @@ async function main(): Promise<void> {
   const nativeDenomList = [
     {
       name: "strideSei",
-      address: "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/stsei",
+      address: "ibc/326D2E9FFBF7AE39CC404A58DED81054E23F107BC8D926D5D981C0231F1ECD2D",
       overseerWhitelistConfig: {
         name: "Bond stSei",
         symbol: "BSTSEI",
@@ -50,7 +50,7 @@ async function main(): Promise<void> {
     },
     {
       name: "slsdi",
-      address: "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/slsdi",
+      address: "ibc/53B6183707AF4C744EE26815613D9C4D0DE40E2C18083EA5B384FAF4F6BB0C06",
       overseerWhitelistConfig: {
         name: "Bond slsdi",
         symbol: "BSLSDI",
