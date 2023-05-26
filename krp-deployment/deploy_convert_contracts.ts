@@ -1,7 +1,7 @@
 import { readArtifact, storeCodeByWalletData, writeArtifact, instantiateContractByWalletData, instantiateContract2ByWalletData, queryWasmContractByWalletData, executeContractByWalletData, logChangeBalancesByWalletData, queryContractConfig } from "./common";
 import { loadingWalletData, loadingMarketData, loadingStakingData, chainConfigs, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH, CONVERT_ARTIFACTS_PATH } from "./env_data";
 import type { DeployContract, WalletData } from "./types";
-import { ConvertPairs } from "./types";
+import { ChainId, ConvertPairs } from "./types";
 
 async function main(): Promise<void> {
   console.log(`--- --- deploy convert contracts enter --- ---`);
@@ -32,7 +32,109 @@ async function main(): Promise<void> {
   console.log();
 
   // config native denom list
-  const ConfigConvertNativeDemonList: Record<string, ConvertPairs[]>;
+  const ConfigConvertNativeDemonList: Record<string, ConvertPairs[]> = {
+    [ChainId.SEI_CHAIN]: [
+      {
+        name: "strideSei",
+        native_denom: "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/stsei",
+        converter: {
+          admin: null,
+          initMsg: {
+            owner: null
+          },
+          label: "basset and native token convert contract",
+          filePath: null,
+          deploy: false
+        },
+        btoken: {
+          admin: null,
+          initMsg: {
+            name: "bstsei",
+            symbol: "BSTSEI",
+            decimals: 6,
+            initial_balances: []
+          },
+          label: "bond stride stSei to cw20 token",
+          filePath: null,
+          deploy: false
+        },
+        custody: {
+          admin: null,
+          initMsg: {
+            owner: null,
+            basset_info: {
+              name: "Bonded stSei",
+              symbol: "BSTSEI",
+              decimals: 6
+            }
+          },
+          label: "custody bond stsei contract",
+          filePath: null,
+          deploy: false
+        },
+
+        overseerWhitelistConfig: {
+          name: "Bond stSei",
+          symbol: "BSTSEI",
+          max_ltv: "0.65"
+        },
+        liquidationQueueWhitelistCollateralConfig: {
+          bid_threshold: "500000000",
+          max_slot: 30,
+          premium_rate_per_slot: "0.01"
+        }
+      }
+      //   // price: "100"
+      // },
+      // {
+      //   name: "slsdi",
+      //   address: "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/slsdi",
+      //   overseerWhitelistConfig: {
+      //     name: "Bond slsdi",
+      //     symbol: "BSLSDI",
+      //     max_ltv: "0.65"
+      //   },
+      //   liquidationQueueWhitelistCollateralConfig: {
+      //     bid_threshold: "500000000",
+      //     max_slot: 30,
+      //     premium_rate_per_slot: "0.01"
+      //   }
+      //   // price: "200"
+      // }
+    ]
+    // [ChainId.ATLANTIC_2]: [
+    //   {
+    //     name: "strideSei",
+    //     address: "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/stsei",
+    //     overseerWhitelistConfig: {
+    //       name: "Bond stSei",
+    //       symbol: "BSTSEI",
+    //       max_ltv: "0.65"
+    //     },
+    //     liquidationQueueWhitelistCollateralConfig: {
+    //       bid_threshold: "500000000",
+    //       max_slot: 30,
+    //       premium_rate_per_slot: "0.01"
+    //     }
+    //     // price: "100"
+    //   },
+    //   {
+    //     name: "slsdi",
+    //     address: "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/slsdi",
+    //     overseerWhitelistConfig: {
+    //       name: "Bond slsdi",
+    //       symbol: "BSLSDI",
+    //       max_ltv: "0.65"
+    //     },
+    //     liquidationQueueWhitelistCollateralConfig: {
+    //       bid_threshold: "500000000",
+    //       max_slot: 30,
+    //       premium_rate_per_slot: "0.01"
+    //     }
+    //     // price: "200"
+    //   }
+    // ]
+  };
 
   const nativeDenomList = [
     {

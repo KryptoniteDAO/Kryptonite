@@ -250,10 +250,21 @@ export interface ConvertCustodyContract extends BaseContract {
 }
 
 export interface ConvertPairs {
+  name?: string;
   native_denom: string;
   converter: ConvertConverterContract;
   btoken: ConvertBtokenContract;
   custody: ConvertCustodyContract;
+  overseerWhitelistConfig?: {
+    name?: string
+    symbol?: string
+    max_ltv?: string
+  },
+  liquidationQueueWhitelistCollateralConfig?: {
+    bid_threshold?: string
+    max_slot?: number
+    premium_rate_per_slot?: string
+  }
 }
 
 export interface SwapExtentionContract extends BaseContract {

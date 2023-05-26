@@ -2,7 +2,6 @@ import { readArtifact, storeCodeByWalletData, writeArtifact, instantiateContract
 import { loadingWalletData, loadingMarketData, loadingStakingData, chainConfigs, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH } from "./env_data";
 import type { DeployContract, WalletData } from "./types";
 import { ChainId } from "./types";
-import { OraclePythClient, OraclePythQueryClient } from "./contracts/OraclePyth.client";
 import { ConfigOraclePythFeedInfoList, doOraclePythConfigFeedInfo } from "./modules/market";
 
 async function main(): Promise<void> {
@@ -66,7 +65,7 @@ async function main(): Promise<void> {
   const chainIdConfigFeedInfos = ConfigOraclePythFeedInfoList[walletData.chainId];
   if (chainIdConfigFeedInfos && chainIdConfigFeedInfos.length > 0) {
     for (let configFeedInfo of chainIdConfigFeedInfos) {
-      await doOraclePythConfigFeedInfo(walletData, oraclePyth, configFeedInfo);
+      // await doOraclePythConfigFeedInfo(walletData, oraclePyth, configFeedInfo);
     }
   }
 
@@ -536,7 +535,7 @@ async function printDeployedContracts({ aToken, market, interestModel, distribut
     { name: `overseer`, deploy: chainConfigs?.overseer?.deploy, ...overseer },
     { name: `liquidationQueue`, deploy: chainConfigs?.liquidationQueue?.deploy, ...liquidationQueue },
     { name: `custodyBSei`, deploy: chainConfigs?.custodyBSei?.deploy, ...custodyBSei },
-    { name: `oraclePyth`, deploy: chainConfigs?.oraclePyth?.deploy, ...oracle }
+    // { name: `oraclePyth`, deploy: chainConfigs?.oraclePyth?.deploy, ...oracle }
   ];
   console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
 }
