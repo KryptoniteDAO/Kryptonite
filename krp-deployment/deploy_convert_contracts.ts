@@ -18,8 +18,8 @@ async function main(): Promise<void> {
   }
 
   const networkMarket = readArtifact(walletData.chainId, MARKET_ARTIFACTS_PATH);
-  const { aToken, market, interestModel, distributionModel, oracle, overseer, liquidationQueue, custodyBSei } = await loadingMarketData(networkMarket);
-  if (!aToken?.address || !market?.address || !interestModel?.address || !distributionModel?.address || !oracle?.address || !overseer?.address || !liquidationQueue?.address || !custodyBSei?.address) {
+  const { aToken, market, interestModel, distributionModel, overseer, liquidationQueue, custodyBSei } = await loadingMarketData(networkMarket);
+  if (!aToken?.address || !market?.address || !interestModel?.address || !distributionModel?.address || !overseer?.address || !liquidationQueue?.address || !custodyBSei?.address) {
     console.log(`--- --- deploy convert contracts error, missing some deployed market address info --- ---`);
     process.exit(0);
     return;
@@ -32,6 +32,8 @@ async function main(): Promise<void> {
   console.log();
 
   // config native denom list
+  const ConfigConvertNativeDemonList: Record<string, ConvertPairs[]>;
+
   const nativeDenomList = [
     {
       name: "strideSei",
@@ -99,8 +101,8 @@ async function main(): Promise<void> {
     await doConverterRegisterTokens(walletData, nativeDenom, converterNetwork, btokenNetwork);
     await doOverseerWhitelist(walletData, nativeDenom, overseer, custodyNetwork, btokenNetwork, nativeDenomItem.overseerWhitelistConfig);
     await doLiquidationQueueWhitelistCollateral(walletData, nativeDenom, liquidationQueue, btokenNetwork, nativeDenomItem.liquidationQueueWhitelistCollateralConfig);
-    await doOracleRegisterFeeder(walletData, nativeDenom, oracle, btokenNetwork);
-    await doOracleFeedPrice(walletData, nativeDenom, oracle, btokenNetwork, nativeDenomItem?.["price"]);
+    // await doOracleRegisterFeeder(walletData, nativeDenom, oracle, btokenNetwork);
+    // await doOracleFeedPrice(walletData, nativeDenom, oracle, btokenNetwork, nativeDenomItem?.["price"]);
   }
 
   console.log();

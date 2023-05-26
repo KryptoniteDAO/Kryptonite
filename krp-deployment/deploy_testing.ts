@@ -26,8 +26,8 @@ async function main(): Promise<void> {
     return;
   }
 
-  const { overseer, market, custodyBSei, interestModel, distributionModel, oracle, aToken, liquidationQueue } = await loadingMarketData(network_market);
-  if (!overseer.address || !market.address || !custodyBSei.address || !interestModel.address || !distributionModel.address || !oracle.address || !aToken.address || !liquidationQueue.address) {
+  const { overseer, market, custodyBSei, interestModel, distributionModel, aToken, liquidationQueue } = await loadingMarketData(network_market);
+  if (!overseer.address || !market.address || !custodyBSei.address || !interestModel.address || !distributionModel.address || !aToken.address || !liquidationQueue.address) {
     console.log(`--- --- verify deployed error, missing some deployed market address info --- ---`);
     process.exit(0);
     return;
@@ -35,7 +35,7 @@ async function main(): Promise<void> {
 
   const swapExtention = network_swap?.swapExtention;
 
-  
+
 
   console.log("--- -- test support stSEI and SLSTI asset start --- ---");
   //const strideSeiDenom = "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/stsei";
@@ -46,7 +46,7 @@ async function main(): Promise<void> {
 
 
 
-  
+
   //**configure overseer、liquidation_queue、 custody array */
   const nativeDenomList = [
     {
@@ -80,7 +80,7 @@ async function main(): Promise<void> {
     const custodyNetwork = convertPairsNetwork?.custody;
 
 
-    
+
     await executeContractByWalletData(walletData, custodyNetwork.address, {update_swap_contract:{ swap_contract : network_swap.}});
 
     await executeContractByWalletData()

@@ -33,7 +33,7 @@ async function main(): Promise<void> {
 
   const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(networkStaking);
 
-  await printDeployedContracts({ hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken });
+  await printDeployedContracts(networkStaking);
 
   // //////////////////////////////////////configure contracts///////////////////////////////////////////
 
@@ -43,27 +43,6 @@ async function main(): Promise<void> {
   await doHubConfig(walletData, hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken);
   await queryHubConfig(walletData, hub);
   await queryHubParameters(walletData, hub);
-
-  // console.log()
-  // console.log("Do hub's update_params enter");
-  // const hubUpdateParamsRes = await executeContractByWalletData(walletData, hub.address, {
-  //   update_params: {
-  //     epoch_period: 260000,
-  //     unbonding_period: 259200,
-  //     peg_recovery_fee: "0.005",
-  //     er_threshold: "1.0",
-  //   }
-  // })
-  //  console.log("Do hub's update_params ok. \n", hubUpdateParamsRes?.transactionHash);
-  //======================deployed contracts，change creator to update_global_index=======================================//
-  // change creator，
-  // await executeContractByWalletData(walletData, hub.address,
-  // {
-  //   update_config: {
-  //     owner : ""
-  //   }
-  // })
-  // console.log("transfer owener ok.")
 
   console.log();
   console.log(`--- --- staking contracts configure end --- ---`);
@@ -344,16 +323,16 @@ async function queryHubParameters(walletData: WalletData, hub: DeployContract): 
   return hubParametersRes;
 }
 
-async function printDeployedContracts({ hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken }): Promise<void> {
+async function printDeployedContracts(networkStaking: StakingDeployContracts): Promise<void> {
   console.log();
   console.log(`--- --- deployed staking contracts info --- ---`);
   const tableData = [
-    { name: `hub`, deploy: chainConfigs?.hub?.deploy, ...hub },
-    { name: `reward`, deploy: chainConfigs?.reward?.deploy, ...reward },
-    { name: `bSeiToken`, deploy: chainConfigs?.bSeiToken?.deploy, ...bSeiToken },
-    { name: `rewardsDispatcher`, deploy: chainConfigs?.rewardsDispatcher?.deploy, ...rewardsDispatcher },
-    { name: `validatorsRegistry`, deploy: chainConfigs?.validatorsRegistry?.deploy, ...validatorsRegistry },
-    { name: `stSeiToken`, deploy: chainConfigs?.stSeiToken?.deploy, ...stSeiToken }
+    { name: `hub`, deploy: chainConfigs?.hub?.deploy, codeId: networkStaking?.hub?.codeId, address: networkStaking?.hub?.address },
+    { name: `reward`, deploy: chainConfigs?.reward?.deploy, codeId: networkStaking?.reward?.codeId, address: networkStaking?.reward?.address },
+    { name: `bSeiToken`, deploy: chainConfigs?.bSeiToken?.deploy, codeId: networkStaking?.bSeiToken?.codeId, address: networkStaking?.bSeiToken?.address },
+    { name: `rewardsDispatcher`, deploy: chainConfigs?.rewardsDispatcher?.deploy, codeId: networkStaking?.rewardsDispatcher?.codeId, address: networkStaking?.rewardsDispatcher?.address },
+    { name: `validatorsRegistry`, deploy: chainConfigs?.validatorsRegistry?.deploy, codeId: networkStaking?.validatorsRegistry?.codeId, address: networkStaking?.validatorsRegistry?.address },
+    { name: `stSeiToken`, deploy: chainConfigs?.stSeiToken?.deploy, codeId: networkStaking?.stSeiToken?.codeId, address: networkStaking?.stSeiToken?.address }
   ];
   console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
 }

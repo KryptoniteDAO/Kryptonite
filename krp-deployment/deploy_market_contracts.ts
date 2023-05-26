@@ -29,7 +29,7 @@ async function main(): Promise<void> {
   await deployMarket(walletData, network);
   await deployInterestModel(walletData, network);
   await deployDistributionModel(walletData, network);
-  await deployOracle(walletData, network);
+  // await deployOracle(walletData, network);
   await deployOverseer(walletData, network);
   await deployLiquidationQueue(walletData, network);
   await deployCustodyBSei(walletData, network, reward?.address, bSeiToken?.address);
@@ -37,9 +37,9 @@ async function main(): Promise<void> {
   console.log();
   console.log(`--- --- market contracts storeCode & instantiateContract end --- ---`);
 
-  const { aToken, market, interestModel, distributionModel, oracle, oraclePyth, overseer, liquidationQueue, custodyBSei } = await loadingMarketData(network);
+  const { aToken, market, interestModel, distributionModel, oraclePyth, overseer, liquidationQueue, custodyBSei } = await loadingMarketData(network);
 
-  await printDeployedContracts({ aToken, market, interestModel, distributionModel, oracle, overseer, liquidationQueue, custodyBSei });
+  await printDeployedContracts({ aToken, market, interestModel, distributionModel, overseer, liquidationQueue, custodyBSei });
 
   // //////////////////////////////////////configure contracts///////////////////////////////////////////
 
@@ -50,7 +50,7 @@ async function main(): Promise<void> {
   const marketConfigRes = await queryContractConfig(walletData, market, false);
   const interestModelConfigRes = await queryContractConfig(walletData, interestModel, false);
   const distributionModelConfigRes = await queryContractConfig(walletData, distributionModel, false);
-  const oracleConfigRes = await queryContractConfig(walletData, oracle, false);
+  // const oracleConfigRes = await queryContractConfig(walletData, oracle, false);
   const overseerConfigRes = await queryContractConfig(walletData, overseer, false);
   const liquidationQueueConfigRes = await queryContractConfig(walletData, liquidationQueue, false);
   const custodyBSeiConfigRes = await queryContractConfig(walletData, custodyBSei, false);
@@ -524,7 +524,7 @@ async function queryOverseerWhitelist(walletData: WalletData, overseer: DeployCo
   return overseerWhitelistRes;
 }
 
-async function printDeployedContracts({ aToken, market, interestModel, distributionModel, oracle, overseer, liquidationQueue, custodyBSei }): Promise<any> {
+async function printDeployedContracts({ aToken, market, interestModel, distributionModel, overseer, liquidationQueue, custodyBSei }): Promise<any> {
   console.log();
   console.log(`--- --- deployed market contracts info --- ---`);
   const tableData = [
@@ -532,7 +532,7 @@ async function printDeployedContracts({ aToken, market, interestModel, distribut
     { name: `market`, deploy: chainConfigs?.market?.deploy, ...market },
     { name: `interestModel`, deploy: chainConfigs?.interestModel?.deploy, ...interestModel },
     { name: `distributionModel`, deploy: chainConfigs?.distributionModel?.deploy, ...distributionModel },
-    { name: `oracle`, deploy: chainConfigs?.oracle?.deploy, ...oracle },
+    // { name: `oracle`, deploy: chainConfigs?.oracle?.deploy, ...oracle },
     { name: `overseer`, deploy: chainConfigs?.overseer?.deploy, ...overseer },
     { name: `liquidationQueue`, deploy: chainConfigs?.liquidationQueue?.deploy, ...liquidationQueue },
     { name: `custodyBSei`, deploy: chainConfigs?.custodyBSei?.deploy, ...custodyBSei },

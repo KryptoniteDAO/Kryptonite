@@ -12,7 +12,7 @@ async function main(): Promise<void> {
   const walletData = await loadingWalletData();
 
   const networkMarket = readArtifact(walletData.chainId, MARKET_ARTIFACTS_PATH);
-  const { aToken, market, interestModel, distributionModel, oracle, overseer, liquidationQueue, custodyBSei, oraclePyth } = await loadingMarketData(networkMarket);
+  const { aToken, market, interestModel, distributionModel, overseer, liquidationQueue, custodyBSei, oraclePyth } = await loadingMarketData(networkMarket);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 

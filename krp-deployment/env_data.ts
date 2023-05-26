@@ -259,7 +259,7 @@ export async function loadingMarketData(networkMarket: MarketDeployContracts | u
     market,
     interestModel,
     distributionModel,
-    oracle,
+    // oracle,
     overseer,
     liquidationQueue,
     custodyBSei,
