@@ -536,7 +536,7 @@ async function printDeployedContracts({ aToken, market, interestModel, distribut
     { name: `overseer`, deploy: chainConfigs?.overseer?.deploy, ...overseer },
     { name: `liquidationQueue`, deploy: chainConfigs?.liquidationQueue?.deploy, ...liquidationQueue },
     { name: `custodyBSei`, deploy: chainConfigs?.custodyBSei?.deploy, ...custodyBSei },
-    { name: `oraclePyth`, deploy: chainConfigs?.oraclePyth?.deploy, ...oracle }
+    //{ name: `oraclePyth`, deploy: chainConfigs?.oraclePyth?.deploy, ...oracle }
   ];
   console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
 }

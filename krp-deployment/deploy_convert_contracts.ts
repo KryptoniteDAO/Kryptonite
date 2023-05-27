@@ -32,8 +32,6 @@ async function main(): Promise<void> {
   console.log();
 
   // config native denom list
-  const ConfigConvertNativeDemonList: Record<string, ConvertPairs[]>;
-
   const nativeDenomList = [
     {
       name: "strideSei",
