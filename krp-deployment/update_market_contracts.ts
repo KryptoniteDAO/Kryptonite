@@ -1,8 +1,12 @@
-import { readArtifact, storeCodeByWalletData, writeArtifact, instantiateContractByWalletData, instantiateContract2ByWalletData, queryWasmContractByWalletData, executeContractByWalletData, logChangeBalancesByWalletData, queryContractQueryConfig } from "./common";
-import { loadingWalletData, loadingMarketData, loadingStakingData, chainConfigs, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH, SWAP_EXTENSION_ARTIFACTS_PATH } from "./env_data";
+import { queryContractQueryConfig } from "./common";
+import { loadingWalletData } from "./env_data";
 import type { DeployContract, WalletData } from "./types";
-import { ChainId } from "./types";
+import { ChainId, ConvertDeployContracts, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts } from "./types";
 import { OraclePythClient, OraclePythQueryClient } from "./contracts/OraclePyth.client";
+import { swapExtentionReadArtifact } from "./modules/swap";
+import { stakingReadArtifact } from "./modules/staking";
+import { marketReadArtifact } from "./modules/market";
+import { convertReadArtifact } from "./modules/convert";
 
 main().catch(console.error);
 
@@ -11,8 +15,10 @@ async function main(): Promise<void> {
 
   const walletData = await loadingWalletData();
 
-  const networkMarket = readArtifact(walletData.chainId, MARKET_ARTIFACTS_PATH);
-  const { aToken, market, interestModel, distributionModel, overseer, liquidationQueue, custodyBSei, oraclePyth } = await loadingMarketData(networkMarket);
+  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapDeployContracts;
+  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingDeployContracts;
+  const networkMarket = marketReadArtifact(walletData.chainId) as MarketDeployContracts;
+  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertDeployContracts;
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 

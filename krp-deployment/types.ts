@@ -300,28 +300,28 @@ export interface Config {
 }
 
 export interface SwapDeployContracts {
-  swapExtention: DeployContract;
+  swapExtention?: DeployContract;
 }
 
 export interface StakingDeployContracts {
-  hub: DeployContract;
-  reward: DeployContract;
-  bSeiToken: DeployContract;
-  rewardsDispatcher: DeployContract;
-  validatorsRegistry: DeployContract;
-  stSeiToken: DeployContract;
+  hub?: DeployContract;
+  reward?: DeployContract;
+  bSeiToken?: DeployContract;
+  rewardsDispatcher?: DeployContract;
+  validatorsRegistry?: DeployContract;
+  stSeiToken?: DeployContract;
 }
 
 export interface MarketDeployContracts {
-  aToken: DeployContract;
-  market: DeployContract;
-  interestModel: DeployContract;
-  distributionModel: DeployContract;
-  oracle: DeployContract;
-  overseer: DeployContract;
-  liquidationQueue: DeployContract;
-  custodyBSei: DeployContract;
-  oraclePyth: DeployContract;
+  aToken?: DeployContract;
+  market?: DeployContract;
+  interestModel?: DeployContract;
+  distributionModel?: DeployContract;
+  oracle?: DeployContract;
+  overseer?: DeployContract;
+  liquidationQueue?: DeployContract;
+  custodyBSei?: DeployContract;
+  oraclePyth?: DeployContract;
 }
 
 export interface ConvertPairsDeployContracts {

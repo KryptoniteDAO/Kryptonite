@@ -1,4 +1,4 @@
-import { chainConfigs, SWAP_EXTENSION_ARTIFACTS_PATH, SWAP_EXTENSION_MODULE_NAME } from "../env_data";
+import { chainConfigs, DEPLOY_VERSION, SWAP_EXTENSION_ARTIFACTS_PATH, SWAP_EXTENSION_MODULE_NAME } from "../env_data";
 import { ChainId, DeployContract, StakingDeployContracts, SwapDeployContracts, WalletData } from "../types";
 import { instantiateContractByWalletData, readArtifact, storeCodeByWalletData, writeArtifact } from "../common";
 import { SwapExtentionClient, SwapExtentionQueryClient } from "../contracts/SwapExtention.client";
@@ -17,10 +17,10 @@ export const ConfigSwapPairConfigList: Record<
 };
 
 export function getSwapExtentionDeployFileName(chainId: string): string {
-  return `deployed_${SWAP_EXTENSION_MODULE_NAME}_${chainId}`;
+  return `deployed_${SWAP_EXTENSION_MODULE_NAME}_${DEPLOY_VERSION}_${chainId}`;
 }
 
-export function swapExtentionReadArtifact(networkMarket: StakingDeployContracts, chainId: string): StakingDeployContracts {
+export function swapExtentionReadArtifact(chainId: string): StakingDeployContracts {
   return readArtifact(getSwapExtentionDeployFileName(chainId), SWAP_EXTENSION_ARTIFACTS_PATH) as StakingDeployContracts;
 }
 
@@ -37,7 +37,7 @@ export async function deploySwapExtention(walletData: WalletData, networkSwap: S
     if (!networkSwap?.swapExtention?.codeId || networkSwap?.swapExtention?.codeId <= 0) {
       const filePath = chainConfigs?.swapExtention?.filePath || "../swap-extention/artifacts/swap_extention.wasm";
       networkSwap.swapExtention.codeId = await storeCodeByWalletData(walletData, filePath);
-      writeArtifact(networkSwap, walletData.chainId, SWAP_EXTENSION_ARTIFACTS_PATH);
+      swapExtentionWriteArtifact(networkSwap, walletData.chainId);
     }
     if (networkSwap?.swapExtention?.codeId > 0) {
       const admin = chainConfigs?.swapExtention?.admin || walletData.address;
@@ -46,7 +46,7 @@ export async function deploySwapExtention(walletData: WalletData, networkSwap: S
         owner: chainConfigs?.reward?.initMsg?.owner || walletData.address
       });
       networkSwap.swapExtention.address = await instantiateContractByWalletData(walletData, admin, networkSwap.swapExtention.codeId, initMsg, label);
-      writeArtifact(networkSwap, walletData.chainId, SWAP_EXTENSION_ARTIFACTS_PATH);
+      swapExtentionWriteArtifact(networkSwap, walletData.chainId);
       chainConfigs.swapExtention.deploy = true;
     }
     console.log(`swapExtention: `, JSON.stringify(networkSwap?.swapExtention));

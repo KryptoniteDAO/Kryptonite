@@ -1,5 +1,5 @@
-import { MARKET_ARTIFACTS_PATH, MARKET_MODULE_NAME } from "../env_data";
-import { readArtifact, writeArtifact } from "../common";
+import { chainConfigs, DEPLOY_VERSION, MARKET_ARTIFACTS_PATH, MARKET_MODULE_NAME } from "../env_data";
+import { instantiateContractByWalletData, readArtifact, storeCodeByWalletData, writeArtifact } from "../common";
 import { ChainId, DeployContract, MarketDeployContracts, WalletData } from "../types";
 import { OraclePythClient, OraclePythQueryClient } from "../contracts/OraclePyth.client";
 
@@ -66,15 +66,44 @@ export const ConfigOraclePythFeedInfoList: Record<
 };
 
 export function getMarketDeployFileName(chainId: string): string {
-  return `deployed_${MARKET_MODULE_NAME}_${chainId}`;
+  return `deployed_${MARKET_MODULE_NAME}_${DEPLOY_VERSION}_${chainId}`;
 }
 
-export function marketReadArtifact(networkMarket: MarketDeployContracts, chainId: string): MarketDeployContracts {
+export function marketReadArtifact(chainId: string): MarketDeployContracts {
   return readArtifact(getMarketDeployFileName(chainId), MARKET_ARTIFACTS_PATH) as MarketDeployContracts;
 }
 
 export function marketWriteArtifact(networkMarket: MarketDeployContracts, chainId: string): void {
   writeArtifact(networkMarket, getMarketDeployFileName(chainId), MARKET_ARTIFACTS_PATH);
+}
+
+export async function deployOraclePyth(walletData: WalletData, networkMarket: MarketDeployContracts): Promise<void> {
+  // if ("atlantic-2" !== walletData.chainId) {
+  //   return;
+  // }
+
+  if (!networkMarket?.oraclePyth?.address) {
+    if (!networkMarket?.oraclePyth) {
+      networkMarket.oraclePyth = {};
+    }
+
+    if (!networkMarket?.oraclePyth?.codeId || networkMarket?.oraclePyth?.codeId <= 0) {
+      const filePath = chainConfigs?.oraclePyth?.filePath || "../krp-market-contracts/artifacts/moneymarket_oracle_pyth.wasm";
+      networkMarket.oraclePyth.codeId = await storeCodeByWalletData(walletData, filePath);
+      marketWriteArtifact(networkMarket, walletData.chainId);
+    }
+    if (networkMarket?.oraclePyth?.codeId > 0) {
+      const admin = chainConfigs?.oraclePyth?.admin || walletData.address;
+      const label = chainConfigs?.oraclePyth?.label;
+      const initMsg = Object.assign({}, chainConfigs?.oraclePyth?.initMsg, {
+        owner: chainConfigs?.oraclePyth?.initMsg?.owner || walletData.address
+      });
+      networkMarket.oraclePyth.address = await instantiateContractByWalletData(walletData, admin, networkMarket.oraclePyth.codeId, initMsg, label);
+      marketWriteArtifact(networkMarket, walletData.chainId);
+      chainConfigs.oraclePyth.deploy = true;
+    }
+    console.log(`oraclePyth: `, JSON.stringify(networkMarket?.oraclePyth));
+  }
 }
 
 export async function doOraclePythConfigFeedInfo(walletData: WalletData, oraclePyth: DeployContract, configFeedInfoParams: { asset: string; checkFeedAge: boolean; priceFeedAge: number; priceFeedDecimal: number; priceFeedId: string; priceFeedSymbol: string }, print: boolean = true): Promise<void> {

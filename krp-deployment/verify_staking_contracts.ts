@@ -1,8 +1,12 @@
 import { coins } from "@cosmjs/stargate";
-import { queryStakingDelegations, queryAddressBalance, queryStaking, queryStakingParameters, readArtifact, queryWasmContractByWalletData, executeContractByWalletData, logChangeBalancesByWalletData, queryAddressTokenBalance } from "./common";
+import { queryStakingDelegations, queryAddressBalance, queryStaking, queryStakingParameters, queryWasmContractByWalletData, executeContractByWalletData, logChangeBalancesByWalletData, queryAddressTokenBalance } from "./common";
 import { loadingWalletData, loadingStakingData, STAKING_ARTIFACTS_PATH } from "./env_data";
-import { DeployContract, WalletData } from "./types";
+import { ConvertDeployContracts, DeployContract, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts, WalletData } from "./types";
 import Decimal from "decimal.js";
+import { swapExtentionReadArtifact } from "./modules/swap";
+import { stakingReadArtifact } from "./modules/staking";
+import { marketReadArtifact } from "./modules/market";
+import { convertReadArtifact } from "./modules/convert";
 
 main().catch(console.error);
 
@@ -10,7 +14,12 @@ async function main(): Promise<void> {
   console.log(`--- --- verify deployed staking contracts enter --- ---`);
 
   const walletData = await loadingWalletData();
-  const networkStaking = readArtifact(walletData.chainId, STAKING_ARTIFACTS_PATH);
+
+  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapDeployContracts;
+  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingDeployContracts;
+  const networkMarket = marketReadArtifact(walletData.chainId) as MarketDeployContracts;
+  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertDeployContracts;
+
   const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(networkStaking);
   if (!hub?.address || !reward?.address || !bSeiToken?.address || !rewardsDispatcher?.address || !validatorsRegistry?.address || !stSeiToken?.address) {
     console.error(`--- --- verify deployed error, missing some deployed address info --- ---`);

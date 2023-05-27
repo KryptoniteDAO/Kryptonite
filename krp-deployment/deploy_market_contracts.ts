@@ -1,16 +1,22 @@
-import { readArtifact, storeCodeByWalletData, writeArtifact, instantiateContractByWalletData, instantiateContract2ByWalletData, queryWasmContractByWalletData, executeContractByWalletData, logChangeBalancesByWalletData, queryContractConfig } from "./common";
-import { loadingWalletData, loadingMarketData, loadingStakingData, chainConfigs, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH, SWAP_EXTENSION_ARTIFACTS_PATH } from "./env_data";
+import { storeCodeByWalletData, instantiateContractByWalletData, instantiateContract2ByWalletData, queryWasmContractByWalletData, executeContractByWalletData, logChangeBalancesByWalletData, queryContractConfig } from "./common";
+import { loadingWalletData, loadingMarketData, loadingStakingData, chainConfigs } from "./env_data";
 import type { DeployContract, MarketDeployContracts, WalletData } from "./types";
-import { ChainId, SwapDeployContracts } from "./types";
-import { ConfigOraclePythBaseFeedInfoList, ConfigOraclePythFeedInfoList, doOraclePythConfigFeedInfo } from "./modules/market";
-import { doSwapExtentionSetWhitelist } from "./modules/swap";
+import { ConvertDeployContracts, StakingDeployContracts, SwapDeployContracts } from "./types";
+import { ConfigOraclePythBaseFeedInfoList, ConfigOraclePythFeedInfoList, doOraclePythConfigFeedInfo, marketReadArtifact, marketWriteArtifact } from "./modules/market";
+import { doSwapExtentionSetWhitelist, swapExtentionReadArtifact } from "./modules/swap";
+import { stakingReadArtifact } from "./modules/staking";
+import { convertReadArtifact } from "./modules/convert";
 
 async function main(): Promise<void> {
   console.log(`--- --- deploy market contracts enter --- ---`);
 
   const walletData = await loadingWalletData();
 
-  const networkStaking = readArtifact(walletData.chainId, STAKING_ARTIFACTS_PATH);
+  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapDeployContracts;
+  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingDeployContracts;
+  const networkMarket = marketReadArtifact(walletData.chainId) as MarketDeployContracts;
+  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertDeployContracts;
+
   const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(networkStaking);
 
   if (!hub?.address || !reward?.address || !bSeiToken?.address || !rewardsDispatcher?.address || !validatorsRegistry?.address || !stSeiToken?.address) {
@@ -19,8 +25,6 @@ async function main(): Promise<void> {
     return;
   }
 
-  const networkMarket = readArtifact(walletData.chainId, MARKET_ARTIFACTS_PATH) as MarketDeployContracts;
-  const networkSwap = readArtifact(walletData.chainId, SWAP_EXTENSION_ARTIFACTS_PATH) as SwapDeployContracts;
   console.log();
   console.log(`--- --- market contracts storeCode & instantiateContract enter --- ---`);
   console.log();
@@ -80,7 +84,7 @@ async function main(): Promise<void> {
 
   /// add market.custodyBSei to swap whitelist
   if (networkMarket?.custodyBSei?.address) {
-    await doSwapExtentionSetWhitelist(walletData,networkSwap?.swapExtention, { caller: networkMarket?.custodyBSei?.address, isWhitelist: true }, print);
+    await doSwapExtentionSetWhitelist(walletData, networkSwap?.swapExtention, { caller: networkMarket?.custodyBSei?.address, isWhitelist: true }, print);
   }
 
   console.log();
@@ -108,12 +112,12 @@ async function deployMarket(walletData: WalletData, network: any): Promise<void>
     if (network?.aToken?.codeId <= 0 || !network?.aToken?.codeId) {
       const filePath = chainConfigs?.aToken?.filePath || "../cw-plus/artifacts/cw20_base.wasm";
       network.aToken.codeId = await storeCodeByWalletData(walletData, filePath);
-      writeArtifact(network, walletData.chainId, MARKET_ARTIFACTS_PATH);
+      marketWriteArtifact(network, walletData.chainId);
     }
     if (!network?.market?.codeId || network?.market?.codeId <= 0) {
       const filePath = chainConfigs?.market?.filePath || "../krp-market-contracts/artifacts/moneymarket_market.wasm";
       network.market.codeId = await storeCodeByWalletData(walletData, filePath);
-      writeArtifact(network, walletData.chainId, MARKET_ARTIFACTS_PATH);
+      marketWriteArtifact(network, walletData.chainId);
     }
     if (network?.market?.codeId > 0 && network?.aToken?.codeId > 0) {
       const admin = chainConfigs?.market?.admin || walletData.address;
@@ -132,7 +136,7 @@ async function deployMarket(walletData: WalletData, network: any): Promise<void>
       const [contract1, contract2] = await instantiateContract2ByWalletData(walletData, admin, network.market.codeId, initMsg, label, initCoins);
       network.aToken.address = contract2;
       network.market.address = contract1;
-      writeArtifact(network, walletData.chainId, MARKET_ARTIFACTS_PATH);
+      marketWriteArtifact(network, walletData.chainId);
       chainConfigs.aToken.deploy = true;
       chainConfigs.market.deploy = true;
     }
@@ -150,7 +154,7 @@ async function deployInterestModel(walletData: WalletData, network: any): Promis
     if (!network?.interestModel?.codeId || network?.interestModel?.codeId <= 0) {
       const filePath = chainConfigs?.interestModel?.filePath || "../krp-market-contracts/artifacts/moneymarket_interest_model.wasm";
       network.interestModel.codeId = await storeCodeByWalletData(walletData, filePath);
-      writeArtifact(network, walletData.chainId, MARKET_ARTIFACTS_PATH);
+      marketWriteArtifact(network, walletData.chainId);
     }
     if (network?.interestModel?.codeId > 0) {
       const admin = chainConfigs?.interestModel?.admin || walletData.address;
@@ -159,7 +163,7 @@ async function deployInterestModel(walletData: WalletData, network: any): Promis
         owner: chainConfigs?.interestModel?.initMsg?.owner || walletData.address
       });
       network.interestModel.address = await instantiateContractByWalletData(walletData, admin, network.interestModel.codeId, initMsg, label);
-      writeArtifact(network, walletData.chainId, MARKET_ARTIFACTS_PATH);
+      marketWriteArtifact(network, walletData.chainId);
       chainConfigs.interestModel.deploy = true;
     }
     console.log(`interestModel: `, JSON.stringify(network?.interestModel));
@@ -175,7 +179,7 @@ async function deployDistributionModel(walletData: WalletData, network: any): Pr
     if (!network?.distributionModel?.codeId || network?.distributionModel?.codeId <= 0) {
       const filePath = chainConfigs?.distributionModel?.filePath || "../krp-market-contracts/artifacts/moneymarket_distribution_model.wasm";
       network.distributionModel.codeId = await storeCodeByWalletData(walletData, filePath);
-      writeArtifact(network, walletData.chainId, MARKET_ARTIFACTS_PATH);
+      marketWriteArtifact(network, walletData.chainId);
     }
     if (network?.distributionModel?.codeId > 0) {
       const admin = chainConfigs?.distributionModel?.admin || walletData.address;
@@ -184,7 +188,7 @@ async function deployDistributionModel(walletData: WalletData, network: any): Pr
         owner: chainConfigs?.distributionModel?.initMsg?.owner || walletData.address
       });
       network.distributionModel.address = await instantiateContractByWalletData(walletData, admin, network.distributionModel.codeId, initMsg, label);
-      writeArtifact(network, walletData.chainId, MARKET_ARTIFACTS_PATH);
+      marketWriteArtifact(network, walletData.chainId);
       chainConfigs.distributionModel.deploy = true;
     }
     console.log(`distributionModel: `, JSON.stringify(network?.distributionModel));
@@ -200,7 +204,7 @@ async function deployOracle(walletData: WalletData, network: any): Promise<void>
     if (!network?.oracle?.codeId || network?.oracle?.codeId <= 0) {
       const filePath = chainConfigs?.oracle?.filePath || "../krp-market-contracts/artifacts/moneymarket_oracle.wasm";
       network.oracle.codeId = await storeCodeByWalletData(walletData, filePath);
-      writeArtifact(network, walletData.chainId, MARKET_ARTIFACTS_PATH);
+      marketWriteArtifact(network, walletData.chainId);
     }
     if (network?.oracle?.codeId > 0) {
       const admin = chainConfigs?.oracle?.admin || walletData.address;
@@ -209,7 +213,7 @@ async function deployOracle(walletData: WalletData, network: any): Promise<void>
         owner: chainConfigs?.oracle?.initMsg?.owner || walletData.address
       });
       network.oracle.address = await instantiateContractByWalletData(walletData, admin, network.oracle.codeId, initMsg, label);
-      writeArtifact(network, walletData.chainId, MARKET_ARTIFACTS_PATH);
+      marketWriteArtifact(network, walletData.chainId);
       chainConfigs.oracle.deploy = true;
     }
     console.log(`oracle: `, JSON.stringify(network?.oracle));
@@ -232,7 +236,7 @@ async function deployOverseer(walletData: WalletData, network: any): Promise<voi
     if (!network?.overseer?.codeId || network?.overseer?.codeId <= 0) {
       const filePath = chainConfigs?.overseer?.filePath || "../krp-market-contracts/artifacts/moneymarket_overseer.wasm";
       network.overseer.codeId = await storeCodeByWalletData(walletData, filePath);
-      writeArtifact(network, walletData.chainId, MARKET_ARTIFACTS_PATH);
+      marketWriteArtifact(network, walletData.chainId);
     }
     if (network?.overseer?.codeId > 0) {
       const admin = chainConfigs?.overseer?.admin || walletData.address;
@@ -250,7 +254,7 @@ async function deployOverseer(walletData: WalletData, network: any): Promise<voi
         }
       );
       network.overseer.address = await instantiateContractByWalletData(walletData, admin, network.overseer.codeId, initMsg, label);
-      writeArtifact(network, walletData.chainId, MARKET_ARTIFACTS_PATH);
+      marketWriteArtifact(network, walletData.chainId);
       chainConfigs.overseer.deploy = true;
     }
     console.log(`overseer: `, JSON.stringify(network?.overseer));
@@ -272,7 +276,7 @@ async function deployLiquidationQueue(walletData: WalletData, network: any): Pro
     if (!network?.liquidationQueue?.codeId || network?.liquidationQueue?.codeId <= 0) {
       const filePath = chainConfigs?.liquidationQueue?.filePath || "../krp-market-contracts/artifacts/moneymarket_liquidation_queue.wasm";
       network.liquidationQueue.codeId = await storeCodeByWalletData(walletData, filePath);
-      writeArtifact(network, walletData.chainId, MARKET_ARTIFACTS_PATH);
+      marketWriteArtifact(network, walletData.chainId);
     }
     if (network?.liquidationQueue?.codeId > 0) {
       const admin = chainConfigs?.liquidationQueue?.admin || walletData.address;
@@ -289,7 +293,7 @@ async function deployLiquidationQueue(walletData: WalletData, network: any): Pro
         }
       );
       network.liquidationQueue.address = await instantiateContractByWalletData(walletData, admin, network.liquidationQueue.codeId, initMsg, label);
-      writeArtifact(network, walletData.chainId, MARKET_ARTIFACTS_PATH);
+      marketWriteArtifact(network, walletData.chainId);
       chainConfigs.liquidationQueue.deploy = true;
     }
     console.log(`liquidationQueue: `, JSON.stringify(network?.liquidationQueue));
@@ -312,7 +316,7 @@ async function deployCustodyBSei(walletData: WalletData, network: any, rewardAdd
     if (!network?.custodyBSei?.codeId || network?.custodyBSei?.codeId <= 0) {
       const filePath = chainConfigs?.custodyBSei?.filePath || "../krp-market-contracts/artifacts/moneymarket_custody_bsei.wasm";
       network.custodyBSei.codeId = await storeCodeByWalletData(walletData, filePath);
-      writeArtifact(network, walletData.chainId, MARKET_ARTIFACTS_PATH);
+      marketWriteArtifact(network, walletData.chainId);
     }
     if (network?.custodyBSei?.codeId > 0) {
       const admin = chainConfigs?.custodyBSei?.admin || walletData.address;
@@ -334,7 +338,7 @@ async function deployCustodyBSei(walletData: WalletData, network: any, rewardAdd
         }
       );
       network.custodyBSei.address = await instantiateContractByWalletData(walletData, admin, network.custodyBSei.codeId, initMsg, label);
-      writeArtifact(network, walletData.chainId, MARKET_ARTIFACTS_PATH);
+      marketWriteArtifact(network, walletData.chainId);
       chainConfigs.custodyBSei.deploy = true;
     }
     console.log(`custodyBSei: `, JSON.stringify(network?.custodyBSei));
@@ -354,7 +358,7 @@ async function deployOraclePyth(walletData: WalletData, network: any): Promise<v
     if (!network?.oraclePyth?.codeId || network?.oraclePyth?.codeId <= 0) {
       const filePath = chainConfigs?.oraclePyth?.filePath || "../krp-market-contracts/artifacts/moneymarket_oracle_pyth.wasm";
       network.oraclePyth.codeId = await storeCodeByWalletData(walletData, filePath);
-      writeArtifact(network, walletData.chainId, MARKET_ARTIFACTS_PATH);
+      marketWriteArtifact(network, walletData.chainId);
     }
     if (network?.oraclePyth?.codeId > 0) {
       const admin = chainConfigs?.oraclePyth?.admin || walletData.address;
@@ -363,7 +367,7 @@ async function deployOraclePyth(walletData: WalletData, network: any): Promise<v
         owner: chainConfigs?.oraclePyth?.initMsg?.owner || walletData.address
       });
       network.oraclePyth.address = await instantiateContractByWalletData(walletData, admin, network.oraclePyth.codeId, initMsg, label);
-      writeArtifact(network, walletData.chainId, MARKET_ARTIFACTS_PATH);
+      marketWriteArtifact(network, walletData.chainId);
       chainConfigs.oraclePyth.deploy = true;
     }
     console.log(`oraclePyth: `, JSON.stringify(network?.oraclePyth));

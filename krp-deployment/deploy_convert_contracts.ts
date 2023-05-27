@@ -1,25 +1,29 @@
-import { readArtifact, storeCodeByWalletData, writeArtifact, instantiateContractByWalletData, instantiateContract2ByWalletData, queryWasmContractByWalletData, executeContractByWalletData, logChangeBalancesByWalletData, queryContractConfig } from "./common";
-import { loadingWalletData, loadingMarketData, loadingStakingData, chainConfigs, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH, CONVERT_ARTIFACTS_PATH, SWAP_EXTENSION_ARTIFACTS_PATH } from "./env_data";
+import { storeCodeByWalletData, instantiateContractByWalletData, queryWasmContractByWalletData, executeContractByWalletData, logChangeBalancesByWalletData, queryContractConfig } from "./common";
+import { loadingWalletData, loadingMarketData, loadingStakingData, chainConfigs } from "./env_data";
 import type { ConvertDeployContracts, DeployContract, WalletData } from "./types";
-import { ChainId, ConvertPairs, SwapDeployContracts } from "./types";
-import { ConfigOraclePythBaseFeedInfoList, ConfigOraclePythFeedInfoList, doOraclePythConfigFeedInfo } from "./modules/market";
-import { doSwapExtentionSetWhitelist } from "./modules/swap";
+import { ConvertPairs, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts } from "./types";
+import { ConfigOraclePythBaseFeedInfoList, ConfigOraclePythFeedInfoList, doOraclePythConfigFeedInfo, marketReadArtifact } from "./modules/market";
+import { doSwapExtentionSetWhitelist, swapExtentionReadArtifact } from "./modules/swap";
+import { stakingReadArtifact } from "./modules/staking";
+import { convertReadArtifact, convertWriteArtifact } from "./modules/convert";
 
 async function main(): Promise<void> {
   console.log(`--- --- deploy convert contracts enter --- ---`);
 
   const walletData = await loadingWalletData();
 
-  const networkStaking = readArtifact(walletData.chainId, STAKING_ARTIFACTS_PATH);
-  const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(networkStaking);
+  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapDeployContracts;
+  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingDeployContracts;
+  const networkMarket = marketReadArtifact(walletData.chainId) as MarketDeployContracts;
+  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertDeployContracts;
 
+  const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(networkStaking);
   if (!hub?.address || !reward?.address || !bSeiToken?.address || !rewardsDispatcher?.address || !validatorsRegistry?.address || !stSeiToken?.address) {
     console.error(`--- --- deploy convert contracts error, Please deploy staking contracts first --- ---`);
     process.exit(0);
     return;
   }
 
-  const networkMarket = readArtifact(walletData.chainId, MARKET_ARTIFACTS_PATH);
   const { aToken, market, interestModel, distributionModel, overseer, liquidationQueue, custodyBSei, oraclePyth } = await loadingMarketData(networkMarket);
   if (!aToken?.address || !market?.address || !interestModel?.address || !distributionModel?.address || !overseer?.address || !liquidationQueue?.address || !custodyBSei?.address || !oraclePyth?.address) {
     console.log(`--- --- deploy convert contracts error, missing some deployed market address info --- ---`);
@@ -27,25 +31,22 @@ async function main(): Promise<void> {
     return;
   }
 
-  const network = readArtifact(walletData.chainId, CONVERT_ARTIFACTS_PATH);
-  const networkSwap = readArtifact(walletData.chainId, SWAP_EXTENSION_ARTIFACTS_PATH) as SwapDeployContracts;
-
   console.log();
   console.log(`--- --- convert contracts storeCode & instantiateContract enter --- ---`);
   console.log();
 
   if (chainConfigs?.convertPairs && chainConfigs.convertPairs.length > 0) {
     for (let convertPair of chainConfigs.convertPairs) {
-      await deployConverter(walletData, network, convertPair.native_denom);
-      await deployBtoken(walletData, network, convertPair.native_denom);
-      await deployCustody(walletData, network, convertPair.native_denom, reward, market, overseer, liquidationQueue, networkSwap?.swapExtention);
+      await deployConverter(walletData, networkConvert, convertPair.native_denom);
+      await deployBtoken(walletData, networkConvert, convertPair.native_denom);
+      await deployCustody(walletData, networkConvert, convertPair.native_denom, reward, market, overseer, liquidationQueue, networkSwap?.swapExtention);
     }
   }
 
   console.log();
   console.log(`--- --- convert contracts storeCode & instantiateContract end --- ---`);
 
-  await printDeployedConvertContracts(network);
+  await printDeployedConvertContracts(networkConvert);
 
   // //////////////////////////////////////configure contracts///////////////////////////////////////////
 
@@ -56,7 +57,7 @@ async function main(): Promise<void> {
   if (chainConfigs?.convertPairs && chainConfigs.convertPairs.length > 0) {
     for (let convertPairsConfig of chainConfigs.convertPairs) {
       const nativeDenom = convertPairsConfig.native_denom;
-      const convertPairsNetwork = network?.convertPairs?.find((v: any) => nativeDenom === v.native_denom);
+      const convertPairsNetwork = networkConvert?.convertPairs?.find((v: any) => nativeDenom === v.native_denom);
       if (!convertPairsConfig || !convertPairsNetwork) {
         continue;
       }
@@ -127,7 +128,7 @@ async function deployConverter(walletData: WalletData, network: any, nativeDenom
     if (!convertPairsNetwork?.converter?.codeId || convertPairsNetwork?.converter?.codeId <= 0) {
       const filePath = convertPairsConfig?.converter?.filePath || "../krp-basset-convert/artifacts/krp_basset_converter.wasm";
       convertPairsNetwork.converter.codeId = await storeCodeByWalletData(walletData, filePath);
-      writeArtifact(network, walletData.chainId, CONVERT_ARTIFACTS_PATH);
+      convertWriteArtifact(network, walletData.chainId);
     }
     if (convertPairsNetwork?.converter?.codeId > 0) {
       const admin = convertPairsConfig?.converter?.admin || walletData.address;
@@ -136,7 +137,7 @@ async function deployConverter(walletData: WalletData, network: any, nativeDenom
         owner: convertPairsConfig?.converter?.initMsg?.owner || walletData.address
       });
       convertPairsNetwork.converter.address = await instantiateContractByWalletData(walletData, admin, convertPairsNetwork.converter.codeId, initMsg, label);
-      writeArtifact(network, walletData.chainId, CONVERT_ARTIFACTS_PATH);
+      convertWriteArtifact(network, walletData.chainId);
       convertPairsConfig.converter.deploy = true;
     }
     console.log(convertPairsNetwork?.converter?.codeId, ` converter: `, JSON.stringify(convertPairsNetwork?.converter));
@@ -170,7 +171,7 @@ async function deployBtoken(walletData: WalletData, network: any, nativeDenom: s
     if (!convertPairsNetwork?.btoken?.codeId || convertPairsNetwork?.btoken?.codeId <= 0) {
       const filePath = convertPairsConfig?.btoken?.filePath || "../krp-basset-convert/artifacts/krp_basset_token.wasm";
       convertPairsNetwork.btoken.codeId = await storeCodeByWalletData(walletData, filePath);
-      writeArtifact(network, walletData.chainId, CONVERT_ARTIFACTS_PATH);
+      convertWriteArtifact(network, walletData.chainId);
     }
     if (convertPairsNetwork?.btoken?.codeId > 0) {
       const admin = convertPairsConfig?.btoken?.admin || walletData.address;
@@ -182,7 +183,7 @@ async function deployBtoken(walletData: WalletData, network: any, nativeDenom: s
         convertPairsConfig?.btoken?.initMsg
       );
       convertPairsNetwork.btoken.address = await instantiateContractByWalletData(walletData, admin, convertPairsNetwork.btoken.codeId, initMsg, label);
-      writeArtifact(network, walletData.chainId, CONVERT_ARTIFACTS_PATH);
+      convertWriteArtifact(network, walletData.chainId);
       convertPairsConfig.btoken.deploy = true;
     }
     console.log(convertPairsNetwork?.btoken?.codeId, ` btoken: `, JSON.stringify(convertPairsNetwork?.btoken));
@@ -219,7 +220,7 @@ async function deployCustody(walletData: WalletData, network: any, nativeDenom: 
     if (!convertPairsNetwork?.custody?.codeId || convertPairsNetwork?.custody?.codeId <= 0) {
       const filePath = convertPairsConfig?.custody?.filePath || "../krp-market-contracts/artifacts/moneymarket_custody_base.wasm";
       convertPairsNetwork.custody.codeId = await storeCodeByWalletData(walletData, filePath);
-      writeArtifact(network, walletData.chainId, CONVERT_ARTIFACTS_PATH);
+      convertWriteArtifact(network, walletData.chainId);
     }
     if (convertPairsNetwork?.custody?.codeId > 0) {
       const admin = convertPairsConfig?.custody?.admin || walletData.address;
@@ -241,7 +242,7 @@ async function deployCustody(walletData: WalletData, network: any, nativeDenom: 
         }
       );
       convertPairsNetwork.custody.address = await instantiateContractByWalletData(walletData, admin, convertPairsNetwork.custody.codeId, initMsg, label);
-      writeArtifact(network, walletData.chainId, CONVERT_ARTIFACTS_PATH);
+      convertWriteArtifact(network, walletData.chainId);
       convertPairsConfig.custody.deploy = true;
     }
     console.log(convertPairsNetwork?.custody?.codeId, ` custody: `, JSON.stringify(convertPairsNetwork?.custody));

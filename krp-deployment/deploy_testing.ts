@@ -1,20 +1,19 @@
-import { readArtifact, writeArtifact, storeCodeByWalletData, instantiateContractByWalletData, executeContractByWalletData,
-   queryWasmContractByWalletData, logChangeBalancesByWalletData, migrateContractByWalletData, queryAddressBalance,
-   getClientDataByWalletData, queryAddressTokenBalance } from "./common";
-import { CustodyBaseClient } from "./contracts/CustodyBase.client";
+import { storeCodeByWalletData, instantiateContractByWalletData, executeContractByWalletData, queryWasmContractByWalletData, logChangeBalancesByWalletData, migrateContractByWalletData, queryAddressBalance, getClientDataByWalletData, queryAddressTokenBalance } from "./common";
 import { loadingWalletData, loadingStakingData, loadingMarketData, chainConfigs, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH, SWAP_EXTENSION_ARTIFACTS_PATH, CONVERT_ARTIFACTS_PATH } from "./env_data";
 import type { ConvertPairs, ConvertDeployContracts, DeployContract, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts, WalletData } from "./types";
+import { swapExtentionReadArtifact } from "./modules/swap";
+import { stakingReadArtifact } from "./modules/staking";
+import { marketReadArtifact } from "./modules/market";
+import { convertReadArtifact } from "./modules/convert";
 require("dotenv").config();
 
 async function main(): Promise<void> {
-
-
   const walletData = await loadingWalletData();
 
-  const networkStaking = readArtifact(walletData.chainId, STAKING_ARTIFACTS_PATH);
-  const networkMarket = readArtifact(walletData.chainId, MARKET_ARTIFACTS_PATH);
-  const networkSwap = readArtifact(walletData.chainId, SWAP_EXTENSION_ARTIFACTS_PATH);
-  //const networkConvert = readArtifact(walletData.chainId, CONVERT_ARTIFACTS_PATH);
+  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapDeployContracts;
+  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingDeployContracts;
+  const networkMarket = marketReadArtifact(walletData.chainId) as MarketDeployContracts;
+  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertDeployContracts;
 
   console.log();
 
@@ -34,35 +33,30 @@ async function main(): Promise<void> {
 
   const swapExtention = networkSwap?.swapExtention;
 
-  
-
-
   //const strideSeiDenom = "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/stsei";
   //const slstiSeiDenom = "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/slsdi";
   const strideSeiDenom = "ibc/326D2E9FFBF7AE39CC404A58DED81054E23F107BC8D926D5D981C0231F1ECD2D";
   const slstiDenom = "ibc/53B6183707AF4C744EE26815613D9C4D0DE40E2C18083EA5B384FAF4F6BB0C06";
 
+  //**update overseer */
 
-
-   //**update overseer */
-  
-   const filePath = chainConfigs?.overseer?.filePath || "../krp-market-contracts/artifacts/moneymarket_overseer.wasm";
-   //let overseerCodeId = await storeCodeByWalletData(walletData, filePath);
-    let overseerCodeId = 645; 
-   // await migrateContract(walletData.RPC_ENDPOINT, walletData.wallet, networkMarket.overseer.address, overseerCodeId, {}, "");
+  const filePath = chainConfigs?.overseer?.filePath || "../krp-market-contracts/artifacts/moneymarket_overseer.wasm";
+  //let overseerCodeId = await storeCodeByWalletData(walletData, filePath);
+  let overseerCodeId = 645;
+  // await migrateContract(walletData.RPC_ENDPOINT, walletData.wallet, networkMarket.overseer.address, overseerCodeId, {}, "");
   //await migrateContractByWalletData(walletData, networkMarket.overseer.address, overseerCodeId, {})
 
   // let userAddress = "sei16j0hypm83zlctv7czky9n0me0k03prel3ynczn";
 
   // let balance = await queryAddressTokenBalance(walletData.signingCosmWasmClient, userAddress, bSeiToken.address);
   // console.log("balance:", JSON.stringify(balance));
-  
+
   //** configure oralce pyth_contract address */
   const oraclepyth_filePath = "../krp-market-contracts/artifacts/moneymarket_oracle_pyth.wasm";
   let oraclePythCodeId = await storeCodeByWalletData(walletData, oraclepyth_filePath);
   await migrateContractByWalletData(walletData, networkMarket.oraclePyth.address, oraclePythCodeId, {});
   console.log("migrate oralce succeed!");
-  await executeContractByWalletData(walletData, networkMarket.oraclePyth.address, {change_pyth_contract : {pyth_contract: "sei1977nnu5jqatteqgve8tx7nzu9y7eh6cvq0e4g6xjx8tf5wm4nkmsfljunh"}})
+  await executeContractByWalletData(walletData, networkMarket.oraclePyth.address, { change_pyth_contract: { pyth_contract: "sei1977nnu5jqatteqgve8tx7nzu9y7eh6cvq0e4g6xjx8tf5wm4nkmsfljunh" } });
   console.log("configur oralce succeed!");
 
   //**configure overseer、liquidation_queue、 */
@@ -70,7 +64,7 @@ async function main(): Promise<void> {
   // await executeContractByWalletData(walletData, networkMarket.liquidationQueue.address, {update_config : {oracle_contract: networkMarket.oraclePyth.address}})
 
   //**configure pyth oracle */
-  // await executeContractByWalletData(walletData, networkMarket.oraclePyth.address, 
+  // await executeContractByWalletData(walletData, networkMarket.oraclePyth.address,
   //       {
   //           config_feed_info: {
   //             asset: "usei",
@@ -83,7 +77,7 @@ async function main(): Promise<void> {
   // )
   // console.log("configure pyth oracle add asset usei succeed.");
 
-  // await executeContractByWalletData(walletData, networkMarket.oraclePyth.address, 
+  // await executeContractByWalletData(walletData, networkMarket.oraclePyth.address,
   //   {
   //       config_feed_info: {
   //         asset: "sei10p4e7pk2crzpyfxsrgxefq2yh4ptvuehcmcweg8f37ajshegnfxqhvxs4s",
@@ -96,7 +90,7 @@ async function main(): Promise<void> {
   // )
   // console.log("configure pyth oracle add asset bSei Token succeed.");
 
-  // await executeContractByWalletData(walletData, networkMarket.oraclePyth.address, 
+  // await executeContractByWalletData(walletData, networkMarket.oraclePyth.address,
   //   {
   //       config_feed_info: {
   //         asset: "sei17ajcveawtzazmwfa2yjs7ykmqhgr3skn44dlm9ucc9l2wc5seals3lexh2",
@@ -109,7 +103,7 @@ async function main(): Promise<void> {
   // )
   // console.log("configure pyth oracle add asset bstSei token succeed.");
 
-  // await executeContractByWalletData(walletData, networkMarket.oraclePyth.address, 
+  // await executeContractByWalletData(walletData, networkMarket.oraclePyth.address,
   //   {
   //       config_feed_info: {
   //         asset: "sei1ka3w6ru87dlzgu0xq3uts8ur7lqgzu32h5n5vjqtewps56mamtaqd7vr5l",
@@ -123,28 +117,28 @@ async function main(): Promise<void> {
   // console.log("configure pyth oracle add asset blsti token succeed.");
 
   // console.log("configure swap extension whitelist enter")
-  // await executeContractByWalletData(walletData, swapExtention.address, 
+  // await executeContractByWalletData(walletData, swapExtention.address,
   //   {
   //     set_whitelist: {
   //     caller:"sei18cefcl58v7zr3k9zkgnzj8vnhjqr5790qym0xjn7qxucdtj7ywtq2hmlxr",
   //     is_whitelist: true,}})
   // console.log("configure swap extension add reward address to whitelist succeed.");
 
-  // await executeContractByWalletData(walletData, swapExtention.address, 
+  // await executeContractByWalletData(walletData, swapExtention.address,
   //   {
   //     set_whitelist: {
   //     caller:"sei10fp080zlnlny5tc26qsw24vjujppu982za46smyuk2rd4d5lyvkqk7q458",
   //     is_whitelist: true,}})
   // console.log("configure swap extension add reward dispatcher address to whitelist succeed.");
 
-  // await executeContractByWalletData(walletData, swapExtention.address, 
+  // await executeContractByWalletData(walletData, swapExtention.address,
   //   {
   //     set_whitelist: {
   //     caller:"sei1srmw733n0cfkh9twuh5wwt43s4xj9d3x5q5zgy6q9m8qh7vsgjkqn6q723",
   //     is_whitelist: true,}})
   // console.log("configure swap extension add custody bsei address to whitelist succeed.");
 
-  // await executeContractByWalletData(walletData, swapExtention.address, 
+  // await executeContractByWalletData(walletData, swapExtention.address,
   //   {
   //     update_pair_config: {
   //       asset_infos: [
@@ -159,18 +153,17 @@ async function main(): Promise<void> {
   //       pair_address:"sei1pqcgdn5vmf3g9ncs98vtxkydc6su0f9rk3uk73s5ku2xhthr6avswrwnrx"}
   //   })
   // console.log("configure swap extension add a swap pair succeed ")
-      
-   //** configure swap extention */
+
+  //** configure swap extention */
 
   //  let overseerRet = await queryWasmContractByWalletData(walletData, networkMarket.overseer.address, {config:{}})
   //  console.log("ret:",JSON.stringify(overseerRet));
 
-   
   //  let liquidationRet = await queryWasmContractByWalletData(walletData, networkMarket.liquidationQueue.address, {config:{}})
   //  console.log("ret:",JSON.stringify(liquidationRet));
 
   // await executeContractByWalletData(walletData, networkMarket.liquidationQueue.address, {update_config : {oracle_contract: networkMarket.oraclePyth.address}})
-   
+
   // //** custody array */
   // const nativeDenomList = [
   //   {
@@ -186,7 +179,6 @@ async function main(): Promise<void> {
   //     convertBassetToNative: "1000000"
   //   }
   // ];
-
 
   // for (let nativeDenomItem of nativeDenomList) {
   //   const nativeDenom = nativeDenomItem?.address;
@@ -223,8 +215,6 @@ async function main(): Promise<void> {
   // console.log("upgrade overseer contract succeed!");
 
   //**********************************************upgrade custody_bsei and overseer contract end*****************************************
-
- 
 }
 
 main().catch(console.log);

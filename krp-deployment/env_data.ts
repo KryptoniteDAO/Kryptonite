@@ -27,7 +27,9 @@ export const MARKET_MODULE_NAME = "market";
 export const CONVERT_MODULE_NAME = "convert";
 export const SWAP_EXTENSION_MODULE_NAME = "swap-extention";
 
-export const chainConfigs: Config = readArtifact(`${process.env.CHAIN_ID_KEY || chain_id_default}`, "configs", "");
+export const DEPLOY_VERSION = process.env.DEPLOY_VERSION || "00_00_01";
+
+export const chainConfigs: Config = readArtifact(`${process.env.CHAIN_ID_KEY || chain_id_default}`, "configs");
 // console.log(process.env.CHAIN_ID);
 // console.log(chainConfigs);
 // console.log(loadingEnvData());
@@ -127,7 +129,7 @@ export async function loadingWalletData(): Promise<WalletData> {
   const signingCosmWasmClient2 = await getSigningCosmWasmClient(RPC_ENDPOINT, wallet2, { gasPrice: gasPrice } as unknown as undefined);
   const signingStargateClient2 = await getSigningClient(RPC_ENDPOINT, wallet2);
 
-  console.log(`\ncurrent chainId: ${chainId} / address1: ${address} / address2: ${address2}`);
+  console.log(`\ncurrent chainId: ${chainId} / deploy version: ${DEPLOY_VERSION} \naddress1: ${address} / address2: ${address2}`);
 
   const addressList = [address, address2];
   const denomList = [nativeCurrency.coinMinimalDenom, stable_coin_denom];
