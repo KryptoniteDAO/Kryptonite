@@ -27,6 +27,11 @@ export type ExecuteMsg = {
   };
 };
 export type Decimal256 = string;
+export interface FeederResponse {
+  asset: string;
+  feeder: string;
+  [k: string]: unknown;
+}
 export interface InstantiateMsg {
   base_asset: string;
   owner: string;

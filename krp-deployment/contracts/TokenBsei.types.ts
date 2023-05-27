@@ -96,6 +96,10 @@ export type ExecuteMsg = {
   };
 };
 export type Binary = string;
+export interface MinterResponse {
+  cap?: Uint128 | null;
+  minter: string;
+}
 export type QueryMsg = {
   balance: {
     address: string;

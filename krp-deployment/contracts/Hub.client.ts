@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { StdFee } from "@cosmjs/amino";
-import { Uint128, Decimal, AllHistoryResponse, UnbondHistoryResponse, CanonicalAddr, Binary, Config, CurrentBatchResponse, ExecuteMsg, Cw20ReceiveMsg, Coin, InstantiateMsg, MigrateMsg, Parameters, QueryMsg, StateResponse, State, UnbondRequestsResponse, WithdrawableUnbondedResponse } from "./Hub.types";
+import { Uint128, Decimal, AllHistoryResponse, UnbondHistoryResponse, ConfigResponse, CanonicalAddr, Binary, Config, CurrentBatchResponse, ExecuteMsg, Cw20ReceiveMsg, Coin, InstantiateMsg, MigrateMsg, Parameters, QueryMsg, StateResponse, State, UnbondRequestsResponse, WithdrawableUnbondedResponse } from "./Hub.types";
 export interface HubReadOnlyInterface {
   contractAddress: string;
   config: () => Promise<ConfigResponse>;
@@ -17,7 +17,7 @@ export interface HubReadOnlyInterface {
   }: {
     address: string;
   }) => Promise<WithdrawableUnbondedResponse>;
-  parameters: () => Promise<ParametersResponse>;
+  parameters: () => Promise<Parameters[]>;
   unbondRequests: ({
     address
   }: {
@@ -73,7 +73,7 @@ export class HubQueryClient implements HubReadOnlyInterface {
       }
     });
   };
-  parameters = async (): Promise<ParametersResponse> => {
+  parameters = async (): Promise<Parameters[]> => {
     return this.client.queryContractSmart(this.contractAddress, {
       parameters: {}
     });

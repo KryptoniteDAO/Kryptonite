@@ -29,6 +29,10 @@ export type ExecuteMsg = {
   change_owner: {
     new_owner: string;
   };
+} | {
+  change_pyth_contract: {
+    pyth_contract: string;
+  };
 };
 export type Addr = string;
 export interface InstantiateMsg {
@@ -67,6 +71,11 @@ export type QueryMsg = {
 } | {
   query_pyth_feeder_config: {
     asset: string;
+  };
+} | {
+  query_exchange_rate_by_asset_label: {
+    base_label: string;
+    quote_label: string;
   };
 };
 export interface SetConfigFeedValidMsg {

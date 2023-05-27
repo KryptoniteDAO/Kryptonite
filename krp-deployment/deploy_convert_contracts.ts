@@ -1,7 +1,9 @@
 import { readArtifact, storeCodeByWalletData, writeArtifact, instantiateContractByWalletData, instantiateContract2ByWalletData, queryWasmContractByWalletData, executeContractByWalletData, logChangeBalancesByWalletData, queryContractConfig } from "./common";
-import { loadingWalletData, loadingMarketData, loadingStakingData, chainConfigs, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH, CONVERT_ARTIFACTS_PATH } from "./env_data";
-import type { DeployContract, WalletData } from "./types";
-import { ConvertPairs } from "./types";
+import { loadingWalletData, loadingMarketData, loadingStakingData, chainConfigs, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH, CONVERT_ARTIFACTS_PATH, SWAP_EXTENSION_ARTIFACTS_PATH } from "./env_data";
+import type { ConvertDeployContracts, DeployContract, WalletData } from "./types";
+import { ChainId, ConvertPairs, SwapDeployContracts } from "./types";
+import { ConfigOraclePythBaseFeedInfoList, ConfigOraclePythFeedInfoList, doOraclePythConfigFeedInfo } from "./modules/market";
+import { doSwapExtentionSetWhitelist } from "./modules/swap";
 
 async function main(): Promise<void> {
   console.log(`--- --- deploy convert contracts enter --- ---`);
@@ -18,89 +20,76 @@ async function main(): Promise<void> {
   }
 
   const networkMarket = readArtifact(walletData.chainId, MARKET_ARTIFACTS_PATH);
-  const { aToken, market, interestModel, distributionModel, overseer, liquidationQueue, custodyBSei } = await loadingMarketData(networkMarket);
-  if (!aToken?.address || !market?.address || !interestModel?.address || !distributionModel?.address || !overseer?.address || !liquidationQueue?.address || !custodyBSei?.address) {
+  const { aToken, market, interestModel, distributionModel, overseer, liquidationQueue, custodyBSei, oraclePyth } = await loadingMarketData(networkMarket);
+  if (!aToken?.address || !market?.address || !interestModel?.address || !distributionModel?.address || !overseer?.address || !liquidationQueue?.address || !custodyBSei?.address || !oraclePyth?.address) {
     console.log(`--- --- deploy convert contracts error, missing some deployed market address info --- ---`);
     process.exit(0);
     return;
   }
 
   const network = readArtifact(walletData.chainId, CONVERT_ARTIFACTS_PATH);
+  const networkSwap = readArtifact(walletData.chainId, SWAP_EXTENSION_ARTIFACTS_PATH) as SwapDeployContracts;
 
   console.log();
   console.log(`--- --- convert contracts storeCode & instantiateContract enter --- ---`);
   console.log();
 
-  // config native denom list
-  const nativeDenomList = [
-    {
-      name: "strideSei",
-      address: "ibc/326D2E9FFBF7AE39CC404A58DED81054E23F107BC8D926D5D981C0231F1ECD2D",
-      overseerWhitelistConfig: {
-        name: "Bond stSei",
-        symbol: "BSTSEI",
-        max_ltv: "0.65"
-      },
-      liquidationQueueWhitelistCollateralConfig: {
-        bid_threshold: "500000000",
-        max_slot: 30,
-        premium_rate_per_slot: "0.01"
-      }
-      // price: "100"
-    },
-    {
-      name: "slsdi",
-      address: "ibc/53B6183707AF4C744EE26815613D9C4D0DE40E2C18083EA5B384FAF4F6BB0C06",
-      overseerWhitelistConfig: {
-        name: "Bond slsdi",
-        symbol: "BSLSDI",
-        max_ltv: "0.65"
-      },
-      liquidationQueueWhitelistCollateralConfig: {
-        bid_threshold: "500000000",
-        max_slot: 30,
-        premium_rate_per_slot: "0.01"
-      }
-      // price: "200"
+  if (chainConfigs?.convertPairs && chainConfigs.convertPairs.length > 0) {
+    for (let convertPair of chainConfigs.convertPairs) {
+      await deployConverter(walletData, network, convertPair.native_denom);
+      await deployBtoken(walletData, network, convertPair.native_denom);
+      await deployCustody(walletData, network, convertPair.native_denom, reward, market, overseer, liquidationQueue, networkSwap?.swapExtention);
     }
-  ];
-
-  for (let nativeDenom of nativeDenomList) {
-    await deployConverter(walletData, network, nativeDenom.address);
-    await deployBtoken(walletData, network, nativeDenom.address);
-    await deployCustody(walletData, network, nativeDenom.address, reward, market, overseer, liquidationQueue);
   }
 
   console.log();
   console.log(`--- --- convert contracts storeCode & instantiateContract end --- ---`);
 
-  await printDeployedContracts(nativeDenomList, network);
+  await printDeployedConvertContracts(network);
 
   // //////////////////////////////////////configure contracts///////////////////////////////////////////
 
   console.log();
   console.log(`--- --- convert contracts configure enter --- ---`);
+  const print: boolean = false;
 
-  for (let nativeDenomItem of nativeDenomList) {
-    const nativeDenom = nativeDenomItem?.address;
-    const convertPairsConfig: ConvertPairs = chainConfigs?.convertPairs?.find((v: ConvertPairs) => nativeDenom === v.native_denom);
-    const convertPairsNetwork = network?.convertPairs?.find((v: any) => nativeDenom === v.native_denom);
-    if (!convertPairsConfig || !convertPairsNetwork) {
-      continue;
+  if (chainConfigs?.convertPairs && chainConfigs.convertPairs.length > 0) {
+    for (let convertPairsConfig of chainConfigs.convertPairs) {
+      const nativeDenom = convertPairsConfig.native_denom;
+      const convertPairsNetwork = network?.convertPairs?.find((v: any) => nativeDenom === v.native_denom);
+      if (!convertPairsConfig || !convertPairsNetwork) {
+        continue;
+      }
+      // const converterConfig = convertPairsConfig?.converter;
+      // const btokenConfig = convertPairsConfig?.btoken;
+      // const custodyConfig = convertPairsConfig?.custody;
+
+      const converterNetwork = convertPairsNetwork?.converter;
+      const btokenNetwork = convertPairsNetwork?.btoken;
+      const custodyNetwork = convertPairsNetwork?.custody;
+
+      await doConverterRegisterTokens(walletData, nativeDenom, converterNetwork, btokenNetwork);
+      await doOverseerWhitelist(walletData, nativeDenom, overseer, custodyNetwork, btokenNetwork, convertPairsConfig?.overseerWhitelistConfig);
+      await doLiquidationQueueWhitelistCollateral(walletData, nativeDenom, liquidationQueue, btokenNetwork, convertPairsConfig?.liquidationQueueWhitelistCollateralConfig);
+      // await doOracleRegisterFeeder(walletData, nativeDenom, oracle, btokenNetwork);
+      // await doOracleFeedPrice(walletData, nativeDenom, oracle, btokenNetwork, nativeDenomItem?.["price"]);
+
+      const chainIdConfigFeedInfos = ConfigOraclePythFeedInfoList[walletData.chainId];
+      if (chainIdConfigFeedInfos && chainIdConfigFeedInfos.length > 0) {
+        if (btokenNetwork?.address) {
+          const bSeiTokenConfig = chainIdConfigFeedInfos.find(value => btokenNetwork?.address === value.asset);
+          if (!bSeiTokenConfig) {
+            let configFeedInfo = Object.assign({ asset: btokenNetwork?.address }, ConfigOraclePythBaseFeedInfoList[walletData.chainId]);
+            await doOraclePythConfigFeedInfo(walletData, oraclePyth, configFeedInfo);
+          }
+        }
+      }
+
+      /// add  custody to swap whitelist
+      if (custodyNetwork?.address) {
+        await doSwapExtentionSetWhitelist(walletData, networkSwap?.swapExtention, { caller: custodyNetwork?.address, isWhitelist: true }, print);
+      }
     }
-    // const converterConfig = convertPairsConfig?.converter;
-    // const btokenConfig = convertPairsConfig?.btoken;
-    // const custodyConfig = convertPairsConfig?.custody;
-
-    const converterNetwork = convertPairsNetwork?.converter;
-    const btokenNetwork = convertPairsNetwork?.btoken;
-    const custodyNetwork = convertPairsNetwork?.custody;
-
-    await doConverterRegisterTokens(walletData, nativeDenom, converterNetwork, btokenNetwork);
-    await doOverseerWhitelist(walletData, nativeDenom, overseer, custodyNetwork, btokenNetwork, nativeDenomItem.overseerWhitelistConfig);
-    await doLiquidationQueueWhitelistCollateral(walletData, nativeDenom, liquidationQueue, btokenNetwork, nativeDenomItem.liquidationQueueWhitelistCollateralConfig);
-    // await doOracleRegisterFeeder(walletData, nativeDenom, oracle, btokenNetwork);
-    // await doOracleFeedPrice(walletData, nativeDenom, oracle, btokenNetwork, nativeDenomItem?.["price"]);
   }
 
   console.log();
@@ -200,13 +189,13 @@ async function deployBtoken(walletData: WalletData, network: any, nativeDenom: s
   }
 }
 
-async function deployCustody(walletData: WalletData, network: any, nativeDenom: string, reward: DeployContract, market: DeployContract, overseer: DeployContract, liquidationQueue: DeployContract): Promise<void> {
+async function deployCustody(walletData: WalletData, network: any, nativeDenom: string, reward: DeployContract, market: DeployContract, overseer: DeployContract, liquidationQueue: DeployContract, swapExtention: DeployContract): Promise<void> {
   const convertPairsConfig: ConvertPairs = chainConfigs?.convertPairs?.find((v: ConvertPairs) => nativeDenom === v.native_denom);
   if (!convertPairsConfig) {
     console.error(`unknown configuration of `, nativeDenom);
     return;
   }
-  if (!reward?.address || !market?.address || !overseer?.address || !liquidationQueue?.address) {
+  if (!reward?.address || !market?.address || !overseer?.address || !liquidationQueue?.address || !swapExtention?.address) {
     return;
   }
   let convertPairsNetwork = network?.convertPairs?.find((v: any) => nativeDenom === v.native_denom);
@@ -242,7 +231,9 @@ async function deployCustody(walletData: WalletData, network: any, nativeDenom: 
           market_contract: market.address,
           overseer_contract: overseer.address,
           reward_contract: reward.address,
-          stable_denom: walletData.stable_coin_denom
+          stable_denom: walletData.stable_coin_denom,
+          swap_contract: swapExtention?.address,
+          swap_denoms: [walletData.nativeCurrency.coinMinimalDenom]
         },
         chainConfigs?.custodyBSei?.initMsg,
         {
@@ -402,35 +393,39 @@ async function queryOverseerWhitelist(walletData: WalletData, overseer: DeployCo
   return queryRes;
 }
 
-async function printDeployedContracts(nativeDenomList, network: any): Promise<void> {
+async function printDeployedConvertContracts(networkConvert: ConvertDeployContracts): Promise<void> {
   console.log();
   console.log(`--- --- deployed convert contracts info --- ---`);
 
   const tableData = [];
-  for (let nativeDenomItem of nativeDenomList) {
-    const nativeDenom = nativeDenomItem?.address;
-    const convertPairsConfig: ConvertPairs = chainConfigs?.convertPairs?.find((v: ConvertPairs) => nativeDenom === v.native_denom);
-    const convertPairsNetwork = network?.convertPairs?.find((v: any) => nativeDenom === v.native_denom);
+  if (networkConvert?.convertPairs && networkConvert?.convertPairs.length > 0) {
+    for (let convertPairsNetwork of networkConvert?.convertPairs) {
+      const nativeDenom = convertPairsNetwork?.native_denom;
+      const convertPairsConfig: ConvertPairs = chainConfigs?.convertPairs?.find((v: ConvertPairs) => nativeDenom === v.native_denom);
 
-    const converterData = {
-      nativeDenom: nativeDenom,
-      name: `converter`,
-      deploy: convertPairsConfig?.converter?.deploy,
-      ...convertPairsNetwork?.converter
-    };
-    const btokenData = {
-      nativeDenom: nativeDenom,
-      name: `btoken`,
-      deploy: convertPairsConfig?.btoken?.deploy,
-      ...convertPairsNetwork?.btoken
-    };
-    const custodyData = {
-      nativeDenom: nativeDenom,
-      name: `custody`,
-      deploy: convertPairsConfig?.custody?.deploy,
-      ...convertPairsNetwork?.custody
-    };
-    tableData.push(converterData, btokenData, custodyData);
+      const converterData = {
+        nativeDenom: nativeDenom,
+        name: `converter`,
+        deploy: convertPairsConfig?.converter?.deploy,
+        codeId: convertPairsNetwork?.converter?.codeId,
+        address: convertPairsNetwork?.converter?.address
+      };
+      const btokenData = {
+        nativeDenom: nativeDenom,
+        name: `btoken`,
+        deploy: convertPairsConfig?.btoken?.deploy,
+        codeId: convertPairsNetwork?.btoken?.codeId,
+        address: convertPairsNetwork?.btoken?.address
+      };
+      const custodyData = {
+        nativeDenom: nativeDenom,
+        name: `custody`,
+        deploy: convertPairsConfig?.custody?.deploy,
+        codeId: convertPairsNetwork?.custody?.codeId,
+        address: convertPairsNetwork?.custody?.address
+      };
+      tableData.push(converterData, btokenData, custodyData);
+    }
   }
   console.table(tableData, [`nativeDenom`, `name`, `codeId`, `address`, `deploy`]);
 }

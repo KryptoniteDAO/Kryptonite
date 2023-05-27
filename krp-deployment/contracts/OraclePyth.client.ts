@@ -7,24 +7,32 @@
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
 import { ChangeOwnerMsg, ConfigResponse, ExecuteMsg, Addr, InstantiateMsg, Decimal256, PriceResponse, Identifier, PythFeederConfigResponse, QueryMsg, SetConfigFeedValidMsg } from "./OraclePyth.types";
+import { PricesResponse } from "./Oracle.types";
 export interface OraclePythReadOnlyInterface {
   contractAddress: string;
   queryPrice: ({
     asset
   }: {
     asset: string;
-  }) => Promise<QueryPriceResponse>;
+  }) => Promise<PriceResponse>;
   queryPrices: ({
     assets
   }: {
     assets: string[];
-  }) => Promise<QueryPricesResponse>;
-  queryConfig: () => Promise<QueryConfigResponse>;
+  }) => Promise<PricesResponse>;
+  queryConfig: () => Promise<ConfigResponse>;
   queryPythFeederConfig: ({
     asset
   }: {
     asset: string;
-  }) => Promise<QueryPythFeederConfigResponse>;
+  }) => Promise<PythFeederConfigResponse>;
+  queryExchangeRateByAssetLabel: ({
+    baseLabel,
+    quoteLabel
+  }: {
+    baseLabel: string;
+    quoteLabel: string;
+  }) => Promise<Decimal256>;
 }
 export class OraclePythQueryClient implements OraclePythReadOnlyInterface {
   client: CosmWasmClient;
@@ -37,13 +45,14 @@ export class OraclePythQueryClient implements OraclePythReadOnlyInterface {
     this.queryPrices = this.queryPrices.bind(this);
     this.queryConfig = this.queryConfig.bind(this);
     this.queryPythFeederConfig = this.queryPythFeederConfig.bind(this);
+    this.queryExchangeRateByAssetLabel = this.queryExchangeRateByAssetLabel.bind(this);
   }
 
   queryPrice = async ({
     asset
   }: {
     asset: string;
-  }): Promise<QueryPriceResponse> => {
+  }): Promise<PriceResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       query_price: {
         asset
@@ -54,14 +63,14 @@ export class OraclePythQueryClient implements OraclePythReadOnlyInterface {
     assets
   }: {
     assets: string[];
-  }): Promise<QueryPricesResponse> => {
+  }): Promise<PricesResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       query_prices: {
         assets
       }
     });
   };
-  queryConfig = async (): Promise<QueryConfigResponse> => {
+  queryConfig = async (): Promise<ConfigResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       query_config: {}
     });
@@ -70,10 +79,24 @@ export class OraclePythQueryClient implements OraclePythReadOnlyInterface {
     asset
   }: {
     asset: string;
-  }): Promise<QueryPythFeederConfigResponse> => {
+  }): Promise<PythFeederConfigResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       query_pyth_feeder_config: {
         asset
+      }
+    });
+  };
+  queryExchangeRateByAssetLabel = async ({
+    baseLabel,
+    quoteLabel
+  }: {
+    baseLabel: string;
+    quoteLabel: string;
+  }): Promise<Decimal256> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      query_exchange_rate_by_asset_label: {
+        base_label: baseLabel,
+        quote_label: quoteLabel
       }
     });
   };
@@ -108,6 +131,11 @@ export interface OraclePythInterface {
   }: {
     newOwner: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  changePythContract: ({
+    pythContract
+  }: {
+    pythContract: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class OraclePythClient implements OraclePythInterface {
   client: SigningCosmWasmClient;
@@ -121,6 +149,7 @@ export class OraclePythClient implements OraclePythInterface {
     this.configFeedInfo = this.configFeedInfo.bind(this);
     this.setConfigFeedValid = this.setConfigFeedValid.bind(this);
     this.changeOwner = this.changeOwner.bind(this);
+    this.changePythContract = this.changePythContract.bind(this);
   }
 
   configFeedInfo = async ({
@@ -171,6 +200,17 @@ export class OraclePythClient implements OraclePythInterface {
     return await this.client.execute(this.sender, this.contractAddress, {
       change_owner: {
         new_owner: newOwner
+      }
+    }, fee, memo, _funds);
+  };
+  changePythContract = async ({
+    pythContract
+  }: {
+    pythContract: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      change_pyth_contract: {
+        pyth_contract: pythContract
       }
     }, fee, memo, _funds);
   };

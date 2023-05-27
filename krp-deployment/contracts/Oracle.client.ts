@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { ConfigResponse, ExecuteMsg, Decimal256, InstantiateMsg, PriceResponse, PricesResponse, PricesResponseElem, QueryMsg } from "./Oracle.types";
+import { ConfigResponse, ExecuteMsg, Decimal256, FeederResponse, InstantiateMsg, PriceResponse, PricesResponse, PricesResponseElem, QueryMsg } from "./Oracle.types";
 export interface OracleReadOnlyInterface {
   contractAddress: string;
   config: () => Promise<ConfigResponse>;

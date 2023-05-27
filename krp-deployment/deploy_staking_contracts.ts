@@ -1,6 +1,7 @@
 import { readArtifact, writeArtifact, storeCodeByWalletData, instantiateContractByWalletData, executeContractByWalletData, queryWasmContractByWalletData, logChangeBalancesByWalletData } from "./common";
 import { loadingWalletData, loadingStakingData, chainConfigs, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH, SWAP_EXTENSION_ARTIFACTS_PATH, CONVERT_ARTIFACTS_PATH } from "./env_data";
 import type { ConvertDeployContracts, DeployContract, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts, WalletData } from "./types";
+import { doSwapExtentionSetWhitelist } from "./modules/swap";
 
 async function main(): Promise<void> {
   console.log(`--- --- deploy staking contracts enter --- ---`);
@@ -33,16 +34,34 @@ async function main(): Promise<void> {
 
   const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(networkStaking);
 
-  await printDeployedContracts(networkStaking);
+  await printDeployedStakingContracts(networkStaking);
 
   // //////////////////////////////////////configure contracts///////////////////////////////////////////
 
   console.log();
   console.log(`--- --- staking contracts configure enter --- ---`);
+  const print: boolean = false;
 
   await doHubConfig(walletData, hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken);
   await queryHubConfig(walletData, hub);
   await queryHubParameters(walletData, hub);
+
+  /// add staking.reward & staking.rewardsDispatcher to swap whitelist
+  const swapWhitelistList: {
+    caller: string;
+    isWhitelist: boolean;
+  }[] = [];
+  if (networkStaking?.reward?.address) {
+    swapWhitelistList.push({ caller: networkStaking?.reward?.address, isWhitelist: true });
+  }
+  if (networkStaking?.rewardsDispatcher?.address) {
+    swapWhitelistList.push({ caller: networkStaking?.rewardsDispatcher?.address, isWhitelist: true });
+  }
+  if (swapWhitelistList.length > 0) {
+    for (let swapWhitelist of swapWhitelistList) {
+      await doSwapExtentionSetWhitelist(walletData, networkSwap?.swapExtention, swapWhitelist, print);
+    }
+  }
 
   console.log();
   console.log(`--- --- staking contracts configure end --- ---`);
@@ -323,7 +342,7 @@ async function queryHubParameters(walletData: WalletData, hub: DeployContract): 
   return hubParametersRes;
 }
 
-async function printDeployedContracts(networkStaking: StakingDeployContracts): Promise<void> {
+async function printDeployedStakingContracts(networkStaking: StakingDeployContracts): Promise<void> {
   console.log();
   console.log(`--- --- deployed staking contracts info --- ---`);
   const tableData = [

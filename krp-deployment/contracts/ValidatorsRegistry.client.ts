@@ -6,11 +6,11 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { ExecuteMsg, Validator, InstantiateMsg, QueryMsg } from "./ValidatorsRegistry.types";
+import { CanonicalAddr, Binary, Config, ExecuteMsg, Validator, InstantiateMsg, QueryMsg } from "./ValidatorsRegistry.types";
 export interface ValidatorsRegistryReadOnlyInterface {
   contractAddress: string;
-  getValidatorsForDelegation: () => Promise<GetValidatorsForDelegationResponse>;
-  config: () => Promise<ConfigResponse>;
+  getValidatorsForDelegation: () => Promise<Validator[]>;
+  config: () => Promise<Config>;
 }
 export class ValidatorsRegistryQueryClient implements ValidatorsRegistryReadOnlyInterface {
   client: CosmWasmClient;
@@ -23,12 +23,12 @@ export class ValidatorsRegistryQueryClient implements ValidatorsRegistryReadOnly
     this.config = this.config.bind(this);
   }
 
-  getValidatorsForDelegation = async (): Promise<GetValidatorsForDelegationResponse> => {
+  getValidatorsForDelegation = async (): Promise<Validator[]> => {
     return this.client.queryContractSmart(this.contractAddress, {
       get_validators_for_delegation: {}
     });
   };
-  config = async (): Promise<ConfigResponse> => {
+  config = async (): Promise<Config> => {
     return this.client.queryContractSmart(this.contractAddress, {
       config: {}
     });

@@ -13,6 +13,15 @@ type ContractConfig = {
   dir: string;
 };
 
+/**
+ * after do it
+ * 1. OraclePyth.client.ts: `<Query` => `<`, `ExchangeRateByAssetLabelResponse` => `Decimal256`
+ * 2. Hub.client.ts: `ParametersResponse` => `Parameters[]`
+ * 3. Market.client.ts: `StateResponse` => `State`
+ * 4. Overseer.client.ts: `EpochStateResponse` => `EpochState`, `DynrateStateResponse` => `DynrateState`
+ * 6. RewardsDispatcher.client.ts: `ConfigResponse` => `Config`
+ * 7. ValidatorsRegistry.client.ts: `ConfigResponse` => `Config`, `GetValidatorsForDelegationResponse` => `Validator[]`
+ */
 async function main(): Promise<void> {
   console.log("✨✨✨ do code generate enter!");
   const contracts: ContractConfig[] = [];

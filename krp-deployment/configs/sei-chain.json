@@ -199,6 +199,7 @@
   },
   "convertPairs": [
     {
+      "name": "STSEI/bSTSEI",
       "native_denom": "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/stsei",
       "converter": {
         "admin": null,
@@ -234,9 +235,20 @@
         "label": "custody bond stsei contract",
         "filePath": null,
         "deploy": false
+      },
+      "overseerWhitelistConfig": {
+        "name": "Bond stSei",
+        "symbol": "BSTSEI",
+        "max_ltv": "0.65"
+      },
+      "liquidationQueueWhitelistCollateralConfig": {
+        "bid_threshold": "500000000",
+        "max_slot": 30,
+        "premium_rate_per_slot": "0.01"
       }
     },
     {
+      "name": "SLSTI/bSLSTI",
       "native_denom": "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/slsdi",
       "converter": {
         "admin": null,
@@ -272,6 +284,16 @@
         "label": "custody bond slsdi contract",
         "filePath": null,
         "deploy": false
+      },
+      "overseerWhitelistConfig": {
+        "name": "Bond slsdi",
+        "symbol": "BSLSDI",
+        "max_ltv": "0.65"
+      },
+      "liquidationQueueWhitelistCollateralConfig": {
+        "bid_threshold": "500000000",
+        "max_slot": 30,
+        "premium_rate_per_slot": "0.01"
       }
     }
   ],

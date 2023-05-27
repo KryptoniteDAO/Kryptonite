@@ -14,7 +14,7 @@ export interface MarketReadOnlyInterface {
     blockHeight
   }: {
     blockHeight?: number;
-  }) => Promise<StateResponse>;
+  }) => Promise<State>;
   epochState: ({
     blockHeight,
     distributedInterest
@@ -60,7 +60,7 @@ export class MarketQueryClient implements MarketReadOnlyInterface {
     blockHeight
   }: {
     blockHeight?: number;
-  }): Promise<StateResponse> => {
+  }): Promise<State> => {
     return this.client.queryContractSmart(this.contractAddress, {
       state: {
         block_height: blockHeight

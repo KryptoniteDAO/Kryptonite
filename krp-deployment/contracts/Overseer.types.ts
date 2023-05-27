@@ -40,6 +40,11 @@ export interface ConfigResponse {
   threshold_deposit_rate: Decimal256;
   [k: string]: unknown;
 }
+export interface DynrateState {
+  last_executed_height: number;
+  prev_yield_reserve: Decimal256;
+  [k: string]: unknown;
+}
 export interface EpochState {
   deposit_rate: Decimal256;
   last_executed_height: number;

@@ -6,12 +6,12 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Uint256, AllCollateralsResponse, CollateralsResponse, BorrowLimitResponse, Decimal256, ConfigResponse, EpochState, ExecuteMsg, OfBlocksPerEachDynamicRateChangePeriod, OfBlocksPerEpochPeriod, InstantiateMsg, MigrateMsg, QueryMsg, WhitelistResponse, WhitelistResponseElem } from "./Overseer.types";
+import { Uint256, AllCollateralsResponse, CollateralsResponse, BorrowLimitResponse, Decimal256, ConfigResponse, DynrateState, EpochState, ExecuteMsg, OfBlocksPerEachDynamicRateChangePeriod, OfBlocksPerEpochPeriod, InstantiateMsg, MigrateMsg, QueryMsg, WhitelistResponse, WhitelistResponseElem } from "./Overseer.types";
 export interface OverseerReadOnlyInterface {
   contractAddress: string;
   config: () => Promise<ConfigResponse>;
-  epochState: () => Promise<EpochStateResponse>;
-  dynrateState: () => Promise<DynrateStateResponse>;
+  epochState: () => Promise<EpochState>;
+  dynrateState: () => Promise<DynrateState>;
   whitelist: ({
     collateralToken,
     limit,
@@ -62,12 +62,12 @@ export class OverseerQueryClient implements OverseerReadOnlyInterface {
       config: {}
     });
   };
-  epochState = async (): Promise<EpochStateResponse> => {
+  epochState = async (): Promise<EpochState> => {
     return this.client.queryContractSmart(this.contractAddress, {
       epoch_state: {}
     });
   };
-  dynrateState = async (): Promise<DynrateStateResponse> => {
+  dynrateState = async (): Promise<DynrateState> => {
     return this.client.queryContractSmart(this.contractAddress, {
       dynrate_state: {}
     });

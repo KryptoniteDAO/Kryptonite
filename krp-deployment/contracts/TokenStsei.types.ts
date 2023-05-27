@@ -27,6 +27,15 @@ export interface AllowanceInfo {
   expires: Expiration;
   spender: string;
 }
+export interface AllSpenderAllowancesResponse {
+  allowances: SpenderAllowanceInfo[];
+  [k: string]: unknown;
+}
+export interface SpenderAllowanceInfo {
+  allowance: Uint128;
+  expires: Expiration;
+  owner: string;
+}
 export interface AllowanceResponse {
   allowance: Uint128;
   expires: Expiration;
@@ -109,6 +118,25 @@ export type EmbeddedLogo = {
 } | {
   png: Binary;
 };
+export interface DownloadLogoResponse {
+  data: Binary;
+  mime_type: string;
+}
+export type LogoInfo = {
+  url: string;
+} | "embedded";
+export type Addr = string;
+export interface MarketingInfoResponse {
+  description?: string | null;
+  logo?: LogoInfo | null;
+  marketing?: Addr | null;
+  project?: string | null;
+  [k: string]: unknown;
+}
+export interface MinterResponse {
+  cap?: Uint128 | null;
+  minter: string;
+}
 export type QueryMsg = {
   balance: {
     address: string;

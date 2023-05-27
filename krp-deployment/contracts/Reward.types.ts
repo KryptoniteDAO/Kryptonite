@@ -40,6 +40,17 @@ export type ExecuteMsg = {
     recipient?: string | null;
     [k: string]: unknown;
   };
+} | {
+  update_swap_contract: {
+    swap_contract: string;
+    [k: string]: unknown;
+  };
+} | {
+  update_swap_denom: {
+    is_add: boolean;
+    swap_denom: string;
+    [k: string]: unknown;
+  };
 };
 export type Decimal = string;
 export interface HolderResponse {
@@ -56,6 +67,8 @@ export interface HoldersResponse {
 export interface InstantiateMsg {
   hub_contract: string;
   reward_denom: string;
+  swap_contract: string;
+  swap_denoms: string[];
   [k: string]: unknown;
 }
 export type QueryMsg = {

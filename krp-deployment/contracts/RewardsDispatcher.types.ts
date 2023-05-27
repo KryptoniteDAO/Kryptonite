@@ -4,6 +4,22 @@
 * and run the @cosmwasm/ts-codegen generate command to regenerate this file.
 */
 
+export type CanonicalAddr = Binary;
+export type Binary = string;
+export type Decimal = string;
+export interface Config {
+  bsei_reward_contract: CanonicalAddr;
+  bsei_reward_denom: string;
+  hub_contract: CanonicalAddr;
+  lido_fee_address: CanonicalAddr;
+  lido_fee_rate: Decimal;
+  oracle_contract: CanonicalAddr;
+  owner: CanonicalAddr;
+  stsei_reward_denom: string;
+  swap_contract: CanonicalAddr;
+  swap_denoms: string[];
+  [k: string]: unknown;
+}
 export type ExecuteMsg = {
   swap_to_reward_denom: {
     bsei_total_bonded: Uint128;
@@ -25,16 +41,37 @@ export type ExecuteMsg = {
   dispatch_rewards: {
     [k: string]: unknown;
   };
+} | {
+  update_swap_contract: {
+    swap_contract: string;
+    [k: string]: unknown;
+  };
+} | {
+  update_swap_denom: {
+    is_add: boolean;
+    swap_denom: string;
+    [k: string]: unknown;
+  };
+} | {
+  update_oracle_contract: {
+    oracle_contract: string;
+    [k: string]: unknown;
+  };
 };
 export type Uint128 = string;
-export type Decimal = string;
+export interface GetBufferedRewardsResponse {
+  [k: string]: unknown;
+}
 export interface InstantiateMsg {
   bsei_reward_contract: string;
   bsei_reward_denom: string;
   hub_contract: string;
   lido_fee_address: string;
   lido_fee_rate: Decimal;
+  oracle_contract: string;
   stsei_reward_denom: string;
+  swap_contract: string;
+  swap_denoms: string[];
   [k: string]: unknown;
 }
 export type QueryMsg = {

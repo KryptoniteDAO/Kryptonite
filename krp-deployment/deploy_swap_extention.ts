@@ -3,8 +3,6 @@ import { loadingWalletData, loadingMarketData, loadingStakingData, chainConfigs,
 import type { DeployContract, WalletData } from "./types";
 import { ConvertDeployContracts, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts } from "./types";
 import { ConfigSwapPairConfigList, deploySwapExtention, doSwapExtentionSetWhitelist, doSwapExtentionUpdatePairConfig, printDeployedSwapContracts } from "./modules/swap";
-import { Addr, AssetInfo, Decimal } from "./contracts/SwapExtention.types";
-import { SwapExtentionClient, SwapExtentionQueryClient } from "./contracts/SwapExtention.client";
 
 main().catch(console.error);
 
@@ -33,9 +31,9 @@ async function main(): Promise<void> {
 
   console.log();
   console.log(`--- --- swap extends contracts configure enter --- ---`);
+  const print: boolean = false;
 
   const swapExtention: DeployContract = networkSwap?.swapExtention;
-  const print: boolean = false;
 
   /// add staking.reward & staking.rewardsDispatcher & market.custodyBSei & multi convert.custody to whitelist
   const swapWhitelistList: {

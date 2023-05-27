@@ -1,7 +1,7 @@
 import { coins } from "@cosmjs/stargate";
 import { readArtifact, executeContractByWalletData, logChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance } from "./common";
-import { loadingWalletData, chainConfigs, CONVERT_ARTIFACTS_PATH } from "./env_data";
-import { ConvertPairs, DeployContract, WalletData } from "./types";
+import { loadingWalletData, chainConfigs, CONVERT_ARTIFACTS_PATH, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH, SWAP_EXTENSION_ARTIFACTS_PATH } from "./env_data";
+import { ConvertDeployContracts, ConvertPairs, DeployContract, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts, WalletData } from "./types";
 import Decimal from "decimal.js";
 
 main().catch(console.error);
@@ -9,47 +9,29 @@ main().catch(console.error);
 async function main(): Promise<void> {
   console.log(`--- --- verify deployed convert contracts enter --- ---`);
 
-  const walletData = await loadingWalletData();
+  const walletData: WalletData = await loadingWalletData();
+
+  const networkStaking = readArtifact(walletData.chainId, STAKING_ARTIFACTS_PATH) as StakingDeployContracts;
+  const networkMarket = readArtifact(walletData.chainId, MARKET_ARTIFACTS_PATH) as MarketDeployContracts;
+  const networkSwap = readArtifact(walletData.chainId, SWAP_EXTENSION_ARTIFACTS_PATH) as SwapDeployContracts;
+  const networkConvert = readArtifact(walletData.chainId, CONVERT_ARTIFACTS_PATH) as ConvertDeployContracts;
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // // just a few simple tests to make sure the contracts are not failing
+  // // for more accurate tests we must use integration-tests repo
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  // //just a few simple tests to make sure the contracts are not failing
-  // //for more accurate tests we must use integration-tests repo
+  if (networkConvert?.convertPairs && networkConvert.convertPairs.length > 0) {
+    for (let convertPairsNetwork of networkConvert.convertPairs) {
+      const nativeDenom = convertPairsNetwork?.native_denom;
 
-  const nativeDenomList = [
-    {
-      name: "strideSei",
-      address: "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/stsei",
-      convertNativeToBasset: "1000000",
-      convertBassetToNative: "1000000"
-    },
-    {
-      name: "slsdi",
-      address: "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/slsdi",
-      convertNativeToBasset: "1000000",
-      convertBassetToNative: "1000000"
+      const converterNetwork = convertPairsNetwork?.converter;
+      const btokenNetwork = convertPairsNetwork?.btoken;
+      const custodyNetwork = convertPairsNetwork?.custody;
+
+      await doConvertNativeToBasset(walletData, nativeDenom, converterNetwork, btokenNetwork, "1000000");
+      await doConvertBassetToNative(walletData, nativeDenom, btokenNetwork, converterNetwork, "1000000");
     }
-  ];
-
-  const network = readArtifact(walletData.chainId, CONVERT_ARTIFACTS_PATH);
-
-  for (let nativeDenomItem of nativeDenomList) {
-    const nativeDenom = nativeDenomItem?.address;
-    const convertPairsConfig: ConvertPairs = chainConfigs?.convertPairs?.find((v: ConvertPairs) => nativeDenom === v.native_denom);
-    const convertPairsNetwork = network?.convertPairs?.find((v: any) => nativeDenom === v.native_denom);
-    if (!convertPairsConfig || !convertPairsNetwork) {
-      continue;
-    }
-    // const converterConfig = convertPairsConfig?.converter;
-    // const btokenConfig = convertPairsConfig?.btoken;
-    // const custodyConfig = convertPairsConfig?.custody;
-
-    const converterNetwork = convertPairsNetwork?.converter;
-    const btokenNetwork = convertPairsNetwork?.btoken;
-    const custodyNetwork = convertPairsNetwork?.custody;
-
-    await doConvertNativeToBasset(walletData, nativeDenom, converterNetwork, btokenNetwork, nativeDenomItem?.convertNativeToBasset);
-    await doConvertBassetToNative(walletData, nativeDenom, btokenNetwork, converterNetwork, nativeDenomItem?.convertBassetToNative);
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -121,7 +103,7 @@ async function doConvertBassetToNative(walletData: WalletData, nativeDenom: stri
     {
       send: {
         contract: converter.address,
-        amount: amount+"",
+        amount: amount + "",
         msg: Buffer.from(JSON.stringify({ convert_basset_to_native: {} })).toString("base64")
       }
     },

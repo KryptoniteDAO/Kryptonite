@@ -5,7 +5,7 @@
 */
 
 import { CosmWasmClient } from "@cosmjs/cosmwasm-stargate";
-import { AllAccountsResponse, Uint128, Expiration, Timestamp, Uint64, AllAllowancesResponse, AllowanceInfo, AllowanceResponse, BalanceResponse, Cw20ExecuteMsg, Binary, Logo, EmbeddedLogo, QueryMsg, TokenInfoResponse, TokenInitMsg, Cw20Coin, InstantiateMarketingInfo } from "./TokenStsei.types";
+import { AllAccountsResponse, Uint128, Expiration, Timestamp, Uint64, AllAllowancesResponse, AllowanceInfo, AllSpenderAllowancesResponse, SpenderAllowanceInfo, AllowanceResponse, BalanceResponse, Cw20ExecuteMsg, Binary, Logo, EmbeddedLogo, DownloadLogoResponse, LogoInfo, Addr, MarketingInfoResponse, MinterResponse, QueryMsg, TokenInfoResponse, TokenInitMsg, Cw20Coin, InstantiateMarketingInfo } from "./TokenStsei.types";
 export interface TokenStseiReadOnlyInterface {
   contractAddress: string;
   balance: ({
