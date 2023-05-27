@@ -3,6 +3,7 @@ import { loadingWalletData, loadingMarketData, loadingStakingData, chainConfigs,
 import type { DeployContract, MarketDeployContracts, WalletData } from "./types";
 import { ChainId, SwapDeployContracts } from "./types";
 import { ConfigOraclePythBaseFeedInfoList, ConfigOraclePythFeedInfoList, doOraclePythConfigFeedInfo } from "./modules/market";
+import { doSwapExtentionSetWhitelist } from "./modules/swap";
 
 async function main(): Promise<void> {
   console.log(`--- --- deploy market contracts enter --- ---`);
@@ -18,32 +19,33 @@ async function main(): Promise<void> {
     return;
   }
 
-  const network = readArtifact(walletData.chainId, MARKET_ARTIFACTS_PATH) as MarketDeployContracts;
+  const networkMarket = readArtifact(walletData.chainId, MARKET_ARTIFACTS_PATH) as MarketDeployContracts;
   const networkSwap = readArtifact(walletData.chainId, SWAP_EXTENSION_ARTIFACTS_PATH) as SwapDeployContracts;
   console.log();
   console.log(`--- --- market contracts storeCode & instantiateContract enter --- ---`);
   console.log();
 
-  await deployOraclePyth(walletData, network);
-  await deployMarket(walletData, network);
-  await deployInterestModel(walletData, network);
-  await deployDistributionModel(walletData, network);
+  await deployOraclePyth(walletData, networkMarket);
+  await deployMarket(walletData, networkMarket);
+  await deployInterestModel(walletData, networkMarket);
+  await deployDistributionModel(walletData, networkMarket);
   // await deployOracle(walletData, network);
-  await deployOverseer(walletData, network);
-  await deployLiquidationQueue(walletData, network);
-  await deployCustodyBSei(walletData, network, reward?.address, bSeiToken?.address, networkSwap?.swapExtention);
+  await deployOverseer(walletData, networkMarket);
+  await deployLiquidationQueue(walletData, networkMarket);
+  await deployCustodyBSei(walletData, networkMarket, reward?.address, bSeiToken?.address, networkSwap?.swapExtention);
 
   console.log();
   console.log(`--- --- market contracts storeCode & instantiateContract end --- ---`);
 
-  const { aToken, market, interestModel, distributionModel, oraclePyth, overseer, liquidationQueue, custodyBSei } = await loadingMarketData(network);
+  const { aToken, market, interestModel, distributionModel, oraclePyth, overseer, liquidationQueue, custodyBSei } = await loadingMarketData(networkMarket);
 
-  await printDeployedMarketContracts(network);
+  await printDeployedMarketContracts(networkMarket);
 
   // //////////////////////////////////////configure contracts///////////////////////////////////////////
 
   console.log();
   console.log(`--- --- market contracts configure enter --- ---`);
+  const print: boolean = false;
 
   /**oracle for local test, because local test enviroment has no oracle_pyth*/
   const marketConfigRes = await queryContractConfig(walletData, market, false);
@@ -74,6 +76,11 @@ async function main(): Promise<void> {
         await doOraclePythConfigFeedInfo(walletData, oraclePyth, configFeedInfo);
       }
     }
+  }
+
+  /// add market.custodyBSei to swap whitelist
+  if (networkMarket?.custodyBSei?.address) {
+    await doSwapExtentionSetWhitelist(walletData,networkSwap?.swapExtention, { caller: networkMarket?.custodyBSei?.address, isWhitelist: true }, print);
   }
 
   console.log();

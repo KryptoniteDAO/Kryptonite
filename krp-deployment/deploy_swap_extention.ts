@@ -31,9 +31,9 @@ async function main(): Promise<void> {
 
   console.log();
   console.log(`--- --- swap extends contracts configure enter --- ---`);
+  const print: boolean = false;
 
   const swapExtention: DeployContract = networkSwap?.swapExtention;
-  const print: boolean = false;
 
   /// add staking.reward & staking.rewardsDispatcher & market.custodyBSei & multi convert.custody to whitelist
   const swapWhitelistList: {

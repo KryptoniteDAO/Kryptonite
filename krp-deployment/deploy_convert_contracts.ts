@@ -3,6 +3,7 @@ import { loadingWalletData, loadingMarketData, loadingStakingData, chainConfigs,
 import type { ConvertDeployContracts, DeployContract, WalletData } from "./types";
 import { ChainId, ConvertPairs, SwapDeployContracts } from "./types";
 import { ConfigOraclePythBaseFeedInfoList, ConfigOraclePythFeedInfoList, doOraclePythConfigFeedInfo } from "./modules/market";
+import { doSwapExtentionSetWhitelist } from "./modules/swap";
 
 async function main(): Promise<void> {
   console.log(`--- --- deploy convert contracts enter --- ---`);
@@ -50,6 +51,7 @@ async function main(): Promise<void> {
 
   console.log();
   console.log(`--- --- convert contracts configure enter --- ---`);
+  const print: boolean = false;
 
   if (chainConfigs?.convertPairs && chainConfigs.convertPairs.length > 0) {
     for (let convertPairsConfig of chainConfigs.convertPairs) {
@@ -77,10 +79,15 @@ async function main(): Promise<void> {
         if (btokenNetwork?.address) {
           const bSeiTokenConfig = chainIdConfigFeedInfos.find(value => btokenNetwork?.address === value.asset);
           if (!bSeiTokenConfig) {
-            let configFeedInfo = Object.assign({ asset: btokenNetwork?.address }, ConfigOraclePythBaseFeedInfoList[ChainId.SEI_CHAIN]);
+            let configFeedInfo = Object.assign({ asset: btokenNetwork?.address }, ConfigOraclePythBaseFeedInfoList[walletData.chainId]);
             await doOraclePythConfigFeedInfo(walletData, oraclePyth, configFeedInfo);
           }
         }
+      }
+
+      /// add  custody to swap whitelist
+      if (custodyNetwork?.address) {
+        await doSwapExtentionSetWhitelist(walletData, networkSwap?.swapExtention, { caller: custodyNetwork?.address, isWhitelist: true }, print);
       }
     }
   }
