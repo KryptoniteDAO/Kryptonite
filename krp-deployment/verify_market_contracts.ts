@@ -65,7 +65,7 @@ async function main(): Promise<void> {
   const custodyBSeiDepositCollateralRes = await executeContractByWalletData(walletData, bSeiToken.address, {
     send: {
       contract: custodyBSei.address,
-      amount: "200000",
+      amount: "1000000",
       msg: Buffer.from(JSON.stringify({ deposit_collateral: {} })).toString("base64")
     }
   });
@@ -81,7 +81,7 @@ async function main(): Promise<void> {
     {
       unlock_collateral: {
         collaterals: [
-          [bSeiToken.address, "1000000"] // (CW20 contract address, Amount to unlock)
+          [bSeiToken.address, "500000"] // (CW20 contract address, Amount to unlock)
         ]
       }
     },

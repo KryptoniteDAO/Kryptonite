@@ -13,4 +13,3 @@ node_modules
 */.env*
 *temp.ts
 deploy_testing.ts
-common_old.ts
