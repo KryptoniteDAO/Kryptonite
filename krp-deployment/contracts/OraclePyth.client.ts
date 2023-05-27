@@ -32,7 +32,7 @@ export interface OraclePythReadOnlyInterface {
   }: {
     baseLabel: string;
     quoteLabel: string;
-  }) => Promise<ExchangeRateByAssetLabelResponse>;
+  }) => Promise<Decimal256>;
 }
 export class OraclePythQueryClient implements OraclePythReadOnlyInterface {
   client: CosmWasmClient;
@@ -92,7 +92,7 @@ export class OraclePythQueryClient implements OraclePythReadOnlyInterface {
   }: {
     baseLabel: string;
     quoteLabel: string;
-  }): Promise<ExchangeRateByAssetLabelResponse> => {
+  }): Promise<Decimal256> => {
     return this.client.queryContractSmart(this.contractAddress, {
       query_exchange_rate_by_asset_label: {
         base_label: baseLabel,

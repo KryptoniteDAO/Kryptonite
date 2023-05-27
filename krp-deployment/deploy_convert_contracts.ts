@@ -2,6 +2,7 @@ import { readArtifact, storeCodeByWalletData, writeArtifact, instantiateContract
 import { loadingWalletData, loadingMarketData, loadingStakingData, chainConfigs, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH, CONVERT_ARTIFACTS_PATH, SWAP_EXTENSION_ARTIFACTS_PATH } from "./env_data";
 import type { ConvertDeployContracts, DeployContract, WalletData } from "./types";
 import { ChainId, ConvertPairs, SwapDeployContracts } from "./types";
+import { ConfigOraclePythBaseFeedInfoList, ConfigOraclePythFeedInfoList, doOraclePythConfigFeedInfo } from "./modules/market";
 
 async function main(): Promise<void> {
   console.log(`--- --- deploy convert contracts enter --- ---`);
@@ -18,8 +19,8 @@ async function main(): Promise<void> {
   }
 
   const networkMarket = readArtifact(walletData.chainId, MARKET_ARTIFACTS_PATH);
-  const { aToken, market, interestModel, distributionModel, overseer, liquidationQueue, custodyBSei } = await loadingMarketData(networkMarket);
-  if (!aToken?.address || !market?.address || !interestModel?.address || !distributionModel?.address || !overseer?.address || !liquidationQueue?.address || !custodyBSei?.address) {
+  const { aToken, market, interestModel, distributionModel, overseer, liquidationQueue, custodyBSei, oraclePyth } = await loadingMarketData(networkMarket);
+  if (!aToken?.address || !market?.address || !interestModel?.address || !distributionModel?.address || !overseer?.address || !liquidationQueue?.address || !custodyBSei?.address || !oraclePyth?.address) {
     console.log(`--- --- deploy convert contracts error, missing some deployed market address info --- ---`);
     process.exit(0);
     return;
@@ -70,6 +71,17 @@ async function main(): Promise<void> {
       await doLiquidationQueueWhitelistCollateral(walletData, nativeDenom, liquidationQueue, btokenNetwork, convertPairsConfig?.liquidationQueueWhitelistCollateralConfig);
       // await doOracleRegisterFeeder(walletData, nativeDenom, oracle, btokenNetwork);
       // await doOracleFeedPrice(walletData, nativeDenom, oracle, btokenNetwork, nativeDenomItem?.["price"]);
+
+      const chainIdConfigFeedInfos = ConfigOraclePythFeedInfoList[walletData.chainId];
+      if (chainIdConfigFeedInfos && chainIdConfigFeedInfos.length > 0) {
+        if (btokenNetwork?.address) {
+          const bSeiTokenConfig = chainIdConfigFeedInfos.find(value => btokenNetwork?.address === value.asset);
+          if (!bSeiTokenConfig) {
+            let configFeedInfo = Object.assign({ asset: btokenNetwork?.address }, ConfigOraclePythBaseFeedInfoList[ChainId.SEI_CHAIN]);
+            await doOraclePythConfigFeedInfo(walletData, oraclePyth, configFeedInfo);
+          }
+        }
+      }
     }
   }
 

@@ -2,7 +2,7 @@ import { readArtifact, storeCodeByWalletData, writeArtifact, instantiateContract
 import { loadingWalletData, loadingMarketData, loadingStakingData, chainConfigs, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH, SWAP_EXTENSION_ARTIFACTS_PATH } from "./env_data";
 import type { DeployContract, MarketDeployContracts, WalletData } from "./types";
 import { ChainId, SwapDeployContracts } from "./types";
-import { ConfigOraclePythFeedInfoList, doOraclePythConfigFeedInfo } from "./modules/market";
+import { ConfigOraclePythBaseFeedInfoList, ConfigOraclePythFeedInfoList, doOraclePythConfigFeedInfo } from "./modules/market";
 
 async function main(): Promise<void> {
   console.log(`--- --- deploy market contracts enter --- ---`);
@@ -66,6 +66,13 @@ async function main(): Promise<void> {
   if (chainIdConfigFeedInfos && chainIdConfigFeedInfos.length > 0) {
     for (let configFeedInfo of chainIdConfigFeedInfos) {
       await doOraclePythConfigFeedInfo(walletData, oraclePyth, configFeedInfo);
+    }
+    if (bSeiToken?.address) {
+      const bSeiTokenConfig = chainIdConfigFeedInfos.find(value => bSeiToken?.address === value.asset);
+      if (!bSeiTokenConfig) {
+        let configFeedInfo = Object.assign({ asset: bSeiToken?.address }, ConfigOraclePythBaseFeedInfoList[walletData.chainId]);
+        await doOraclePythConfigFeedInfo(walletData, oraclePyth, configFeedInfo);
+      }
     }
   }
 

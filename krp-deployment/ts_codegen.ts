@@ -15,7 +15,7 @@ type ContractConfig = {
 
 /**
  * after do it
- * 1. OraclePyth.client.ts: `<Query` => `<`
+ * 1. OraclePyth.client.ts: `<Query` => `<`, `ExchangeRateByAssetLabelResponse` => `Decimal256`
  * 2. Hub.client.ts: `ParametersResponse` => `Parameters[]`
  * 3. Market.client.ts: `StateResponse` => `State`
  * 4. Overseer.client.ts: `EpochStateResponse` => `EpochState`, `DynrateStateResponse` => `DynrateState`
