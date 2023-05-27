@@ -41,26 +41,26 @@ export const ConfigOraclePythFeedInfoList: Record<
   }[]
 > = {
   [ChainId.SEI_CHAIN]: [
-    // {
-    //   checkFeedAge: true,
-    //   asset: "sei16j0hypm83zlctv7czky9n0me0k03prel3ynczn",
-    //   priceFeedId: "ff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace",
-    //   priceFeedSymbol: "Crypto.ETH/USD",
-    //   priceFeedDecimal: 18,
-    //   priceFeedAge: 60
-    // },
+    {
+      checkFeedAge: true,
+      asset: "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/usdt",
+      priceFeedId: "5bc91f13e412c07599167bae86f07543f076a638962b8d6017ec19dab4a82814",
+      priceFeedSymbol: "Crypto.USDT/USD",
+      priceFeedDecimal: 8,
+      priceFeedAge: 60
+    },
     Object.assign({ asset: "usei" }, ConfigOraclePythBaseFeedInfoList[ChainId.SEI_CHAIN])
   ],
   // usei and btokens
   [ChainId.ATLANTIC_2]: [
-    // {
-    //   checkFeedAge: true,
-    //   asset: "usei",
-    //   priceFeedId: "ff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace",
-    //   priceFeedSymbol: "Crypto.ETH/USD",
-    //   priceFeedDecimal: 8,
-    //   priceFeedAge: 720000000
-    // },
+    {
+      checkFeedAge: true,
+      asset: "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/usdt",
+      priceFeedId: "5bc91f13e412c07599167bae86f07543f076a638962b8d6017ec19dab4a82814",
+      priceFeedSymbol: "Crypto.USDT/USD",
+      priceFeedDecimal: 8,
+      priceFeedAge: 720000000
+    },
     Object.assign({ asset: "usei" }, ConfigOraclePythBaseFeedInfoList[ChainId.ATLANTIC_2])
   ]
 };

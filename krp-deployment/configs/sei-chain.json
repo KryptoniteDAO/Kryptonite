@@ -199,7 +199,7 @@
   },
   "convertPairs": [
     {
-      "name": "strideSei",
+      "name": "STSEI/bSTSEI",
       "native_denom": "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/stsei",
       "converter": {
         "admin": null,
@@ -248,7 +248,7 @@
       }
     },
     {
-      "name": "slsdi",
+      "name": "SLSTI/bSLSTI",
       "native_denom": "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/slsdi",
       "converter": {
         "admin": null,
