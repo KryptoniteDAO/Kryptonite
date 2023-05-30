@@ -213,7 +213,7 @@ export async function sendCoinToOtherAddress(walletData: WalletData, receiver: s
   }
 }
 
-export async function logChangeBalancesByWalletData(walletData: WalletData) {
+export async function printChangeBalancesByWalletData(walletData: WalletData) {
   const beforeAddressesBalances = walletData.addressesBalances;
   const afterAddressesBalances = await loadAddressesBalances(walletData.LCD_ENDPOINT, walletData.addressList, walletData.denomList);
   console.log();

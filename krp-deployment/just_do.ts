@@ -1,4 +1,4 @@
-import { logChangeBalancesByWalletData } from "./common";
+import { printChangeBalancesByWalletData } from "./common";
 import { loadingWalletData } from "./env_data";
 import type { DeployContract, WalletData } from "./types";
 import { ConvertDeployContracts, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts } from "./types";
@@ -28,6 +28,6 @@ async function main(): Promise<void> {
   console.log(`--- --- just do end --- ---`);
 
   console.log();
-  await logChangeBalancesByWalletData(walletData);
+  await printChangeBalancesByWalletData(walletData);
   console.log();
 }

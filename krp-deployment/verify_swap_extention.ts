@@ -1,4 +1,4 @@
-import { logChangeBalancesByWalletData } from "./common";
+import { printChangeBalancesByWalletData } from "./common";
 import { loadingWalletData } from "./env_data";
 import { ConvertDeployContracts, DeployContract, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts, WalletData } from "./types";
 import { ConfigSwapPairConfigList, swapExtentionReadArtifact } from "./modules/swap";
@@ -72,6 +72,6 @@ async function main(): Promise<void> {
   console.log(`--- --- verify deployed swap contracts end --- ---`);
 
   console.log();
-  await logChangeBalancesByWalletData(walletData);
+  await printChangeBalancesByWalletData(walletData);
   console.log();
 }

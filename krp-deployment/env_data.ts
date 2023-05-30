@@ -30,9 +30,6 @@ export const SWAP_EXTENSION_MODULE_NAME = "swap-extention";
 export const DEPLOY_VERSION = process.env.DEPLOY_VERSION || "00_00_01";
 
 export const chainConfigs: Config = readArtifact(`${process.env.CHAIN_ID_KEY || chain_id_default}`, "configs");
-// console.log(process.env.CHAIN_ID);
-// console.log(chainConfigs);
-// console.log(loadingEnvData());
 
 async function loadingEnvData() {
   const LCD_ENDPOINT = process.env.LCD_ENDPOINT;

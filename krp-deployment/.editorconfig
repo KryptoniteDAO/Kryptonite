@@ -3,7 +3,7 @@ root = true
 [*]
 charset = utf-8
 
-[*.{js,cjs,ts,jsx,tsx,vue,html,css,scss,md}]
+[{**/*,*}.{js,cjs,ts,jsx,tsx,vue,html,css,scss,md}]
 indent_style = space
 indent_size = 2
 trim_trailing_whitespace = true

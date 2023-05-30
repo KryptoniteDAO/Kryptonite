@@ -1,5 +1,5 @@
 import { coins } from "@cosmjs/stargate";
-import { queryStakingDelegations, queryAddressBalance, queryStaking, queryStakingParameters, queryWasmContractByWalletData, executeContractByWalletData, logChangeBalancesByWalletData, queryAddressTokenBalance } from "./common";
+import { queryStakingDelegations, queryAddressBalance, queryStaking, queryStakingParameters, queryWasmContractByWalletData, executeContractByWalletData, printChangeBalancesByWalletData, queryAddressTokenBalance } from "./common";
 import { loadingWalletData, loadingStakingData, STAKING_ARTIFACTS_PATH } from "./env_data";
 import { ConvertDeployContracts, DeployContract, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts, WalletData } from "./types";
 import Decimal from "decimal.js";
@@ -57,7 +57,7 @@ async function main(): Promise<void> {
   console.log(`--- --- verify deployed staking contracts end --- ---`);
 
   console.log();
-  await logChangeBalancesByWalletData(walletData);
+  await printChangeBalancesByWalletData(walletData);
   console.log();
 }
 

@@ -1,5 +1,5 @@
 import { coins } from "@cosmjs/stargate";
-import { executeContractByWalletData, logChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance } from "./common";
+import { executeContractByWalletData, printChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance } from "./common";
 import { loadingWalletData, chainConfigs, CONVERT_ARTIFACTS_PATH, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH, SWAP_EXTENSION_ARTIFACTS_PATH } from "./env_data";
 import { ConvertDeployContracts, ConvertPairs, DeployContract, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts, WalletData } from "./types";
 import Decimal from "decimal.js";
@@ -44,7 +44,7 @@ async function main(): Promise<void> {
   console.log(`--- --- verify deployed convert contracts end --- ---`);
 
   console.log();
-  await logChangeBalancesByWalletData(walletData);
+  await printChangeBalancesByWalletData(walletData);
   console.log();
 }
 

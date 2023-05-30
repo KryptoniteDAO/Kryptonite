@@ -1,5 +1,5 @@
 import { coins } from "@cosmjs/stargate";
-import { executeContract, sendCoinToOtherAddress, executeContractByWalletData, queryWasmContractByWalletData, getClientData2ByWalletData, logChangeBalancesByWalletData } from "./common";
+import { executeContract, sendCoinToOtherAddress, executeContractByWalletData, queryWasmContractByWalletData, getClientData2ByWalletData, printChangeBalancesByWalletData } from "./common";
 import { loadingWalletData, loadingMarketData, loadingStakingData, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH } from "./env_data";
 import { swapExtentionReadArtifact } from "./modules/swap";
 import { ConvertDeployContracts, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts } from "./types";
@@ -306,7 +306,7 @@ async function main(): Promise<void> {
   console.log(`--- --- verify deployed market contracts end --- ---`);
 
   console.log();
-  await logChangeBalancesByWalletData(walletData);
+  await printChangeBalancesByWalletData(walletData);
   console.log();
 }
 
