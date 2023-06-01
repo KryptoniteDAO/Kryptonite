@@ -13,3 +13,4 @@ node_modules
 */.env*
 *temp.ts
 deploy_testing.ts
+deploy_testing_muilti_stable.ts
