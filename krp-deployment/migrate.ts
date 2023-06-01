@@ -1,5 +1,6 @@
 import { loadingWalletData } from "./env_data";
-import { logChangeBalancesByWalletData, migrateContractByWalletData, storeCodeByWalletData } from "./common";
+import { printChangeBalancesByWalletData, migrateContractByWalletData, storeCodeByWalletData } from "./common";
+import { WalletData } from "./types";
 
 interface MigrateConfig {
   codeId: number | undefined;
@@ -14,7 +15,8 @@ interface MigrateConfig {
 async function main() {
   console.log(`--- --- migrate contracts enter --- ---`);
 
-  const walletData = await loadingWalletData();
+  const walletData: WalletData = await loadingWalletData();
+
   const configs: MigrateConfig[] = [
     {
       codeId: 0,
@@ -37,7 +39,7 @@ async function main() {
   console.log(`--- --- migrate contracts end --- ---`);
 
   console.log();
-  await logChangeBalancesByWalletData(walletData);
+  await printChangeBalancesByWalletData(walletData);
   console.log();
 }
 

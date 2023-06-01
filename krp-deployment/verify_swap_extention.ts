@@ -1,22 +1,23 @@
-import { coins } from "@cosmjs/stargate";
-import { queryStakingDelegations, queryAddressBalance, queryStaking, queryStakingParameters, readArtifact, queryWasmContractByWalletData, executeContractByWalletData, logChangeBalancesByWalletData, queryAddressTokenBalance } from "./common";
-import { loadingWalletData, loadingStakingData, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH, SWAP_EXTENSION_ARTIFACTS_PATH, CONVERT_ARTIFACTS_PATH } from "./env_data";
+import { printChangeBalancesByWalletData } from "./common";
+import { loadingWalletData } from "./env_data";
 import { ConvertDeployContracts, DeployContract, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts, WalletData } from "./types";
-import Decimal from "decimal.js";
-import { ConfigSwapPairConfigList, doSwapExtentionSetWhitelist, doSwapExtentionUpdatePairConfig } from "./modules/swap";
+import { ConfigSwapPairConfigList, swapExtentionReadArtifact } from "./modules/swap";
 import { SwapExtentionClient, SwapExtentionQueryClient } from "./contracts/SwapExtention.client";
+import { stakingReadArtifact } from "./modules/staking";
+import { marketReadArtifact } from "./modules/market";
+import { convertReadArtifact } from "./modules/convert";
 
 main().catch(console.error);
 
 async function main(): Promise<void> {
   console.log(`--- --- verify deployed swap contracts enter --- ---`);
 
-  const walletData = await loadingWalletData();
+  const walletData: WalletData = await loadingWalletData();
 
-  const networkStaking = readArtifact(walletData.chainId, STAKING_ARTIFACTS_PATH) as StakingDeployContracts;
-  const networkMarket = readArtifact(walletData.chainId, MARKET_ARTIFACTS_PATH) as MarketDeployContracts;
-  const networkSwap = readArtifact(walletData.chainId, SWAP_EXTENSION_ARTIFACTS_PATH) as SwapDeployContracts;
-  const networkConvert = readArtifact(walletData.chainId, CONVERT_ARTIFACTS_PATH) as ConvertDeployContracts;
+  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapDeployContracts;
+  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingDeployContracts;
+  const networkMarket = marketReadArtifact(walletData.chainId) as MarketDeployContracts;
+  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertDeployContracts;
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   // // just a few simple tests to make sure the contracts are not failing
@@ -71,6 +72,6 @@ async function main(): Promise<void> {
   console.log(`--- --- verify deployed swap contracts end --- ---`);
 
   console.log();
-  await logChangeBalancesByWalletData(walletData);
+  await printChangeBalancesByWalletData(walletData);
   console.log();
 }

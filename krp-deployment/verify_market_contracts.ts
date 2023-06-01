@@ -1,6 +1,11 @@
 import { coins } from "@cosmjs/stargate";
-import { executeContract, sendCoinToOtherAddress, readArtifact, executeContractByWalletData, queryWasmContractByWalletData, getClientData2ByWalletData, logChangeBalancesByWalletData } from "./common";
+import { executeContract, sendCoinToOtherAddress, executeContractByWalletData, queryWasmContractByWalletData, getClientData2ByWalletData, printChangeBalancesByWalletData } from "./common";
 import { loadingWalletData, loadingMarketData, loadingStakingData, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH } from "./env_data";
+import { swapExtentionReadArtifact } from "./modules/swap";
+import { ConvertDeployContracts, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts } from "./types";
+import { stakingReadArtifact } from "./modules/staking";
+import { marketReadArtifact } from "./modules/market";
+import { convertReadArtifact } from "./modules/convert";
 
 require("dotenv").config();
 
@@ -8,7 +13,13 @@ async function main(): Promise<void> {
   console.log(`--- --- verify deployed market contracts enter --- ---`);
 
   const walletData = await loadingWalletData();
-  const networkStaking = readArtifact(walletData.chainId, STAKING_ARTIFACTS_PATH);
+
+
+  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapDeployContracts;
+  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingDeployContracts;
+  const networkMarket = marketReadArtifact(walletData.chainId) as MarketDeployContracts;
+  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertDeployContracts;
+
   const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(networkStaking);
   if (!hub?.address || !reward?.address || !bSeiToken?.address || !rewardsDispatcher?.address || !validatorsRegistry?.address || !stSeiToken?.address) {
     console.error(`--- --- verify deployed error, missing some deployed staking address info --- ---`);
@@ -16,7 +27,6 @@ async function main(): Promise<void> {
     return;
   }
 
-  const networkMarket = readArtifact(walletData.chainId, MARKET_ARTIFACTS_PATH);
   const { aToken, market, interestModel, distributionModel, overseer, liquidationQueue, custodyBSei } = await loadingMarketData(networkMarket);
   if (!aToken?.address || !market?.address || !interestModel?.address || !distributionModel?.address || !overseer?.address || !liquidationQueue?.address || !custodyBSei?.address) {
     console.log(`--- --- verify deployed error, missing some deployed market address info --- ---`);
@@ -296,7 +306,7 @@ async function main(): Promise<void> {
   console.log(`--- --- verify deployed market contracts end --- ---`);
 
   console.log();
-  await logChangeBalancesByWalletData(walletData);
+  await printChangeBalancesByWalletData(walletData);
   console.log();
 }
 

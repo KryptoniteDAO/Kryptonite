@@ -98,8 +98,8 @@
     "admin": null,
     "initMsg": {
       "owner": null,
-      "base_rate": "0.000000004076272770",
-      "interest_multiplier": "0.000000085601728176"
+      "base_rate": "0.00000000003008319",
+      "interest_multiplier": "0.000000000631747071"
     },
     "label": "interest model contract",
     "filePath": null,

@@ -10,17 +10,17 @@ import { Balance, WalletData, ClientData, DeployContract } from "./types";
 
 const Decimal = require("decimal.js");
 
-export function readArtifact(name: string = "artifact", from: string, prefix: string = "deployed_") {
+export function readArtifact(name: string = "artifact", from: string) {
   try {
-    const data = fs.readFileSync(path.join(from, `${prefix}${name}.json`), "utf8");
+    const data = fs.readFileSync(path.join(from, `${name}.json`), "utf8");
     return JSON.parse(data);
   } catch (e) {
     return {};
   }
 }
 
-export function writeArtifact(data: object, name: string = "artifact", to: string, prefix: string = "deployed_") {
-  fs.writeFileSync(path.join(to, `${prefix}${name}.json`), JSON.stringify(data, null, 2));
+export function writeArtifact(data: object, name: string = "artifact", to: string) {
+  fs.writeFileSync(path.join(to, `${name}.json`), JSON.stringify(data, null, 2));
 }
 
 export async function sleep(timeout: number) {
@@ -213,7 +213,7 @@ export async function sendCoinToOtherAddress(walletData: WalletData, receiver: s
   }
 }
 
-export async function logChangeBalancesByWalletData(walletData: WalletData) {
+export async function printChangeBalancesByWalletData(walletData: WalletData) {
   const beforeAddressesBalances = walletData.addressesBalances;
   const afterAddressesBalances = await loadAddressesBalances(walletData.LCD_ENDPOINT, walletData.addressList, walletData.denomList);
   console.log();
