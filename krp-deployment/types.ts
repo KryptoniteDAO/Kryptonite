@@ -315,6 +315,7 @@ export interface StakingDeployContracts {
 export interface MarketDeployContracts {
   aToken?: DeployContract;
   market?: DeployContract;
+  market_stable_denom?: string;
   interestModel?: DeployContract;
   distributionModel?: DeployContract;
   oracle?: DeployContract;

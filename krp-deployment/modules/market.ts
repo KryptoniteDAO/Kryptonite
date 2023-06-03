@@ -106,7 +106,7 @@ export async function deployOraclePyth(walletData: WalletData, networkMarket: Ma
   }
 }
 
-export async function deployMarket(walletData: WalletData, network: any): Promise<void> {
+export async function deployMarket(walletData: WalletData, network: MarketDeployContracts): Promise<void> {
   if (!network?.aToken?.address || !network?.market?.address) {
     if (!network?.aToken) {
       network.aToken = {};
@@ -142,6 +142,7 @@ export async function deployMarket(walletData: WalletData, network: any): Promis
       const [contract1, contract2] = await instantiateContract2ByWalletData(walletData, admin, network.market.codeId, initMsg, label, initCoins);
       network.aToken.address = contract2;
       network.market.address = contract1;
+      network.market_stable_denom = walletData.stable_coin_denom;
       marketWriteArtifact(network, walletData.chainId);
       chainConfigs.aToken.deploy = true;
       chainConfigs.market.deploy = true;
@@ -151,7 +152,7 @@ export async function deployMarket(walletData: WalletData, network: any): Promis
   }
 }
 
-export async function deployInterestModel(walletData: WalletData, network: any): Promise<void> {
+export async function deployInterestModel(walletData: WalletData, network: MarketDeployContracts): Promise<void> {
   if (!network?.interestModel?.address) {
     if (!network?.interestModel) {
       network.interestModel = {};
@@ -176,7 +177,7 @@ export async function deployInterestModel(walletData: WalletData, network: any):
   }
 }
 
-export async function deployDistributionModel(walletData: WalletData, network: any): Promise<void> {
+export async function deployDistributionModel(walletData: WalletData, network: MarketDeployContracts): Promise<void> {
   if (!network?.distributionModel?.address) {
     if (!network?.distributionModel) {
       network.distributionModel = {};
@@ -201,7 +202,7 @@ export async function deployDistributionModel(walletData: WalletData, network: a
   }
 }
 
-export async function deployOracle(walletData: WalletData, network: any): Promise<void> {
+export async function deployOracle(walletData: WalletData, network: MarketDeployContracts): Promise<void> {
   if (!network?.oracle?.address) {
     if (!network?.oracle) {
       network.oracle = {};
@@ -226,7 +227,7 @@ export async function deployOracle(walletData: WalletData, network: any): Promis
   }
 }
 
-export async function deployOverseer(walletData: WalletData, network: any): Promise<void> {
+export async function deployOverseer(walletData: WalletData, network: MarketDeployContracts): Promise<void> {
   const marketAddress = network?.market?.address;
   const oracleAddress = network?.oraclePyth?.address;
   const liquidationQueueAddress = network?.liquidationQueue?.address;
@@ -267,7 +268,7 @@ export async function deployOverseer(walletData: WalletData, network: any): Prom
   }
 }
 
-export async function deployLiquidationQueue(walletData: WalletData, network: any): Promise<void> {
+export async function deployLiquidationQueue(walletData: WalletData, network: MarketDeployContracts): Promise<void> {
   const oracleAddress = network?.oraclePyth?.address;
   const overseerAddress = network?.overseer?.address;
   if (!oracleAddress) {
@@ -306,7 +307,7 @@ export async function deployLiquidationQueue(walletData: WalletData, network: an
   }
 }
 
-export async function deployCustodyBSei(walletData: WalletData, network: any, rewardAddress: string, bSeiTokenAddress: string, swapExtention: DeployContract): Promise<void> {
+export async function deployCustodyBSei(walletData: WalletData, network: MarketDeployContracts, rewardAddress: string, bSeiTokenAddress: string, swapExtention: DeployContract): Promise<void> {
   const marketAddress = network?.market?.address;
   const liquidationQueueAddress = network?.liquidationQueue?.address;
   const overseerAddress = network?.overseer?.address;
