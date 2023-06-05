@@ -112,7 +112,7 @@ export async function executeContractByWalletData(walletData: WalletData, contra
 }
 
 export async function executeContract(clientData: ClientData, contractAddress: string, message: object, label: string = "", coins: Coin[] = []) {
-  const fee: StdFee = calculateFee(2_000_000, clientData?.gasPrice || "0.001usei");
+  const fee: StdFee = calculateFee(3_000_000, clientData?.gasPrice || "0.001usei");
   return await clientData?.signingCosmWasmClient?.execute(clientData?.senderAddress, contractAddress, message, fee, label, coins);
 }
 

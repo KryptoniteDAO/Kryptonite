@@ -73,7 +73,6 @@ async function main(): Promise<void> {
   console.log(`--- --- market contracts configure enter --- ---`);
   const print: boolean = false;
 
-  /**oracle for local test, because local test enviroment has no oracle_pyth*/
   const marketConfigRes = await queryContractConfig(walletData, market, false);
   const interestModelConfigRes = await queryContractConfig(walletData, interestModel, false);
   const distributionModelConfigRes = await queryContractConfig(walletData, distributionModel, false);
@@ -83,7 +82,7 @@ async function main(): Promise<void> {
   const custodyBSeiConfigRes = await queryContractConfig(walletData, custodyBSei, false);
   const overseerWhitelistRes = await queryOverseerWhitelist(walletData, overseer, false);
 
-  await doMarketConfig(walletData, marketConfigRes.initFlag, marketConfigRes?.config, market, interestModel, distributionModel, overseer, bSeiToken, rewardsDispatcher);
+  await doMarketConfig(walletData, networkMarket, marketConfigRes.initFlag, marketConfigRes?.config, market, interestModel, distributionModel, overseer, bSeiToken, rewardsDispatcher);
   await doOverseerConfig(walletData, overseerConfigRes?.config, overseer, liquidationQueue);
   await doCustodyBSeiConfig(walletData, custodyBSeiConfigRes?.config, custodyBSei, liquidationQueue);
   await doLiquidationQueueConfig(walletData, liquidationQueueConfigRes?.config, liquidationQueue, oraclePyth, overseer);
