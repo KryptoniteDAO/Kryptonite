@@ -43,13 +43,14 @@ export const ConfigOraclePythFeedInfoList: Record<
   [ChainId.SEI_CHAIN]: [
     {
       checkFeedAge: true,
-      asset: "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/usdt",
+      asset: "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/USDT",
       priceFeedId: "5bc91f13e412c07599167bae86f07543f076a638962b8d6017ec19dab4a82814",
       priceFeedSymbol: "Crypto.USDT/USD",
       priceFeedDecimal: 8,
       priceFeedAge: 60
     },
     Object.assign({ asset: "usei" }, ConfigOraclePythBaseFeedInfoList[ChainId.SEI_CHAIN])
+    
   ],
   // usei and btokens
   [ChainId.ATLANTIC_2]: [
@@ -131,7 +132,8 @@ export async function deployMarket(walletData: WalletData, network: MarketDeploy
       const initMsg = Object.assign(
         {
           atoken_code_id: network.aToken.codeId,
-          stable_denom: walletData.stable_coin_denom
+          stable_denom: walletData.stable_coin_denom, 
+          stable_name: "USDT"
         },
         chainConfigs?.market?.initMsg,
         {
@@ -311,6 +313,7 @@ export async function deployCustodyBSei(walletData: WalletData, network: MarketD
   const marketAddress = network?.market?.address;
   const liquidationQueueAddress = network?.liquidationQueue?.address;
   const overseerAddress = network?.overseer?.address;
+  const oraclepythAddress = network?.oraclePyth?.address;
   if (!marketAddress || !liquidationQueueAddress || !overseerAddress || !rewardAddress || !bSeiTokenAddress || !swapExtention?.address) {
     return;
   }
@@ -337,7 +340,8 @@ export async function deployCustodyBSei(walletData: WalletData, network: MarketD
           reward_contract: rewardAddress,
           stable_denom: walletData.stable_coin_denom,
           swap_contract: swapExtention?.address,
-          swap_denoms: [walletData.nativeCurrency.coinMinimalDenom]
+          swap_denoms: [walletData.nativeCurrency.coinMinimalDenom],
+          oracle_contract: oraclepythAddress,
         },
         chainConfigs?.custodyBSei?.initMsg,
         {
@@ -354,6 +358,7 @@ export async function deployCustodyBSei(walletData: WalletData, network: MarketD
 
 export async function doMarketConfig(
   walletData: WalletData,
+  network: any, 
   marketInitFlag: boolean,
   marketConfigRes: any,
   market: DeployContract,
@@ -366,6 +371,8 @@ export async function doMarketConfig(
   if (!market?.address || !interestModel?.address || !distributionModel?.address || !overseer?.address || !bSeiToken?.address || !rewardsDispatcher?.address) {
     return;
   }
+  const oraclepythAddress = network?.oraclePyth?.address;
+  const liquidationQueueAddress = network?.liquidationQueue?.address;
   const marketConfigFlag: boolean =
     marketInitFlag &&
     overseer.address === marketConfigRes?.overseer_contract &&
@@ -382,7 +389,9 @@ export async function doMarketConfig(
         distribution_model: distributionModel.address,
         overseer_contract: overseer.address,
         collector_contract: bSeiToken.address,
-        distributor_contract: rewardsDispatcher.address
+        distributor_contract: rewardsDispatcher.address, 
+        oracle_contract: oraclepythAddress,
+        liquidation_contract: liquidationQueueAddress,
       }
     });
     console.log("Do market's register_contracts ok. \n", marketRegisterContractsRes?.transactionHash);
