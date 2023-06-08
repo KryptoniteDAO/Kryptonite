@@ -253,7 +253,6 @@ export async function queryContractConfig(walletData: WalletData, deployContract
   return { initFlag, config };
 }
 
-
 export async function queryContractQueryConfig(walletData: WalletData, deployContract: DeployContract, print: boolean = true): Promise<{ initFlag; config }> {
   if (!deployContract?.address) {
     return;
@@ -275,3 +274,33 @@ export async function queryContractQueryConfig(walletData: WalletData, deployCon
   }
   return { initFlag, config };
 }
+
+export const BnAdd = (a: any, b: any): string => {
+  if (!a && !b) return "0";
+  return new Decimal(a || 0).add(b || 0).toString();
+};
+
+export const BnSub = (a: any, b: any): string => {
+  if (!a && !b) return "0";
+  return new Decimal(a || 0).sub(b || 0).toString();
+};
+
+export const BnMul = (a: any, factor: any): string => {
+  if (!a || (!factor && typeof factor !== "number")) {
+    return "0";
+  }
+  return new Decimal(a || 0).mul(factor || 0).toString();
+};
+
+export const BnDiv = (a: any, b: any): string => {
+  if (!b || b === "0") return "";
+  return new Decimal(a || 0).div(b).toString();
+};
+
+export const BnPow = (a: any, b: string | number): string => {
+  return new Decimal(a).toPower(b).toString();
+};
+
+export const BnComparedTo = (a: any, b: any): number => {
+  return new Decimal(a).comparedTo(new Decimal(b));
+};
