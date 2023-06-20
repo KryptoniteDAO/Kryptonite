@@ -5,6 +5,7 @@ export const STAKING_CONTRACTS_PATH = "../krp-staking-contracts/contracts";
 export const MARKET_CONTRACTS_PATH = "../krp-market-contracts/contracts";
 export const CONVERT_CONTRACTS_PATH = "../krp-basset-convert/contracts";
 export const SWAP_EXTENSION_CONTRACTS_PATH = "../swap-extention";
+export const KPT_CONTRACTS_PATH = "../krp-token-contracts/contracts";
 
 main().catch(console.error);
 
@@ -19,8 +20,8 @@ type ContractConfig = {
  * 2. Hub.client.ts: `ParametersResponse` => `Parameters[]`
  * 3. Market.client.ts: `StateResponse` => `State`
  * 4. Overseer.client.ts: `EpochStateResponse` => `EpochState`, `DynrateStateResponse` => `DynrateState`
- * 6. RewardsDispatcher.client.ts: `ConfigResponse` => `Config`
- * 7. ValidatorsRegistry.client.ts: `ConfigResponse` => `Config`, `GetValidatorsForDelegationResponse` => `Validator[]`
+ * 5. RewardsDispatcher.client.ts: `ConfigResponse` => `Config`
+ * 6. ValidatorsRegistry.client.ts: `ConfigResponse` => `Config`, `GetValidatorsForDelegationResponse` => `Validator[]`
  */
 async function main(): Promise<void> {
   console.log("✨✨✨ do code generate enter!");
@@ -29,6 +30,7 @@ async function main(): Promise<void> {
   contracts.push(...getContractConfigByPath(MARKET_CONTRACTS_PATH));
   contracts.push(...getContractConfigByPath(CONVERT_CONTRACTS_PATH));
   contracts.push(...getContractConfigByPath(SWAP_EXTENSION_CONTRACTS_PATH));
+  contracts.push(...getContractConfigByPath(KPT_CONTRACTS_PATH));
 
   // rename & print it
   contracts.map((value: ContractConfig) => {

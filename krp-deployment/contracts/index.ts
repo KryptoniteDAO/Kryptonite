@@ -40,6 +40,18 @@ import * as _32 from "./BassetToken.types";
 import * as _33 from "./BassetToken.client";
 import * as _34 from "./SwapExtention.types";
 import * as _35 from "./SwapExtention.client";
+import * as _36 from "./Kpt.types";
+import * as _37 from "./Kpt.client";
+import * as _38 from "./KptFund.types";
+import * as _39 from "./KptFund.client";
+import * as _40 from "./StakingRewards.types";
+import * as _41 from "./StakingRewards.client";
+import * as _42 from "./VeKpt.types";
+import * as _43 from "./VeKpt.client";
+import * as _44 from "./VeKptBoost.types";
+import * as _45 from "./VeKptBoost.client";
+import * as _46 from "./VeKptMiner.types";
+import * as _47 from "./VeKptMiner.client";
 export namespace contracts {
   export const Hub = { ..._0,
     ..._1
@@ -94,5 +106,23 @@ export namespace contracts {
   };
   export const SwapExtention = { ..._34,
     ..._35
+  };
+  export const Kpt = { ..._36,
+    ..._37
+  };
+  export const KptFund = { ..._38,
+    ..._39
+  };
+  export const StakingRewards = { ..._40,
+    ..._41
+  };
+  export const VeKpt = { ..._42,
+    ..._43
+  };
+  export const VeKptBoost = { ..._44,
+    ..._45
+  };
+  export const VeKptMiner = { ..._46,
+    ..._47
   };
 }

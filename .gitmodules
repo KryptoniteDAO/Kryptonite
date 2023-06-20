@@ -10,3 +10,6 @@
 [submodule "swap-extention"]
 	path = swap-extention
 	url = git@github.com:KryptoniteDAO/swap-extention.git
+[submodule "krp-token-contracts"]
+    path = krp-token-contracts
+    url = git@github.com:KryptoniteDAO/krp-token-contracts.git

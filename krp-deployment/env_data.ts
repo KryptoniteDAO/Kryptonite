@@ -21,11 +21,13 @@ export const STAKING_ARTIFACTS_PATH = "../krp-staking-contracts/artifacts";
 export const MARKET_ARTIFACTS_PATH = "../krp-market-contracts/artifacts";
 export const CONVERT_ARTIFACTS_PATH = "../krp-basset-convert/artifacts";
 export const SWAP_EXTENSION_ARTIFACTS_PATH = "../swap-extention/artifacts";
+export const KPT_ARTIFACTS_PATH = "../krp-token-contracts/artifacts";
 
 export const STAKING_MODULE_NAME = "staking";
 export const MARKET_MODULE_NAME = "market";
 export const CONVERT_MODULE_NAME = "convert";
 export const SWAP_EXTENSION_MODULE_NAME = "swap-extention";
+export const KPT_MODULE_NAME = "kpt";
 
 export const DEPLOY_VERSION = process.env.DEPLOY_VERSION || "00_00_01";
 

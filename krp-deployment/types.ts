@@ -64,9 +64,9 @@ export interface ClientData {
   gasPrice?: GasPrice;
 }
 
-type InitialBalance = {
-  address: string;
-  amount: string;
+export type InitialBalance = {
+  address?: string;
+  amount?: string;
 };
 
 export interface DeployContract {
@@ -91,7 +91,7 @@ export interface BaseContract {
 }
 
 export interface HubContract extends BaseContract {
-  initMsg: {
+  initMsg?: {
     epoch_period: number;
     er_threshold: string;
     peg_recovery_fee: string;
@@ -100,13 +100,13 @@ export interface HubContract extends BaseContract {
 }
 
 export interface RewardContract extends BaseContract {
-  initMsg: {
+  initMsg?: {
     owner: string;
   };
 }
 
 export interface BSeiTokenContract extends BaseContract {
-  initMsg: {
+  initMsg?: {
     name: string;
     symbol: string;
     decimals: number;
@@ -115,7 +115,7 @@ export interface BSeiTokenContract extends BaseContract {
 }
 
 export interface RewardsDispatcherContract extends BaseContract {
-  initMsg: {
+  initMsg?: {
     lido_fee_address: string;
     lido_fee_rate: string;
   };
@@ -127,13 +127,13 @@ export interface Registry {
 }
 
 export interface ValidatorsRegistryContract extends BaseContract {
-  initMsg: {
+  initMsg?: {
     registry: Registry[];
   };
 }
 
 export interface StSeiTokenContract extends BaseContract {
-  initMsg: {
+  initMsg?: {
     name: string;
     symbol: string;
     decimals: number;
@@ -142,7 +142,7 @@ export interface StSeiTokenContract extends BaseContract {
 }
 
 export interface MarketContract extends BaseContract {
-  initMsg: {
+  initMsg?: {
     owner_addr: string;
     anc_emission_rate: string;
     max_borrow_factor: string;
@@ -151,7 +151,7 @@ export interface MarketContract extends BaseContract {
 }
 
 export interface InterestModelContract extends BaseContract {
-  initMsg: {
+  initMsg?: {
     owner: string;
     base_rate: string;
     interest_multiplier: string;
@@ -159,7 +159,7 @@ export interface InterestModelContract extends BaseContract {
 }
 
 export interface DistributionModelContract extends BaseContract {
-  initMsg: {
+  initMsg?: {
     owner: string;
     decrement_multiplier: string;
     emission_cap: string;
@@ -169,13 +169,13 @@ export interface DistributionModelContract extends BaseContract {
 }
 
 export interface OracleContract extends BaseContract {
-  initMsg: {
+  initMsg?: {
     owner: string;
   };
 }
 
 export interface OverseerContract extends BaseContract {
-  initMsg: {
+  initMsg?: {
     owner_addr: string;
     collector_contract: string;
     anc_purchase_factor: string;
@@ -198,7 +198,7 @@ export interface OverseerContract extends BaseContract {
 }
 
 export interface LiquidationQueueContract extends BaseContract {
-  initMsg: {
+  initMsg?: {
     owner: string;
     safe_ratio: string;
     bid_fee: string;
@@ -215,26 +215,26 @@ export interface LiquidationQueueContract extends BaseContract {
 }
 
 export interface CustodyBSeiContract extends BaseContract {
-  initMsg: {
+  initMsg?: {
     owner: string;
     basset_info: TokenInfo;
   };
 }
 
 export interface OraclePythContract extends BaseContract {
-  initMsg: {
+  initMsg?: {
     owner: string;
     pyth_contract: string;
   };
 }
 
 export interface ConvertConverterContract extends BaseContract {
-  initMsg: {
+  initMsg?: {
     owner: string;
   };
 }
 export interface ConvertBtokenContract extends BaseContract {
-  initMsg: {
+  initMsg?: {
     name: string;
     symbol: string;
     decimals: number;
@@ -243,7 +243,7 @@ export interface ConvertBtokenContract extends BaseContract {
   };
 }
 export interface ConvertCustodyContract extends BaseContract {
-  initMsg: {
+  initMsg?: {
     owner: string;
     basset_info: TokenInfo;
   };
@@ -256,21 +256,90 @@ export interface ConvertPairs {
   btoken: ConvertBtokenContract;
   custody: ConvertCustodyContract;
   overseerWhitelistConfig?: {
-    name?: string
-    symbol?: string
-    max_ltv?: string
-  },
+    name?: string;
+    symbol?: string;
+    max_ltv?: string;
+  };
   liquidationQueueWhitelistCollateralConfig?: {
-    bid_threshold?: string
-    max_slot?: number
-    premium_rate_per_slot?: string
-  }
+    bid_threshold?: string;
+    max_slot?: number;
+    premium_rate_per_slot?: string;
+  };
 }
 
 export interface SwapExtentionContract extends BaseContract {
-  initMsg: {
+  initMsg?: {
     owner: string;
   };
+}
+
+export interface KptContract extends BaseContract {
+  initMsg?: {
+    cw20_init_msg: {
+      name: string;
+      symbol: string;
+      decimals: number;
+      initial_balances: InitialBalance[];
+    };
+    max_supply: string;
+    gov?: string;
+  };
+}
+
+export interface KptFundContract extends BaseContract {
+  initMsg?: {
+    gov?: string;
+    kusd_denom?: string;
+    kusd_reward_addr?: string;
+    exit_cycle?: string;
+    claim_able_time?: string;
+  };
+}
+
+export interface VeKptContract extends BaseContract {
+  initMsg?: {
+    cw20_init_msg: {
+      name: string;
+      symbol: string;
+      decimals: number;
+      initial_balances: InitialBalance[];
+    };
+    max_supply: string;
+    max_minted: string;
+    gov?: string;
+  };
+}
+
+export interface VeKptBoostLockSetting {
+  duration: string;
+  mining_boost: string;
+}
+export interface VeKptBoostContract extends BaseContract {
+  initMsg?: {
+    gov?: string;
+    ve_kpt_lock_settings: VeKptBoostLockSetting[];
+  };
+}
+
+export interface VeKptMinerContract extends BaseContract {
+  initMsg?: {
+    gov?: string;
+    // kusd_denom: string;
+    // kusd_reward_addr: string;
+    duration: string;
+    lockdown_period: string;
+    extra_rate?: string;
+  };
+}
+
+export interface StakingRewardsContract extends BaseContract {
+  initMsg?: {};
+}
+
+export interface StakingRewardsPairs {
+  name?: string;
+  staking_token?: string;
+  stakingRewards?: StakingRewardsContract;
 }
 
 export interface Config {
@@ -297,6 +366,13 @@ export interface Config {
   convertPairs: ConvertPairs[];
 
   swapExtention: SwapExtentionContract;
+
+  kpt?: KptContract;
+  kptFund?: KptFundContract;
+  veKpt?: VeKptContract;
+  veKptBoost?: VeKptBoostContract;
+  veKptMiner?: VeKptMinerContract;
+  stakingRewardsPairs?: StakingRewardsPairs[];
 }
 
 export interface SwapDeployContracts {
@@ -334,4 +410,19 @@ export interface ConvertPairsDeployContracts {
 
 export interface ConvertDeployContracts {
   convertPairs?: ConvertPairsDeployContracts[];
+}
+
+export interface StakingRewardsPairsDeployContracts {
+  name?: string;
+  staking_token?: string;
+  stakingRewards?: DeployContract;
+}
+
+export interface KptDeployContracts {
+  kpt?: DeployContract;
+  kptFund?: DeployContract;
+  veKpt?: DeployContract;
+  veKptBoost?: DeployContract;
+  veKptMiner?: DeployContract;
+  stakingRewardsPairs?: StakingRewardsPairsDeployContracts[];
 }
