@@ -149,6 +149,11 @@ export interface StakingRewardsInterface {
     duration: Uint128;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   getReward: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  withdraw: ({
+    amount
+  }: {
+    amount: Uint128;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   notifyRewardAmount: ({
     amount
   }: {
@@ -168,6 +173,7 @@ export class StakingRewardsClient implements StakingRewardsInterface {
     this.updateStakingConfig = this.updateStakingConfig.bind(this);
     this.updateStakingState = this.updateStakingState.bind(this);
     this.getReward = this.getReward.bind(this);
+    this.withdraw = this.withdraw.bind(this);
     this.notifyRewardAmount = this.notifyRewardAmount.bind(this);
   }
 
@@ -228,6 +234,17 @@ export class StakingRewardsClient implements StakingRewardsInterface {
   getReward = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       get_reward: {}
+    }, fee, memo, _funds);
+  };
+  withdraw = async ({
+    amount
+  }: {
+    amount: Uint128;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      withdraw: {
+        amount
+      }
     }, fee, memo, _funds);
   };
   notifyRewardAmount = async ({

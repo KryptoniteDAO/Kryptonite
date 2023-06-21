@@ -33,6 +33,10 @@ export type ExecuteMsg = {
 } | {
   get_reward: {};
 } | {
+  withdraw: {
+    amount: Uint128;
+  };
+} | {
   notify_reward_amount: {
     amount: Uint128;
   };
