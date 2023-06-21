@@ -14,6 +14,10 @@ import { GetBoostConfigResponse } from "./contracts/VeKptBoost.types";
 import { GetMinerConfigResponse, GetMinerStateResponse } from "./contracts/VeKptMiner.types";
 import { StakingRewardsQueryClient } from "./contracts/StakingRewards.client";
 import { StakingConfigResponse, StakingStateResponse } from "./contracts/StakingRewards.types";
+import { BlindBoxQueryClient } from "./contracts/BlindBox.client";
+import { BlindBoxConfigLevelResponse, BlindBoxConfigResponse } from "./contracts/BlindBox.types";
+import { BlindBoxRewardQueryClient } from "./contracts/BlindBoxReward.client";
+import { BlindBoxConfigResponse as BlindBoxRewardConfigResponse } from "./contracts/BlindBoxReward.types";
 
 main().catch(console.error);
 
@@ -32,6 +36,8 @@ async function main(): Promise<void> {
   const kptFund: DeployContract = networkKpt?.kptFund;
   const veKptBoost: DeployContract = networkKpt?.veKptBoost;
   const veKptMiner: DeployContract = networkKpt?.veKptMiner;
+  const blindBox: DeployContract = networkKpt?.blindBox;
+  const blindBoxReward: DeployContract = networkKpt?.blindBoxReward;
   const stakingRewardsPairs: StakingRewardsPairsDeployContracts[] = networkKpt?.stakingRewardsPairs;
 
   if (kpt?.address) {
@@ -74,6 +80,20 @@ async function main(): Promise<void> {
     console.log(`\nQuery veKptMiner.address config ok. \n${JSON.stringify(configRes)}`);
     const minerStateResponse: GetMinerStateResponse = await veKptMinerQueryClient.getMinerState();
     console.log(`\nQuery veKptMiner.address getMinerState ok. \n${JSON.stringify(minerStateResponse)}`);
+  }
+
+  if (blindBox?.address) {
+    const blindBoxQueryClient = new BlindBoxQueryClient(walletData.signingCosmWasmClient, blindBox.address);
+    const configRes: BlindBoxConfigResponse = await blindBoxQueryClient.queryBlindBoxConfig();
+    console.log(`\nQuery blindBox.address config ok. \n${JSON.stringify(configRes)}`);
+    const configLevelRes: BlindBoxConfigLevelResponse = await blindBoxQueryClient.queryBlindBoxConfigLevel({ index: 0 });
+    console.log(`\nQuery blindBox.address queryBlindBoxConfigLevel ok. \n${JSON.stringify(configLevelRes)}`);
+  }
+
+  if (blindBoxReward?.address) {
+    const blindBoxRewardQueryClient = new BlindBoxRewardQueryClient(walletData.signingCosmWasmClient, blindBoxReward.address);
+    const configRes: BlindBoxRewardConfigResponse = await blindBoxRewardQueryClient.queryBlindBoxConfig();
+    console.log(`\nQuery blindBoxReward.address config ok. \n${JSON.stringify(configRes)}`);
   }
 
   if (stakingRewardsPairs && stakingRewardsPairs.length >= 0) {

@@ -1,5 +1,5 @@
 import { chainConfigs, DEPLOY_VERSION, KPT_MODULE_NAME, KPT_ARTIFACTS_PATH } from "../env_data";
-import { ChainId, ConvertPairs, DeployContract, InitialBalance, KptDeployContracts, StakingRewardsPairs, StakingRewardsPairsDeployContracts, WalletData } from "../types";
+import { ChainId, ConvertPairs, DeployContract, InitialBalance, KptDeployContracts, RewardTokenConfigMsg, StakingRewardsPairs, StakingRewardsPairsDeployContracts, WalletData } from "../types";
 import { instantiateContractByWalletData, readArtifact, storeCodeByWalletData, writeArtifact } from "../common";
 import { KptFundClient, KptFundQueryClient } from "../contracts/KptFund.client";
 import { KptFundConfigResponse } from "../contracts/KptFund.types";
@@ -19,12 +19,22 @@ export const KptStakingRewardsConfigList: Record<string, KptStakingRewardsConfig
       name: "TEST1",
       staking_token: "sei1973hq2vajasc2uvxhdn3kfq27w3cvksyysspnrwq3swyu7t37caq2eana6",
       duration: "2592000"
+    },
+    {
+      name: "TEST2",
+      staking_token: "sei1e9ac92wc2ahh36ew8mdfvrlgntk8nqtcycc3d7qr4xrn3xuk8h8skngqtt",
+      duration: "2592000"
     }
   ],
   [ChainId.ATLANTIC_2]: [
     {
       name: "TEST1",
       staking_token: "sei1973hq2vajasc2uvxhdn3kfq27w3cvksyysspnrwq3swyu7t37caq2eana6",
+      duration: "2592000"
+    },
+    {
+      name: "TEST2",
+      staking_token: "sei1e9ac92wc2ahh36ew8mdfvrlgntk8nqtcycc3d7qr4xrn3xuk8h8skngqtt",
       duration: "2592000"
     }
   ]
@@ -264,6 +274,71 @@ export async function deployVeKptMiner(walletData: WalletData, networkKpt: KptDe
   }
 }
 
+export async function deployBlindBox(walletData: WalletData, networkKpt: KptDeployContracts): Promise<void> {
+  if (!networkKpt?.blindBox?.address) {
+    if (!networkKpt?.blindBox) {
+      networkKpt.blindBox = {};
+    }
+
+    if (!networkKpt?.blindBox?.codeId || networkKpt?.blindBox?.codeId <= 0) {
+      const filePath = chainConfigs?.blindBox?.filePath || "../krp-token-contracts/artifacts/blind_box.wasm";
+      networkKpt.blindBox.codeId = await storeCodeByWalletData(walletData, filePath);
+      kptWriteArtifact(networkKpt, walletData.chainId);
+    }
+    if (networkKpt?.blindBox?.codeId > 0) {
+      const admin = chainConfigs?.blindBox?.admin || walletData.address;
+      const label = chainConfigs?.blindBox?.label ?? "blindBox";
+      const initMsg = Object.assign({}, chainConfigs?.blindBox?.initMsg);
+      networkKpt.blindBox.address = await instantiateContractByWalletData(walletData, admin, networkKpt.blindBox.codeId, initMsg, label);
+      kptWriteArtifact(networkKpt, walletData.chainId);
+      chainConfigs.blindBox.deploy = true;
+    }
+    console.log(`blindBox: `, JSON.stringify(networkKpt?.blindBox));
+  }
+}
+
+export async function deployBlindBoxReward(walletData: WalletData, networkKpt: KptDeployContracts): Promise<void> {
+  const kpt: DeployContract | undefined = networkKpt?.kpt;
+  const veKpt: DeployContract | undefined = networkKpt?.veKpt;
+  const blindBox: DeployContract | undefined = networkKpt?.blindBox;
+  if (!kpt?.address || !veKpt?.address || !blindBox?.address) {
+    return;
+  }
+
+  if (!networkKpt?.blindBoxReward?.address) {
+    if (!networkKpt?.blindBoxReward) {
+      networkKpt.blindBoxReward = {};
+    }
+
+    if (!networkKpt?.blindBoxReward?.codeId || networkKpt?.blindBoxReward?.codeId <= 0) {
+      const filePath = chainConfigs?.blindBoxReward?.filePath || "../krp-token-contracts/artifacts/blind_box_reward.wasm";
+      networkKpt.blindBoxReward.codeId = await storeCodeByWalletData(walletData, filePath);
+      kptWriteArtifact(networkKpt, walletData.chainId);
+    }
+    if (networkKpt?.blindBoxReward?.codeId > 0) {
+      const admin = chainConfigs?.blindBoxReward?.admin || walletData.address;
+      const label = chainConfigs?.blindBoxReward?.label ?? "blindBoxReward";
+      const reward_token_map_msgs: RewardTokenConfigMsg[] | undefined = chainConfigs?.blindBoxReward?.initMsg?.reward_token_map_msgs;
+      reward_token_map_msgs?.map(value => {
+        if (value.reward_token) {
+          value.reward_token = value.reward_token.replaceAll("%kpt_address%", kpt.address).replaceAll("%ve_kpt_address%", veKpt.address);
+        }
+      });
+
+      const initMsg = Object.assign(
+        {
+          nft_contract: blindBox.address
+        },
+        chainConfigs?.blindBoxReward?.initMsg
+      );
+      networkKpt.blindBoxReward.address = await instantiateContractByWalletData(walletData, admin, networkKpt.blindBoxReward.codeId, initMsg, label);
+      kptWriteArtifact(networkKpt, walletData.chainId);
+      chainConfigs.blindBoxReward.deploy = true;
+    }
+    console.log(`blindBoxReward: `, JSON.stringify(networkKpt?.blindBoxReward));
+  }
+}
+
 export async function doKptUpdateConfig(walletData: WalletData, kpt: DeployContract, kptFund: DeployContract, print: boolean = true): Promise<any> {
   print && console.log();
   print && console.log(`Do kpt.address update_config enter.`);
@@ -343,17 +418,16 @@ export async function printDeployedKptContracts(networkKpt: KptDeployContracts):
     // { name: `stakingRewards`, deploy: chainConfigs?.stakingRewards?.deploy, codeId: networkKpt?.stakingRewards?.codeId || 0, address: networkKpt?.stakingRewards?.address },
     { name: `veKpt`, deploy: chainConfigs?.veKpt?.deploy, codeId: networkKpt?.veKpt?.codeId || 0, address: networkKpt?.veKpt?.address },
     { name: `veKptBoost`, deploy: chainConfigs?.veKptBoost?.deploy, codeId: networkKpt?.veKptBoost?.codeId || 0, address: networkKpt?.veKptBoost?.address },
-    { name: `veKptMiner`, deploy: chainConfigs?.veKptMiner?.deploy, codeId: networkKpt?.veKptMiner?.codeId || 0, address: networkKpt?.veKptMiner?.address }
+    { name: `veKptMiner`, deploy: chainConfigs?.veKptMiner?.deploy, codeId: networkKpt?.veKptMiner?.codeId || 0, address: networkKpt?.veKptMiner?.address },
+    { name: `blindBox`, deploy: chainConfigs?.blindBox?.deploy, codeId: networkKpt?.blindBox?.codeId || 0, address: networkKpt?.blindBox?.address },
+    { name: `blindBoxReward`, deploy: chainConfigs?.blindBoxReward?.deploy, codeId: networkKpt?.blindBoxReward?.codeId || 0, address: networkKpt?.blindBoxReward?.address }
   ];
   console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
 }
 
 export async function printDeployedKptStakingContracts(networkKpt: KptDeployContracts): Promise<void> {
   console.log();
-  console.log(`--- --- deployed kpt staking contracts info --- ---`);
-  if (!chainConfigs?.stakingRewardsPairs || chainConfigs?.stakingRewardsPairs?.length <= 0) {
-    return;
-  }
+  console.log(`--- --- deployed kpt:staking contracts info --- ---`);
   if (!networkKpt?.stakingRewardsPairs || networkKpt?.stakingRewardsPairs?.length <= 0) {
     return;
   }
@@ -361,8 +435,7 @@ export async function printDeployedKptStakingContracts(networkKpt: KptDeployCont
   for (const stakingRewardsPairs of networkKpt?.stakingRewardsPairs) {
     const stakingRewardsPairsConfig: StakingRewardsPairs = chainConfigs?.stakingRewardsPairs?.find((v: StakingRewardsPairs) => stakingRewardsPairs?.staking_token === v.staking_token);
     tableData.push({
-      name: `stakingRewards`,
-      tokenName: stakingRewardsPairs?.name,
+      name: stakingRewardsPairs?.name,
       stakingToken: stakingRewardsPairs?.staking_token,
       deploy: stakingRewardsPairsConfig?.stakingRewards?.deploy ?? false,
       codeId: stakingRewardsPairs?.stakingRewards?.codeId || 0,
@@ -370,5 +443,5 @@ export async function printDeployedKptStakingContracts(networkKpt: KptDeployCont
     });
   }
 
-  console.table(tableData, [`name`, `tokenName`, `stakingToken`, `codeId`, `address`, `deploy`]);
+  console.table(tableData, [`name`, `stakingToken`, `codeId`, `address`, `deploy`]);
 }

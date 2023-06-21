@@ -1,7 +1,19 @@
 import { printChangeBalancesByWalletData } from "./common";
 import { loadingWalletData } from "./env_data";
 import type { KptDeployContracts, WalletData } from "./types";
-import { deployKpt, deployKptFund, deployVeKpt, deployVeKptBoost, deployVeKptMiner, doKptUpdateConfig, doVeKptUpdateConfig, kptReadArtifact, printDeployedKptContracts } from "./modules/kpt";
+import {
+  deployBlindBox,
+  deployBlindBoxReward,
+  deployKpt,
+  deployKptFund,
+  deployVeKpt,
+  deployVeKptBoost,
+  deployVeKptMiner,
+  doKptUpdateConfig,
+  doVeKptUpdateConfig,
+  kptReadArtifact,
+  printDeployedKptContracts
+} from "./modules/kpt";
 
 main().catch(console.error);
 
@@ -25,6 +37,8 @@ async function main(): Promise<void> {
   await deployKptFund(walletData, networkKpt);
   await deployVeKptBoost(walletData, networkKpt);
   await deployVeKptMiner(walletData, networkKpt);
+  await deployBlindBox(walletData, networkKpt);
+  await deployBlindBoxReward(walletData, networkKpt);
 
   console.log();
   console.log(`--- --- kpt contracts storeCode & instantiateContract end --- ---`);

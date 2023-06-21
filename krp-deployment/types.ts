@@ -13,6 +13,8 @@ export enum ChainId {
   "atlantic-2" = "atlantic-2"
 }
 
+export type Addr = string;
+
 export type Balance = {
   address: string;
   balance: any;
@@ -342,6 +344,43 @@ export interface StakingRewardsPairs {
   stakingRewards?: StakingRewardsContract;
 }
 
+export interface BlindBoxLevelMsg {
+  mint_total_count: number;
+  price: number;
+}
+export interface BlindBoxContract extends BaseContract {
+  initMsg?: {
+    gov?: Addr | null;
+    level_infos?: BlindBoxLevelMsg[] | null;
+    name: string;
+    nft_base_url: string;
+    nft_uri_suffix: string;
+    price_token: string;
+    start_mint_time?: number | null;
+    symbol: string;
+    token_id_prefix: string;
+  };
+}
+
+export interface RewardLevelConfigMsg {
+  reward_amount?: number | null;
+}
+
+export interface RewardTokenConfigMsg {
+  claimable_time?: number | null;
+  reward_levels?: RewardLevelConfigMsg[] | null;
+  reward_token: string;
+  total_reward_amount?: number | null;
+}
+
+export interface BlindBoxRewardContract extends BaseContract {
+  initMsg?: {
+    gov?: Addr | null;
+    // nft_contract: Addr;
+    reward_token_map_msgs: RewardTokenConfigMsg[];
+  };
+}
+
 export interface Config {
   validator: string;
   stable_coin_denom: string;
@@ -373,6 +412,8 @@ export interface Config {
   veKptBoost?: VeKptBoostContract;
   veKptMiner?: VeKptMinerContract;
   stakingRewardsPairs?: StakingRewardsPairs[];
+  blindBox?: BlindBoxContract;
+  blindBoxReward?: BlindBoxRewardContract;
 }
 
 export interface SwapDeployContracts {
@@ -425,4 +466,6 @@ export interface KptDeployContracts {
   veKptBoost?: DeployContract;
   veKptMiner?: DeployContract;
   stakingRewardsPairs?: StakingRewardsPairsDeployContracts[];
+  blindBox?: DeployContract;
+  blindBoxReward?: DeployContract;
 }
