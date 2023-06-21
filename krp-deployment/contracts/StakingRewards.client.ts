@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Uint128, Addr, InstantiateMsg, ExecuteMsg, Binary, Cw20ReceiveMsg, QueryMsg, EarnedResponse, GetBoostResponse, LastTimeRewardApplicableResponse, StakingConfigResponse, StakingStateResponse, RewardPerTokenResponse } from "./StakingRewards.types";
+import { Uint128, Addr, InstantiateMsg, ExecuteMsg, Binary, Cw20ReceiveMsg, QueryMsg, EarnedResponse, GetBoostResponse, GetUserRewardPerTokenPaidResponse, GetUserUpdatedAtResponse, LastTimeRewardApplicableResponse, StakingConfigResponse, StakingStateResponse, RewardPerTokenResponse } from "./StakingRewards.types";
 export interface StakingRewardsReadOnlyInterface {
   contractAddress: string;
   rewardPerToken: () => Promise<RewardPerTokenResponse>;
@@ -23,6 +23,16 @@ export interface StakingRewardsReadOnlyInterface {
   }) => Promise<EarnedResponse>;
   queryStakingConfig: () => Promise<StakingConfigResponse>;
   queryStakingState: () => Promise<StakingStateResponse>;
+  getUserUpdatedAt: ({
+    account
+  }: {
+    account: Addr;
+  }) => Promise<GetUserUpdatedAtResponse>;
+  getUserRewardPerTokenPaid: ({
+    account
+  }: {
+    account: Addr;
+  }) => Promise<GetUserRewardPerTokenPaidResponse>;
 }
 export class StakingRewardsQueryClient implements StakingRewardsReadOnlyInterface {
   client: CosmWasmClient;
@@ -37,6 +47,8 @@ export class StakingRewardsQueryClient implements StakingRewardsReadOnlyInterfac
     this.earned = this.earned.bind(this);
     this.queryStakingConfig = this.queryStakingConfig.bind(this);
     this.queryStakingState = this.queryStakingState.bind(this);
+    this.getUserUpdatedAt = this.getUserUpdatedAt.bind(this);
+    this.getUserRewardPerTokenPaid = this.getUserRewardPerTokenPaid.bind(this);
   }
 
   rewardPerToken = async (): Promise<RewardPerTokenResponse> => {
@@ -79,6 +91,28 @@ export class StakingRewardsQueryClient implements StakingRewardsReadOnlyInterfac
   queryStakingState = async (): Promise<StakingStateResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       query_staking_state: {}
+    });
+  };
+  getUserUpdatedAt = async ({
+    account
+  }: {
+    account: Addr;
+  }): Promise<GetUserUpdatedAtResponse> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      get_user_updated_at: {
+        account
+      }
+    });
+  };
+  getUserRewardPerTokenPaid = async ({
+    account
+  }: {
+    account: Addr;
+  }): Promise<GetUserRewardPerTokenPaidResponse> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      get_user_reward_per_token_paid: {
+        account
+      }
     });
   };
 }

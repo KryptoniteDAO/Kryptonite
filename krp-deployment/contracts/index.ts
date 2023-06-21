@@ -40,18 +40,22 @@ import * as _32 from "./BassetToken.types";
 import * as _33 from "./BassetToken.client";
 import * as _34 from "./SwapExtention.types";
 import * as _35 from "./SwapExtention.client";
-import * as _36 from "./Kpt.types";
-import * as _37 from "./Kpt.client";
-import * as _38 from "./KptFund.types";
-import * as _39 from "./KptFund.client";
-import * as _40 from "./StakingRewards.types";
-import * as _41 from "./StakingRewards.client";
-import * as _42 from "./VeKpt.types";
-import * as _43 from "./VeKpt.client";
-import * as _44 from "./VeKptBoost.types";
-import * as _45 from "./VeKptBoost.client";
-import * as _46 from "./VeKptMiner.types";
-import * as _47 from "./VeKptMiner.client";
+import * as _36 from "./BlindBox.types";
+import * as _37 from "./BlindBox.client";
+import * as _38 from "./BlindBoxReward.types";
+import * as _39 from "./BlindBoxReward.client";
+import * as _40 from "./Kpt.types";
+import * as _41 from "./Kpt.client";
+import * as _42 from "./KptFund.types";
+import * as _43 from "./KptFund.client";
+import * as _44 from "./StakingRewards.types";
+import * as _45 from "./StakingRewards.client";
+import * as _46 from "./VeKpt.types";
+import * as _47 from "./VeKpt.client";
+import * as _48 from "./VeKptBoost.types";
+import * as _49 from "./VeKptBoost.client";
+import * as _50 from "./VeKptMiner.types";
+import * as _51 from "./VeKptMiner.client";
 export namespace contracts {
   export const Hub = { ..._0,
     ..._1
@@ -107,22 +111,28 @@ export namespace contracts {
   export const SwapExtention = { ..._34,
     ..._35
   };
-  export const Kpt = { ..._36,
+  export const BlindBox = { ..._36,
     ..._37
   };
-  export const KptFund = { ..._38,
+  export const BlindBoxReward = { ..._38,
     ..._39
   };
-  export const StakingRewards = { ..._40,
+  export const Kpt = { ..._40,
     ..._41
   };
-  export const VeKpt = { ..._42,
+  export const KptFund = { ..._42,
     ..._43
   };
-  export const VeKptBoost = { ..._44,
+  export const StakingRewards = { ..._44,
     ..._45
   };
-  export const VeKptMiner = { ..._46,
+  export const VeKpt = { ..._46,
     ..._47
+  };
+  export const VeKptBoost = { ..._48,
+    ..._49
+  };
+  export const VeKptMiner = { ..._50,
+    ..._51
   };
 }

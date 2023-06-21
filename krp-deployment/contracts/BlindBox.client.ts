@@ -58,14 +58,14 @@ export interface BlindBoxReadOnlyInterface {
     tokenId
   }: {
     tokenId: string;
-  }) => Promise<any>;
+  }) => Promise<NftInfoResponseForNullable_Empty>;
   allNftInfo: ({
     includeExpired,
     tokenId
   }: {
     includeExpired?: boolean;
     tokenId: string;
-  }) => Promise<any>;
+  }) => Promise<AllNftInfoResponseForNullable_Empty>;
   tokens: ({
     limit,
     owner,
@@ -215,7 +215,7 @@ export class BlindBoxQueryClient implements BlindBoxReadOnlyInterface {
     tokenId
   }: {
     tokenId: string;
-  }): Promise<any> => {
+  }): Promise<NftInfoResponseForNullable_Empty> => {
     return this.client.queryContractSmart(this.contractAddress, {
       nft_info: {
         token_id: tokenId
@@ -228,7 +228,7 @@ export class BlindBoxQueryClient implements BlindBoxReadOnlyInterface {
   }: {
     includeExpired?: boolean;
     tokenId: string;
-  }): Promise<any> => {
+  }): Promise<AllNftInfoResponseForNullable_Empty> => {
     return this.client.queryContractSmart(this.contractAddress, {
       all_nft_info: {
         include_expired: includeExpired,

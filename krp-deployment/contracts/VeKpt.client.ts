@@ -305,11 +305,11 @@ export interface VeKptInterface {
   updateConfig: ({
     gov,
     kptFund,
-    maxSupply
+    maxMinted
   }: {
     gov?: Addr;
     kptFund?: Addr;
-    maxSupply?: Uint128;
+    maxMinted?: Uint128;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   setMinters: ({
     contracts,
@@ -437,17 +437,17 @@ export class VeKptClient implements VeKptInterface {
   updateConfig = async ({
     gov,
     kptFund,
-    maxSupply
+    maxMinted
   }: {
     gov?: Addr;
     kptFund?: Addr;
-    maxSupply?: Uint128;
+    maxMinted?: Uint128;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
         gov,
         kpt_fund: kptFund,
-        max_supply: maxSupply
+        max_minted: maxMinted
       }
     }, fee, memo, _funds);
   };

@@ -59,12 +59,26 @@ export type QueryMsg = {
   query_staking_config: {};
 } | {
   query_staking_state: {};
+} | {
+  get_user_updated_at: {
+    account: Addr;
+  };
+} | {
+  get_user_reward_per_token_paid: {
+    account: Addr;
+  };
 };
 export interface EarnedResponse {
   earned: Uint128;
 }
 export interface GetBoostResponse {
   boost: Uint128;
+}
+export interface GetUserRewardPerTokenPaidResponse {
+  reward_per_token_paid: Uint128;
+}
+export interface GetUserUpdatedAtResponse {
+  updated_at: Uint128;
 }
 export interface LastTimeRewardApplicableResponse {
   last_time_reward_applicable: Uint128;
