@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { StdFee } from "@cosmjs/amino";
-import { Uint128, Addr, InstantiateMsg, ExecuteMsg, QueryMsg, EarnedResponse, GetBoostResponse, GetMinerConfigResponse, GetMinerStateResponse, LastTimeRewardApplicableResponse, RewardPerTokenResponse, BalanceResponse, Coin } from "./VeKptMiner.types";
+import { Uint128, Addr, InstantiateMsg, ExecuteMsg, QueryMsg, EarnedResponse, GetBoostResponse, GetMinerConfigResponse, Uint256, GetMinerStateResponse, LastTimeRewardApplicableResponse, RewardPerTokenResponse, BalanceResponse, Coin } from "./VeKptMiner.types";
 export interface VeKptMinerReadOnlyInterface {
   contractAddress: string;
   stakedOf: ({

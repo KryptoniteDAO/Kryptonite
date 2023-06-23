@@ -308,6 +308,7 @@ export interface BlindBoxInterface {
     nftBaseUrl,
     nftUriSuffix,
     priceToken,
+    receiverPriceAddr,
     startMintTime,
     tokenIdPrefix
   }: {
@@ -315,6 +316,7 @@ export interface BlindBoxInterface {
     nftBaseUrl?: string;
     nftUriSuffix?: string;
     priceToken?: string;
+    receiverPriceAddr?: Addr;
     startMintTime?: number;
     tokenIdPrefix?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
@@ -410,6 +412,7 @@ export class BlindBoxClient implements BlindBoxInterface {
     nftBaseUrl,
     nftUriSuffix,
     priceToken,
+    receiverPriceAddr,
     startMintTime,
     tokenIdPrefix
   }: {
@@ -417,6 +420,7 @@ export class BlindBoxClient implements BlindBoxInterface {
     nftBaseUrl?: string;
     nftUriSuffix?: string;
     priceToken?: string;
+    receiverPriceAddr?: Addr;
     startMintTime?: number;
     tokenIdPrefix?: string;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
@@ -426,6 +430,7 @@ export class BlindBoxClient implements BlindBoxInterface {
         nft_base_url: nftBaseUrl,
         nft_uri_suffix: nftUriSuffix,
         price_token: priceToken,
+        receiver_price_addr: receiverPriceAddr,
         start_mint_time: startMintTime,
         token_id_prefix: tokenIdPrefix
       }

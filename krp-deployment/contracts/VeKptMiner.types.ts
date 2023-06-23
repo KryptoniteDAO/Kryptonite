@@ -86,13 +86,14 @@ export interface GetMinerConfigResponse {
   ve_kpt_addr: Addr;
   ve_kpt_boost_addr: Addr;
 }
+export type Uint256 = string;
 export interface GetMinerStateResponse {
   duration: Uint128;
   extra_rate: Uint128;
   finish_at: Uint128;
   lockdown_period: Uint128;
   reward_per_token_stored: Uint128;
-  reward_rate: Uint128;
+  reward_rate: Uint256;
   updated_at: Uint128;
 }
 export interface LastTimeRewardApplicableResponse {

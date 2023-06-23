@@ -12,6 +12,7 @@ export interface InstantiateMsg {
   nft_base_url: string;
   nft_uri_suffix: string;
   price_token: string;
+  receiver_price_addr: Addr;
   start_mint_time?: number | null;
   symbol: string;
   token_id_prefix: string;
@@ -26,6 +27,7 @@ export type ExecuteMsg = {
     nft_base_url?: string | null;
     nft_uri_suffix?: string | null;
     price_token?: string | null;
+    receiver_price_addr?: Addr | null;
     start_mint_time?: number | null;
     token_id_prefix?: string | null;
   };
@@ -201,6 +203,7 @@ export interface BlindBoxConfigResponse {
   nft_base_url: string;
   nft_uri_suffix: string;
   price_token: string;
+  receiver_price_addr: Addr;
   start_mint_time: number;
   token_id_index: number;
   token_id_prefix: string;

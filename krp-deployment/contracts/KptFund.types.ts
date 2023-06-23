@@ -67,6 +67,26 @@ export type QueryMsg = {
   get_claim_able_kusd: {
     account: Addr;
   };
+} | {
+  get_user_reward_per_token_paid: {
+    account: Addr;
+  };
+} | {
+  get_user_rewards: {
+    account: Addr;
+  };
+} | {
+  get_user_time2full_redemption: {
+    account: Addr;
+  };
+} | {
+  get_user_unstake_rate: {
+    account: Addr;
+  };
+} | {
+  get_user_last_withdraw_time: {
+    account: Addr;
+  };
 };
 export interface EarnedResponse {
   amount: Uint128;
@@ -79,6 +99,19 @@ export interface GetClaimAbleKusdResponse {
 }
 export interface GetReservedKptForVestingResponse {
   amount: Uint128;
+}
+export interface UserLastWithdrawTimeResponse {
+  user_last_withdraw_time: Uint64;
+}
+export interface UserRewardPerTokenPaidResponse {
+  user_reward_per_token_paid: Uint128;
+}
+export interface UserTime2FullRedemptionResponse {
+  user_time2full_redemption: Uint64;
+}
+export type Uint256 = string;
+export interface UserUnstakeRateResponse {
+  user_unstake_rate: Uint256;
 }
 export interface KptFundConfigResponse {
   claim_able_time: Uint64;

@@ -71,7 +71,14 @@ export type QueryMsg = {
   get_user_reward_per_token_paid: {
     account: Addr;
   };
+} | {
+  balance_of: {
+    account: Addr;
+  };
 };
+export interface BalanceOfResponse {
+  balance_of: Uint128;
+}
 export interface EarnedResponse {
   earned: Uint128;
 }
@@ -95,11 +102,12 @@ export interface StakingConfigResponse {
   staking_token: Addr;
   ve_kpt_boost: Addr;
 }
+export type Uint256 = string;
 export interface StakingStateResponse {
   duration: Uint128;
   finish_at: Uint128;
   reward_per_token_stored: Uint128;
-  reward_rate: Uint128;
+  reward_rate: Uint256;
   total_supply: Uint128;
   updated_at: Uint128;
 }

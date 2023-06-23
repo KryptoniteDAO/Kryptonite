@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Uint128, Addr, InstantiateMsg, ExecuteMsg, Binary, Cw20ReceiveMsg, QueryMsg, EarnedResponse, GetBoostResponse, GetUserRewardPerTokenPaidResponse, GetUserUpdatedAtResponse, LastTimeRewardApplicableResponse, StakingConfigResponse, StakingStateResponse, RewardPerTokenResponse } from "./StakingRewards.types";
+import { Uint128, Addr, InstantiateMsg, ExecuteMsg, Binary, Cw20ReceiveMsg, QueryMsg, BalanceOfResponse, EarnedResponse, GetBoostResponse, GetUserRewardPerTokenPaidResponse, GetUserUpdatedAtResponse, LastTimeRewardApplicableResponse, StakingConfigResponse, Uint256, StakingStateResponse, RewardPerTokenResponse } from "./StakingRewards.types";
 export interface StakingRewardsReadOnlyInterface {
   contractAddress: string;
   rewardPerToken: () => Promise<RewardPerTokenResponse>;
@@ -33,6 +33,11 @@ export interface StakingRewardsReadOnlyInterface {
   }: {
     account: Addr;
   }) => Promise<GetUserRewardPerTokenPaidResponse>;
+  balanceOf: ({
+    account
+  }: {
+    account: Addr;
+  }) => Promise<BalanceOfResponse>;
 }
 export class StakingRewardsQueryClient implements StakingRewardsReadOnlyInterface {
   client: CosmWasmClient;
@@ -49,6 +54,7 @@ export class StakingRewardsQueryClient implements StakingRewardsReadOnlyInterfac
     this.queryStakingState = this.queryStakingState.bind(this);
     this.getUserUpdatedAt = this.getUserUpdatedAt.bind(this);
     this.getUserRewardPerTokenPaid = this.getUserRewardPerTokenPaid.bind(this);
+    this.balanceOf = this.balanceOf.bind(this);
   }
 
   rewardPerToken = async (): Promise<RewardPerTokenResponse> => {
@@ -111,6 +117,17 @@ export class StakingRewardsQueryClient implements StakingRewardsReadOnlyInterfac
   }): Promise<GetUserRewardPerTokenPaidResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       get_user_reward_per_token_paid: {
+        account
+      }
+    });
+  };
+  balanceOf = async ({
+    account
+  }: {
+    account: Addr;
+  }): Promise<BalanceOfResponse> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      balance_of: {
         account
       }
     });

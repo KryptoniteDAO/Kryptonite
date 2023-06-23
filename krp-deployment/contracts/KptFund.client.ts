@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Uint64, Addr, InstantiateMsg, ExecuteMsg, Uint128, QueryMsg, EarnedResponse, GetClaimAbleKptResponse, GetClaimAbleKusdResponse, GetReservedKptForVestingResponse, KptFundConfigResponse } from "./KptFund.types";
+import { Uint64, Addr, InstantiateMsg, ExecuteMsg, Uint128, QueryMsg, EarnedResponse, GetClaimAbleKptResponse, GetClaimAbleKusdResponse, GetReservedKptForVestingResponse, UserLastWithdrawTimeResponse, UserRewardPerTokenPaidResponse, UserTime2FullRedemptionResponse, Uint256, UserUnstakeRateResponse, KptFundConfigResponse } from "./KptFund.types";
 export interface KptFundReadOnlyInterface {
   contractAddress: string;
   kptFundConfig: () => Promise<KptFundConfigResponse>;
@@ -30,6 +30,31 @@ export interface KptFundReadOnlyInterface {
   }: {
     account: Addr;
   }) => Promise<GetClaimAbleKusdResponse>;
+  getUserRewardPerTokenPaid: ({
+    account
+  }: {
+    account: Addr;
+  }) => Promise<UserRewardPerTokenPaidResponse>;
+  getUserRewards: ({
+    account
+  }: {
+    account: Addr;
+  }) => Promise<UserRewardPerTokenPaidResponse>;
+  getUserTime2fullRedemption: ({
+    account
+  }: {
+    account: Addr;
+  }) => Promise<UserTime2FullRedemptionResponse>;
+  getUserUnstakeRate: ({
+    account
+  }: {
+    account: Addr;
+  }) => Promise<UserUnstakeRateResponse>;
+  getUserLastWithdrawTime: ({
+    account
+  }: {
+    account: Addr;
+  }) => Promise<UserLastWithdrawTimeResponse>;
 }
 export class KptFundQueryClient implements KptFundReadOnlyInterface {
   client: CosmWasmClient;
@@ -43,6 +68,11 @@ export class KptFundQueryClient implements KptFundReadOnlyInterface {
     this.getReservedKptForVesting = this.getReservedKptForVesting.bind(this);
     this.earned = this.earned.bind(this);
     this.getClaimAbleKusd = this.getClaimAbleKusd.bind(this);
+    this.getUserRewardPerTokenPaid = this.getUserRewardPerTokenPaid.bind(this);
+    this.getUserRewards = this.getUserRewards.bind(this);
+    this.getUserTime2fullRedemption = this.getUserTime2fullRedemption.bind(this);
+    this.getUserUnstakeRate = this.getUserUnstakeRate.bind(this);
+    this.getUserLastWithdrawTime = this.getUserLastWithdrawTime.bind(this);
   }
 
   kptFundConfig = async (): Promise<KptFundConfigResponse> => {
@@ -90,6 +120,61 @@ export class KptFundQueryClient implements KptFundReadOnlyInterface {
   }): Promise<GetClaimAbleKusdResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       get_claim_able_kusd: {
+        account
+      }
+    });
+  };
+  getUserRewardPerTokenPaid = async ({
+    account
+  }: {
+    account: Addr;
+  }): Promise<UserRewardPerTokenPaidResponse> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      get_user_reward_per_token_paid: {
+        account
+      }
+    });
+  };
+  getUserRewards = async ({
+    account
+  }: {
+    account: Addr;
+  }): Promise<UserRewardPerTokenPaidResponse> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      get_user_rewards: {
+        account
+      }
+    });
+  };
+  getUserTime2fullRedemption = async ({
+    account
+  }: {
+    account: Addr
+  }): Promise<UserTime2FullRedemptionResponse> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      get_user_time2full_redemption: {
+        account
+      }
+    });
+  };
+  getUserUnstakeRate = async ({
+    account
+  }: {
+    account: Addr;
+  }): Promise<UserUnstakeRateResponse> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      get_user_unstake_rate: {
+        account
+      }
+    });
+  };
+  getUserLastWithdrawTime = async ({
+    account
+  }: {
+    account: Addr;
+  }): Promise<UserLastWithdrawTimeResponse> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      get_user_last_withdraw_time: {
         account
       }
     });
