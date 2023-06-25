@@ -6,6 +6,7 @@ import { KptFundConfigResponse } from "../contracts/KptFund.types";
 import { KptClient, KptQueryClient } from "../contracts/Kpt.client";
 import { KptConfigResponse } from "../contracts/Kpt.types";
 import { VeKptClient, VeKptQueryClient } from "../contracts/VeKpt.client";
+import { IsMinterResponse } from "../contracts/VeKpt.types";
 
 export type KptStakingRewardsConfig = {
   name?: string;
@@ -407,6 +408,41 @@ export async function doVeKptUpdateConfig(walletData: WalletData, veKpt: DeployC
 
   const afterConfigRes = await veKptQueryClient.voteConfig();
   print && console.log(`config info: \n${JSON.stringify(afterConfigRes)}`);
+}
+
+export async function doVeKptSetMinters(walletData: WalletData, veKpt: DeployContract, stakingRewards: DeployContract, isMinter: boolean, print: boolean = true): Promise<any> {
+  print && console.log();
+  print && console.log(`Do veKpt.address setMinters enter.`);
+  if (!veKpt?.address || !stakingRewards?.address) {
+    console.log();
+    console.error("********* missing info!");
+    return;
+  }
+  const veKptClient: VeKptClient = new VeKptClient(walletData.signingCosmWasmClient, walletData.address, veKpt.address);
+  const veKptQueryClient: VeKptQueryClient = new VeKptQueryClient(walletData.signingCosmWasmClient, veKpt.address);
+
+  let beforeRes: IsMinterResponse = null;
+  let initFlag = true;
+  try {
+    beforeRes = await veKptQueryClient.isMinter({address: stakingRewards.address});
+  } catch (error: any) {
+    if (error?.toString().includes("minter not found")) {
+      initFlag = false;
+      console.error(`veKpt.address: need setMinters. stakingRewards: ${stakingRewards?.address}`);
+    } else {
+      throw new Error(error);
+    }
+  }
+
+  if (initFlag && beforeRes?.is_minter ) {
+    console.warn(`********* The veKpt.address minter is already done. stakingRewards: ${stakingRewards?.address}`);
+    return;
+  }
+  const doRes = await veKptClient.setMinters({ contracts: [stakingRewards.address], isMinter: [isMinter] });
+  console.log(`Do veKpt.address setMinters ok. \n${doRes?.transactionHash}`);
+
+  const afterRes = await veKptQueryClient.isMinter({address: stakingRewards.address});
+  print && console.log(`veKpt.address isMinter: ${stakingRewards?.address} / ${JSON.stringify(afterRes)}`);
 }
 
 export async function printDeployedKptContracts(networkKpt: KptDeployContracts): Promise<void> {

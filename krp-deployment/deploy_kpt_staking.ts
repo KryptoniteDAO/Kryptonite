@@ -1,12 +1,13 @@
 import { printChangeBalancesByWalletData } from "./common";
 import { loadingWalletData } from "./env_data";
 import type { KptDeployContracts, WalletData } from "./types";
-import { deployStakingRewards, kptReadArtifact, KptStakingRewardsConfigList, printDeployedKptStakingContracts } from "./modules/kpt";
+import { deployStakingRewards, doVeKptSetMinters, kptReadArtifact, KptStakingRewardsConfigList, printDeployedKptStakingContracts } from "./modules/kpt";
+import { StakingRewardsPairsDeployContracts } from "./types";
 
 main().catch(console.error);
 
 async function main(): Promise<void> {
-  console.log(`--- --- deploy kpt staking contracts enter --- ---`);
+  console.log(`--- --- deploy kpt:staking contracts enter --- ---`);
 
   const walletData: WalletData = await loadingWalletData();
 
@@ -17,7 +18,7 @@ async function main(): Promise<void> {
   const networkKpt = kptReadArtifact(walletData.chainId) as KptDeployContracts;
 
   console.log();
-  console.log(`--- --- kpt staking contracts storeCode & instantiateContract enter --- ---`);
+  console.log(`--- --- kpt:staking contracts storeCode & instantiateContract enter --- ---`);
   console.log();
 
   const chainIdKptStakingRewardsConfigList = KptStakingRewardsConfigList[walletData.chainId];
@@ -28,26 +29,30 @@ async function main(): Promise<void> {
   }
 
   console.log();
-  console.log(`--- --- kpt staking contracts storeCode & instantiateContract end --- ---`);
+  console.log(`--- --- kpt:staking contracts storeCode & instantiateContract end --- ---`);
 
   await printDeployedKptStakingContracts(networkKpt);
 
   // //////////////////////////////////////configure contracts///////////////////////////////////////////
 
   console.log();
-  console.log(`--- --- kpt staking contracts configure enter --- ---`);
+  console.log(`--- --- kpt:staking contracts configure enter --- ---`);
   const print: boolean = true;
 
-  // await doKptUpdateConfig(walletData, networkKpt?.kpt, networkKpt?.kptFund, print);
-  // await doVeKptUpdateConfig(walletData, networkKpt?.veKpt, networkKpt?.kptFund, print);
+  if (chainIdKptStakingRewardsConfigList && chainIdKptStakingRewardsConfigList.length > 0) {
+    for (const stakingRewardsConfig of chainIdKptStakingRewardsConfigList) {
+      const stakingRewardsPairsNetwork = networkKpt?.stakingRewardsPairs?.find((v: StakingRewardsPairsDeployContracts) => stakingRewardsConfig.staking_token === v.staking_token);
+      await doVeKptSetMinters(walletData, networkKpt?.veKpt, stakingRewardsPairsNetwork?.stakingRewards, true, print);
+    }
+  }
 
   console.log();
-  console.log(`--- --- kpt staking contracts configure end --- ---`);
+  console.log(`--- --- kpt:staking contracts configure end --- ---`);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   console.log();
-  console.log(`--- --- deploy kpt staking contracts end --- ---`);
+  console.log(`--- --- deploy kpt:staking contracts end --- ---`);
 
   console.log();
   await printChangeBalancesByWalletData(walletData);
