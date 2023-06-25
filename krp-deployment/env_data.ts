@@ -132,7 +132,7 @@ export async function loadingWalletData(): Promise<WalletData> {
 
   const addressList = [address, address2];
   const denomList = [nativeCurrency.coinMinimalDenom, stable_coin_denom];
-  const addressesBalances = await loadAddressesBalances(LCD_ENDPOINT, addressList, denomList);
+  const addressesBalances = await loadAddressesBalances({ signingStargateClient, signingCosmWasmClient } as WalletData, addressList, denomList);
 
   return {
     nativeCurrency,

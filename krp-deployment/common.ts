@@ -138,14 +138,21 @@ export async function sendTokens(clientData: ClientData, recipientAddress: strin
   return await clientData?.signingStargateClient?.sendTokens(clientData?.senderAddress, recipientAddress, coins, fee, memo);
 }
 
-export async function queryAddressBalance(LCD_ENDPOINT: string, address: string, denom: string) {
-  const queryClient = await getQueryClient(LCD_ENDPOINT);
-  return await queryClient.cosmos.bank.v1beta1.balance({ address, denom });
+// export async function queryAddressBalance(LCD_ENDPOINT: string, address: string, denom: string) {
+//   const queryClient = await getQueryClient(LCD_ENDPOINT);
+//   return await queryClient.cosmos.bank.v1beta1.balance({ address, denom });
+// }
+// export async function queryAddressAllBalances(LCD_ENDPOINT: string, address: string) {
+//   const queryClient = await getQueryClient(LCD_ENDPOINT);
+//   return await queryClient.cosmos.bank.v1beta1.allBalances({ address });
+// }
+
+export async function queryAddressBalance(walletData: WalletData, address: string, denom: string) {
+  return walletData.signingStargateClient?.getBalance(address, denom);
 }
 
-export async function queryAddressAllBalances(LCD_ENDPOINT: string, address: string) {
-  const queryClient = await getQueryClient(LCD_ENDPOINT);
-  return await queryClient.cosmos.bank.v1beta1.allBalances({ address });
+export async function queryAddressAllBalances(walletData: WalletData, address: string) {
+  return walletData.signingStargateClient?.getAllBalances(address);
 }
 
 export async function queryWasmContractByWalletData(walletData: WalletData, contractAddress: string, message: object) {
@@ -180,11 +187,11 @@ export async function queryStakingDelegations(LCD_ENDPOINT: string, delegatorAdd
   return await queryClient.cosmos.staking.v1beta1.delegation({ delegatorAddr, validatorAddr });
 }
 
-export async function loadAddressesBalances(LCD_ENDPOINT: string, addressList: string[], denomList: string[]): Promise<Balance[]> {
+export async function loadAddressesBalances(walletData: WalletData, addressList: string[], denomList: string[]): Promise<Balance[]> {
   let addressesBalances = [];
   for (let address of addressList) {
     for (let denom of denomList) {
-      addressesBalances.push({ address: address, balance: (await queryAddressBalance(LCD_ENDPOINT, address, denom)).balance });
+      addressesBalances.push({ address: address, balance: (await queryAddressBalance(walletData, address, denom)) });
     }
   }
 
@@ -199,10 +206,10 @@ export async function sendCoinToOtherAddress(walletData: WalletData, receiver: s
     return;
   }
   if (!senderBalance) {
-    senderBalance = (await queryAddressBalance(walletData.LCD_ENDPOINT, walletData.address, denom))?.balance?.amount;
+    senderBalance = (await queryAddressBalance(walletData, walletData.address, denom))?.amount;
   }
   if (!receiverBalance) {
-    receiverBalance = (await queryAddressBalance(walletData.LCD_ENDPOINT, receiver, denom))?.balance?.amount;
+    receiverBalance = (await queryAddressBalance(walletData, receiver, denom))?.amount;
   }
   const sendAmountValue = new Decimal(sendAmount).mul(new Decimal("10").pow(6)).toFixed(0, 1);
   if (senderBalance && receiverBalance && new Decimal(senderBalance).comparedTo(new Decimal(sendAmountValue)) > 0 && new Decimal(receiverBalance).comparedTo(new Decimal(sendAmountValue)) < 0) {
@@ -215,7 +222,7 @@ export async function sendCoinToOtherAddress(walletData: WalletData, receiver: s
 
 export async function printChangeBalancesByWalletData(walletData: WalletData) {
   const beforeAddressesBalances = walletData.addressesBalances;
-  const afterAddressesBalances = await loadAddressesBalances(walletData.LCD_ENDPOINT, walletData.addressList, walletData.denomList);
+  const afterAddressesBalances = await loadAddressesBalances(walletData, walletData.addressList, walletData.denomList);
   console.log();
   console.log(`addresses balance changes (after - before): `);
   for (let address of walletData.addressList) {

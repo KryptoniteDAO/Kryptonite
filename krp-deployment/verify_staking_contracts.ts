@@ -90,20 +90,20 @@ async function doHubBondForStsei(walletData: WalletData, nativeDenom: string, hu
   }
   console.log();
   console.warn(`Do hub.address bond_for_st_sei enter. nativeDenom: ${nativeDenom} / amount: ${amount}`);
-  const beforeNativeBalanceRes = await queryAddressBalance(walletData.LCD_ENDPOINT, walletData.address, nativeDenom);
-  if (new Decimal(beforeNativeBalanceRes?.balance?.amount ?? 0).comparedTo(new Decimal(amount)) < 0) {
+  const beforeNativeBalanceRes = await queryAddressBalance(walletData, walletData.address, nativeDenom);
+  if (new Decimal(beforeNativeBalanceRes?.amount ?? 0).comparedTo(new Decimal(amount)) < 0) {
     console.log();
-    console.error(`********* The nativeDenom balance is insufficient. ${amount} but ${beforeNativeBalanceRes?.balance?.amount ?? 0}`);
+    console.error(`********* The nativeDenom balance is insufficient. ${amount} but ${beforeNativeBalanceRes?.amount ?? 0}`);
     return;
   }
   const beforeTokenBalanceRes = await queryAddressTokenBalance(walletData.signingCosmWasmClient, walletData.address, stsei.address);
 
-  console.log(`before native balance: ${beforeNativeBalanceRes.balance.amount} ${nativeDenom}`);
+  console.log(`before native balance: ${beforeNativeBalanceRes.amount} ${nativeDenom}`);
   console.log(`before token balance: ${beforeTokenBalanceRes.balance} ${stsei.address}`);
   const doRes = await executeContractByWalletData(walletData, hub.address, { bond_for_st_sei: {} }, "bond native to stsei", coins(amount, nativeDenom));
   console.log(`Do hub.address bond_for_st_sei ok. nativeDenom: ${nativeDenom} / amount: ${amount} \n${doRes?.transactionHash}`);
-  const afterNativeBalanceRes = await queryAddressBalance(walletData.LCD_ENDPOINT, walletData.address, nativeDenom);
-  console.log(`after native balance: ${afterNativeBalanceRes.balance.amount} ${nativeDenom}`);
+  const afterNativeBalanceRes = await queryAddressBalance(walletData, walletData.address, nativeDenom);
+  console.log(`after native balance: ${afterNativeBalanceRes.amount} ${nativeDenom}`);
   const afterTokenBalanceRes = await queryAddressTokenBalance(walletData.signingCosmWasmClient, walletData.address, stsei.address);
   console.log(`after token balance: ${afterTokenBalanceRes.balance} ${stsei.address}`);
 }
@@ -119,20 +119,20 @@ async function doHubBondForBsei(walletData: WalletData, nativeDenom: string, hub
   }
   console.log();
   console.log(`Do hub.address bond native coin to bsei enter. nativeDenom: ${nativeDenom} / amount: ${amount}`);
-  const beforeNativeBalanceRes = await queryAddressBalance(walletData.LCD_ENDPOINT, walletData.address, nativeDenom);
-  if (new Decimal(beforeNativeBalanceRes?.balance?.amount ?? 0).comparedTo(new Decimal(amount)) < 0) {
+  const beforeNativeBalanceRes = await queryAddressBalance(walletData, walletData.address, nativeDenom);
+  if (new Decimal(beforeNativeBalanceRes?.amount ?? 0).comparedTo(new Decimal(amount)) < 0) {
     console.log();
-    console.error(`********* The nativeDenom balance is insufficient. ${amount} but ${beforeNativeBalanceRes?.balance?.amount ?? 0}`);
+    console.error(`********* The nativeDenom balance is insufficient. ${amount} but ${beforeNativeBalanceRes?.amount ?? 0}`);
     return;
   }
 
   const beforeTokenBalanceRes = await queryAddressTokenBalance(walletData.signingCosmWasmClient, walletData.address, bsei.address);
-  console.log(`before native balance: ${beforeNativeBalanceRes.balance.amount} ${nativeDenom}`);
+  console.log(`before native balance: ${beforeNativeBalanceRes?.amount} ${nativeDenom}`);
   console.log(`before token balance: ${beforeTokenBalanceRes.balance} ${bsei.address}`);
   const doRes = await executeContractByWalletData(walletData, hub.address, { bond: {} }, "bond native to bsei", coins(amount, nativeDenom));
   console.log(`Do hub.address bond native coin to bsei ok. \n${doRes?.transactionHash}`);
-  const afterNativeBalanceRes = await queryAddressBalance(walletData.LCD_ENDPOINT, walletData.address, nativeDenom);
-  console.log(`after native balance: ${afterNativeBalanceRes.balance.amount} ${nativeDenom}`);
+  const afterNativeBalanceRes = await queryAddressBalance(walletData, walletData.address, nativeDenom);
+  console.log(`after native balance: ${afterNativeBalanceRes?.amount} ${nativeDenom}`);
   const afterTokenBalanceRes = await queryAddressTokenBalance(walletData.signingCosmWasmClient, walletData.address, bsei.address);
   console.log(`after token balance: ${afterTokenBalanceRes.balance} ${bsei.address}`);
 }
@@ -190,13 +190,13 @@ async function doHubWithdrawUnbondedToNative(walletData: WalletData, nativeDenom
     console.error(`********* unable to withdraw`);
     return;
   }
-  const beforeNativeBalanceRes = await queryAddressBalance(walletData.LCD_ENDPOINT, walletData.address, nativeDenom);
-  console.log(`before native balance: ${beforeNativeBalanceRes.balance.amount} ${nativeDenom}`);
+  const beforeNativeBalanceRes = await queryAddressBalance(walletData, walletData.address, nativeDenom);
+  console.log(`before native balance: ${beforeNativeBalanceRes?.amount} ${nativeDenom}`);
 
   // const doRes = await executeContractByWalletData(walletData, hub.address, { withdraw_unbonded: {} });
   // console.log(`Do hub.address withdraw_unbonded ok. \n${doRes?.transactionHash}`);
-  const afterNativeBalanceRes = await queryAddressBalance(walletData.LCD_ENDPOINT, walletData.address, nativeDenom);
-  console.log(`after native balance: ${afterNativeBalanceRes.balance.amount} ${nativeDenom}`);
+  const afterNativeBalanceRes = await queryAddressBalance(walletData, walletData.address, nativeDenom);
+  console.log(`after native balance: ${afterNativeBalanceRes.amount} ${nativeDenom}`);
   const afterWithdrawAbleRes = await queryWasmContractByWalletData(walletData, hub.address, { withdrawable_unbonded: { address: walletData.address } });
   console.log(`Query hub.address withdrawable_unbonded ok. \n${JSON.stringify(afterWithdrawAbleRes)}`);
 }
@@ -213,14 +213,14 @@ async function doHubUpdateRewards(walletData: WalletData, nativeDenom: string, h
   console.log();
   console.log(`Do hub.address update_global_index enter. nativeDenom: ${nativeDenom} / amount: ${amount}`);
 
-  const beforeRewardsDemonBalanceRes = await queryAddressBalance(walletData.LCD_ENDPOINT, walletData.address, rewardDemon);
-  if (new Decimal(beforeRewardsDemonBalanceRes?.balance?.amount ?? 0).comparedTo(new Decimal(amount)) < 0) {
+  const beforeRewardsDemonBalanceRes = await queryAddressBalance(walletData, walletData.address, rewardDemon);
+  if (new Decimal(beforeRewardsDemonBalanceRes?.amount ?? 0).comparedTo(new Decimal(amount)) < 0) {
     console.log();
-    console.error(`********* The rewardDemon balance is insufficient. ${amount} but ${beforeRewardsDemonBalanceRes?.balance?.amount ?? 0}`);
+    console.error(`********* The rewardDemon balance is insufficient. ${amount} but ${beforeRewardsDemonBalanceRes?.amount ?? 0}`);
     return;
   }
 
-  console.log(`before rewardDemon balance: ${beforeRewardsDemonBalanceRes.balance.amount} ${rewardDemon}`);
+  console.log(`before rewardDemon balance: ${beforeRewardsDemonBalanceRes?.amount} ${rewardDemon}`);
   const doRes = await executeContractByWalletData(
     walletData,
     hub.address,
@@ -232,8 +232,8 @@ async function doHubUpdateRewards(walletData: WalletData, nativeDenom: string, h
   );
   console.log(`Do hub.address update_global_index ok. \n${doRes?.transactionHash}`);
 
-  const afterRewardsDemonBalanceRes = await queryAddressBalance(walletData.LCD_ENDPOINT, walletData.address, rewardDemon);
-  console.log(`after rewardDemon balance: ${afterRewardsDemonBalanceRes.balance.amount} ${rewardDemon}`);
+  const afterRewardsDemonBalanceRes = await queryAddressBalance(walletData, walletData.address, rewardDemon);
+  console.log(`after rewardDemon balance: ${afterRewardsDemonBalanceRes?.amount} ${rewardDemon}`);
 }
 
 async function doClaimRewards(walletData: WalletData, nativeDenom: string, reward: DeployContract, rewardDemon: string): Promise<void> {
@@ -252,8 +252,8 @@ async function doClaimRewards(walletData: WalletData, nativeDenom: string, rewar
     return;
   }
 
-  const beforeRewardsDemonBalanceRes = await queryAddressBalance(walletData.LCD_ENDPOINT, walletData.address, rewardDemon);
-  console.log(`before rewardDemon balance: ${beforeRewardsDemonBalanceRes.balance.amount} ${rewardDemon}`);
+  const beforeRewardsDemonBalanceRes = await queryAddressBalance(walletData, walletData.address, rewardDemon);
+  console.log(`before rewardDemon balance: ${beforeRewardsDemonBalanceRes?.amount} ${rewardDemon}`);
   const doRes = await executeContractByWalletData(
     walletData,
     reward.address,
@@ -266,8 +266,8 @@ async function doClaimRewards(walletData: WalletData, nativeDenom: string, rewar
   );
   console.log(`Do reward.address claim_rewards ok. \n${doRes?.transactionHash}`);
 
-  const afterRewardsDemonBalanceRes = await queryAddressBalance(walletData.LCD_ENDPOINT, walletData.address, rewardDemon);
-  console.log(`after rewardDemon balance: ${afterRewardsDemonBalanceRes.balance.amount} ${rewardDemon}`);
+  const afterRewardsDemonBalanceRes = await queryAddressBalance(walletData, walletData.address, rewardDemon);
+  console.log(`after rewardDemon balance: ${afterRewardsDemonBalanceRes?.amount} ${rewardDemon}`);
   const afterAccruedRewardsRes = await queryWasmContractByWalletData(walletData, reward.address, { accrued_rewards: { address: walletData.address } });
   console.log(`Query reward.address accrued_rewards ok. address: ${walletData.address} \n${JSON.stringify(afterAccruedRewardsRes)}`);
 }
