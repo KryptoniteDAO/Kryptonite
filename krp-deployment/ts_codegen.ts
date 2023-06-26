@@ -22,6 +22,7 @@ type ContractConfig = {
  * 1. OraclePyth.client.ts: `<Query` => `<`, `ExchangeRateByAssetLabelResponse` => `Decimal256`
  * 2. Market.client.ts: `StateResponse` => `State`
  * 3. Overseer.client.ts: `EpochStateResponse` => `EpochState`, `DynrateStateResponse` => `DynrateState`
+ * 4. LiquidationQueue.client.ts: `BidsByUserResponse` => `BidsResponse`, `BidPoolsByCollateralResponse` => `BidPoolsResponse`
  * module: staking
  * 1. Hub.client.ts: `ParametersResponse` => `Parameters[]`
  * 2. RewardsDispatcher.client.ts: `ConfigResponse` => `Config`

@@ -41,7 +41,7 @@ export interface LiquidationQueueReadOnlyInterface {
     collateralToken: string;
     limit?: number;
     startAfter?: Uint128;
-  }) => Promise<BidsByUserResponse>;
+  }) => Promise<BidsResponse>;
   bidPool: ({
     bidSlot,
     collateralToken
@@ -57,7 +57,7 @@ export interface LiquidationQueueReadOnlyInterface {
     collateralToken: string;
     limit?: number;
     startAfter?: number;
-  }) => Promise<BidPoolsByCollateralResponse>;
+  }) => Promise<BidPoolsResponse>;
 }
 export class LiquidationQueueQueryClient implements LiquidationQueueReadOnlyInterface {
   client: CosmWasmClient;
@@ -132,7 +132,7 @@ export class LiquidationQueueQueryClient implements LiquidationQueueReadOnlyInte
     collateralToken: string;
     limit?: number;
     startAfter?: Uint128;
-  }): Promise<BidsByUserResponse> => {
+  }): Promise<BidsResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       bids_by_user: {
         bidder,
@@ -164,7 +164,7 @@ export class LiquidationQueueQueryClient implements LiquidationQueueReadOnlyInte
     collateralToken: string;
     limit?: number;
     startAfter?: number;
-  }): Promise<BidPoolsByCollateralResponse> => {
+  }): Promise<BidPoolsResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       bid_pools_by_collateral: {
         collateral_token: collateralToken,
