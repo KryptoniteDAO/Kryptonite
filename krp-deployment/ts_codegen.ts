@@ -9,9 +9,7 @@ export const SWAP_EXTENSION_CONTRACTS_PATH = "../swap-extention";
 export const KPT_CONTRACTS_PATH = "../krp-token-contracts/contracts";
 export const CDP_CONTRACTS_PATH = "../krp-cdp-contracts/contracts";
 
-main().catch(console.error);
-
-type ContractConfig = {
+export type ContractConfig = {
   name: string;
   dir: string;
 };
@@ -84,8 +82,10 @@ async function main(): Promise<void> {
  * https://github.com/CosmWasm/ts-codegen/tree/main/packages/ts-codegen
  */
 export const doCodegen = async (modulesName: string, contracts: ContractConfig[], outPath: string = "./contracts"): Promise<void> => {
+  let scope = `Contracts`;
   if (!!modulesName) {
     outPath = `${outPath}/${modulesName}`;
+    scope = camel(`${modulesName}${scope}`.replaceAll("-", "_"));
   }
   await codegen({
     contracts: contracts,
@@ -95,7 +95,7 @@ export const doCodegen = async (modulesName: string, contracts: ContractConfig[]
     options: {
       bundle: {
         bundleFile: "index.ts",
-        scope: "contracts"
+        scope
       },
       types: {
         enabled: true,
@@ -137,7 +137,7 @@ export const getContractConfigByPath = (contractsPath: string): ContractConfig[]
     const contractConfig = getContractConfigByPrePath(contractsPath);
     contractConfig && contractConfigs.push(contractConfig);
   } else {
-    for (let name of names) {
+    for (const name of names) {
       const contractConfig = getContractConfigByPrePath(path.join(contractsPath, name));
       contractConfig && contractConfigs.push(contractConfig);
     }
@@ -164,3 +164,15 @@ export const getContractConfigByPrePath = (prePath: string): ContractConfig => {
 
   return undefined;
 };
+
+export const camel = (data: string): string => {
+  if (!data) {
+    return data;
+  }
+  const re = /_(\w)/g;
+  return data.replace(re, function ($0, $1) {
+    return $1.toUpperCase();
+  });
+};
+
+main().catch(console.error);

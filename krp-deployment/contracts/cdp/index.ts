@@ -12,7 +12,7 @@ import * as _56 from "./LiquidationQueue.types";
 import * as _57 from "./LiquidationQueue.client";
 import * as _58 from "./StablePool.types";
 import * as _59 from "./StablePool.client";
-export namespace contracts {
+export namespace cdpContracts {
   export const CentralControl = { ..._52,
     ..._53
   };

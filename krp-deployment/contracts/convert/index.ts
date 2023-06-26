@@ -8,7 +8,7 @@ import * as _30 from "./BassetConverter.types";
 import * as _31 from "./BassetConverter.client";
 import * as _32 from "./BassetToken.types";
 import * as _33 from "./BassetToken.client";
-export namespace contracts {
+export namespace convertContracts {
   export const BassetConverter = { ..._30,
     ..._31
   };

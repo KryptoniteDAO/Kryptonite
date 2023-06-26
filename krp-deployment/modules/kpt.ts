@@ -1,12 +1,10 @@
 import { chainConfigs, DEPLOY_VERSION, KPT_MODULE_NAME, KPT_ARTIFACTS_PATH } from "../env_data";
-import { ChainId, ConvertPairs, DeployContract, InitialBalance, KptDeployContracts, RewardTokenConfigMsg, StakingRewardsPairs, StakingRewardsPairsDeployContracts, WalletData } from "../types";
+import { ChainId, DeployContract, InitialBalance, KptDeployContracts, RewardTokenConfigMsg, StakingRewardsPairs, StakingRewardsPairsDeployContracts, WalletData } from "../types";
 import { instantiateContractByWalletData, readArtifact, storeCodeByWalletData, writeArtifact } from "../common";
-import { KptFundClient, KptFundQueryClient } from "../contracts/KptFund.client";
-import { KptFundConfigResponse } from "../contracts/KptFund.types";
-import { KptClient, KptQueryClient } from "../contracts/Kpt.client";
-import { KptConfigResponse } from "../contracts/Kpt.types";
-import { VeKptClient, VeKptQueryClient } from "../contracts/VeKpt.client";
-import { IsMinterResponse } from "../contracts/VeKpt.types";
+import { kptContracts } from "../contracts";
+import { KptFundConfigResponse } from "../contracts/kpt/KptFund.types";
+import { KptConfigResponse } from "../contracts/kpt/Kpt.types";
+import { IsMinterResponse } from "../contracts/kpt/VeKpt.types";
 
 export type KptStakingRewardsConfig = {
   name?: string;
@@ -254,7 +252,7 @@ export async function deployVeKptMiner(walletData: WalletData, networkKpt: KptDe
       const admin = chainConfigs?.veKptMiner?.admin || walletData.address;
       const label = chainConfigs?.veKptMiner?.label ?? "veKptMiner";
 
-      const kptFundQueryClient = new KptFundQueryClient(walletData.signingCosmWasmClient, kptFund.address);
+      const kptFundQueryClient = new kptContracts.KptFund.KptFundQueryClient(walletData.signingCosmWasmClient, kptFund.address);
       const kptFundConfigRes: KptFundConfigResponse = await kptFundQueryClient.kptFundConfig();
       const initMsg = Object.assign(
         {
@@ -348,8 +346,8 @@ export async function doKptUpdateConfig(walletData: WalletData, kpt: DeployContr
     console.error("********* missing info!");
     return;
   }
-  const kptClient: KptClient = new KptClient(walletData.signingCosmWasmClient, walletData.address, kpt.address);
-  const kptQueryClient: KptQueryClient = new KptQueryClient(walletData.signingCosmWasmClient, kpt.address);
+  const kptClient = new kptContracts.Kpt.KptClient(walletData.signingCosmWasmClient, walletData.address, kpt.address);
+  const kptQueryClient = new kptContracts.Kpt.KptQueryClient(walletData.signingCosmWasmClient, kpt.address);
 
   let beforeConfigRes: KptConfigResponse = null;
   let initFlag = true;
@@ -383,8 +381,8 @@ export async function doVeKptUpdateConfig(walletData: WalletData, veKpt: DeployC
     console.error("********* missing info!");
     return;
   }
-  const veKptClient: VeKptClient = new VeKptClient(walletData.signingCosmWasmClient, walletData.address, veKpt.address);
-  const veKptQueryClient: VeKptQueryClient = new VeKptQueryClient(walletData.signingCosmWasmClient, veKpt.address);
+  const veKptClient = new kptContracts.VeKpt.VeKptClient(walletData.signingCosmWasmClient, walletData.address, veKpt.address);
+  const veKptQueryClient = new kptContracts.VeKpt.VeKptQueryClient(walletData.signingCosmWasmClient, veKpt.address);
 
   let beforeConfigRes: KptConfigResponse = null;
   let initFlag = true;
@@ -418,13 +416,13 @@ export async function doVeKptSetMinters(walletData: WalletData, veKpt: DeployCon
     console.error("********* missing info!");
     return;
   }
-  const veKptClient: VeKptClient = new VeKptClient(walletData.signingCosmWasmClient, walletData.address, veKpt.address);
-  const veKptQueryClient: VeKptQueryClient = new VeKptQueryClient(walletData.signingCosmWasmClient, veKpt.address);
+  const veKptClient = new kptContracts.VeKpt.VeKptClient(walletData.signingCosmWasmClient, walletData.address, veKpt.address);
+  const veKptQueryClient = new kptContracts.VeKpt.VeKptQueryClient(walletData.signingCosmWasmClient, veKpt.address);
 
   let beforeRes: IsMinterResponse = null;
   let initFlag = true;
   try {
-    beforeRes = await veKptQueryClient.isMinter({address: stakingRewards.address});
+    beforeRes = await veKptQueryClient.isMinter({ address: stakingRewards.address });
   } catch (error: any) {
     if (error?.toString().includes("minter not found")) {
       initFlag = false;
@@ -434,14 +432,14 @@ export async function doVeKptSetMinters(walletData: WalletData, veKpt: DeployCon
     }
   }
 
-  if (initFlag && beforeRes?.is_minter ) {
+  if (initFlag && beforeRes?.is_minter) {
     console.warn(`********* The veKpt.address minter is already done. stakingRewards: ${stakingRewards?.address}`);
     return;
   }
   const doRes = await veKptClient.setMinters({ contracts: [stakingRewards.address], isMinter: [isMinter] });
   console.log(`Do veKpt.address setMinters ok. \n${doRes?.transactionHash}`);
 
-  const afterRes = await veKptQueryClient.isMinter({address: stakingRewards.address});
+  const afterRes = await veKptQueryClient.isMinter({ address: stakingRewards.address });
   print && console.log(`veKpt.address isMinter: ${stakingRewards?.address} / ${JSON.stringify(afterRes)}`);
 }
 

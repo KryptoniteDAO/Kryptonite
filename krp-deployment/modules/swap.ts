@@ -1,8 +1,8 @@
 import { chainConfigs, DEPLOY_VERSION, SWAP_EXTENSION_ARTIFACTS_PATH, SWAP_EXTENSION_MODULE_NAME } from "../env_data";
 import { ChainId, DeployContract, StakingDeployContracts, SwapDeployContracts, WalletData } from "../types";
 import { instantiateContractByWalletData, readArtifact, storeCodeByWalletData, writeArtifact } from "../common";
-import { SwapExtentionClient, SwapExtentionQueryClient } from "../contracts/SwapExtention.client";
-import { Addr, AssetInfo, Decimal } from "../contracts/SwapExtention.types";
+import { SwapExtentionClient, SwapExtentionQueryClient } from "../contracts/swap-extention/SwapExtention.client";
+import { Addr, AssetInfo, Decimal } from "../contracts/swap-extention/SwapExtention.types";
 
 export const ConfigSwapPairConfigList: Record<
   string,

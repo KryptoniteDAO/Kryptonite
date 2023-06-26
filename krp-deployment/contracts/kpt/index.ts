@@ -20,7 +20,7 @@ import * as _48 from "./VeKptBoost.types";
 import * as _49 from "./VeKptBoost.client";
 import * as _50 from "./VeKptMiner.types";
 import * as _51 from "./VeKptMiner.client";
-export namespace contracts {
+export namespace kptContracts {
   export const BlindBox = { ..._36,
     ..._37
   };

@@ -1,7 +1,7 @@
 import { chainConfigs, DEPLOY_VERSION, MARKET_ARTIFACTS_PATH, MARKET_MODULE_NAME } from "../env_data";
 import { executeContractByWalletData, instantiateContract2ByWalletData, instantiateContractByWalletData, queryContractConfig, queryWasmContractByWalletData, readArtifact, storeCodeByWalletData, writeArtifact } from "../common";
 import { ChainId, DeployContract, MarketDeployContracts, WalletData } from "../types";
-import { OraclePythClient, OraclePythQueryClient } from "../contracts/OraclePyth.client";
+import { OraclePythClient, OraclePythQueryClient } from "../contracts/market/OraclePyth.client";
 
 export const ConfigOraclePythBaseFeedInfoList: Record<
   string,
@@ -50,7 +50,7 @@ export const ConfigOraclePythFeedInfoList: Record<
       priceFeedAge: 60
     },
     Object.assign({ asset: "usei" }, ConfigOraclePythBaseFeedInfoList[ChainId.SEI_CHAIN])
-    
+
   ],
   // usei and btokens
   [ChainId.ATLANTIC_2]: [
@@ -132,7 +132,7 @@ export async function deployMarket(walletData: WalletData, network: MarketDeploy
       const initMsg = Object.assign(
         {
           atoken_code_id: network.aToken.codeId,
-          stable_denom: walletData.stable_coin_denom, 
+          stable_denom: walletData.stable_coin_denom,
           stable_name: "USDT"
         },
         chainConfigs?.market?.initMsg,
@@ -358,7 +358,7 @@ export async function deployCustodyBSei(walletData: WalletData, network: MarketD
 
 export async function doMarketConfig(
   walletData: WalletData,
-  network: any, 
+  network: any,
   marketInitFlag: boolean,
   marketConfigRes: any,
   market: DeployContract,
@@ -389,7 +389,7 @@ export async function doMarketConfig(
         distribution_model: distributionModel.address,
         overseer_contract: overseer.address,
         collector_contract: bSeiToken.address,
-        distributor_contract: rewardsDispatcher.address, 
+        distributor_contract: rewardsDispatcher.address,
         oracle_contract: oraclepythAddress,
         liquidation_contract: liquidationQueueAddress,
       }

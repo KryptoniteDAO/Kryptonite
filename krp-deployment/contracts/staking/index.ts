@@ -16,7 +16,7 @@ import * as _8 from "./TokenStsei.types";
 import * as _9 from "./TokenStsei.client";
 import * as _10 from "./ValidatorsRegistry.types";
 import * as _11 from "./ValidatorsRegistry.client";
-export namespace contracts {
+export namespace stakingContracts {
   export const Hub = { ..._0,
     ..._1
   };

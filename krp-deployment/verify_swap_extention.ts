@@ -1,11 +1,11 @@
 import { printChangeBalancesByWalletData } from "./common";
 import { loadingWalletData } from "./env_data";
-import { ConvertDeployContracts, DeployContract, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts, WalletData } from "./types";
+import { ConvertDeployContracts, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts, WalletData } from "./types";
 import { ConfigSwapPairConfigList, swapExtentionReadArtifact } from "./modules/swap";
-import { SwapExtentionClient, SwapExtentionQueryClient } from "./contracts/SwapExtention.client";
 import { stakingReadArtifact } from "./modules/staking";
 import { marketReadArtifact } from "./modules/market";
 import { convertReadArtifact } from "./modules/convert";
+import { swapExtentionContracts } from "./contracts";
 
 main().catch(console.error);
 
@@ -28,8 +28,8 @@ async function main(): Promise<void> {
   if (!swapExtention?.address) {
     throw new Error(`********* no deploy`);
   }
-  const swapExtentionClient: SwapExtentionClient = new SwapExtentionClient(walletData.signingCosmWasmClient, walletData.address, swapExtention.address);
-  const swapExtentionQueryClient: SwapExtentionQueryClient = new SwapExtentionQueryClient(walletData.signingCosmWasmClient, swapExtention.address);
+  const swapExtentionClient = new swapExtentionContracts.SwapExtention.SwapExtentionClient(walletData.signingCosmWasmClient, walletData.address, swapExtention.address);
+  const swapExtentionQueryClient = new swapExtentionContracts.SwapExtention.SwapExtentionQueryClient(walletData.signingCosmWasmClient, swapExtention.address);
 
   const swapWhitelistList: {
     caller: string;

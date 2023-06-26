@@ -22,7 +22,7 @@ import * as _26 from "./OraclePyth.types";
 import * as _27 from "./OraclePyth.client";
 import * as _28 from "./Overseer.types";
 import * as _29 from "./Overseer.client";
-export namespace contracts {
+export namespace marketContracts {
   export const CustodyBase = { ..._12,
     ..._13
   };

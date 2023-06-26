@@ -6,7 +6,7 @@
 
 import * as _34 from "./SwapExtention.types";
 import * as _35 from "./SwapExtention.client";
-export namespace contracts {
+export namespace swapExtentionContracts {
   export const SwapExtention = { ..._34,
     ..._35
   };
