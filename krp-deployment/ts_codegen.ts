@@ -1,11 +1,13 @@
 import codegen from "@cosmwasm/ts-codegen";
 import * as fs from "fs";
 import * as path from "path";
+import { CDP_MODULE_NAME, CONVERT_MODULE_NAME, KPT_MODULE_NAME, MARKET_MODULE_NAME, STAKING_MODULE_NAME, SWAP_EXTENSION_MODULE_NAME } from "./env_data";
 export const STAKING_CONTRACTS_PATH = "../krp-staking-contracts/contracts";
 export const MARKET_CONTRACTS_PATH = "../krp-market-contracts/contracts";
 export const CONVERT_CONTRACTS_PATH = "../krp-basset-convert/contracts";
 export const SWAP_EXTENSION_CONTRACTS_PATH = "../swap-extention";
 export const KPT_CONTRACTS_PATH = "../krp-token-contracts/contracts";
+export const CDP_CONTRACTS_PATH = "../krp-cdp-contracts/contracts";
 
 main().catch(console.error);
 
@@ -16,40 +18,77 @@ type ContractConfig = {
 
 /**
  * after do it
+ * module: market
  * 1. OraclePyth.client.ts: `<Query` => `<`, `ExchangeRateByAssetLabelResponse` => `Decimal256`
- * 2. Hub.client.ts: `ParametersResponse` => `Parameters[]`
- * 3. Market.client.ts: `StateResponse` => `State`
- * 4. Overseer.client.ts: `EpochStateResponse` => `EpochState`, `DynrateStateResponse` => `DynrateState`
- * 5. RewardsDispatcher.client.ts: `ConfigResponse` => `Config`
- * 6. ValidatorsRegistry.client.ts: `ConfigResponse` => `Config`, `GetValidatorsForDelegationResponse` => `Validator[]`
+ * 2. Market.client.ts: `StateResponse` => `State`
+ * 3. Overseer.client.ts: `EpochStateResponse` => `EpochState`, `DynrateStateResponse` => `DynrateState`
+ * module: staking
+ * 1. Hub.client.ts: `ParametersResponse` => `Parameters[]`
+ * 2. RewardsDispatcher.client.ts: `ConfigResponse` => `Config`
+ * 3. ValidatorsRegistry.client.ts: `ConfigResponse` => `Config`, `GetValidatorsForDelegationResponse` => `Validator[]`
  */
 async function main(): Promise<void> {
-  console.log("✨✨✨ do code generate enter!");
-  const contracts: ContractConfig[] = [];
-  contracts.push(...getContractConfigByPath(STAKING_CONTRACTS_PATH));
-  contracts.push(...getContractConfigByPath(MARKET_CONTRACTS_PATH));
-  contracts.push(...getContractConfigByPath(CONVERT_CONTRACTS_PATH));
-  contracts.push(...getContractConfigByPath(SWAP_EXTENSION_CONTRACTS_PATH));
-  contracts.push(...getContractConfigByPath(KPT_CONTRACTS_PATH));
+  console.log(`✨✨✨ do code generate enter.`);
 
-  // rename & print it
-  contracts.map((value: ContractConfig) => {
-    value.name = value.name.replaceAll("basset_sei_", "").replaceAll("krp_", "");
-    console.log(value);
-  });
+  /// code gen by modules
+  const modulesMap: Map<string, ContractConfig[]> = new Map<string, ContractConfig[]>();
 
-  console.log(`contracts size: ${contracts.length}`);
+  /// custom modules - start
+  modulesMap.set(STAKING_MODULE_NAME, getContractConfigByPath(STAKING_CONTRACTS_PATH));
+  modulesMap.set(MARKET_MODULE_NAME, getContractConfigByPath(MARKET_CONTRACTS_PATH));
+  modulesMap.set(CONVERT_MODULE_NAME, getContractConfigByPath(CONVERT_CONTRACTS_PATH));
+  modulesMap.set(SWAP_EXTENSION_MODULE_NAME, getContractConfigByPath(SWAP_EXTENSION_CONTRACTS_PATH));
+  modulesMap.set(KPT_MODULE_NAME, getContractConfigByPath(KPT_CONTRACTS_PATH));
+  modulesMap.set(CDP_MODULE_NAME, getContractConfigByPath(CDP_CONTRACTS_PATH));
+  /// custom modules - end
 
-  await doCodegen(contracts);
+  if (modulesMap.size <= 0) {
+    return;
+  }
+  console.log(`\n✨✨✨ code generate info, modules: ${modulesMap.size} / `, modulesMap.keys());
+
+  const outPath = "./contracts";
+
+  if (!fs.existsSync(outPath)) {
+    fs.mkdirSync(outPath);
+  }
+  const indexFilePath = `${outPath}/index.ts`;
+  const existsIndexFile = fs.existsSync(indexFilePath);
+  const fd = fs.openSync(indexFilePath, "as+");
+  let indexFileRes: string | undefined = undefined;
+  if (existsIndexFile) {
+    indexFileRes = fs.readFileSync(fd, "utf8");
+  }
+  for (const key of modulesMap.keys()) {
+    const exportStatement: string = `export * from "./${key}";`;
+    if (!existsIndexFile || !indexFileRes?.includes(exportStatement)) {
+      fs.appendFileSync(fd, exportStatement + "\n");
+    }
+  }
+  await fs.closeSync(fd);
+
+  for (const [key, value] of modulesMap.entries()) {
+    // rename contract name
+    value.map((val: ContractConfig) => {
+      val.name = val.name.replaceAll("basset_sei_", "").replaceAll("krp_", "");
+      // console.log(val);
+    });
+    await doCodegen(key, value, outPath);
+  }
+
+  console.log(`\n✨✨✨ do code generate all done!\n`);
 }
 
 /**
  * https://github.com/CosmWasm/ts-codegen/tree/main/packages/ts-codegen
  */
-async function doCodegen(contracts): Promise<void> {
-  codegen({
+export const doCodegen = async (modulesName: string, contracts: ContractConfig[], outPath: string = "./contracts"): Promise<void> => {
+  if (!!modulesName) {
+    outPath = `${outPath}/${modulesName}`;
+  }
+  await codegen({
     contracts: contracts,
-    outPath: "./contracts",
+    outPath: outPath,
 
     // options are completely optional ;)
     options: {
@@ -86,16 +125,11 @@ async function doCodegen(contracts): Promise<void> {
         enabled: false
       }
     }
-  })
-    .then(() => {
-      console.log("✨ all done!");
-    })
-    .catch((error: any) => {
-      console.error(error?.message ?? error);
-    });
-}
+  });
+  console.log(`\n✨✨✨ gen done! modulesName: ${modulesName} / contracts length: ${contracts.length}`);
+};
 
-function getContractConfigByPath(contractsPath: string): ContractConfig[] {
+export const getContractConfigByPath = (contractsPath: string): ContractConfig[] => {
   const contractConfigs: ContractConfig[] = [];
   const names: string[] = fs.readdirSync(contractsPath);
   if (names.includes("schema")) {
@@ -109,9 +143,9 @@ function getContractConfigByPath(contractsPath: string): ContractConfig[] {
   }
 
   return contractConfigs;
-}
+};
 
-function getContractConfigByPrePath(prePath: string): ContractConfig {
+export const getContractConfigByPrePath = (prePath: string): ContractConfig => {
   const name = prePath.split(/(\\|\/)/).pop();
   const dir = path.join(prePath, "schema").replaceAll("\\", "/");
   try {
@@ -128,4 +162,4 @@ function getContractConfigByPrePath(prePath: string): ContractConfig {
   }
 
   return undefined;
-}
+};

@@ -6,7 +6,7 @@
     "useDefineForClassFields": true,
     "noImplicitOverride": false,
     "allowJs": true,
-    "target": "es5",
+    "target": "esnext",
     "lib": ["es2015", "dom", "esnext"],
     "types": ["node", "jsdom", "jest"]
   }

@@ -28,6 +28,7 @@ export const MARKET_MODULE_NAME = "market";
 export const CONVERT_MODULE_NAME = "convert";
 export const SWAP_EXTENSION_MODULE_NAME = "swap-extention";
 export const KPT_MODULE_NAME = "kpt";
+export const CDP_MODULE_NAME = "cdp";
 
 export const DEPLOY_VERSION = process.env.DEPLOY_VERSION || "00_00_01";
 

@@ -13,3 +13,6 @@
 [submodule "krp-token-contracts"]
     path = krp-token-contracts
     url = git@github.com:KryptoniteDAO/krp-token-contracts.git
+[submodule "krp-cdp-contracts"]
+    path = krp-cdp-contracts
+    url = git@github.com:KryptoniteDAO/krp-cdp-contracts.git
