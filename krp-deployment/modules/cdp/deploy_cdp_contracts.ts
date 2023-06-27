@@ -1,9 +1,9 @@
-import { printChangeBalancesByWalletData } from "../../common";
-import { loadingWalletData } from "../../env_data";
-import type { MarketDeployContracts, WalletData } from "../../types";
-import type { CdpContractsDeployed } from "../../types";
+import { printChangeBalancesByWalletData } from "@/common";
+import { loadingWalletData } from "@/env_data";
 import { cdpReadArtifact, deployCdpCentralControl, deployCdpCustody, deployCdpLiquidationQueue, deployCdpStablePool, printDeployedCdpContracts } from "./cdp_helpers";
 import { marketReadArtifact } from "../market";
+import type { WalletData, MarketDeployContracts, CdpContractsDeployed, StakingDeployContracts } from "@/types";
+import { stakingReadArtifact } from "@/modules/staking";
 
 main().catch(console.error);
 
@@ -13,7 +13,7 @@ async function main(): Promise<void> {
   const walletData: WalletData = await loadingWalletData();
 
   // const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapDeployContracts;
-  // const networkStaking = stakingReadArtifact(walletData.chainId) as StakingDeployContracts;
+  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingDeployContracts;
   const networkMarket = marketReadArtifact(walletData.chainId) as MarketDeployContracts;
   // const networkConvert = convertReadArtifact(walletData.chainId) as ConvertDeployContracts;
   // const networkKpt = kptReadArtifact(walletData.chainId) as KptDeployContracts;
@@ -23,10 +23,14 @@ async function main(): Promise<void> {
   console.log(`--- --- cdp contracts storeCode & instantiateContract enter --- ---`);
   console.log();
 
-  await deployCdpCentralControl(walletData, networkCdp);
+  await deployCdpCentralControl(walletData, networkCdp, networkMarket?.oraclePyth);
   await deployCdpStablePool(walletData, networkCdp);
-  await deployCdpCustody(walletData, networkCdp);
   await deployCdpLiquidationQueue(walletData, networkCdp, networkMarket?.oraclePyth);
+
+  const bSeiToken = networkStaking.bSeiToken;
+  if (bSeiToken?.address) {
+    await deployCdpCustody(walletData, networkCdp, { collateralName: "bSEI", collateral: bSeiToken.address });
+  }
 
   console.log();
   console.log(`--- --- cdp contracts storeCode & instantiateContract end --- ---`);

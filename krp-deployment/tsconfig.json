@@ -8,6 +8,10 @@
     "allowJs": true,
     "target": "esnext",
     "lib": ["es2015", "dom", "esnext"],
-    "types": ["node", "jsdom", "jest"]
+    "types": ["node", "jsdom", "jest"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"],
+    }
   }
 }

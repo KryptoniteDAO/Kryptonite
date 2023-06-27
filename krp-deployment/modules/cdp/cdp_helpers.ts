@@ -1,7 +1,16 @@
-import { DEPLOY_VERSION, CDP_ARTIFACTS_PATH, CDP_MODULE_NAME, cdpConfig } from "../../env_data";
+import { DEPLOY_VERSION, DEPLOY_CHAIN_ID } from "@/env_data";
+import { deployContract, readArtifact, writeArtifact } from "@/common";
+import type { WalletData, ContractDeployed, CdpCentralControlContractConfig, CdpContractsConfig, CdpContractsDeployed, CdpStablePoolContractConfig, CdpCustodyContractConfig, CdpLiquidationQueueContractConfig } from "@/types";
+import { cdpContracts } from "@/contracts";
+import { KptConfigResponse } from "@/contracts/kpt/Kpt.types";
+import { CdpCollateralPairsConfig, KptDeployContracts } from "@/types";
+import { ConfigResponse as CentralControlConfigResponse } from "@/contracts/cdp/CentralControl.types";
+import { ConfigResponse as CustodyConfigResponse } from "@/contracts/cdp/Custody.types";
 
-import { deployContract, readArtifact, writeArtifact } from "../../common";
-import type { WalletData, ContractDeployed, CdpCentralControlContractConfig, CdpContractsConfig, CdpContractsDeployed, CdpStablePoolContractConfig, CdpCustodyContractConfig, CdpLiquidationQueueContractConfig } from "../../types";
+export const CDP_ARTIFACTS_PATH = "../krp-cdp-contracts/artifacts";
+export const CDP_MODULE_NAME = "cdp";
+
+export const cdpConfig: CdpContractsConfig = readArtifact(`${CDP_MODULE_NAME}_config_${DEPLOY_CHAIN_ID}`, `./modules/${CDP_MODULE_NAME}/`);
 
 export function getCdpDeployFileName(chainId: string): string {
   return `deployed_${CDP_MODULE_NAME}_${DEPLOY_VERSION}_${chainId}`;
@@ -15,13 +24,13 @@ export function cdpWriteArtifact(networkStaking: CdpContractsDeployed, chainId: 
   writeArtifact(networkStaking, getCdpDeployFileName(chainId), CDP_ARTIFACTS_PATH);
 }
 
-export async function deployCdpCentralControl(walletData: WalletData, networkCdp: CdpContractsDeployed): Promise<void> {
+export async function deployCdpCentralControl(walletData: WalletData, networkCdp: CdpContractsDeployed, oraclePyth?: ContractDeployed): Promise<void> {
   const contractName: keyof Required<CdpContractsDeployed> = "cdpCentralControl";
   const config: CdpCentralControlContractConfig | undefined = cdpConfig?.[contractName];
   const defaultFilePath: string | undefined = "../krp-cdp-contracts/artifacts/cdp_central_control.wasm";
   const defaultInitMsg: object | undefined = Object.assign(
     {
-      oracle_contract: walletData.address,
+      oracle_contract: oraclePyth?.address || walletData.address,
       pool_contract: walletData.address,
       custody_contract: walletData.address,
       liquidation_contract: walletData.address
@@ -60,33 +69,6 @@ export async function deployCdpStablePool(walletData: WalletData, networkCdp: Cd
   await deployContract(walletData, contractName, networkCdp, config, { defaultFilePath, defaultInitMsg, defaultFunds, writeFunc });
 }
 
-export async function deployCdpCustody(walletData: WalletData, networkCdp: CdpContractsDeployed): Promise<void> {
-  const cdpCentralControl: ContractDeployed = networkCdp?.cdpCentralControl;
-  const cdpStablePool: ContractDeployed = networkCdp?.cdpStablePool;
-  if (!cdpCentralControl?.address || !cdpStablePool?.address) {
-    return;
-  }
-
-  const contractName: keyof Required<CdpContractsDeployed> = "cdpCustody";
-  const config: CdpCustodyContractConfig | undefined = cdpConfig?.[contractName];
-  const defaultFilePath: string | undefined = "../krp-cdp-contracts/artifacts/cdp_custody.wasm";
-  const defaultInitMsg: object | undefined = Object.assign(
-    {
-      control_contract: cdpCentralControl?.address,
-      pool_contract: cdpStablePool?.address,
-      collateral_contract: walletData.address,
-      liquidation_contract: walletData.address
-    },
-    config?.initMsg ?? {},
-    {
-      owner_addr: config?.initMsg?.owner_addr || walletData.address
-    }
-  );
-  const writeFunc = cdpWriteArtifact;
-
-  await deployContract(walletData, contractName, networkCdp, config, { defaultFilePath, defaultInitMsg, writeFunc });
-}
-
 export async function deployCdpLiquidationQueue(walletData: WalletData, networkCdp: CdpContractsDeployed, oraclePyth?: ContractDeployed): Promise<void> {
   const cdpCentralControl: ContractDeployed = networkCdp?.cdpCentralControl;
   if (!cdpCentralControl?.address) {
@@ -94,7 +76,6 @@ export async function deployCdpLiquidationQueue(walletData: WalletData, networkC
   }
 
   const contractName: keyof Required<CdpContractsDeployed> = "cdpLiquidationQueue";
-  // const network:CdpDeployContracts = networkCdp as unknown asCdpDeployContracts;
   const config: CdpLiquidationQueueContractConfig | undefined = cdpConfig?.[contractName];
   const defaultFilePath: string | undefined = "../krp-cdp-contracts/artifacts/cdp_liquidation_queue.wasm";
   const defaultInitMsg: object | undefined = Object.assign(
@@ -106,6 +87,51 @@ export async function deployCdpLiquidationQueue(walletData: WalletData, networkC
     config?.initMsg ?? {},
     {
       owner: config?.initMsg?.owner || walletData.address
+    }
+  );
+  const writeFunc = cdpWriteArtifact;
+
+  await deployContract(walletData, contractName, networkCdp, config, { defaultFilePath, defaultInitMsg, writeFunc });
+}
+
+export async function deployCdpCustody(walletData: WalletData, networkCdp: CdpContractsDeployed, { collateral, collateralName }: { collateral: string; collateralName?: string }): Promise<void> {
+  const cdpCentralControl: ContractDeployed = networkCdp?.cdpCentralControl;
+  const cdpStablePool: ContractDeployed = networkCdp?.cdpStablePool;
+  const cdpLiquidationQueue: ContractDeployed = networkCdp?.cdpLiquidationQueue;
+  if (!cdpCentralControl?.address || !cdpStablePool?.address || !cdpLiquidationQueue?.address || !collateral) {
+    return;
+  }
+
+  const contractName: string = "cdpCustody";
+  // let cdpCollateralPairsConfigs: CdpCollateralPairsConfig[] | undefined = cdpConfig?.cdpCollateralPairs;
+
+  let cdpCollateralPairsConfigs: CdpCollateralPairsConfig[] | undefined = cdpConfig?.cdpCollateralPairs;
+  if (!cdpCollateralPairsConfigs) {
+    cdpCollateralPairsConfigs = [] as CdpCollateralPairsConfig[];
+    cdpConfig.cdpCollateralPairs = cdpCollateralPairsConfigs;
+  }
+
+  let cdpCollateralPairsConfig: CdpCollateralPairsConfig | undefined = cdpCollateralPairsConfigs?.["find"]?.(value => collateral === value.collateral);
+  if (!cdpCollateralPairsConfig) {
+    cdpCollateralPairsConfig = {} as CdpCollateralPairsConfig;
+    cdpCollateralPairsConfig.name = collateralName;
+    cdpCollateralPairsConfig.collateral = collateral;
+    cdpCollateralPairsConfig.custody = {} as CdpCustodyContractConfig;
+    cdpCollateralPairsConfigs.push(cdpCollateralPairsConfig);
+  }
+  let config: CdpCustodyContractConfig | undefined = cdpCollateralPairsConfig?.custody;
+
+  const defaultFilePath: string | undefined = "../krp-cdp-contracts/artifacts/cdp_custody.wasm";
+  const defaultInitMsg: object | undefined = Object.assign(
+    {
+      collateral_contract: collateral,
+      control_contract: cdpCentralControl?.address,
+      pool_contract: cdpStablePool?.address,
+      liquidation_contract: cdpLiquidationQueue?.address
+    },
+    config?.initMsg ?? {},
+    {
+      owner_addr: config?.initMsg?.owner_addr || walletData.address
     }
   );
   const writeFunc = cdpWriteArtifact;
@@ -131,4 +157,90 @@ export async function printDeployedCdpContracts(networkCdp: CdpContractsDeployed
     });
   }
   console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
+}
+
+export async function doCdpCentralControlUpdateConfig(walletData: WalletData, networkCdp: CdpContractsDeployed, oraclePyth: ContractDeployed, print: boolean = true): Promise<any> {
+  print && console.log(`\n  Do cdpCentralControl.address update_config enter.`);
+  const cdpCentralControl: ContractDeployed = networkCdp?.cdpCentralControl;
+  const cdpStablePool: ContractDeployed = networkCdp?.cdpStablePool;
+  const cdpCustody: ContractDeployed = networkCdp?.cdpStablePool;
+  const cdpLiquidationQueue: ContractDeployed = networkCdp?.cdpLiquidationQueue;
+  if (!cdpCentralControl?.address || !cdpStablePool?.address || !cdpCustody?.address || !!cdpLiquidationQueue?.address || !oraclePyth?.address) {
+    console.error("\n  ********* missing info!");
+    return;
+  }
+
+  const centralControlClient = new cdpContracts.CentralControl.CentralControlClient(walletData.signingCosmWasmClient, walletData.address, cdpCentralControl.address);
+  const centralControlQueryClient = new cdpContracts.CentralControl.CentralControlQueryClient(walletData.signingCosmWasmClient, cdpCentralControl.address);
+
+  let beforeRes: CentralControlConfigResponse = null;
+  let initFlag = true;
+  try {
+    beforeRes = await centralControlQueryClient.config();
+  } catch (error: any) {
+    if (error?.toString().includes("config not found")) {
+      initFlag = false;
+      console.error(`\n  cdpCentralControl.address: need update_config.`);
+    } else {
+      throw new Error(error);
+    }
+  }
+
+  if (initFlag && cdpStablePool?.address === beforeRes?.pool_contract && cdpCustody?.address === beforeRes?.custody_contract && oraclePyth?.address === beforeRes?.oracle_contract) {
+    console.warn(`\n  ********* The cdpCentralControl.address config is already done.`);
+    return;
+  }
+  const doRes = await centralControlClient.updateConfig({
+    custodyContract: cdpCustody?.address,
+    liquidationContract: cdpLiquidationQueue?.address,
+    poolContract: cdpStablePool?.address,
+    oracleContract: oraclePyth.address
+  });
+  console.log(`\n  Do cdpCentralControl.address update_config ok. \n${doRes?.transactionHash}`);
+
+  const afterRes = await centralControlQueryClient.config();
+  print && console.log(`\n  config info: \n${JSON.stringify(afterRes)}`);
+}
+
+export async function doCdpCustodyUpdateConfig(walletData: WalletData, networkCdp: CdpContractsDeployed, oraclePyth: ContractDeployed, print: boolean = true): Promise<any> {
+  print && console.log(`\n  Do cdpCustody.address update_config enter.`);
+  const cdpCentralControl: ContractDeployed = networkCdp?.cdpCentralControl;
+  const cdpStablePool: ContractDeployed = networkCdp?.cdpStablePool;
+  const cdpCustody: ContractDeployed = networkCdp?.cdpStablePool;
+  const cdpLiquidationQueue: ContractDeployed = networkCdp?.cdpLiquidationQueue;
+  if (!cdpCentralControl?.address || !cdpStablePool?.address || !cdpCustody?.address || !!cdpLiquidationQueue?.address || !oraclePyth?.address) {
+    console.error("\n  ********* missing info!");
+    return;
+  }
+
+  const custodyClient = new cdpContracts.Custody.CustodyClient(walletData.signingCosmWasmClient, walletData.address, cdpCustody.address);
+  const custodyQueryClient = new cdpContracts.Custody.CustodyQueryClient(walletData.signingCosmWasmClient, cdpCustody.address);
+
+  let beforeRes: CustodyConfigResponse = null;
+  let initFlag = true;
+  try {
+    beforeRes = await custodyQueryClient.config();
+  } catch (error: any) {
+    if (error?.toString().includes("config not found")) {
+      initFlag = false;
+      console.error(`\n  cdpStablePool.address: need update_config.`);
+    } else {
+      throw new Error(error);
+    }
+  }
+
+  if (initFlag && cdpStablePool?.address === beforeRes?.pool_contract && cdpCustody?.address === beforeRes?.custody_contract && oraclePyth?.address === beforeRes?.oracle_contract) {
+    console.warn(`\n  ********* The cdpStablePool.address config is already done.`);
+    return;
+  }
+  const doRes = await custodyClient.updateConfig({
+    custodyContract: cdpCustody?.address,
+    liquidationContract: cdpLiquidationQueue?.address,
+    poolContract: cdpStablePool?.address,
+    oracleContract: oraclePyth.address
+  });
+  console.log(`\n  Do cdpStablePool.address update_config ok. \n${doRes?.transactionHash}`);
+
+  const afterRes = await custodyQueryClient.config();
+  print && console.log(`\n  config info: \n${JSON.stringify(afterRes)}`);
 }

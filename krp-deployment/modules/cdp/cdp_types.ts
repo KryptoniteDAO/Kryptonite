@@ -1,4 +1,4 @@
-import type { BaseContractConfig, ContractDeployed } from "../../types";
+import type { BaseContractConfig, ContractDeployed } from "@/types";
 
 export interface CdpCentralControlContractConfig extends BaseContractConfig {
   initMsg?: {
@@ -25,11 +25,6 @@ export interface CdpLiquidationQueueContractConfig extends BaseContractConfig {
     price_timeframe: number;
     waiting_period: number;
   };
-  updateMsg: {
-    bid_threshold: string;
-    max_slot: string;
-    premium_rate_per_slot: string;
-  };
 }
 
 export interface CdpStablePoolContractConfig extends BaseContractConfig {
@@ -38,23 +33,32 @@ export interface CdpStablePoolContractConfig extends BaseContractConfig {
     sub_demon: string;
     min_redeem_value: string;
   };
-  updateMsg: {
-    bid_threshold: string;
-    max_slot: string;
-    premium_rate_per_slot: string;
-  };
+}
+
+export interface CdpCollateralPairsConfig {
+  name?: string;
+  collateral: string;
+  custody: CdpCustodyContractConfig;
 }
 
 export interface CdpContractsConfig {
   cdpCentralControl: CdpCentralControlContractConfig;
-  cdpCustody: CdpCustodyContractConfig;
-  cdpLiquidationQueue: CdpLiquidationQueueContractConfig;
   cdpStablePool: CdpStablePoolContractConfig;
+  cdpLiquidationQueue: CdpLiquidationQueueContractConfig;
+  // cdpCustody: CdpCustodyContractConfig;
+  cdpCollateralPairs: CdpCollateralPairsConfig[];
+}
+
+export interface CdpCollateralPairsDeployed {
+  name?: string;
+  collateral?: string;
+  custody?: ContractDeployed;
 }
 
 export interface CdpContractsDeployed {
   cdpCentralControl?: ContractDeployed;
-  cdpCustody?: ContractDeployed;
-  cdpLiquidationQueue?: ContractDeployed;
   cdpStablePool?: ContractDeployed;
+  cdpLiquidationQueue?: ContractDeployed;
+  // cdpCustody?: ContractDeployed;
+  cdpCollateralPairs: CdpCollateralPairsDeployed[];
 }

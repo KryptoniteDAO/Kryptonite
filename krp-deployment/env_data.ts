@@ -23,25 +23,23 @@ export const MARKET_ARTIFACTS_PATH = "../krp-market-contracts/artifacts";
 export const CONVERT_ARTIFACTS_PATH = "../krp-basset-convert/artifacts";
 export const SWAP_EXTENSION_ARTIFACTS_PATH = "../swap-extention/artifacts";
 export const KPT_ARTIFACTS_PATH = "../krp-token-contracts/artifacts";
-export const CDP_ARTIFACTS_PATH = "../krp-cdp-contracts/artifacts";
 
 export const STAKING_MODULE_NAME = "staking";
 export const MARKET_MODULE_NAME = "market";
 export const CONVERT_MODULE_NAME = "convert";
 export const SWAP_EXTENSION_MODULE_NAME = "swap-extention";
 export const KPT_MODULE_NAME = "kpt";
-export const CDP_MODULE_NAME = "cdp";
 
 export const DEPLOY_VERSION = process.env.DEPLOY_VERSION || "00_00_01";
+export const DEPLOY_CHAIN_ID = process.env.CHAIN_ID_KEY || chain_id_default;
 
-export const chainConfigs: Config = readArtifact(`${process.env.CHAIN_ID_KEY || chain_id_default}`, "configs");
-export const cdpConfig: CdpContractsConfig = readArtifact(`${CDP_MODULE_NAME}_${process.env.CHAIN_ID_KEY || chain_id_default}`, "configs");
+export const chainConfigs: Config = readArtifact(`${DEPLOY_CHAIN_ID}`, "configs");
 
 async function loadingEnvData() {
   const LCD_ENDPOINT = process.env.LCD_ENDPOINT;
   const RPC_ENDPOINT = process.env.RPC_ENDPOINT;
   const gasPriceValue = process.env.GAS_PRICE || gas_price_default + nativeCurrency.coinMinimalDenom;
-  const chainId = process.env.CHAIN_ID_KEY || chain_id_default;
+  const chainId = DEPLOY_CHAIN_ID;
   const mnemonic = process.env.MNEMONIC;
   const privateKey = process.env.PRIVATE_KEY;
   const mnemonic2 = process.env.MNEMONIC2;
