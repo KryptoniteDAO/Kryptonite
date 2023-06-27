@@ -93,6 +93,12 @@ export type QueryMsg = {
   minter_collateral: {
     minter: string;
   };
+} | {
+  redemption_provider_list: {
+    limit?: number | null;
+    minter?: string | null;
+    start_after?: string | null;
+  };
 };
 export interface WhitelistElemResponse {
   collateral_contract: string;
@@ -116,6 +122,14 @@ export interface LoanInfoResponse {
 }
 export interface MinterCollateralResponse {
   collaterals: [string, Uint256][];
+}
+export interface RedemptionProviderListRespone {
+  provider_list: MinterLoanResponse[];
+}
+export interface MinterLoanResponse {
+  is_redemption_provider: boolean;
+  loans: Uint256;
+  minter: string;
 }
 export interface WhitelistResponse {
   elems: WhitelistElemResponse[];

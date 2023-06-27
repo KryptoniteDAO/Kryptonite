@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Decimal256, InstantiateMsg, ExecuteMsg, Uint128, QueryMsg, WhitelistElemResponse, ConfigResponse, Uint256, LoanInfoResponse, MinterCollateralResponse, WhitelistResponse } from "./Custody.types";
+import { Decimal256, InstantiateMsg, ExecuteMsg, Uint128, QueryMsg, WhitelistElemResponse, ConfigResponse, Uint256, LoanInfoResponse, MinterCollateralResponse, RedemptionProviderListRespone, MinterLoanResponse, WhitelistResponse } from "./Custody.types";
 export interface CustodyReadOnlyInterface {
   contractAddress: string;
   config: () => Promise<ConfigResponse>;
@@ -34,6 +34,15 @@ export interface CustodyReadOnlyInterface {
   }: {
     minter: string;
   }) => Promise<MinterCollateralResponse>;
+  redemptionProviderList: ({
+    limit,
+    minter,
+    startAfter
+  }: {
+    limit?: number;
+    minter?: string;
+    startAfter?: string;
+  }) => Promise<RedemptionProviderListRespone>;
 }
 export class CustodyQueryClient implements CustodyReadOnlyInterface {
   client: CosmWasmClient;
@@ -47,6 +56,7 @@ export class CustodyQueryClient implements CustodyReadOnlyInterface {
     this.collateralElem = this.collateralElem.bind(this);
     this.whitelist = this.whitelist.bind(this);
     this.minterCollateral = this.minterCollateral.bind(this);
+    this.redemptionProviderList = this.redemptionProviderList.bind(this);
   }
 
   config = async (): Promise<ConfigResponse> => {
@@ -101,6 +111,23 @@ export class CustodyQueryClient implements CustodyReadOnlyInterface {
     return this.client.queryContractSmart(this.contractAddress, {
       minter_collateral: {
         minter
+      }
+    });
+  };
+  redemptionProviderList = async ({
+    limit,
+    minter,
+    startAfter
+  }: {
+    limit?: number;
+    minter?: string;
+    startAfter?: string;
+  }): Promise<RedemptionProviderListRespone> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      redemption_provider_list: {
+        limit,
+        minter,
+        start_after: startAfter
       }
     });
   };

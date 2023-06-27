@@ -4,25 +4,25 @@
 * and run the @cosmwasm/ts-codegen generate command to regenerate this file.
 */
 
-import * as _52 from "./CentralControl.types";
-import * as _53 from "./CentralControl.client";
-import * as _54 from "./Custody.types";
-import * as _55 from "./Custody.client";
-import * as _56 from "./LiquidationQueue.types";
-import * as _57 from "./LiquidationQueue.client";
-import * as _58 from "./StablePool.types";
-import * as _59 from "./StablePool.client";
+import * as _0 from "./CentralControl.types";
+import * as _1 from "./CentralControl.client";
+import * as _2 from "./Custody.types";
+import * as _3 from "./Custody.client";
+import * as _4 from "./LiquidationQueue.types";
+import * as _5 from "./LiquidationQueue.client";
+import * as _6 from "./StablePool.types";
+import * as _7 from "./StablePool.client";
 export namespace cdpContracts {
-  export const CentralControl = { ..._52,
-    ..._53
+  export const CentralControl = { ..._0,
+    ..._1
   };
-  export const Custody = { ..._54,
-    ..._55
+  export const Custody = { ..._2,
+    ..._3
   };
-  export const LiquidationQueue = { ..._56,
-    ..._57
+  export const LiquidationQueue = { ..._4,
+    ..._5
   };
-  export const StablePool = { ..._58,
-    ..._59
+  export const StablePool = { ..._6,
+    ..._7
   };
 }
