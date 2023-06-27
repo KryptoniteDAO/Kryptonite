@@ -1,6 +1,6 @@
 import { readArtifact, storeCodeByWalletData, writeArtifact, instantiateContractByWalletData, queryWasmContractByWalletData, executeContractByWalletData, printChangeBalancesByWalletData, queryContractConfig } from "../common";
 import { chainConfigs, CONVERT_ARTIFACTS_PATH, CONVERT_MODULE_NAME, DEPLOY_VERSION } from "../env_data";
-import type { DeployContract, WalletData } from "../types";
+import type { ContractDeployed, WalletData } from "../types";
 import { ConvertDeployContracts, ConvertPairs } from "../types";
 
 export function getConvertDeployFileName(chainId: string): string {
@@ -99,7 +99,7 @@ export async function deployBtoken(walletData: WalletData, network: any, nativeD
   }
 }
 
-export async function deployCustody(walletData: WalletData, network: any, nativeDenom: string, reward: DeployContract, market: DeployContract, overseer: DeployContract, liquidationQueue: DeployContract, swapExtention: DeployContract): Promise<void> {
+export async function deployCustody(walletData: WalletData, network: any, nativeDenom: string, reward: ContractDeployed, market: ContractDeployed, overseer: ContractDeployed, liquidationQueue: ContractDeployed, swapExtention: ContractDeployed): Promise<void> {
   const convertPairsConfig: ConvertPairs = chainConfigs?.convertPairs?.find((v: ConvertPairs) => nativeDenom === v.native_denom);
   if (!convertPairsConfig) {
     console.error(`unknown configuration of `, nativeDenom);
@@ -158,7 +158,7 @@ export async function deployCustody(walletData: WalletData, network: any, native
   }
 }
 
-export async function doConverterRegisterTokens(walletData: WalletData, nativeDenom: string, converter: DeployContract, btoken: DeployContract): Promise<void> {
+export async function doConverterRegisterTokens(walletData: WalletData, nativeDenom: string, converter: ContractDeployed, btoken: ContractDeployed): Promise<void> {
   if (!converter?.address || !btoken?.address) {
     return;
   }

@@ -1,6 +1,6 @@
 import { queryContractQueryConfig } from "./common";
 import { loadingWalletData } from "./env_data";
-import type { DeployContract, WalletData } from "./types";
+import type { ContractDeployed, WalletData } from "./types";
 import { ChainId, ConvertDeployContracts, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts } from "./types";
 import { OraclePythClient, OraclePythQueryClient } from "./contracts/OraclePyth.client";
 import { swapExtentionReadArtifact } from "./modules/swap";
@@ -83,7 +83,7 @@ async function main(): Promise<void> {
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
-async function doSetConfigFeedValid(walletData: WalletData, oraclePyth: DeployContract, configFeedValidParams: any, print: boolean = true): Promise<void> {
+async function doSetConfigFeedValid(walletData: WalletData, oraclePyth: ContractDeployed, configFeedValidParams: any, print: boolean = true): Promise<void> {
   if (!oraclePyth?.address) {
     console.log();
     console.error("********* missing info!");
@@ -99,7 +99,7 @@ async function doSetConfigFeedValid(walletData: WalletData, oraclePyth: DeployCo
   print && console.log(`Do oraclePyth.address setConfigFeedValid ok. \n${doRes?.transactionHash}`);
 }
 
-async function doChangeOwner(walletData: WalletData, oraclePyth: DeployContract, newOwner: string, print: boolean = true): Promise<void> {
+async function doChangeOwner(walletData: WalletData, oraclePyth: ContractDeployed, newOwner: string, print: boolean = true): Promise<void> {
   if (!oraclePyth?.address || !newOwner) {
     console.log();
     console.error("********* missing info!");
@@ -116,7 +116,7 @@ async function doChangeOwner(walletData: WalletData, oraclePyth: DeployContract,
   await queryContractQueryConfig(walletData, oraclePyth);
 }
 
-async function queryPythFeederConfig(walletData: WalletData, oraclePyth: DeployContract, assetAddress: string, print: boolean = true): Promise<any> {
+async function queryPythFeederConfig(walletData: WalletData, oraclePyth: ContractDeployed, assetAddress: string, print: boolean = true): Promise<any> {
   if (!oraclePyth?.address || !assetAddress) {
     console.log();
     console.error("********* missing info!");
@@ -134,7 +134,7 @@ async function queryPythFeederConfig(walletData: WalletData, oraclePyth: DeployC
   return queryRes;
 }
 
-async function queryPrice(walletData: WalletData, oraclePyth: DeployContract, assetAddress: string, print: boolean = true): Promise<any> {
+async function queryPrice(walletData: WalletData, oraclePyth: ContractDeployed, assetAddress: string, print: boolean = true): Promise<any> {
   if (!oraclePyth?.address || !assetAddress) {
     console.log();
     console.error("********* missing info!");

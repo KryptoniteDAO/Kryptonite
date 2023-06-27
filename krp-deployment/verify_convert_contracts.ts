@@ -1,7 +1,7 @@
 import { coins } from "@cosmjs/stargate";
 import { executeContractByWalletData, printChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance } from "./common";
 import { loadingWalletData, chainConfigs, CONVERT_ARTIFACTS_PATH, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH, SWAP_EXTENSION_ARTIFACTS_PATH } from "./env_data";
-import { ConvertDeployContracts, ConvertPairs, DeployContract, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts, WalletData } from "./types";
+import { ConvertDeployContracts, ConvertPairs, ContractDeployed, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts, WalletData } from "./types";
 import Decimal from "decimal.js";
 import { swapExtentionReadArtifact } from "./modules/swap";
 import { stakingReadArtifact } from "./modules/staking";
@@ -49,7 +49,7 @@ async function main(): Promise<void> {
 }
 
 /// convert native coin to cw20 token
-async function doConvertNativeToBasset(walletData: WalletData, nativeDenom: string, converter: DeployContract, btoken: DeployContract, amount: number | string): Promise<void> {
+async function doConvertNativeToBasset(walletData: WalletData, nativeDenom: string, converter: ContractDeployed, btoken: ContractDeployed, amount: number | string): Promise<void> {
   if (!converter?.address || !btoken?.address) {
     return;
   }
@@ -80,7 +80,7 @@ async function doConvertNativeToBasset(walletData: WalletData, nativeDenom: stri
 }
 
 /// convert cw20 token to native coin
-async function doConvertBassetToNative(walletData: WalletData, nativeDenom: string, btoken: DeployContract, converter: DeployContract, amount: string): Promise<void> {
+async function doConvertBassetToNative(walletData: WalletData, nativeDenom: string, btoken: ContractDeployed, converter: ContractDeployed, amount: string): Promise<void> {
   if (!btoken?.address || !converter?.address) {
     return;
   }

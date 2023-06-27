@@ -1,6 +1,6 @@
 import { printChangeBalancesByWalletData, queryContractConfig } from "./common";
 import { loadingWalletData, loadingMarketData, loadingStakingData, chainConfigs } from "./env_data";
-import type { DeployContract, MarketDeployContracts, WalletData } from "./types";
+import type { ContractDeployed, MarketDeployContracts, WalletData } from "./types";
 import { ConvertDeployContracts, StakingDeployContracts, SwapDeployContracts } from "./types";
 import {
   ConfigOraclePythBaseFeedInfoList,

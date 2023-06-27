@@ -1,5 +1,5 @@
 import { chainConfigs, DEPLOY_VERSION, KPT_MODULE_NAME, KPT_ARTIFACTS_PATH } from "../env_data";
-import { ChainId, DeployContract, InitialBalance, KptDeployContracts, RewardTokenConfigMsg, StakingRewardsPairs, StakingRewardsPairsDeployContracts, WalletData } from "../types";
+import { ChainId, ContractDeployed, InitialBalance, KptDeployContracts, RewardTokenConfigMsg, StakingRewardsPairs, StakingRewardsPairsDeployContracts, WalletData } from "../types";
 import { instantiateContractByWalletData, readArtifact, storeCodeByWalletData, writeArtifact } from "../common";
 import { kptContracts } from "../contracts";
 import { KptFundConfigResponse } from "../contracts/kpt/KptFund.types";
@@ -83,8 +83,8 @@ export async function deployKpt(walletData: WalletData, networkKpt: KptDeployCon
 }
 
 export async function deployKptFund(walletData: WalletData, networkKpt: KptDeployContracts): Promise<void> {
-  const kpt: DeployContract | undefined = networkKpt?.kpt;
-  const veKpt: DeployContract | undefined = networkKpt?.veKpt;
+  const kpt: ContractDeployed | undefined = networkKpt?.kpt;
+  const veKpt: ContractDeployed | undefined = networkKpt?.veKpt;
   if (!kpt?.address || !veKpt?.address) {
     return;
   }
@@ -117,9 +117,9 @@ export async function deployKptFund(walletData: WalletData, networkKpt: KptDeplo
 }
 
 export async function deployStakingRewards(walletData: WalletData, networkKpt: KptDeployContracts, stakingRewardsConfig: KptStakingRewardsConfig): Promise<void> {
-  const veKpt: DeployContract | undefined = networkKpt?.veKpt;
-  const kptFund: DeployContract | undefined = networkKpt?.kptFund;
-  const veKptBoost: DeployContract | undefined = networkKpt?.veKptBoost;
+  const veKpt: ContractDeployed | undefined = networkKpt?.veKpt;
+  const kptFund: ContractDeployed | undefined = networkKpt?.kptFund;
+  const veKptBoost: ContractDeployed | undefined = networkKpt?.veKptBoost;
   if (!stakingRewardsConfig?.staking_token || !veKpt?.address || !kptFund?.address || !veKptBoost?.address) {
     return;
   }
@@ -231,9 +231,9 @@ export async function deployVeKptBoost(walletData: WalletData, networkKpt: KptDe
 }
 
 export async function deployVeKptMiner(walletData: WalletData, networkKpt: KptDeployContracts): Promise<void> {
-  const veKpt: DeployContract | undefined = networkKpt?.veKpt;
-  const kptFund: DeployContract | undefined = networkKpt?.kptFund;
-  const veKptBoost: DeployContract | undefined = networkKpt?.veKptBoost;
+  const veKpt: ContractDeployed | undefined = networkKpt?.veKpt;
+  const kptFund: ContractDeployed | undefined = networkKpt?.kptFund;
+  const veKptBoost: ContractDeployed | undefined = networkKpt?.veKptBoost;
   if (!veKpt?.address || !kptFund?.address || !veKptBoost?.address) {
     return;
   }
@@ -297,9 +297,9 @@ export async function deployBlindBox(walletData: WalletData, networkKpt: KptDepl
 }
 
 export async function deployBlindBoxReward(walletData: WalletData, networkKpt: KptDeployContracts): Promise<void> {
-  const kpt: DeployContract | undefined = networkKpt?.kpt;
-  const veKpt: DeployContract | undefined = networkKpt?.veKpt;
-  const blindBox: DeployContract | undefined = networkKpt?.blindBox;
+  const kpt: ContractDeployed | undefined = networkKpt?.kpt;
+  const veKpt: ContractDeployed | undefined = networkKpt?.veKpt;
+  const blindBox: ContractDeployed | undefined = networkKpt?.blindBox;
   if (!kpt?.address || !veKpt?.address || !blindBox?.address) {
     return;
   }
@@ -338,7 +338,7 @@ export async function deployBlindBoxReward(walletData: WalletData, networkKpt: K
   }
 }
 
-export async function doKptUpdateConfig(walletData: WalletData, kpt: DeployContract, kptFund: DeployContract, print: boolean = true): Promise<any> {
+export async function doKptUpdateConfig(walletData: WalletData, kpt: ContractDeployed, kptFund: ContractDeployed, print: boolean = true): Promise<any> {
   print && console.log();
   print && console.log(`Do kpt.address update_config enter.`);
   if (!kpt?.address || !kptFund?.address) {
@@ -373,7 +373,7 @@ export async function doKptUpdateConfig(walletData: WalletData, kpt: DeployContr
   print && console.log(`config info: \n${JSON.stringify(afterConfigRes)}`);
 }
 
-export async function doVeKptUpdateConfig(walletData: WalletData, veKpt: DeployContract, kptFund: DeployContract, print: boolean = true): Promise<any> {
+export async function doVeKptUpdateConfig(walletData: WalletData, veKpt: ContractDeployed, kptFund: ContractDeployed, print: boolean = true): Promise<any> {
   print && console.log();
   print && console.log(`Do veKpt.address update_config enter.`);
   if (!veKpt?.address || !kptFund?.address) {
@@ -408,7 +408,7 @@ export async function doVeKptUpdateConfig(walletData: WalletData, veKpt: DeployC
   print && console.log(`config info: \n${JSON.stringify(afterConfigRes)}`);
 }
 
-export async function doVeKptSetMinters(walletData: WalletData, veKpt: DeployContract, stakingRewards: DeployContract, isMinter: boolean, print: boolean = true): Promise<any> {
+export async function doVeKptSetMinters(walletData: WalletData, veKpt: ContractDeployed, stakingRewards: ContractDeployed, isMinter: boolean, print: boolean = true): Promise<any> {
   print && console.log();
   print && console.log(`Do veKpt.address setMinters enter.`);
   if (!veKpt?.address || !stakingRewards?.address) {

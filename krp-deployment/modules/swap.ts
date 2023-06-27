@@ -1,5 +1,5 @@
 import { chainConfigs, DEPLOY_VERSION, SWAP_EXTENSION_ARTIFACTS_PATH, SWAP_EXTENSION_MODULE_NAME } from "../env_data";
-import { ChainId, DeployContract, StakingDeployContracts, SwapDeployContracts, WalletData } from "../types";
+import { ChainId, ContractDeployed, StakingDeployContracts, SwapDeployContracts, WalletData } from "../types";
 import { instantiateContractByWalletData, readArtifact, storeCodeByWalletData, writeArtifact } from "../common";
 import { SwapExtentionClient, SwapExtentionQueryClient } from "../contracts/swap-extention/SwapExtention.client";
 import { Addr, AssetInfo, Decimal } from "../contracts/swap-extention/SwapExtention.types";
@@ -55,7 +55,7 @@ export async function deploySwapExtention(walletData: WalletData, networkSwap: S
 
 export async function doSwapExtentionSetWhitelist(
   walletData: WalletData,
-  swapExtention: DeployContract,
+  swapExtention: ContractDeployed,
   whitelistConfig: {
     caller: string;
     isWhitelist: boolean;
@@ -99,7 +99,7 @@ export async function doSwapExtentionSetWhitelist(
 
 export async function doSwapExtentionUpdatePairConfig(
   walletData: WalletData,
-  swapExtention: DeployContract,
+  swapExtention: ContractDeployed,
   pairConfig: {
     assetInfos: AssetInfo[];
     pairAddress: Addr;

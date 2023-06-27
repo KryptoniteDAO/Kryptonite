@@ -1,6 +1,6 @@
 import { chainConfigs, DEPLOY_VERSION, MARKET_ARTIFACTS_PATH, MARKET_MODULE_NAME } from "../env_data";
 import { executeContractByWalletData, instantiateContract2ByWalletData, instantiateContractByWalletData, queryContractConfig, queryWasmContractByWalletData, readArtifact, storeCodeByWalletData, writeArtifact } from "../common";
-import { ChainId, DeployContract, MarketDeployContracts, WalletData } from "../types";
+import { ChainId, ContractDeployed, MarketDeployContracts, WalletData } from "../types";
 import { OraclePythClient, OraclePythQueryClient } from "../contracts/market/OraclePyth.client";
 
 export const ConfigOraclePythBaseFeedInfoList: Record<
@@ -309,7 +309,7 @@ export async function deployLiquidationQueue(walletData: WalletData, network: Ma
   }
 }
 
-export async function deployCustodyBSei(walletData: WalletData, network: MarketDeployContracts, rewardAddress: string, bSeiTokenAddress: string, swapExtention: DeployContract): Promise<void> {
+export async function deployCustodyBSei(walletData: WalletData, network: MarketDeployContracts, rewardAddress: string, bSeiTokenAddress: string, swapExtention: ContractDeployed): Promise<void> {
   const marketAddress = network?.market?.address;
   const liquidationQueueAddress = network?.liquidationQueue?.address;
   const overseerAddress = network?.overseer?.address;
@@ -361,12 +361,12 @@ export async function doMarketConfig(
   network: any,
   marketInitFlag: boolean,
   marketConfigRes: any,
-  market: DeployContract,
-  interestModel: DeployContract,
-  distributionModel: DeployContract,
-  overseer: DeployContract,
-  bSeiToken: DeployContract,
-  rewardsDispatcher: DeployContract
+  market: ContractDeployed,
+  interestModel: ContractDeployed,
+  distributionModel: ContractDeployed,
+  overseer: ContractDeployed,
+  bSeiToken: ContractDeployed,
+  rewardsDispatcher: ContractDeployed
 ): Promise<void> {
   if (!market?.address || !interestModel?.address || !distributionModel?.address || !overseer?.address || !bSeiToken?.address || !rewardsDispatcher?.address) {
     return;
@@ -399,7 +399,7 @@ export async function doMarketConfig(
   }
 }
 
-export async function doOverseerConfig(walletData: WalletData, overseerConfigRes: any, overseer: DeployContract, liquidationQueue: DeployContract): Promise<void> {
+export async function doOverseerConfig(walletData: WalletData, overseerConfigRes: any, overseer: ContractDeployed, liquidationQueue: ContractDeployed): Promise<void> {
   if (!overseer?.address || !liquidationQueue?.address) {
     return;
   }
@@ -419,7 +419,7 @@ export async function doOverseerConfig(walletData: WalletData, overseerConfigRes
   }
 }
 
-export async function doCustodyBSeiConfig(walletData: WalletData, custodyBSeiConfigRes: any, custodyBSei: DeployContract, liquidationQueue: DeployContract): Promise<void> {
+export async function doCustodyBSeiConfig(walletData: WalletData, custodyBSeiConfigRes: any, custodyBSei: ContractDeployed, liquidationQueue: ContractDeployed): Promise<void> {
   if (!custodyBSei?.address || !liquidationQueue?.address) {
     return;
   }
@@ -440,7 +440,7 @@ export async function doCustodyBSeiConfig(walletData: WalletData, custodyBSeiCon
   }
 }
 
-export async function doLiquidationQueueConfig(walletData: WalletData, liquidationQueueConfigRes: any, liquidationQueue: DeployContract, oraclePyth: DeployContract, overseer: DeployContract): Promise<void> {
+export async function doLiquidationQueueConfig(walletData: WalletData, liquidationQueueConfigRes: any, liquidationQueue: ContractDeployed, oraclePyth: ContractDeployed, overseer: ContractDeployed): Promise<void> {
   if (!liquidationQueue?.address || !oraclePyth?.address || !overseer?.address) {
     return;
   }
@@ -467,7 +467,7 @@ export async function doLiquidationQueueConfig(walletData: WalletData, liquidati
   }
 }
 
-export async function doOverseerWhitelist(walletData: WalletData, nativeDenom: string, overseer: DeployContract, custody: DeployContract, btoken: DeployContract, updateMsg?: object): Promise<void> {
+export async function doOverseerWhitelist(walletData: WalletData, nativeDenom: string, overseer: ContractDeployed, custody: ContractDeployed, btoken: ContractDeployed, updateMsg?: object): Promise<void> {
   console.log();
   console.warn("Do overseer's add whitelist enter. collateral_token: " + btoken.address);
   if (!overseer?.address || !custody?.address || !btoken?.address) {
@@ -499,7 +499,7 @@ export async function doOverseerWhitelist(walletData: WalletData, nativeDenom: s
   }
 }
 
-export async function doLiquidationQueueWhitelistCollateral(walletData: WalletData, nativeDenom: string, liquidationQueue: DeployContract, btoken: DeployContract, updateMsg?: object): Promise<void> {
+export async function doLiquidationQueueWhitelistCollateral(walletData: WalletData, nativeDenom: string, liquidationQueue: ContractDeployed, btoken: ContractDeployed, updateMsg?: object): Promise<void> {
   console.log();
   console.warn("Do liquidationQueue's whitelist_collateral enter. collateral_token: " + btoken.address);
   if (!liquidationQueue?.address || !btoken?.address) {
@@ -530,7 +530,7 @@ export async function doLiquidationQueueWhitelistCollateral(walletData: WalletDa
 /**
  * {"elems":[{"name":"","symbol":"","max_ltv":"","custody_contract":"","collateral_token":""}]}
  */
-export async function queryOverseerWhitelist(walletData: WalletData, overseer: DeployContract, print: boolean = true): Promise<any> {
+export async function queryOverseerWhitelist(walletData: WalletData, overseer: ContractDeployed, print: boolean = true): Promise<any> {
   if (!overseer || !overseer.address) {
     return;
   }
@@ -541,7 +541,7 @@ export async function queryOverseerWhitelist(walletData: WalletData, overseer: D
   return overseerWhitelistRes;
 }
 
-export async function doOraclePythConfigFeedInfo(walletData: WalletData, oraclePyth: DeployContract, configFeedInfoParams: { asset: string; checkFeedAge: boolean; priceFeedAge: number; priceFeedDecimal: number; priceFeedId: string; priceFeedSymbol: string }, print: boolean = true): Promise<void> {
+export async function doOraclePythConfigFeedInfo(walletData: WalletData, oraclePyth: ContractDeployed, configFeedInfoParams: { asset: string; checkFeedAge: boolean; priceFeedAge: number; priceFeedDecimal: number; priceFeedId: string; priceFeedSymbol: string }, print: boolean = true): Promise<void> {
   print && console.log();
   print && console.warn(`Do oraclePyth.address ConfigFeedInfo enter. asset: ${configFeedInfoParams.asset}`);
   if (!oraclePyth?.address || !configFeedInfoParams?.asset || !configFeedInfoParams?.priceFeedId) {
@@ -577,7 +577,7 @@ export async function doOraclePythConfigFeedInfo(walletData: WalletData, oracleP
   // await queryPythFeederConfig(walletData, oraclePyth, configFeedInfoParams.asset_address);
 }
 
-export async function queryPythFeederConfig(walletData: WalletData, oraclePyth: DeployContract, assetAddress: string, print: boolean = true): Promise<any> {
+export async function queryPythFeederConfig(walletData: WalletData, oraclePyth: ContractDeployed, assetAddress: string, print: boolean = true): Promise<any> {
   if (!oraclePyth?.address || !assetAddress) {
     console.log();
     console.error("********* missing info!");
@@ -594,7 +594,7 @@ export async function queryPythFeederConfig(walletData: WalletData, oraclePyth: 
   return queryRes;
 }
 
-export async function doOracleRegisterFeeder(walletData: WalletData, nativeDenom: string, oracle: DeployContract, btoken: DeployContract): Promise<void> {
+export async function doOracleRegisterFeeder(walletData: WalletData, nativeDenom: string, oracle: ContractDeployed, btoken: ContractDeployed): Promise<void> {
   if (!oracle?.address || !btoken?.address) {
     return;
   }
@@ -627,7 +627,7 @@ export async function doOracleRegisterFeeder(walletData: WalletData, nativeDenom
   }
 }
 
-export async function doOracleFeedPrice(walletData: WalletData, nativeDenom: string, oracle: DeployContract, btoken: DeployContract, price: string): Promise<void> {
+export async function doOracleFeedPrice(walletData: WalletData, nativeDenom: string, oracle: ContractDeployed, btoken: ContractDeployed, price: string): Promise<void> {
   if (!oracle?.address || !btoken?.address || !price) {
     return;
   }

@@ -1,6 +1,6 @@
 import { printChangeBalancesByWalletData } from "./common";
 import { loadingWalletData } from "./env_data";
-import { DeployContract, KptDeployContracts, StakingRewardsPairsDeployContracts, WalletData } from "./types";
+import { ContractDeployed, KptDeployContracts, StakingRewardsPairsDeployContracts, WalletData } from "./types";
 import { kptReadArtifact, printDeployedKptContracts, printDeployedKptStakingContracts } from "./modules/kpt";
 import { kptContracts } from "./contracts";
 import { KptFundConfigResponse } from "./contracts/kpt/KptFund.types";
@@ -24,13 +24,13 @@ async function main(): Promise<void> {
   await printDeployedKptContracts(networkKpt);
   await printDeployedKptStakingContracts(networkKpt);
 
-  const kpt: DeployContract = networkKpt?.kpt;
-  const veKpt: DeployContract = networkKpt?.veKpt;
-  const kptFund: DeployContract = networkKpt?.kptFund;
-  const veKptBoost: DeployContract = networkKpt?.veKptBoost;
-  const veKptMiner: DeployContract = networkKpt?.veKptMiner;
-  const blindBox: DeployContract = networkKpt?.blindBox;
-  const blindBoxReward: DeployContract = networkKpt?.blindBoxReward;
+  const kpt: ContractDeployed = networkKpt?.kpt;
+  const veKpt: ContractDeployed = networkKpt?.veKpt;
+  const kptFund: ContractDeployed = networkKpt?.kptFund;
+  const veKptBoost: ContractDeployed = networkKpt?.veKptBoost;
+  const veKptMiner: ContractDeployed = networkKpt?.veKptMiner;
+  const blindBox: ContractDeployed = networkKpt?.blindBox;
+  const blindBoxReward: ContractDeployed = networkKpt?.blindBoxReward;
   const stakingRewardsPairs: StakingRewardsPairsDeployContracts[] = networkKpt?.stakingRewardsPairs;
 
   if (kpt?.address) {

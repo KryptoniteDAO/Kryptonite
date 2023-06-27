@@ -1,7 +1,7 @@
 import { coins } from "@cosmjs/stargate";
 import { queryStakingDelegations, queryAddressBalance, queryStaking, queryStakingParameters, queryWasmContractByWalletData, executeContractByWalletData, printChangeBalancesByWalletData, queryAddressTokenBalance } from "./common";
 import { loadingWalletData, loadingStakingData, STAKING_ARTIFACTS_PATH } from "./env_data";
-import { ConvertDeployContracts, DeployContract, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts, WalletData } from "./types";
+import { ConvertDeployContracts, ContractDeployed, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts, WalletData } from "./types";
 import Decimal from "decimal.js";
 import { swapExtentionReadArtifact } from "./modules/swap";
 import { stakingReadArtifact } from "./modules/staking";
@@ -61,7 +61,7 @@ async function main(): Promise<void> {
   console.log();
 }
 
-async function queryHubConfig(walletData: WalletData, hub: DeployContract, reward: DeployContract, bSeiToken: DeployContract, rewardsDispatcher: DeployContract, validatorsRegistry: DeployContract, stSeiToken: DeployContract): Promise<any> {
+async function queryHubConfig(walletData: WalletData, hub: ContractDeployed, reward: ContractDeployed, bSeiToken: ContractDeployed, rewardsDispatcher: ContractDeployed, validatorsRegistry: ContractDeployed, stSeiToken: ContractDeployed): Promise<any> {
   if (!hub?.address || !reward?.address || !bSeiToken?.address || !rewardsDispatcher?.address || !validatorsRegistry?.address || !stSeiToken?.address) {
     console.error("Query hub.address config error: missing address");
     return;
@@ -79,7 +79,7 @@ async function queryHubConfig(walletData: WalletData, hub: DeployContract, rewar
   return hubConfigRes;
 }
 
-async function doHubBondForStsei(walletData: WalletData, nativeDenom: string, hub: DeployContract, stsei: DeployContract, amount: number | string): Promise<void> {
+async function doHubBondForStsei(walletData: WalletData, nativeDenom: string, hub: ContractDeployed, stsei: ContractDeployed, amount: number | string): Promise<void> {
   if (!hub?.address || !stsei?.address) {
     return;
   }
@@ -108,7 +108,7 @@ async function doHubBondForStsei(walletData: WalletData, nativeDenom: string, hu
   console.log(`after token balance: ${afterTokenBalanceRes.balance} ${stsei.address}`);
 }
 
-async function doHubBondForBsei(walletData: WalletData, nativeDenom: string, hub: DeployContract, bsei: DeployContract, amount: number | string): Promise<void> {
+async function doHubBondForBsei(walletData: WalletData, nativeDenom: string, hub: ContractDeployed, bsei: ContractDeployed, amount: number | string): Promise<void> {
   if (!hub?.address || !bsei?.address) {
     return;
   }
@@ -137,7 +137,7 @@ async function doHubBondForBsei(walletData: WalletData, nativeDenom: string, hub
   console.log(`after token balance: ${afterTokenBalanceRes.balance} ${bsei.address}`);
 }
 
-async function doHubUnbondBseiToNative(walletData: WalletData, nativeDenom: string, btoken: DeployContract, hub: DeployContract, amount: string): Promise<void> {
+async function doHubUnbondBseiToNative(walletData: WalletData, nativeDenom: string, btoken: ContractDeployed, hub: ContractDeployed, amount: string): Promise<void> {
   if (!btoken?.address || !hub?.address) {
     return;
   }
@@ -176,7 +176,7 @@ async function doHubUnbondBseiToNative(walletData: WalletData, nativeDenom: stri
   console.log(`after unbond_requests ok. \n${JSON.stringify(afterUnbondRequestRes)}`);
 }
 
-async function doHubWithdrawUnbondedToNative(walletData: WalletData, nativeDenom: string, hub: DeployContract): Promise<void> {
+async function doHubWithdrawUnbondedToNative(walletData: WalletData, nativeDenom: string, hub: ContractDeployed): Promise<void> {
   if (!hub?.address) {
     return;
   }
@@ -201,7 +201,7 @@ async function doHubWithdrawUnbondedToNative(walletData: WalletData, nativeDenom
   console.log(`Query hub.address withdrawable_unbonded ok. \n${JSON.stringify(afterWithdrawAbleRes)}`);
 }
 
-async function doHubUpdateRewards(walletData: WalletData, nativeDenom: string, hub: DeployContract, rewardDemon: string, amount: string): Promise<void> {
+async function doHubUpdateRewards(walletData: WalletData, nativeDenom: string, hub: ContractDeployed, rewardDemon: string, amount: string): Promise<void> {
   if (!hub?.address || !rewardDemon) {
     return;
   }
@@ -236,7 +236,7 @@ async function doHubUpdateRewards(walletData: WalletData, nativeDenom: string, h
   console.log(`after rewardDemon balance: ${afterRewardsDemonBalanceRes?.amount} ${rewardDemon}`);
 }
 
-async function doClaimRewards(walletData: WalletData, nativeDenom: string, reward: DeployContract, rewardDemon: string): Promise<void> {
+async function doClaimRewards(walletData: WalletData, nativeDenom: string, reward: ContractDeployed, rewardDemon: string): Promise<void> {
   if (!reward?.address || !rewardDemon) {
     return;
   }
@@ -272,7 +272,7 @@ async function doClaimRewards(walletData: WalletData, nativeDenom: string, rewar
   console.log(`Query reward.address accrued_rewards ok. address: ${walletData.address} \n${JSON.stringify(afterAccruedRewardsRes)}`);
 }
 
-async function printMoreInfo(walletData: WalletData, nativeDenom: string, hub: DeployContract) {
+async function printMoreInfo(walletData: WalletData, nativeDenom: string, hub: ContractDeployed) {
   console.log();
   console.log(`Query staking pool enter`);
   const stakingPoolRes = await queryStaking(walletData.LCD_ENDPOINT);

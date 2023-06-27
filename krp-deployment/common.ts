@@ -1,12 +1,12 @@
 import { getQueryClient } from "@sei-js/core";
 import type { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 import type { SigningStargateClient } from "@cosmjs/stargate";
-import { calculateFee, coin, coins, GasPrice } from "@cosmjs/stargate";
+import { calculateFee, coins, GasPrice } from "@cosmjs/stargate";
 import { InstantiateResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
 import * as fs from "fs";
 import * as path from "path";
-import { Balance, WalletData, ClientData, DeployContract } from "./types";
+import type { Balance, WalletData, ClientData, ContractDeployed, BaseContractConfig } from "./types";
 
 const Decimal = require("decimal.js");
 
@@ -191,7 +191,7 @@ export async function loadAddressesBalances(walletData: WalletData, addressList:
   let addressesBalances = [];
   for (let address of addressList) {
     for (let denom of denomList) {
-      addressesBalances.push({ address: address, balance: (await queryAddressBalance(walletData, address, denom)) });
+      addressesBalances.push({ address: address, balance: await queryAddressBalance(walletData, address, denom) });
     }
   }
 
@@ -238,7 +238,7 @@ export async function printChangeBalancesByWalletData(walletData: WalletData) {
   }
 }
 
-export async function queryContractConfig(walletData: WalletData, deployContract: DeployContract, print: boolean = true): Promise<{ initFlag; config }> {
+export async function queryContractConfig(walletData: WalletData, deployContract: ContractDeployed, print: boolean = true): Promise<{ initFlag; config }> {
   if (!deployContract?.address) {
     return;
   }
@@ -260,7 +260,49 @@ export async function queryContractConfig(walletData: WalletData, deployContract
   return { initFlag, config };
 }
 
-export async function queryContractQueryConfig(walletData: WalletData, deployContract: DeployContract, print: boolean = true): Promise<{ initFlag; config }> {
+export async function deployContract<C extends BaseContractConfig = BaseContractConfig, M extends object = object, D extends { defaultFilePath?: string; defaultLabel?: string; defaultInitMsg?: M; defaultFunds?: Coin[]; write?: boolean; writeFunc?: Function } = any>(
+  walletData: WalletData,
+  contractName: string,
+  network: unknown,
+  contractConfig: C,
+  { defaultFilePath, defaultLabel, defaultInitMsg, defaultFunds, write = true, writeFunc }: D
+): Promise<void> {
+  if (!network || !contractConfig || !contractName) {
+    console.error(`\n  Missing info: ${contractName}`);
+    return;
+  }
+
+  let contractNetwork = network[contractName] as unknown as ContractDeployed;
+
+  if (!contractNetwork?.address) {
+    if (!contractNetwork) {
+      contractNetwork = {} as ContractDeployed;
+      network[contractName] = contractNetwork;
+    }
+
+    if (!contractNetwork?.codeId || contractNetwork?.codeId <= 0) {
+      const filePath = contractConfig?.filePath || defaultFilePath;
+      if (!filePath) {
+        console.error(`\n  Missing file: ${contractName}`);
+        return;
+      }
+
+      contractNetwork.codeId = await storeCodeByWalletData(walletData, filePath);
+      write && typeof writeFunc === "function" && writeFunc(network, walletData.chainId);
+    }
+    if (contractNetwork?.codeId > 0) {
+      const admin = contractConfig?.admin || walletData.address;
+      const label = contractConfig?.label || defaultLabel || contractName || "deploy contract";
+      const initMsg = defaultInitMsg || Object.assign({}, contractConfig?.initMsg);
+      contractNetwork.address = await instantiateContractByWalletData(walletData, admin, contractNetwork.codeId, initMsg, label, defaultFunds);
+      write && typeof writeFunc === "function" && writeFunc(network, walletData.chainId);
+      contractConfig.deploy = true;
+    }
+    console.log(`\n  [contractName]: `, contractName, JSON.stringify(contractNetwork));
+  }
+}
+
+export async function queryContractQueryConfig(walletData: WalletData, deployContract: ContractDeployed, print: boolean = true): Promise<{ initFlag; config }> {
   if (!deployContract?.address) {
     return;
   }

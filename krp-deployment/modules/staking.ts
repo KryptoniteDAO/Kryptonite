@@ -1,5 +1,5 @@
 import { chainConfigs, DEPLOY_VERSION, STAKING_ARTIFACTS_PATH, STAKING_MODULE_NAME } from "../env_data";
-import { DeployContract, StakingDeployContracts, WalletData } from "../types";
+import { ContractDeployed, StakingDeployContracts, WalletData } from "../types";
 import { executeContractByWalletData, instantiateContractByWalletData, queryWasmContractByWalletData, readArtifact, storeCodeByWalletData, writeArtifact } from "../common";
 
 export function getStakingDeployFileName(chainId: string): string {
@@ -14,7 +14,7 @@ export function stakingWriteArtifact(networkStaking: StakingDeployContracts, cha
   writeArtifact(networkStaking, getStakingDeployFileName(chainId), STAKING_ARTIFACTS_PATH);
 }
 
-export async function deployHub(walletData: WalletData, networkStaking: StakingDeployContracts, swapExtention: DeployContract): Promise<void> {
+export async function deployHub(walletData: WalletData, networkStaking: StakingDeployContracts, swapExtention: ContractDeployed): Promise<void> {
   if (!networkStaking?.hub?.address || !swapExtention?.address) {
     if (!networkStaking?.hub) {
       networkStaking.hub = {};
@@ -46,7 +46,7 @@ export async function deployHub(walletData: WalletData, networkStaking: StakingD
   }
 }
 
-export async function deployReward(walletData: WalletData, network: any, swapExtention: DeployContract): Promise<void> {
+export async function deployReward(walletData: WalletData, network: any, swapExtention: ContractDeployed): Promise<void> {
   const hubAddress = network?.hub?.address;
   if (!hubAddress || !swapExtention?.address) {
     return;
@@ -119,7 +119,7 @@ export async function deployBSeiToken(walletData: WalletData, network: any): Pro
   }
 }
 
-export async function deployRewardsDispatcher(walletData: WalletData, network: any, swapExtention: DeployContract, oraclePyth: DeployContract): Promise<void> {
+export async function deployRewardsDispatcher(walletData: WalletData, network: any, swapExtention: ContractDeployed, oraclePyth: ContractDeployed): Promise<void> {
   const hubAddress = network?.hub?.address;
   const rewardAddress = network?.reward?.address;
   if (!hubAddress || !rewardAddress || !swapExtention?.address || !oraclePyth?.address) {
@@ -225,7 +225,7 @@ export async function deployStSeiToken(walletData: WalletData, network: any): Pr
   }
 }
 
-export async function doHubConfig(walletData: WalletData, hub: DeployContract, reward: DeployContract, bSeiToken: DeployContract, rewardsDispatcher: DeployContract, validatorsRegistry: DeployContract, stSeiToken: DeployContract): Promise<void> {
+export async function doHubConfig(walletData: WalletData, hub: ContractDeployed, reward: ContractDeployed, bSeiToken: ContractDeployed, rewardsDispatcher: ContractDeployed, validatorsRegistry: ContractDeployed, stSeiToken: ContractDeployed): Promise<void> {
   if (hub?.address && reward?.address && bSeiToken?.address && rewardsDispatcher?.address && validatorsRegistry?.address && stSeiToken?.address) {
     // console.log("query hub.address config enter");
     const hubConfigRes = await queryWasmContractByWalletData(walletData, hub.address, { config: {} });
@@ -254,7 +254,7 @@ export async function doHubConfig(walletData: WalletData, hub: DeployContract, r
 /**
  * {"owner":"","reward_dispatcher_contract":"","validators_registry_contract":"","bsei_token_contract":"","stsei_token_contract":"","airdrop_registry_contract":null,"token_contract":""}
  */
-export async function queryHubConfig(walletData: WalletData, hub: DeployContract): Promise<any> {
+export async function queryHubConfig(walletData: WalletData, hub: ContractDeployed): Promise<any> {
   if (!hub?.address) {
     return;
   }
@@ -269,7 +269,7 @@ export async function queryHubConfig(walletData: WalletData, hub: DeployContract
 /**
  * {"epoch_period":30,"underlying_coin_denom":"usei","unbonding_period":120,"peg_recovery_fee":"0","er_threshold":"1","reward_denom":"","paused":false}
  */
-export async function queryHubParameters(walletData: WalletData, hub: DeployContract): Promise<any> {
+export async function queryHubParameters(walletData: WalletData, hub: ContractDeployed): Promise<any> {
   if (!hub?.address) {
     return;
   }
@@ -294,7 +294,7 @@ export async function printDeployedStakingContracts(networkStaking: StakingDeplo
   console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
 }
 
-export async function addValidator(walletData: WalletData, validatorRegister: DeployContract): Promise<any> {
+export async function addValidator(walletData: WalletData, validatorRegister: ContractDeployed): Promise<any> {
   console.log();
   console.warn("Do register validator enter");
   const registerValidatorRes = await executeContractByWalletData(walletData, validatorRegister.address, {
@@ -307,7 +307,7 @@ export async function addValidator(walletData: WalletData, validatorRegister: De
   console.log("Do register validator  ok. \n", registerValidatorRes?.transactionHash);
 }
 
-export async function removeValidator(walletData: WalletData, validatorRegister: DeployContract, validator: string): Promise<any> {
+export async function removeValidator(walletData: WalletData, validatorRegister: ContractDeployed, validator: string): Promise<any> {
   console.log();
   console.warn("Do remove validator register enter");
   const registerValidatorRes = await executeContractByWalletData(walletData, validatorRegister.address, {

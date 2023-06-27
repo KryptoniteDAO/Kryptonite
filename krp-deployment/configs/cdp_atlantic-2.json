@@ -1,0 +1,57 @@
+{
+  "validator": "seivaloper19t4d78pt5xg6xm0mf97q8ay7v0xwrr4jmf04j3",
+  "stable_coin_denom": "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/usdt",
+  "cdpCentralControl": {
+    "admin": null,
+    "initMsg": {
+      "owner_addr": null,
+      "stable_denom": "USDT",
+      "epoch_period": 1681,
+      "redeem_fee": "0.005"
+    },
+    "label": "cdp central control",
+    "filePath": null,
+    "deploy": false
+  },
+  "cdpStablePool": {
+    "admin": null,
+    "initMsg": {
+      "owner_addr": null,
+      "sub_demon": "kUSD",
+      "min_redeem_value": "1000000"
+    },
+    "initCoins": [
+      {
+        "denom": "usei",
+        "amount": "1000"
+      }
+    ],
+    "label": "cdp stable pool contract",
+    "filePath": null,
+    "deploy": false
+  },
+  "cdpCustody": {
+    "admin": null,
+    "initMsg": {
+      "owner_addr": null
+    },
+    "label": "cdp custody",
+    "filePath": null,
+    "deploy": false
+  },
+  "cdpLiquidationQueue": {
+    "admin": null,
+    "initMsg": {
+      "owner": null,
+      "safe_ratio": "0.8",
+      "bid_fee": "0.01",
+      "liquidator_fee": "0.01",
+      "liquidation_threshold": "500",
+      "price_timeframe": 86400,
+      "waiting_period": 600
+    },
+    "label": "cdp liquidate queue contract",
+    "filePath": null,
+    "deploy": false
+  }
+}

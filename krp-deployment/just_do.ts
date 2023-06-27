@@ -1,13 +1,14 @@
-import { BnAdd, BnComparedTo, BnDiv, BnMul, BnPow, BnSub, printChangeBalancesByWalletData } from "./common";
+import { BnAdd, BnComparedTo, BnDiv, BnMul, BnPow, BnSub, printChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance, queryWasmContractByWalletData } from "./common";
 import { loadingWalletData } from "./env_data";
-import type { DeployContract, WalletData } from "./types";
+import type { Balance, ContractDeployed, WalletData } from "./types";
 import { ConvertDeployContracts, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts } from "./types";
 import { stakingReadArtifact } from "./modules/staking";
 import { marketReadArtifact } from "./modules/market";
 import { swapExtentionReadArtifact } from "./modules/swap";
 import { convertReadArtifact } from "./modules/convert";
-import { OraclePythQueryClient } from "./contracts/OraclePyth.client";
-import { OverseerQueryClient } from "./contracts/Overseer.client";
+
+import { marketContracts } from "./contracts";
+
 
 main().catch(console.error);
 
@@ -25,22 +26,25 @@ async function main(): Promise<void> {
   // // just do what you want
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  const blocksPerYear = 63_072_000;
-  const blocksPerYear2 = 4656810;
+  // const blocksPerYear = 63_072_000;
+  // const blocksPerYear2 = 4656810;
+  //
+  const oraclePythQueryClient = new marketContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, networkMarket?.oraclePyth?.address);
+  // // const queryRes = oraclePythQueryClient.queryPrice({asset: walletData.stable_coin_denom})
+  // // const queryRes = oraclePythQueryClient.queryPrice({ asset: networkStaking.bSeiToken.address });
+  // // console.log(queryRes);
+  // const overseerQueryClient = new OverseerQueryClient(walletData.signingCosmWasmClient, networkMarket?.overseer?.address);
+  // const epochStateRes = await overseerQueryClient.epochState();
+  // const epochConfigRes = await overseerQueryClient.config();
+  // const dynrateStateRes = await overseerQueryClient.dynrateState();
+  //
+  // console.log(epochStateRes);
+  // console.log(epochConfigRes);
+  // console.log(dynrateStateRes);
+  // console.log(computeApy(epochStateRes.deposit_rate, blocksPerYear, epochConfigRes.epoch_period));
 
-  const oraclePythQueryClient = new OraclePythQueryClient(walletData.signingCosmWasmClient, networkMarket?.oraclePyth?.address);
-  // const queryRes = oraclePythQueryClient.queryPrice({asset: walletData.stable_coin_denom})
-  // const queryRes = oraclePythQueryClient.queryPrice({ asset: networkStaking.bSeiToken.address });
-  // console.log(queryRes);
-  const overseerQueryClient = new OverseerQueryClient(walletData.signingCosmWasmClient, networkMarket?.overseer?.address);
-  const epochStateRes = await overseerQueryClient.epochState();
-  const epochConfigRes = await overseerQueryClient.config();
-  const dynrateStateRes = await overseerQueryClient.dynrateState();
-
-  console.log(epochStateRes);
-  console.log(epochConfigRes);
-  console.log(dynrateStateRes);
-  console.log(computeApy(epochStateRes.deposit_rate, blocksPerYear, epochConfigRes.epoch_period));
+  const pairToken: string = "sei1dgs47p8fe384pepp4q09fqwxu0xpr99j69d7avhqkfs5vsyzvl2sajz57m";
+  console.log(`\n  +++++++ `, await getPairPrice(walletData, pairToken));
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   console.log();
@@ -50,6 +54,118 @@ async function main(): Promise<void> {
   await printChangeBalancesByWalletData(walletData);
   console.log();
 }
+
+export type Addr = string;
+export type AssetInfo =
+  | {
+      token: {
+        contract_addr: Addr;
+      };
+    }
+  | {
+      native_token: {
+        denom: string;
+      };
+    };
+export type PairInfo = {
+  asset_infos: AssetInfo[];
+  contract_addr: Addr;
+  liquidity_token: Addr;
+  pair_type: Record<string, any>;
+};
+export type Uint128 = string;
+export interface TokenInfoResponse {
+  decimals: number;
+  name: string;
+  symbol: string;
+  total_supply: Uint128;
+}
+
+export type CoinBalance = {
+  balance?: string;
+  balanceRaw?: string;
+};
+export type AssetDataInfo = {
+  asset_info: AssetInfo;
+  asset_balance: CoinBalance;
+  asset_value: string;
+  price: string;
+};
+
+/**
+ * 1.get pair() => asset_infos
+ */
+const getPairPrice = async (walletData: WalletData, pairToken: string): Promise<string> => {
+  const pairRes: PairInfo = await queryWasmContractByWalletData(walletData, pairToken, {
+    pair: {}
+  });
+  console.log(`\n  pairRes: ${JSON.stringify(pairRes)}`);
+  const liquidityToken: string = pairRes.liquidity_token;
+  const totalInfoRes: TokenInfoResponse = await queryWasmContractByWalletData(walletData, liquidityToken, {
+    token_info: {}
+  });
+  console.log(`\n  totalInfoRes: ${JSON.stringify(totalInfoRes)}`);
+  const liquidityTokenTotalSupply: string = BnDiv(totalInfoRes.total_supply, BnPow(10, totalInfoRes.decimals));
+
+  if ((BnComparedTo(liquidityTokenTotalSupply, "0") ?? -1) <= 0) {
+    return "0";
+  }
+  const assetDataInfoList: AssetDataInfo[] = [];
+  let pairTotalValue = "0";
+  for (const assetInfo of pairRes.asset_infos) {
+    if (!!assetInfo?.["native_token"]) {
+      const balanceRaw = (await queryAddressBalance(walletData, pairToken, assetInfo?.["native_token"].denom))?.amount ?? 0;
+      const balance = BnDiv(balanceRaw, BnPow(10, 6));
+      const price = await getAssetPrice(walletData, pairToken, assetInfo);
+      const asset_value = BnMul(balance, price);
+      pairTotalValue = BnAdd(pairTotalValue, asset_value);
+      assetDataInfoList.push({ asset_info: assetInfo, price, asset_balance: { balanceRaw, balance }, asset_value });
+    } else if (!!assetInfo?.["token"]) {
+      const balanceRaw = (await queryAddressTokenBalance(walletData.signingCosmWasmClient, pairToken, assetInfo?.["token"].contract_addr))?.amount ?? 0;
+      const balance = BnDiv(balanceRaw, BnPow(10, 6));
+      const price = await getAssetPrice(walletData, pairToken, assetInfo);
+      const asset_value = BnMul(balance, price);
+      pairTotalValue = BnAdd(pairTotalValue, asset_value);
+      assetDataInfoList.push({ asset_info: assetInfo, price, asset_balance: { balanceRaw, balance }, asset_value });
+    }
+  }
+  console.log(`\n  assetDataInfoList: ${JSON.stringify(assetDataInfoList)}`);
+  return BnDiv(pairTotalValue, liquidityTokenTotalSupply);
+};
+
+const getAssetPrice = async (walletData: WalletData, pairToken: string, assetInfo: AssetInfo): Promise<string> => {
+  const asset: string = assetInfo?.["native_token"].denom ?? assetInfo?.["token"].contract_addr;
+  const oraclePythQueryClient = new marketContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, "sei1astmpzef62a0anfqqwkau9prtcd58njvpjcmskemzhzas009xpgs2u3dgp");
+
+  let configRes = null;
+  let initFlag = true;
+  try {
+    configRes = await oraclePythQueryClient.queryPythFeederConfig({ asset });
+  } catch (error: any) {
+    if (error?.toString().includes("Pyth feeder config not found")) {
+      initFlag = false;
+    } else {
+      throw new Error(error);
+    }
+  }
+  await getAssetPriceFromSwapPair(walletData, pairToken, assetInfo);
+  if (!initFlag || !configRes?.is_valid) {
+    return await getAssetPriceFromSwapPair(walletData, pairToken, assetInfo);
+  }
+
+  const priceResponse = await oraclePythQueryClient.queryPrice({ asset });
+  console.log(`\n  priceResponse: ${JSON.stringify(priceResponse)}`);
+  return priceResponse?.emv_price ?? "0";
+};
+
+const getAssetPriceFromSwapPair = async (walletData: WalletData, pairToken: string, assetInfo: AssetInfo): Promise<string> => {
+  const simulationRes = await queryWasmContractByWalletData(walletData, pairToken, {
+    simulation: { offer_asset: { info: assetInfo, amount: "1000000" } }
+  });
+  console.log(`\n ----------- simulationRes: ${JSON.stringify(assetInfo)} / ${JSON.stringify(simulationRes)}`);
+
+  return BnDiv(simulationRes?.return_amount ?? 0, BnPow(10, 6));
+};
 
 function computeApy(depositRate: string, blocksPerYear: number, epochPeriod: number): string {
   const compoundTimes = BnDiv(blocksPerYear, epochPeriod);
