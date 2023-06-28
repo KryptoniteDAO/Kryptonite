@@ -604,7 +604,7 @@ export async function queryOverseerWhitelist(walletData: WalletData, overseer: C
   print && console.log();
   print && console.log("Query overseer.address whitelist enter");
   const overseerWhitelistRes = await queryWasmContractByWalletData(walletData, overseer.address, { whitelist: {} });
-  print && console.log(`overseer.whitelist: \n${JSON.stringify(overseerWhitelistRes)}`);
+  print && console.log(`overseer.whitelist: \n  ${JSON.stringify(overseerWhitelistRes)}`);
   return overseerWhitelistRes;
 }
 
@@ -631,16 +631,16 @@ export async function doOraclePythConfigFeedInfo(walletData: WalletData, oracleP
       throw new Error(error);
     }
   }
-  // print && console.log(`queryPythFeederConfig ok. asset: ${configFeedInfoParams.asset} \n${JSON.stringify(configRes)}`);
+  // print && console.log(`queryPythFeederConfig ok. asset: ${configFeedInfoParams.asset} \n  ${JSON.stringify(configRes)}`);
   if (initFlag) {
-    console.warn(`********* The asset is already done. asset: ${configFeedInfoParams.asset} \n${JSON.stringify(configRes)}`);
+    console.warn(`********* The asset is already done. asset: ${configFeedInfoParams.asset} \n  ${JSON.stringify(configRes)}`);
     return;
   }
 
   const oraclePythClient = new OraclePythClient(walletData.signingCosmWasmClient, walletData.address, oraclePyth.address);
   const doRes = await oraclePythClient.configFeedInfo(configFeedInfoParams);
 
-  print && console.log(`Do oraclePyth.address ConfigFeedInfo ok. \n${doRes?.transactionHash}`);
+  print && console.log(`Do oraclePyth.address ConfigFeedInfo ok. \n  ${doRes?.transactionHash}`);
   // await queryPythFeederConfig(walletData, oraclePyth, configFeedInfoParams.asset_address);
 }
 
@@ -657,7 +657,7 @@ export async function queryPythFeederConfig(walletData: WalletData, oraclePyth: 
   const queryRes = await oraclePythQueryClient.queryPythFeederConfig({ asset: assetAddress });
 
   // const configRes = await queryWasmContractByWalletData(walletData, oraclePyth.address, { query_pyth_feeder_config: { asset_address: assetAddress } });
-  print && console.log(`Query oracle.PythFeederConfig: \n${JSON.stringify(queryRes)}`);
+  print && console.log(`Query oracle.PythFeederConfig: \n  ${JSON.stringify(queryRes)}`);
   return queryRes;
 }
 

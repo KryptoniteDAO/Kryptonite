@@ -312,7 +312,7 @@ export async function queryHubConfig(walletData: WalletData, hub: ContractDeploy
   console.log();
   console.log("Query hub.address config enter");
   const hubConfigRes = await queryWasmContractByWalletData(walletData, hub.address, { config: {} });
-  console.log(`hub.config: \n${JSON.stringify(hubConfigRes)}`);
+  console.log(`hub.config: \n  ${JSON.stringify(hubConfigRes)}`);
   return hubConfigRes;
 }
 
@@ -326,7 +326,7 @@ export async function queryHubParameters(walletData: WalletData, hub: ContractDe
   console.log();
   console.log("Query hub.address parameters enter");
   const hubParametersRes = await queryWasmContractByWalletData(walletData, hub.address, { parameters: {} });
-  console.log(`hub.parameters: \n${JSON.stringify(hubParametersRes)}`);
+  console.log(`hub.parameters: \n  ${JSON.stringify(hubParametersRes)}`);
   return hubParametersRes;
 }
 

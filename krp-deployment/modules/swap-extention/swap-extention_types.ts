@@ -2,12 +2,14 @@ import type { Addr, BaseContractConfig, ContractDeployed, AssetInfo } from "@/ty
 
 export interface SwapExtentionContractConfig extends BaseContractConfig {
   initMsg?: {
-    owner: Addr;
+    owner?: Addr;
   };
 }
 
 export interface SwapExtentionContractsConfig {
   swapExtention: SwapExtentionContractConfig;
+  /// update PairConfig list
+  swapPairConfigList?: SwapPairInfo[];
 }
 
 export interface SwapExtentionContractsDeployed {

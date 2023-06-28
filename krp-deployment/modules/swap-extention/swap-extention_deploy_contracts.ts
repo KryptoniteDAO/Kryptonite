@@ -1,9 +1,8 @@
-import { printChangeBalancesByWalletData } from "@/common";
-import { loadingWalletData } from "@/env_data";
 import type { ContractDeployed, WalletData } from "@/types";
 import type { ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed } from "@/modules";
-import { ConfigSwapPairConfigList, deploySwapExtention, doSwapExtentionSetWhitelist, doSwapExtentionUpdatePairConfig, printDeployedSwapContracts, swapExtentionReadArtifact } from "./index";
-import { stakingReadArtifact, convertReadArtifact, marketReadArtifact } from "@/modules";
+import { printChangeBalancesByWalletData } from "@/common";
+import { loadingWalletData } from "@/env_data";
+import { deploySwapExtention, doSwapExtentionSetWhitelist, doSwapExtentionUpdatePairConfig, printDeployedSwapContracts, swapExtentionReadArtifact, stakingReadArtifact, convertReadArtifact, marketReadArtifact, swapExtentionConfigs } from "@/modules";
 
 main().catch(console.error);
 
@@ -64,8 +63,8 @@ async function main(): Promise<void> {
   }
 
   /// config swap pair
-  const chainIdSwapPairConfigList = ConfigSwapPairConfigList[walletData.chainId];
-  if (chainIdSwapPairConfigList && chainIdSwapPairConfigList.length > 0) {
+  const chainIdSwapPairConfigList = swapExtentionConfigs?.swapPairConfigList;
+  if (!!chainIdSwapPairConfigList && chainIdSwapPairConfigList.length > 0) {
     for (let pairConfig of chainIdSwapPairConfigList) {
       await doSwapExtentionUpdatePairConfig(walletData, swapExtention, pairConfig, print);
     }

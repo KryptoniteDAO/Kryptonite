@@ -226,10 +226,10 @@ export async function doCdpCentralControlUpdateConfig(walletData: WalletData, ne
     poolContract: cdpStablePool?.address,
     oracleContract: oraclePyth?.address
   });
-  console.log(`\n  Do cdpCentralControl.address update_config ok. \n${doRes?.transactionHash}`);
+  console.log(`\n  Do cdpCentralControl.address update_config ok. \n  ${doRes?.transactionHash}`);
 
   const afterRes = await centralControlQueryClient.config();
-  print && console.log(`\n  cdpLiquidationQueue.address config info: \n${JSON.stringify(afterRes)}`);
+  print && console.log(`\n  cdpLiquidationQueue.address config info: \n  ${JSON.stringify(afterRes)}`);
 }
 
 export async function doCdpLiquidationQueueConfig(walletData: WalletData, networkCdp: CdpContractsDeployed, oraclePyth: ContractDeployed, print: boolean = true): Promise<any> {

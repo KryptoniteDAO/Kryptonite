@@ -67,7 +67,7 @@ async function queryHubConfig(walletData: WalletData, hub: ContractDeployed, rew
   console.log();
   console.log("Query hub.address config enter");
   const hubConfigRes = await queryWasmContractByWalletData(walletData, hub.address, { config: {} });
-  console.log(`Query hub.address config ok.: \n${JSON.stringify(hubConfigRes)}`);
+  console.log(`Query hub.address config ok.: \n  ${JSON.stringify(hubConfigRes)}`);
   console.log(
     "check hub.address config result: ",
     rewardsDispatcher.address === hubConfigRes?.reward_dispatcher_contract && validatorsRegistry.address === hubConfigRes?.validators_registry_contract && bSeiToken.address === hubConfigRes?.bsei_token_contract && stSeiToken.address === hubConfigRes?.stsei_token_contract
@@ -98,7 +98,7 @@ async function doHubBondForStsei(walletData: WalletData, nativeDenom: string, hu
   console.log(`before native balance: ${beforeNativeBalanceRes.amount} ${nativeDenom}`);
   console.log(`before token balance: ${beforeTokenBalanceRes.balance} ${stsei.address}`);
   const doRes = await executeContractByWalletData(walletData, hub.address, { bond_for_st_sei: {} }, "bond native to stsei", coins(amount, nativeDenom));
-  console.log(`Do hub.address bond_for_st_sei ok. nativeDenom: ${nativeDenom} / amount: ${amount} \n${doRes?.transactionHash}`);
+  console.log(`Do hub.address bond_for_st_sei ok. nativeDenom: ${nativeDenom} / amount: ${amount} \n  ${doRes?.transactionHash}`);
   const afterNativeBalanceRes = await queryAddressBalance(walletData, walletData.address, nativeDenom);
   console.log(`after native balance: ${afterNativeBalanceRes.amount} ${nativeDenom}`);
   const afterTokenBalanceRes = await queryAddressTokenBalance(walletData.signingCosmWasmClient, walletData.address, stsei.address);
@@ -127,7 +127,7 @@ async function doHubBondForBsei(walletData: WalletData, nativeDenom: string, hub
   console.log(`before native balance: ${beforeNativeBalanceRes?.amount} ${nativeDenom}`);
   console.log(`before token balance: ${beforeTokenBalanceRes.balance} ${bsei.address}`);
   const doRes = await executeContractByWalletData(walletData, hub.address, { bond: {} }, "bond native to bsei", coins(amount, nativeDenom));
-  console.log(`Do hub.address bond native coin to bsei ok. \n${doRes?.transactionHash}`);
+  console.log(`Do hub.address bond native coin to bsei ok. \n  ${doRes?.transactionHash}`);
   const afterNativeBalanceRes = await queryAddressBalance(walletData, walletData.address, nativeDenom);
   console.log(`after native balance: ${afterNativeBalanceRes?.amount} ${nativeDenom}`);
   const afterTokenBalanceRes = await queryAddressTokenBalance(walletData.signingCosmWasmClient, walletData.address, bsei.address);
@@ -152,7 +152,7 @@ async function doHubUnbondBseiToNative(walletData: WalletData, nativeDenom: stri
     return;
   }
   const beforeUnbondRequestRes = await queryWasmContractByWalletData(walletData, hub.address, { unbond_requests: { address: walletData.address } });
-  console.log(`before unbond_requests ok. \n${JSON.stringify(beforeUnbondRequestRes)}`);
+  console.log(`before unbond_requests ok. \n  ${JSON.stringify(beforeUnbondRequestRes)}`);
   console.log(`before token balance: ${beforeTokenBalanceRes.balance} ${btoken.address}`);
   const doRes = await executeContractByWalletData(
     walletData,
@@ -166,11 +166,11 @@ async function doHubUnbondBseiToNative(walletData: WalletData, nativeDenom: stri
     },
     "unbond bsei to native"
   );
-  console.log(`Do hub.address unbond bsei to native coin ok. \n${doRes?.transactionHash}`);
+  console.log(`Do hub.address unbond bsei to native coin ok. \n  ${doRes?.transactionHash}`);
   const afterTokenBalanceRes = await queryAddressTokenBalance(walletData.signingCosmWasmClient, walletData.address, btoken.address);
   console.log(`after token balance: ${afterTokenBalanceRes.balance} ${btoken.address}`);
   const afterUnbondRequestRes = await queryWasmContractByWalletData(walletData, hub.address, { unbond_requests: { address: walletData.address } });
-  console.log(`after unbond_requests ok. \n${JSON.stringify(afterUnbondRequestRes)}`);
+  console.log(`after unbond_requests ok. \n  ${JSON.stringify(afterUnbondRequestRes)}`);
 }
 
 async function doHubWithdrawUnbondedToNative(walletData: WalletData, nativeDenom: string, hub: ContractDeployed): Promise<void> {
@@ -181,7 +181,7 @@ async function doHubWithdrawUnbondedToNative(walletData: WalletData, nativeDenom
   console.log("Do hub.address withdraw unbonded enter");
 
   const beforeWithdrawAbleRes = await queryWasmContractByWalletData(walletData, hub.address, { withdrawable_unbonded: { address: walletData.address } });
-  console.log(`Query hub.address withdrawable_unbonded ok. address: ${walletData.address} \n${JSON.stringify(beforeWithdrawAbleRes)}`);
+  console.log(`Query hub.address withdrawable_unbonded ok. address: ${walletData.address} \n  ${JSON.stringify(beforeWithdrawAbleRes)}`);
   if (!beforeWithdrawAbleRes?.["withdrawable"] || new Decimal(beforeWithdrawAbleRes?.["withdrawable"]).comparedTo(0) <= 0) {
     console.log();
     console.error(`********* unable to withdraw`);
@@ -191,11 +191,11 @@ async function doHubWithdrawUnbondedToNative(walletData: WalletData, nativeDenom
   console.log(`before native balance: ${beforeNativeBalanceRes?.amount} ${nativeDenom}`);
 
   // const doRes = await executeContractByWalletData(walletData, hub.address, { withdraw_unbonded: {} });
-  // console.log(`Do hub.address withdraw_unbonded ok. \n${doRes?.transactionHash}`);
+  // console.log(`Do hub.address withdraw_unbonded ok. \n  ${doRes?.transactionHash}`);
   const afterNativeBalanceRes = await queryAddressBalance(walletData, walletData.address, nativeDenom);
   console.log(`after native balance: ${afterNativeBalanceRes.amount} ${nativeDenom}`);
   const afterWithdrawAbleRes = await queryWasmContractByWalletData(walletData, hub.address, { withdrawable_unbonded: { address: walletData.address } });
-  console.log(`Query hub.address withdrawable_unbonded ok. \n${JSON.stringify(afterWithdrawAbleRes)}`);
+  console.log(`Query hub.address withdrawable_unbonded ok. \n  ${JSON.stringify(afterWithdrawAbleRes)}`);
 }
 
 async function doHubUpdateRewards(walletData: WalletData, nativeDenom: string, hub: ContractDeployed, rewardDemon: string, amount: string): Promise<void> {
@@ -227,7 +227,7 @@ async function doHubUpdateRewards(walletData: WalletData, nativeDenom: string, h
     "send rewards",
     coins(amount, rewardDemon)
   );
-  console.log(`Do hub.address update_global_index ok. \n${doRes?.transactionHash}`);
+  console.log(`Do hub.address update_global_index ok. \n  ${doRes?.transactionHash}`);
 
   const afterRewardsDemonBalanceRes = await queryAddressBalance(walletData, walletData.address, rewardDemon);
   console.log(`after rewardDemon balance: ${afterRewardsDemonBalanceRes?.amount} ${rewardDemon}`);
@@ -242,7 +242,7 @@ async function doClaimRewards(walletData: WalletData, nativeDenom: string, rewar
   console.log(`Do reward.address claim rewards enter. rewardDemon: ${rewardDemon}`);
 
   const beforeAccruedRewardsRes = await queryWasmContractByWalletData(walletData, reward.address, { accrued_rewards: { address: walletData.address } });
-  console.log(`Query reward.address accrued_rewards ok. address: ${walletData.address} \n${JSON.stringify(beforeAccruedRewardsRes)}`);
+  console.log(`Query reward.address accrued_rewards ok. address: ${walletData.address} \n  ${JSON.stringify(beforeAccruedRewardsRes)}`);
   if (!beforeAccruedRewardsRes?.["rewards"] || new Decimal(beforeAccruedRewardsRes?.["rewards"]).comparedTo(0) <= 0) {
     console.log();
     console.error(`********* unable to claim`);
@@ -261,32 +261,32 @@ async function doClaimRewards(walletData: WalletData, nativeDenom: string, rewar
     },
     "claim rewards"
   );
-  console.log(`Do reward.address claim_rewards ok. \n${doRes?.transactionHash}`);
+  console.log(`Do reward.address claim_rewards ok. \n  ${doRes?.transactionHash}`);
 
   const afterRewardsDemonBalanceRes = await queryAddressBalance(walletData, walletData.address, rewardDemon);
   console.log(`after rewardDemon balance: ${afterRewardsDemonBalanceRes?.amount} ${rewardDemon}`);
   const afterAccruedRewardsRes = await queryWasmContractByWalletData(walletData, reward.address, { accrued_rewards: { address: walletData.address } });
-  console.log(`Query reward.address accrued_rewards ok. address: ${walletData.address} \n${JSON.stringify(afterAccruedRewardsRes)}`);
+  console.log(`Query reward.address accrued_rewards ok. address: ${walletData.address} \n  ${JSON.stringify(afterAccruedRewardsRes)}`);
 }
 
 async function printMoreInfo(walletData: WalletData, nativeDenom: string, hub: ContractDeployed) {
   console.log();
   console.log(`Query staking pool enter`);
   const stakingPoolRes = await queryStaking(walletData.LCD_ENDPOINT);
-  console.log(`Query staking pool ok. \n${JSON.stringify(stakingPoolRes)}`);
+  console.log(`Query staking pool ok. \n  ${JSON.stringify(stakingPoolRes)}`);
 
   console.log();
   console.log(`Query hub.address unbond_requests enter`);
   const hubUnbondRequestRes = await queryWasmContractByWalletData(walletData, hub.address, { unbond_requests: { address: walletData.address } });
-  console.log(`Query hub.address unbond_requests ok. \n${JSON.stringify(hubUnbondRequestRes)}`);
+  console.log(`Query hub.address unbond_requests ok. \n  ${JSON.stringify(hubUnbondRequestRes)}`);
 
   console.log();
   console.log(`Query staking parameter enter`);
   const stakingParametersRes = await queryStakingParameters(walletData.LCD_ENDPOINT);
-  console.log(`Query staking parameter ok. \n${JSON.stringify(stakingParametersRes)}`);
+  console.log(`Query staking parameter ok. \n  ${JSON.stringify(stakingParametersRes)}`);
 
   console.log();
   console.log(`Query hub.address staking delegations enter`);
   const stakingDelegationsRes = await queryStakingDelegations(walletData.LCD_ENDPOINT, hub.address, walletData.validator + "/");
-  console.log(`Query hub.address staking delegations ok. \n${JSON.stringify(stakingDelegationsRes)}`);
+  console.log(`Query hub.address staking delegations ok. \n  ${JSON.stringify(stakingDelegationsRes)}`);
 }

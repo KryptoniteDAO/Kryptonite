@@ -1,10 +1,10 @@
-import { printChangeBalancesByWalletData } from "@/common";
-import { loadingWalletData } from "@/env_data";
-import { ConfigSwapPairConfigList, swapExtentionReadArtifact } from "./index";
-import { stakingReadArtifact, marketReadArtifact, convertReadArtifact } from "@/modules";
-import { swapExtentionContracts } from "@/contracts";
 import type { WalletData } from "@/types";
 import type { ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed } from "@/modules";
+import { printChangeBalancesByWalletData } from "@/common";
+import { loadingWalletData } from "@/env_data";
+import { swapExtentionConfigs, swapExtentionReadArtifact } from "./index";
+import { stakingReadArtifact, marketReadArtifact, convertReadArtifact } from "@/modules";
+import { swapExtentionContracts } from "@/contracts";
 
 main().catch(console.error);
 
@@ -31,37 +31,38 @@ async function main(): Promise<void> {
   const swapExtentionQueryClient = new swapExtentionContracts.SwapExtention.SwapExtentionQueryClient(walletData.signingCosmWasmClient, swapExtention.address);
 
   const swapWhitelistList: {
+    name: string;
     caller: string;
     isWhitelist: boolean;
   }[] = [];
   if (networkStaking?.reward?.address) {
-    swapWhitelistList.push({ caller: networkStaking?.reward?.address, isWhitelist: true });
+    swapWhitelistList.push({ name: "staking.reward", caller: networkStaking?.reward?.address, isWhitelist: true });
   }
   if (networkStaking?.rewardsDispatcher?.address) {
-    swapWhitelistList.push({ caller: networkStaking?.rewardsDispatcher?.address, isWhitelist: true });
+    swapWhitelistList.push({ name: "staking.rewardsDispatcher", caller: networkStaking?.rewardsDispatcher?.address, isWhitelist: true });
   }
   if (networkMarket?.custodyBSei?.address) {
-    swapWhitelistList.push({ caller: networkMarket?.custodyBSei?.address, isWhitelist: true });
+    swapWhitelistList.push({ name: "market.custodyBSei", caller: networkMarket?.custodyBSei?.address, isWhitelist: true });
   }
   if (networkConvert?.convertPairs) {
-    for (let convertPair of networkConvert.convertPairs) {
+    for (const convertPair of networkConvert.convertPairs) {
       if (convertPair?.custody?.address) {
-        swapWhitelistList.push({ caller: convertPair?.custody?.address, isWhitelist: true });
+        swapWhitelistList.push({ name: "convert.convertPairs." + convertPair?.native_denom, caller: convertPair?.custody?.address, isWhitelist: true });
       }
     }
   }
   if (swapWhitelistList.length > 0) {
-    for (let swapWhitelist of swapWhitelistList) {
+    for (const swapWhitelist of swapWhitelistList) {
       const isSwapWhitelistRes = await swapExtentionQueryClient.queryIsSwapWhitelist({ caller: swapWhitelist?.caller });
-      console.log(`is_swap_whitelist: ${isSwapWhitelistRes} / ${swapWhitelist?.caller}`);
+      console.log(`is_swap_whitelist: ${swapWhitelist?.name} / ${swapWhitelist?.caller} / ${isSwapWhitelistRes}`);
     }
   }
 
-  const chainIdSwapPairConfigList = ConfigSwapPairConfigList[walletData.chainId];
+  const chainIdSwapPairConfigList = swapExtentionConfigs?.swapPairConfigList;
   if (chainIdSwapPairConfigList && chainIdSwapPairConfigList.length > 0) {
     for (let pairConfig of chainIdSwapPairConfigList) {
       const configRes = await swapExtentionQueryClient.queryPairConfig({ assetInfos: pairConfig.assetInfos });
-      console.log(`pair config info: pairAddress: ${pairConfig.pairAddress} \n${JSON.stringify(configRes)}`);
+      console.log(`pair config info: pairAddress: ${pairConfig.pairAddress} \n  ${JSON.stringify(configRes)}`);
     }
   }
 

@@ -27,13 +27,12 @@ export async function sleep(timeout: number) {
   await new Promise(resolve => setTimeout(resolve, timeout));
 }
 
-export function toEncodedBinary<D extends object>(object: D) {
-  return Buffer.from(JSON.stringify(object)).toString("base64");
-}
-
-export function strToEncodedBinary(data: string) {
-  return Buffer.from(data).toString("base64");
-}
+export const toEncodedBinary = (data: string | object): string => {
+  if (typeof data === "string") {
+    return Buffer.from(data).toString("base64");
+  }
+  return Buffer.from(JSON.stringify(data)).toString("base64");
+};
 
 export function toDecodedBinary(data: string) {
   return Buffer.from(data, "base64");
@@ -57,11 +56,9 @@ export async function storeCode(clientData: ClientData, contract_file: string, g
     const uint8Array = new Uint8Array(data);
     const storeCodeTxResult = await clientData?.signingCosmWasmClient?.upload(clientData?.senderAddress, uint8Array, fee, memo);
     codeId = storeCodeTxResult.codeId;
-    console.log();
-    console.log(`${contract_file} stored codeId = ${codeId} / ${storeCodeTxResult?.transactionHash}`);
+    console.log(`\n  ${contract_file} stored codeId = ${codeId} / ${storeCodeTxResult?.transactionHash}`);
   } catch (error: any) {
-    console.log();
-    console.error("store code error：", contract_file, error);
+    console.error(`\n  store code error：`, contract_file, error);
   }
   return codeId;
 }
@@ -70,8 +67,7 @@ export async function instantiateContractByWalletData(walletData: WalletData, ad
   return instantiateContract(getClientDataByWalletData(walletData), admin, codeId, message, label, coins);
 }
 export async function instantiateContract(clientData: ClientData, admin: string, codeId: number, message: object, label: string = "", coins: Coin[] = []): Promise<string> {
-  console.log();
-  console.log(`Instantiating contract enter. code_id = ${codeId}`);
+  console.log(`\n  Instantiating contract enter. code_id = ${codeId}`);
   const fee: StdFee = calculateFee(300_000, clientData?.gasPrice || "0.001usei");
 
   const instantiateTxResult = await clientData?.signingCosmWasmClient?.instantiate(clientData?.senderAddress, codeId, message, label, fee, { memo: "", funds: coins, admin });
@@ -83,8 +79,7 @@ export async function instantiateContract2ByWalletData(walletData: WalletData, a
   return instantiateContract2(getClientDataByWalletData(walletData), admin, codeId, message, label, coins);
 }
 export async function instantiateContract2(clientData: ClientData, admin: string, codeId: number, message: object, label: string = "", coins: Coin[] = []): Promise<[string, string]> {
-  console.log();
-  console.log(`Instantiating contract enter. code_id = ${codeId}`);
+  console.log(`\n  Instantiating contract enter. code_id = ${codeId}`);
   const fee: StdFee = calculateFee(5_000_000, clientData?.gasPrice || "0.001usei");
 
   const instantiateTxResult = await clientData?.signingCosmWasmClient?.instantiate(clientData?.senderAddress, codeId, message, label, fee, { memo: "", funds: coins, admin });
@@ -120,8 +115,7 @@ export async function migrateContractByWalletData(walletData: WalletData, contra
   return migrateContract(getClientDataByWalletData(walletData), contractAddress, newCodeId, message, memo);
 }
 export async function migrateContract(clientData: ClientData, contractAddress: string, newCodeId: number, migrateMsg: object, memo?: string) {
-  console.log();
-  console.log(`migrate contract enter. address = ${contractAddress} / new_code_id = ${newCodeId}`);
+  console.log(`\n  migrate contract enter. address = ${contractAddress} / new_code_id = ${newCodeId}`);
   const fee: StdFee = calculateFee(2_000_000, clientData?.gasPrice || "0.001usei");
   return await clientData?.signingCosmWasmClient?.migrate(clientData?.senderAddress, contractAddress, newCodeId, migrateMsg, fee, memo);
 }
@@ -195,8 +189,7 @@ export async function loadAddressesBalances(walletData: WalletData, addressList:
     }
   }
 
-  console.log();
-  console.log(`--- --- addresses balances --- ---`);
+  console.log(`\n  --- --- addresses balances --- ---`);
   console.table(addressesBalances, [`address`, `balance`]);
   return addressesBalances;
 }
@@ -213,8 +206,7 @@ export async function sendCoinToOtherAddress(walletData: WalletData, receiver: s
   }
   const sendAmountValue = new Decimal(sendAmount).mul(new Decimal("10").pow(6)).toFixed(0, 1);
   if (senderBalance && receiverBalance && new Decimal(senderBalance).comparedTo(new Decimal(sendAmountValue)) > 0 && new Decimal(receiverBalance).comparedTo(new Decimal(sendAmountValue)) < 0) {
-    console.log();
-    console.warn(`Do sendTokens enter. from ${walletData.address} to ${receiver} ${sendAmount} ${denom}`);
+    console.warn(`\n  Do sendTokens enter. from ${walletData.address} to ${receiver} ${sendAmount} ${denom}`);
     const sendCoinRes = await sendTokensByWalletData(walletData, receiver, coins(sendAmountValue, denom));
     console.log(`Do sendTokens enter. from ${walletData.address} to ${receiver} ${sendAmount} ${denom}  ok. \n ${sendCoinRes?.transactionHash}`);
   }
@@ -223,8 +215,7 @@ export async function sendCoinToOtherAddress(walletData: WalletData, receiver: s
 export async function printChangeBalancesByWalletData(walletData: WalletData) {
   const beforeAddressesBalances = walletData.addressesBalances;
   const afterAddressesBalances = await loadAddressesBalances(walletData, walletData.addressList, walletData.denomList);
-  console.log();
-  console.log(`addresses balance changes (after - before): `);
+  console.log(`\n  addresses balance changes (after - before): `);
   for (let address of walletData.addressList) {
     for (let denom of walletData.denomList) {
       let balanceBefore = beforeAddressesBalances.find(v => address === v?.address && denom === v?.balance?.denom)?.balance?.amount;
@@ -245,10 +236,9 @@ export async function queryContractConfig(walletData: WalletData, deployContract
   let config = null;
   let initFlag = true;
   try {
-    print && console.log();
-    print && console.log(`Query deployed.address config enter. address: ${deployContract.address}`);
+    print && console.log(`\n  Query deployed.address config enter. address: ${deployContract.address}`);
     config = await queryWasmContractByWalletData(walletData, deployContract.address, { config: {} });
-    print && console.log(`Query deployed.address config ok. address: ${deployContract.address} \n${JSON.stringify(config)}`);
+    print && console.log(`Query deployed.address config ok. address: ${deployContract.address} \n  ${JSON.stringify(config)}`);
   } catch (error: any) {
     if (error?.toString().includes("addr_humanize")) {
       initFlag = false;
@@ -311,14 +301,13 @@ export async function queryContractQueryConfig(walletData: WalletData, deployCon
   let config = null;
   let initFlag = true;
   try {
-    print && console.log();
-    print && console.log(`Query deployed.address config enter. address: ${deployContract.address}`);
+    print && console.log(`\n  Query deployed.address config enter. address: ${deployContract.address}`);
     config = await queryWasmContractByWalletData(walletData, deployContract.address, { query_config: {} });
-    print && console.log(`Query deployed.address config ok. address: ${deployContract.address} \n${JSON.stringify(config)}`);
+    print && console.log(`Query deployed.address config ok. address: ${deployContract.address} \n  ${JSON.stringify(config)}`);
   } catch (error: any) {
     if (error?.toString().includes("addr_humanize")) {
       initFlag = false;
-      console.error(`deployed.config: need update config`);
+      console.error(`\n  deployed.config: need update config`);
     } else {
       throw new Error(error);
     }

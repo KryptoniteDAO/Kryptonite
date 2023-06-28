@@ -93,7 +93,7 @@ async function doSetConfigFeedValid(walletData: WalletData, oraclePyth: Contract
   const oraclePythQueryClient = new marketContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, oraclePyth.address);
   const doRes = await oraclePythClient.setConfigFeedValid(configFeedValidParams);
 
-  print && console.log(`Do oraclePyth.address setConfigFeedValid ok. \n${doRes?.transactionHash}`);
+  print && console.log(`Do oraclePyth.address setConfigFeedValid ok. \n  ${doRes?.transactionHash}`);
 }
 
 async function doChangeOwner(walletData: WalletData, oraclePyth: ContractDeployed, newOwner: string, print: boolean = true): Promise<void> {
@@ -109,7 +109,7 @@ async function doChangeOwner(walletData: WalletData, oraclePyth: ContractDeploye
   const oraclePythQueryClient = new marketContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, oraclePyth.address);
   const doRes = await oraclePythClient.changeOwner({ newOwner });
 
-  print && console.log(`Do oraclePyth.address ChangeOwner ok. \n${doRes?.transactionHash}`);
+  print && console.log(`Do oraclePyth.address ChangeOwner ok. \n  ${doRes?.transactionHash}`);
   await queryContractQueryConfig(walletData, oraclePyth);
 }
 
@@ -127,7 +127,7 @@ async function queryPythFeederConfig(walletData: WalletData, oraclePyth: Contrac
   const queryRes = await oraclePythQueryClient.queryPythFeederConfig({ asset: assetAddress });
 
   // const configRes = await queryWasmContractByWalletData(walletData, oraclePyth.address, { query_pyth_feeder_config: { asset_address: assetAddress } });
-  print && console.log(`Query oracle.PythFeederConfig: \n${JSON.stringify(queryRes)}`);
+  print && console.log(`Query oracle.PythFeederConfig: \n  ${JSON.stringify(queryRes)}`);
   return queryRes;
 }
 
@@ -143,6 +143,6 @@ async function queryPrice(walletData: WalletData, oraclePyth: ContractDeployed, 
   const oraclePythQueryClient = new marketContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, oraclePyth.address);
   const priceRes = await oraclePythQueryClient.queryPrice({ asset: assetAddress });
 
-  print && console.log(`Query oraclePyth.address queryPrice ok. asset: ${assetAddress} \n${JSON.stringify(priceRes)}`);
+  print && console.log(`Query oraclePyth.address queryPrice ok. asset: ${assetAddress} \n  ${JSON.stringify(priceRes)}`);
   return priceRes;
 }

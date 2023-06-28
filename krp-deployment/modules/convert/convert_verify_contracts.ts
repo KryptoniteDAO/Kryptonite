@@ -70,7 +70,7 @@ async function doConvertNativeToBasset(walletData: WalletData, nativeDenom: stri
   console.log(`before token balance: ${beforeTokenBalanceRes.balance} ${btoken.address}`);
 
   const convertRes = await executeContractByWalletData(walletData, converter.address, { convert_native_to_basset: {} }, "convert native to cw20", coins(amount, nativeDenom));
-  console.log(`Do convert native coin to cw20 token ok. \n${convertRes?.transactionHash}`);
+  console.log(`Do convert native coin to cw20 token ok. \n  ${convertRes?.transactionHash}`);
 
   const afterBalanceRes = await queryAddressBalance(walletData, walletData.address, nativeDenom);
   console.log(`after native balance: ${afterBalanceRes?.amount} ${nativeDenom}`);
@@ -112,7 +112,7 @@ async function doConvertBassetToNative(walletData: WalletData, nativeDenom: stri
     },
     "convert cw20 to native"
   );
-  console.log(`Do convert cw20 token to native coin ok. \n${convertRes?.transactionHash}`);
+  console.log(`Do convert cw20 token to native coin ok. \n  ${convertRes?.transactionHash}`);
 
   const afterBalanceRes = await queryAddressBalance(walletData, walletData.address, nativeDenom);
   console.log(`after native balance: ${afterBalanceRes?.amount} ${nativeDenom}`);

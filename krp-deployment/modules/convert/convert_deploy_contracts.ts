@@ -1,4 +1,4 @@
-import type { ContractDeployed, WalletData } from "@/types";
+import type { WalletData } from "@/types";
 import type { SwapExtentionContractsDeployed, StakingContractsDeployed, MarketContractsDeployed, ConvertContractsDeployed } from "@/modules";
 import { loadingWalletData } from "@/env_data";
 import {
@@ -13,9 +13,10 @@ import {
   printDeployedConvertContracts,
   loadingStakingData,
   loadingMarketData,
-  convertConfigs, doSwapExtentionSetWhitelist
+  convertConfigs,
+  doSwapExtentionSetWhitelist
 } from "@/modules";
-import { executeContractByWalletData, printChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance } from "@/common";
+import { printChangeBalancesByWalletData } from "@/common";
 
 import { ConfigOraclePythBaseFeedInfoList, ConfigOraclePythFeedInfoList, doLiquidationQueueWhitelistCollateral, doOraclePythConfigFeedInfo, doOverseerWhitelist } from "../market";
 

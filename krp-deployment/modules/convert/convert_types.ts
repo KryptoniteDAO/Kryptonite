@@ -1,10 +1,9 @@
 import type { Addr, BaseContractConfig, ContractDeployed } from "@/types";
 import { InitialBalance, TokenInfo } from "@/types";
 
-
 export interface ConvertConverterContractConfig extends BaseContractConfig {
   initMsg?: {
-    owner: string;
+    owner?: Addr;
   };
 }
 export interface ConvertBtokenContractConfig extends BaseContractConfig {
@@ -18,7 +17,7 @@ export interface ConvertBtokenContractConfig extends BaseContractConfig {
 }
 export interface ConvertCustodyContractConfig extends BaseContractConfig {
   initMsg?: {
-    owner: string;
+    owner?: Addr;
     basset_info: TokenInfo;
   };
 }

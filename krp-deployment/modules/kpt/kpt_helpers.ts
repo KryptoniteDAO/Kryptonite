@@ -367,10 +367,10 @@ export async function doKptUpdateConfig(walletData: WalletData, kpt: ContractDep
     return;
   }
   const doRes = await kptClient.updateConfig({ kptFund: kptFund.address });
-  console.log(`Do kpt.address update_config ok. \n${doRes?.transactionHash}`);
+  console.log(`Do kpt.address update_config ok. \n  ${doRes?.transactionHash}`);
 
   const afterConfigRes = await kptQueryClient.kptConfig();
-  print && console.log(`config info: \n${JSON.stringify(afterConfigRes)}`);
+  print && console.log(`config info: \n  ${JSON.stringify(afterConfigRes)}`);
 }
 
 export async function doVeKptUpdateConfig(walletData: WalletData, veKpt: ContractDeployed, kptFund: ContractDeployed, print: boolean = true): Promise<any> {
@@ -402,10 +402,10 @@ export async function doVeKptUpdateConfig(walletData: WalletData, veKpt: Contrac
     return;
   }
   const doRes = await veKptClient.updateConfig({ kptFund: kptFund.address });
-  console.log(`Do veKpt.address update_config ok. \n${doRes?.transactionHash}`);
+  console.log(`Do veKpt.address update_config ok. \n  ${doRes?.transactionHash}`);
 
   const afterConfigRes = await veKptQueryClient.voteConfig();
-  print && console.log(`config info: \n${JSON.stringify(afterConfigRes)}`);
+  print && console.log(`config info: \n  ${JSON.stringify(afterConfigRes)}`);
 }
 
 export async function doVeKptSetMinters(walletData: WalletData, veKpt: ContractDeployed, stakingRewards: ContractDeployed, isMinter: boolean, print: boolean = true): Promise<any> {
@@ -437,7 +437,7 @@ export async function doVeKptSetMinters(walletData: WalletData, veKpt: ContractD
     return;
   }
   const doRes = await veKptClient.setMinters({ contracts: [stakingRewards.address], isMinter: [isMinter] });
-  console.log(`Do veKpt.address setMinters ok. \n${doRes?.transactionHash}`);
+  console.log(`Do veKpt.address setMinters ok. \n  ${doRes?.transactionHash}`);
 
   const afterRes = await veKptQueryClient.isMinter({ address: stakingRewards.address });
   print && console.log(`veKpt.address isMinter: ${stakingRewards?.address} / ${JSON.stringify(afterRes)}`);
