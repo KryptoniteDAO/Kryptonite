@@ -8,7 +8,7 @@
       "redeem_fee": "0.005"
     },
     "label": "cdp central control",
-    "filePath": null,
+    "filePath": "../krp-cdp-contracts/artifacts/cdp_central_control.wasm",
     "deploy": false
   },
   "cdpStablePool": {
@@ -25,7 +25,7 @@
       }
     ],
     "label": "cdp stable pool contract",
-    "filePath": null,
+    "filePath": "../krp-cdp-contracts/artifacts/cdp_stable_pool.wasm",
     "deploy": false
   },
   "cdpLiquidationQueue": {
@@ -40,7 +40,7 @@
       "waiting_period": 600
     },
     "label": "cdp liquidate queue contract",
-    "filePath": null,
+    "filePath": "../krp-cdp-contracts/artifacts/cdp_liquidation_queue.wasm",
     "deploy": false
   }
 }

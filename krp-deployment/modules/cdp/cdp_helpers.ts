@@ -27,7 +27,6 @@ export function cdpWriteArtifact(networkStaking: CdpContractsDeployed, chainId: 
 export async function deployCdpCentralControl(walletData: WalletData, networkCdp: CdpContractsDeployed, oraclePyth?: ContractDeployed): Promise<void> {
   const contractName: keyof Required<CdpContractsDeployed> = "cdpCentralControl";
   const config: CdpCentralControlContractConfig | undefined = cdpConfigs?.[contractName];
-  const defaultFilePath: string | undefined = "../krp-cdp-contracts/artifacts/cdp_central_control.wasm";
   const defaultInitMsg: object | undefined = Object.assign(
     {
       oracle_contract: oraclePyth?.address || walletData.address,
@@ -41,7 +40,7 @@ export async function deployCdpCentralControl(walletData: WalletData, networkCdp
   );
   const writeFunc = cdpWriteArtifact;
 
-  await deployContract(walletData, contractName, networkCdp, undefined, config, { defaultFilePath, defaultInitMsg, writeFunc });
+  await deployContract(walletData, contractName, networkCdp, undefined, config, { defaultInitMsg, writeFunc });
 }
 
 export async function deployCdpStablePool(walletData: WalletData, networkCdp: CdpContractsDeployed): Promise<void> {
@@ -52,7 +51,6 @@ export async function deployCdpStablePool(walletData: WalletData, networkCdp: Cd
 
   const contractName: keyof Required<CdpContractsDeployed> = "cdpStablePool";
   const config: CdpStablePoolContractConfig | undefined = cdpConfigs?.[contractName];
-  const defaultFilePath: string | undefined = "../krp-cdp-contracts/artifacts/cdp_stable_pool.wasm";
   const defaultInitMsg: object | undefined = Object.assign(
     {
       control_contract: cdpCentralControl?.address
@@ -65,7 +63,7 @@ export async function deployCdpStablePool(walletData: WalletData, networkCdp: Cd
   const defaultFunds = config?.initCoins?.map(q => Object.assign({}, q, { denom: q?.denom || walletData.nativeCurrency.coinMinimalDenom }));
   const writeFunc = cdpWriteArtifact;
 
-  await deployContract(walletData, contractName, networkCdp, undefined, config, { defaultFilePath, defaultInitMsg, defaultFunds, writeFunc });
+  await deployContract(walletData, contractName, networkCdp, undefined, config, { defaultInitMsg, defaultFunds, writeFunc });
 }
 
 export async function deployCdpLiquidationQueue(walletData: WalletData, networkCdp: CdpContractsDeployed, oraclePyth?: ContractDeployed): Promise<void> {
@@ -76,7 +74,6 @@ export async function deployCdpLiquidationQueue(walletData: WalletData, networkC
 
   const contractName: keyof Required<CdpContractsDeployed> = "cdpLiquidationQueue";
   const config: CdpLiquidationQueueContractConfig | undefined = cdpConfigs?.[contractName];
-  const defaultFilePath: string | undefined = "../krp-cdp-contracts/artifacts/cdp_liquidation_queue.wasm";
   const defaultInitMsg: object | undefined = Object.assign(
     {
       control_contract: cdpCentralControl?.address,
@@ -90,7 +87,7 @@ export async function deployCdpLiquidationQueue(walletData: WalletData, networkC
   );
   const writeFunc = cdpWriteArtifact;
 
-  await deployContract(walletData, contractName, networkCdp, undefined, config, { defaultFilePath, defaultInitMsg, writeFunc });
+  await deployContract(walletData, contractName, networkCdp, undefined, config, { defaultInitMsg, writeFunc });
 }
 
 export async function deployCdpCustody(walletData: WalletData, networkCdp: CdpContractsDeployed, { collateral, collateralName }: CdpCollateralInfo): Promise<void> {
