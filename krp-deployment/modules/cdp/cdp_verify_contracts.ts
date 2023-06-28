@@ -1,9 +1,9 @@
+import type { ContractDeployed, WalletData } from "@/types";
+import type { CdpCollateralPairsDeployed, CdpContractsDeployed, KptContractsDeployed } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
-import { kptReadArtifact } from "@/modules/kpt";
+import { kptReadArtifact, cdpReadArtifact, printDeployedCdpContracts } from "@/modules";
 import { cdpContracts } from "@/contracts";
-import { cdpReadArtifact, printDeployedCdpContracts } from "@/modules/cdp/cdp_helpers";
-import type { CdpCollateralPairsDeployed, CdpContractsDeployed, ContractDeployed, KptDeployContracts, StakingRewardsPairsDeployContracts, WalletData } from "@/types";
 
 main().catch(console.error);
 
@@ -12,7 +12,7 @@ async function main(): Promise<void> {
 
   const walletData: WalletData = await loadingWalletData();
 
-  const networkKpt = kptReadArtifact(walletData.chainId) as KptDeployContracts;
+  const networkKpt = kptReadArtifact(walletData.chainId) as KptContractsDeployed;
   const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
 
   await printDeployedCdpContracts(networkCdp);
@@ -53,7 +53,6 @@ async function main(): Promise<void> {
         console.log(`\n  Query custody.address config ok. collateral: ${cdpCollateralPair?.name} / ${cdpCollateralPair?.collateral} \n  ${JSON.stringify(configRes)}`);
         const stateResponse = await custodyQueryClient.state();
         console.log(`\n  Query stakingRewards.address queryStakingState ok. collateral: ${cdpCollateralPair?.name} / ${cdpCollateralPair?.collateral} \n  ${JSON.stringify(stateResponse)}`);
-
       }
     }
   }

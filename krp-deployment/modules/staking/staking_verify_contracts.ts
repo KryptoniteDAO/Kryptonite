@@ -1,13 +1,10 @@
-import { coins } from "@cosmjs/stargate";
-import { queryStakingDelegations, queryAddressBalance, queryStaking, queryStakingParameters, queryWasmContractByWalletData, executeContractByWalletData, printChangeBalancesByWalletData, queryAddressTokenBalance } from "./common";
-import { loadingWalletData, loadingStakingData, STAKING_ARTIFACTS_PATH } from "./env_data";
-import { ConvertDeployContracts, ContractDeployed, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts, WalletData } from "./types";
 import Decimal from "decimal.js";
-import { swapExtentionReadArtifact } from "./modules/swap";
-import { stakingReadArtifact } from "./modules/staking";
-import { marketReadArtifact } from "./modules/market";
-import { convertReadArtifact } from "./modules/convert";
-
+import { coins } from "@cosmjs/stargate";
+import { queryStakingDelegations, queryAddressBalance, queryStaking, queryStakingParameters, queryWasmContractByWalletData, executeContractByWalletData, printChangeBalancesByWalletData, queryAddressTokenBalance } from "../../common";
+import { loadingWalletData } from "@/env_data";
+import { swapExtentionReadArtifact, stakingReadArtifact, marketReadArtifact, convertReadArtifact, loadingStakingData, STAKING_ARTIFACTS_PATH } from "@/modules";
+import type { ContractDeployed, WalletData } from "@/types";
+import type { ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed } from "@/modules";
 main().catch(console.error);
 
 async function main(): Promise<void> {
@@ -15,10 +12,10 @@ async function main(): Promise<void> {
 
   const walletData = await loadingWalletData();
 
-  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapDeployContracts;
-  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingDeployContracts;
-  const networkMarket = marketReadArtifact(walletData.chainId) as MarketDeployContracts;
-  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertDeployContracts;
+  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
+  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
+  const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
+  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;
 
   const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(networkStaking);
   if (!hub?.address || !reward?.address || !bSeiToken?.address || !rewardsDispatcher?.address || !validatorsRegistry?.address || !stSeiToken?.address) {

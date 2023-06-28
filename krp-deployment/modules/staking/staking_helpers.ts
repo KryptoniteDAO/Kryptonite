@@ -1,33 +1,83 @@
-import { chainConfigs, DEPLOY_VERSION, STAKING_ARTIFACTS_PATH, STAKING_MODULE_NAME } from "../env_data";
-import { ContractDeployed, StakingDeployContracts, WalletData } from "../types";
-import { executeContractByWalletData, instantiateContractByWalletData, queryWasmContractByWalletData, readArtifact, storeCodeByWalletData, writeArtifact } from "../common";
+import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
+import { executeContractByWalletData, instantiateContractByWalletData, queryWasmContractByWalletData, readArtifact, storeCodeByWalletData, writeArtifact } from "@/common";
+import type { ContractDeployed, WalletData } from "@/types";
+import type { StakingContractsConfig, StakingContractsDeployed } from "@/modules";
+
+export const STAKING_ARTIFACTS_PATH = "../krp-staking-contracts/artifacts";
+export const STAKING_CONTRACTS_PATH = "../krp-staking-contracts/contracts";
+export const STAKING_MODULE_NAME = "staking";
+export const stakingConfigs: StakingContractsConfig = readArtifact(`${STAKING_MODULE_NAME}_config_${DEPLOY_CHAIN_ID}`, `./modules/${STAKING_MODULE_NAME}/`);
 
 export function getStakingDeployFileName(chainId: string): string {
   return `deployed_${STAKING_MODULE_NAME}_${DEPLOY_VERSION}_${chainId}`;
 }
 
-export function stakingReadArtifact(chainId: string): StakingDeployContracts {
-  return readArtifact(getStakingDeployFileName(chainId), STAKING_ARTIFACTS_PATH) as StakingDeployContracts;
+export function stakingReadArtifact(chainId: string): StakingContractsDeployed {
+  return readArtifact(getStakingDeployFileName(chainId), STAKING_ARTIFACTS_PATH) as StakingContractsDeployed;
 }
 
-export function stakingWriteArtifact(networkStaking: StakingDeployContracts, chainId: string): void {
+export function stakingWriteArtifact(networkStaking: StakingContractsDeployed, chainId: string): void {
   writeArtifact(networkStaking, getStakingDeployFileName(chainId), STAKING_ARTIFACTS_PATH);
 }
 
-export async function deployHub(walletData: WalletData, networkStaking: StakingDeployContracts, swapExtention: ContractDeployed): Promise<void> {
+/**
+ * hub,
+ * reward,
+ * bSeiToken,
+ * rewardsDispatcher,
+ * validatorsRegistry,
+ * stSeiToken,
+ */
+export async function loadingStakingData(networkStaking: StakingContractsDeployed | undefined) {
+  const hub: ContractDeployed = {
+    codeId: networkStaking?.hub?.codeId || 0,
+    address: networkStaking?.hub?.address
+  };
+  const reward: ContractDeployed = {
+    codeId: networkStaking?.reward?.codeId || 0,
+    address: networkStaking?.reward?.address
+  };
+  const bSeiToken: ContractDeployed = {
+    codeId: networkStaking?.bSeiToken?.codeId || 0,
+    address: networkStaking?.bSeiToken?.address
+  };
+  const rewardsDispatcher: ContractDeployed = {
+    codeId: networkStaking?.rewardsDispatcher?.codeId || 0,
+    address: networkStaking?.rewardsDispatcher?.address
+  };
+  const validatorsRegistry: ContractDeployed = {
+    codeId: networkStaking?.validatorsRegistry?.codeId || 0,
+    address: networkStaking?.validatorsRegistry?.address
+  };
+  const stSeiToken: ContractDeployed = {
+    codeId: networkStaking?.stSeiToken?.codeId || 0,
+    address: networkStaking?.stSeiToken?.address
+  };
+
+  return {
+    hub,
+    reward,
+    bSeiToken,
+    rewardsDispatcher,
+    validatorsRegistry,
+    stSeiToken
+  };
+}
+
+export async function deployHub(walletData: WalletData, networkStaking: StakingContractsDeployed, swapExtention: ContractDeployed): Promise<void> {
   if (!networkStaking?.hub?.address || !swapExtention?.address) {
     if (!networkStaking?.hub) {
       networkStaking.hub = {};
     }
 
     if (!networkStaking?.hub?.codeId || networkStaking?.hub?.codeId <= 0) {
-      const filePath = chainConfigs?.hub?.filePath || "../krp-staking-contracts/artifacts/basset_sei_hub.wasm";
+      const filePath = stakingConfigs?.hub?.filePath || "../krp-staking-contracts/artifacts/basset_sei_hub.wasm";
       networkStaking.hub.codeId = await storeCodeByWalletData(walletData, filePath);
       stakingWriteArtifact(networkStaking, walletData.chainId);
     }
     if (networkStaking?.hub?.codeId > 0) {
-      const admin = chainConfigs?.hub?.admin || walletData.address;
-      const label = chainConfigs?.hub?.label;
+      const admin = stakingConfigs?.hub?.admin || walletData.address;
+      const label = stakingConfigs?.hub?.label;
       const initMsg = Object.assign(
         {
           reward_denom: walletData.stable_coin_denom,
@@ -35,12 +85,12 @@ export async function deployHub(walletData: WalletData, networkStaking: StakingD
           validator: walletData.validator,
           swap_contract: swapExtention?.address
         },
-        chainConfigs?.hub?.initMsg
+        stakingConfigs?.hub?.initMsg
       );
       console.log(initMsg);
       networkStaking.hub.address = await instantiateContractByWalletData(walletData, admin, networkStaking.hub.codeId, initMsg, label);
       stakingWriteArtifact(networkStaking, walletData.chainId);
-      chainConfigs.hub.deploy = true;
+      stakingConfigs.hub.deploy = true;
     }
     console.log(`hub: `, JSON.stringify(networkStaking?.hub));
   }
@@ -58,13 +108,13 @@ export async function deployReward(walletData: WalletData, network: any, swapExt
     }
 
     if (!network?.reward?.codeId || network?.reward?.codeId <= 0) {
-      const filePath = chainConfigs?.reward?.filePath || "../krp-staking-contracts/artifacts/basset_sei_reward.wasm";
+      const filePath = stakingConfigs?.reward?.filePath || "../krp-staking-contracts/artifacts/basset_sei_reward.wasm";
       network.reward.codeId = await storeCodeByWalletData(walletData, filePath);
       stakingWriteArtifact(network, walletData.chainId);
     }
     if (network?.reward?.codeId > 0) {
-      const admin = chainConfigs?.reward?.admin || walletData.address;
-      const label = chainConfigs?.reward?.label;
+      const admin = stakingConfigs?.reward?.admin || walletData.address;
+      const label = stakingConfigs?.reward?.label;
       const initMsg = Object.assign(
         {
           hub_contract: hubAddress,
@@ -72,14 +122,14 @@ export async function deployReward(walletData: WalletData, network: any, swapExt
           swap_contract: swapExtention?.address,
           swap_denoms: [walletData.nativeCurrency.coinMinimalDenom]
         },
-        chainConfigs?.reward?.initMsg,
+        stakingConfigs?.reward?.initMsg,
         {
-          owner: chainConfigs?.reward?.initMsg?.owner || walletData.address
+          owner: stakingConfigs?.reward?.initMsg?.owner || walletData.address
         }
       );
       network.reward.address = await instantiateContractByWalletData(walletData, admin, network.reward.codeId, initMsg, label);
       stakingWriteArtifact(network, walletData.chainId);
-      chainConfigs.reward.deploy = true;
+      stakingConfigs.reward.deploy = true;
     }
     console.log(`reward: `, JSON.stringify(network?.reward));
   }
@@ -97,23 +147,23 @@ export async function deployBSeiToken(walletData: WalletData, network: any): Pro
     }
 
     if (!network?.bSeiToken?.codeId || network?.bSeiToken?.codeId <= 0) {
-      const filePath = chainConfigs?.bSeiToken?.filePath || "../krp-staking-contracts/artifacts/basset_sei_token_bsei.wasm";
+      const filePath = stakingConfigs?.bSeiToken?.filePath || "../krp-staking-contracts/artifacts/basset_sei_token_bsei.wasm";
       network.bSeiToken.codeId = await storeCodeByWalletData(walletData, filePath);
       stakingWriteArtifact(network, walletData.chainId);
     }
     if (network?.bSeiToken?.codeId > 0) {
-      const admin = chainConfigs?.bSeiToken?.admin || walletData.address;
-      const label = chainConfigs?.bSeiToken?.label;
+      const admin = stakingConfigs?.bSeiToken?.admin || walletData.address;
+      const label = stakingConfigs?.bSeiToken?.label;
       const initMsg = Object.assign(
         {
           hub_contract: hubAddress,
           mint: { minter: hubAddress, cap: null }
         },
-        chainConfigs?.bSeiToken?.initMsg
+        stakingConfigs?.bSeiToken?.initMsg
       );
       network.bSeiToken.address = await instantiateContractByWalletData(walletData, admin, network.bSeiToken.codeId, initMsg, label);
       stakingWriteArtifact(network, walletData.chainId);
-      chainConfigs.bSeiToken.deploy = true;
+      stakingConfigs.bSeiToken.deploy = true;
     }
     console.log(`bSeiToken: `, JSON.stringify(network?.bSeiToken));
   }
@@ -131,13 +181,13 @@ export async function deployRewardsDispatcher(walletData: WalletData, network: a
     }
 
     if (!network?.rewardsDispatcher?.codeId || network?.rewardsDispatcher?.codeId <= 0) {
-      const filePath = chainConfigs?.rewardsDispatcher?.filePath || "../krp-staking-contracts/artifacts/basset_sei_rewards_dispatcher.wasm";
+      const filePath = stakingConfigs?.rewardsDispatcher?.filePath || "../krp-staking-contracts/artifacts/basset_sei_rewards_dispatcher.wasm";
       network.rewardsDispatcher.codeId = await storeCodeByWalletData(walletData, filePath);
       stakingWriteArtifact(network, walletData.chainId);
     }
     if (network?.rewardsDispatcher?.codeId > 0) {
-      const admin = chainConfigs?.rewardsDispatcher?.admin || walletData.address;
-      const label = chainConfigs?.rewardsDispatcher?.label;
+      const admin = stakingConfigs?.rewardsDispatcher?.admin || walletData.address;
+      const label = stakingConfigs?.rewardsDispatcher?.label;
       const initMsg = Object.assign(
         {
           hub_contract: hubAddress,
@@ -148,15 +198,15 @@ export async function deployRewardsDispatcher(walletData: WalletData, network: a
           swap_denoms: [walletData.nativeCurrency.coinMinimalDenom],
           oracle_contract: oraclePyth?.address
         },
-        chainConfigs?.rewardsDispatcher?.initMsg,
+        stakingConfigs?.rewardsDispatcher?.initMsg,
         {
-          lido_fee_address: chainConfigs?.rewardsDispatcher?.initMsg?.lido_fee_address || walletData.address
+          lido_fee_address: stakingConfigs?.rewardsDispatcher?.initMsg?.lido_fee_address || walletData.address
         }
       );
 
       network.rewardsDispatcher.address = await instantiateContractByWalletData(walletData, admin, network.rewardsDispatcher.codeId, initMsg, label);
       stakingWriteArtifact(network, walletData.chainId);
-      chainConfigs.rewardsDispatcher.deploy = true;
+      stakingConfigs.rewardsDispatcher.deploy = true;
     }
     console.log(`rewardsDispatcher: `, JSON.stringify(network?.rewardsDispatcher));
   }
@@ -174,18 +224,18 @@ export async function deployValidatorsRegistry(walletData: WalletData, network: 
     }
 
     if (!network?.validatorsRegistry?.codeId || network?.validatorsRegistry?.codeId <= 0) {
-      const filePath = chainConfigs?.validatorsRegistry?.filePath || "../krp-staking-contracts/artifacts/basset_sei_validators_registry.wasm";
+      const filePath = stakingConfigs?.validatorsRegistry?.filePath || "../krp-staking-contracts/artifacts/basset_sei_validators_registry.wasm";
       network.validatorsRegistry.codeId = await storeCodeByWalletData(walletData, filePath);
       stakingWriteArtifact(network, walletData.chainId);
     }
     if (network?.validatorsRegistry?.codeId > 0) {
-      const admin = chainConfigs?.validatorsRegistry?.admin || walletData.address;
-      const label = chainConfigs?.validatorsRegistry?.label;
-      const registry = chainConfigs?.validatorsRegistry?.initMsg?.registry?.map(q => Object.assign({}, q, { address: walletData.validator }));
+      const admin = stakingConfigs?.validatorsRegistry?.admin || walletData.address;
+      const label = stakingConfigs?.validatorsRegistry?.label;
+      const registry = stakingConfigs?.validatorsRegistry?.initMsg?.registry?.map(q => Object.assign({}, q, { address: walletData.validator }));
       const initMsg = Object.assign({ hub_contract: hubAddress }, { registry });
       network.validatorsRegistry.address = await instantiateContractByWalletData(walletData, admin, network.validatorsRegistry.codeId, initMsg, label);
       stakingWriteArtifact(network, walletData.chainId);
-      chainConfigs.validatorsRegistry.deploy = true;
+      stakingConfigs.validatorsRegistry.deploy = true;
     }
     console.log(`validatorsRegistry: `, JSON.stringify(network?.validatorsRegistry));
   }
@@ -203,23 +253,23 @@ export async function deployStSeiToken(walletData: WalletData, network: any): Pr
     }
 
     if (!network?.stSeiToken?.codeId || network?.stSeiToken?.codeId <= 0) {
-      const filePath = chainConfigs?.stSeiToken?.filePath || "../krp-staking-contracts/artifacts/basset_sei_token_stsei.wasm";
+      const filePath = stakingConfigs?.stSeiToken?.filePath || "../krp-staking-contracts/artifacts/basset_sei_token_stsei.wasm";
       network.stSeiToken.codeId = await storeCodeByWalletData(walletData, filePath);
       stakingWriteArtifact(network, walletData.chainId);
     }
     if (network?.stSeiToken?.codeId > 0) {
-      const admin = chainConfigs?.stSeiToken?.admin || walletData.address;
-      const label = chainConfigs?.stSeiToken?.label;
+      const admin = stakingConfigs?.stSeiToken?.admin || walletData.address;
+      const label = stakingConfigs?.stSeiToken?.label;
       const initMsg = Object.assign(
         {
           hub_contract: hubAddress,
           mint: { minter: hubAddress, cap: null }
         },
-        chainConfigs?.stSeiToken?.initMsg
+        stakingConfigs?.stSeiToken?.initMsg
       );
       network.stSeiToken.address = await instantiateContractByWalletData(walletData, admin, network.stSeiToken.codeId, initMsg, label);
       stakingWriteArtifact(network, walletData.chainId);
-      chainConfigs.stSeiToken.deploy = true;
+      stakingConfigs.stSeiToken.deploy = true;
     }
     console.log(`stSeiToken: `, JSON.stringify(network?.stSeiToken));
   }
@@ -280,16 +330,16 @@ export async function queryHubParameters(walletData: WalletData, hub: ContractDe
   return hubParametersRes;
 }
 
-export async function printDeployedStakingContracts(networkStaking: StakingDeployContracts): Promise<void> {
+export async function printDeployedStakingContracts(networkStaking: StakingContractsDeployed): Promise<void> {
   console.log();
   console.log(`--- --- deployed staking contracts info --- ---`);
   const tableData = [
-    { name: `hub`, deploy: chainConfigs?.hub?.deploy, codeId: networkStaking?.hub?.codeId, address: networkStaking?.hub?.address },
-    { name: `reward`, deploy: chainConfigs?.reward?.deploy, codeId: networkStaking?.reward?.codeId, address: networkStaking?.reward?.address },
-    { name: `bSeiToken`, deploy: chainConfigs?.bSeiToken?.deploy, codeId: networkStaking?.bSeiToken?.codeId, address: networkStaking?.bSeiToken?.address },
-    { name: `rewardsDispatcher`, deploy: chainConfigs?.rewardsDispatcher?.deploy, codeId: networkStaking?.rewardsDispatcher?.codeId, address: networkStaking?.rewardsDispatcher?.address },
-    { name: `validatorsRegistry`, deploy: chainConfigs?.validatorsRegistry?.deploy, codeId: networkStaking?.validatorsRegistry?.codeId, address: networkStaking?.validatorsRegistry?.address },
-    { name: `stSeiToken`, deploy: chainConfigs?.stSeiToken?.deploy, codeId: networkStaking?.stSeiToken?.codeId, address: networkStaking?.stSeiToken?.address }
+    { name: `hub`, deploy: stakingConfigs?.hub?.deploy, codeId: networkStaking?.hub?.codeId, address: networkStaking?.hub?.address },
+    { name: `reward`, deploy: stakingConfigs?.reward?.deploy, codeId: networkStaking?.reward?.codeId, address: networkStaking?.reward?.address },
+    { name: `bSeiToken`, deploy: stakingConfigs?.bSeiToken?.deploy, codeId: networkStaking?.bSeiToken?.codeId, address: networkStaking?.bSeiToken?.address },
+    { name: `rewardsDispatcher`, deploy: stakingConfigs?.rewardsDispatcher?.deploy, codeId: networkStaking?.rewardsDispatcher?.codeId, address: networkStaking?.rewardsDispatcher?.address },
+    { name: `validatorsRegistry`, deploy: stakingConfigs?.validatorsRegistry?.deploy, codeId: networkStaking?.validatorsRegistry?.codeId, address: networkStaking?.validatorsRegistry?.address },
+    { name: `stSeiToken`, deploy: stakingConfigs?.stSeiToken?.deploy, codeId: networkStaking?.stSeiToken?.codeId, address: networkStaking?.stSeiToken?.address }
   ];
   console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
 }

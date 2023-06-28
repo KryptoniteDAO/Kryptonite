@@ -1,7 +1,6 @@
-import { printChangeBalancesByWalletData, queryContractConfig } from "./common";
-import { loadingWalletData, loadingMarketData, loadingStakingData, chainConfigs } from "./env_data";
-import type { ContractDeployed, MarketDeployContracts, WalletData } from "./types";
-import { ConvertDeployContracts, StakingDeployContracts, SwapDeployContracts } from "./types";
+import { printChangeBalancesByWalletData, queryContractConfig } from "@/common";
+import { loadingWalletData } from "@/env_data";
+import { loadingMarketData, loadingStakingData, doSwapExtentionSetWhitelist, swapExtentionReadArtifact, stakingReadArtifact, convertReadArtifact, marketConfigs } from "@/modules";
 import {
   ConfigOraclePythBaseFeedInfoList,
   ConfigOraclePythFeedInfoList,
@@ -22,10 +21,9 @@ import {
   marketReadArtifact,
   printDeployedMarketContracts,
   queryOverseerWhitelist
-} from "./modules/market";
-import { doSwapExtentionSetWhitelist, swapExtentionReadArtifact } from "./modules/swap";
-import { stakingReadArtifact } from "./modules/staking";
-import { convertReadArtifact } from "./modules/convert";
+} from "./index";
+import type { ContractDeployed, WalletData } from "@/types";
+import type { MarketContractsDeployed, ConvertContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed } from "@/modules";
 
 main().catch(console.error);
 
@@ -34,10 +32,10 @@ async function main(): Promise<void> {
 
   const walletData: WalletData = await loadingWalletData();
 
-  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapDeployContracts;
-  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingDeployContracts;
-  const networkMarket = marketReadArtifact(walletData.chainId) as MarketDeployContracts;
-  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertDeployContracts;
+  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
+  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
+  const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
+  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;
 
   const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(networkStaking);
 
@@ -86,8 +84,8 @@ async function main(): Promise<void> {
   await doOverseerConfig(walletData, overseerConfigRes?.config, overseer, liquidationQueue);
   await doCustodyBSeiConfig(walletData, custodyBSeiConfigRes?.config, custodyBSei, liquidationQueue);
   await doLiquidationQueueConfig(walletData, liquidationQueueConfigRes?.config, liquidationQueue, oraclePyth, overseer);
-  await doOverseerWhitelist(walletData, walletData.nativeCurrency.coinMinimalDenom, overseer, custodyBSei, bSeiToken, chainConfigs?.overseer?.updateMsg);
-  await doLiquidationQueueWhitelistCollateral(walletData, walletData.nativeCurrency.coinMinimalDenom, liquidationQueue, bSeiToken, chainConfigs?.liquidationQueue?.updateMsg);
+  await doOverseerWhitelist(walletData, walletData.nativeCurrency.coinMinimalDenom, overseer, custodyBSei, bSeiToken, marketConfigs?.overseer?.updateMsg);
+  await doLiquidationQueueWhitelistCollateral(walletData, walletData.nativeCurrency.coinMinimalDenom, liquidationQueue, bSeiToken, marketConfigs?.liquidationQueue?.updateMsg);
 
   const chainIdConfigFeedInfos = ConfigOraclePythFeedInfoList[walletData.chainId];
   if (chainIdConfigFeedInfos && chainIdConfigFeedInfos.length > 0) {

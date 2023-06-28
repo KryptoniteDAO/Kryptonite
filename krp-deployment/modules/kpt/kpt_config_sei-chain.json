@@ -1,0 +1,114 @@
+{
+  "kpt": {
+    "admin": null,
+    "initMsg": {
+      "cw20_init_msg": {
+        "name": "kpt dev",
+        "symbol": "kpt",
+        "decimals": 6,
+        "initial_balances": [{ "address": "", "amount": "1000000000000000" }]
+      },
+      "max_supply": "10000000000000000000"
+    },
+    "label": "kpt",
+    "filePath": null,
+    "deploy": false
+  },
+  "veKpt": {
+    "admin": null,
+    "initMsg": {
+      "cw20_init_msg": {
+        "name": "ve kpt dev",
+        "symbol": "vekpt",
+        "decimals": 6,
+        "initial_balances": [{ "address": "", "amount": "1000000000000000" }]
+      },
+      "max_supply": "10000000000000000000",
+      "max_minted": "9999000000000000000"
+    },
+    "label": "veKpt",
+    "filePath": null,
+    "deploy": false
+  },
+  "kptFund": {
+    "admin": null,
+    "initMsg": {
+      "kusd_denom": "factory/sei1f53twx2n6p9t379kkv6gmcnhxn03xpppuum8j0/dev",
+      "kusd_reward_addr": "sei1znlydlsgqrx2yan8u6sz5wl2msrmrsczdyh2c2yhrzcnajvrsjvqvtkpmv",
+      "exit_cycle": "2592000",
+      "claim_able_time": "1687190400"
+    },
+    "label": "kptFund",
+    "filePath": null,
+    "deploy": false
+  },
+  "veKptBoost": {
+    "admin": null,
+    "initMsg": {
+      "ve_kpt_lock_settings": [
+        { "duration": "2592000", "mining_boost": "20000000" },
+        { "duration": "7776000", "mining_boost": "30000000" },
+        { "duration": "15552000", "mining_boost": "50000000" },
+        { "duration": "31536000", "mining_boost": "100000000" }
+      ]
+    },
+    "label": "veKptBoost",
+    "filePath": null,
+    "deploy": false
+  },
+  "veKptMiner": {
+    "admin": null,
+    "initMsg": {
+      "duration": "2592000",
+      "lockdown_period": "43200",
+      "extra_rate": "50000000"
+    },
+    "label": "veKptMiner",
+    "filePath": null,
+    "deploy": false
+  },
+  "blindBox": {
+    "admin": null,
+    "initMsg": {
+      "name": "KPT Blind Box",
+      "symbol": "KPTBOX",
+      "nft_base_url": "https://www.google.com/",
+      "nft_uri_suffix": ".json",
+      "price_token": "factory/sei1f53twx2n6p9t379kkv6gmcnhxn03xpppuum8j0/dev",
+      "token_id_prefix": "kpt_blind_box_",
+      "level_infos": [
+        { "price": "10000000", "mint_total_count": "50000" },
+        { "price": "20000000", "mint_total_count": "40000" },
+        { "price": "30000000", "mint_total_count": "30000" },
+        { "price": "40000000", "mint_total_count": "20000" },
+        { "price": "50000000", "mint_total_count": "10000" }
+      ],
+      "start_mint_time": 1687337418
+    },
+    "label": "blindBox",
+    "filePath": null,
+    "deploy": false
+  },
+  "blindBoxReward": {
+    "admin": null,
+    "initMsg": {
+      "reward_token_map_msgs": [
+        {
+          "reward_token": "%kpt_address%",
+          "total_reward_amount": "1000000000000000000",
+          "claimable_time": 1687337418,
+          "reward_levels": [{ "reward_amount": "100000000" }, { "reward_amount": "220000000" }, { "reward_amount": "330000000" }, { "reward_amount": "440000000" }, { "reward_amount": "550000000" }]
+        },
+        {
+          "reward_token": "%ve_kpt_address%",
+          "total_reward_amount": "2000000000000000000",
+          "claimable_time": 1687337418,
+          "reward_levels": [{ "reward_amount": "111000000" }, { "reward_amount": "222000000" }, { "reward_amount": "333000000" }, { "reward_amount": "444000000" }, { "reward_amount": "555000000" }]
+        }
+      ]
+    },
+    "label": "blindBoxReward",
+    "filePath": null,
+    "deploy": false
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "convertPairs": [
+    {
+      "name": "STSEI/bSTSEI",
+      "native_denom": "ibc/326D2E9FFBF7AE39CC404A58DED81054E23F107BC8D926D5D981C0231F1ECD2D",
+      "converter": {
+        "admin": null,
+        "initMsg": {
+          "owner": null
+        },
+        "label": "basset and native token convert contract",
+        "filePath": null,
+        "deploy": false
+      },
+      "btoken": {
+        "admin": null,
+        "initMsg": {
+          "name": "bstsei",
+          "symbol": "BSTSEI",
+          "decimals": 6,
+          "initial_balances": []
+        },
+        "label": "bond stride stSei to cw20 token",
+        "filePath": null,
+        "deploy": false
+      },
+      "custody": {
+        "admin": null,
+        "initMsg": {
+          "owner": null,
+          "basset_info": {
+            "name": "Bonded stSei",
+            "symbol": "BSTSEI",
+            "decimals": 6
+          }
+        },
+        "label": "custody bond stsei contract",
+        "filePath": null,
+        "deploy": false
+      },
+      "overseerWhitelistConfig": {
+        "name": "Bond stSei",
+        "symbol": "BSTSEI",
+        "max_ltv": "0.65"
+      },
+      "liquidationQueueWhitelistCollateralConfig": {
+        "bid_threshold": "500000000",
+        "max_slot": 30,
+        "premium_rate_per_slot": "0.01"
+      }
+    },
+    {
+      "name": "SLSTI/bSLSTI",
+      "native_denom": "ibc/53B6183707AF4C744EE26815613D9C4D0DE40E2C18083EA5B384FAF4F6BB0C06",
+      "converter": {
+        "admin": null,
+        "initMsg": {
+          "owner": null
+        },
+        "label": "bslsdi and slsdi convert contract",
+        "filePath": null,
+        "deploy": false
+      },
+      "btoken": {
+        "admin": null,
+        "initMsg": {
+          "name": "bslsdi",
+          "symbol": "BSLSDI",
+          "decimals": 6,
+          "initial_balances": []
+        },
+        "label": "bond slsdi to cw20 token",
+        "filePath": null,
+        "deploy": false
+      },
+      "custody": {
+        "admin": null,
+        "initMsg": {
+          "owner": null,
+          "basset_info": {
+            "name": "Bonded slsdi",
+            "symbol": "BSLSDI",
+            "decimals": 6
+          }
+        },
+        "label": "custody bond slsdi contract",
+        "filePath": null,
+        "deploy": false
+      },
+      "overseerWhitelistConfig": {
+        "name": "Bond slsdi",
+        "symbol": "BSLSDI",
+        "max_ltv": "0.65"
+      },
+      "liquidationQueueWhitelistCollateralConfig": {
+        "bid_threshold": "500000000",
+        "max_slot": 30,
+        "premium_rate_per_slot": "0.01"
+      }
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "swapExtention": {
+    "admin": null,
+    "initMsg": {
+      "owner": null
+    },
+    "label": "swapExtention",
+    "filePath": null,
+    "deploy": false
+  }
+}

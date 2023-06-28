@@ -1,7 +1,13 @@
-import { chainConfigs, DEPLOY_VERSION, MARKET_ARTIFACTS_PATH, MARKET_MODULE_NAME } from "../env_data";
-import { executeContractByWalletData, instantiateContract2ByWalletData, instantiateContractByWalletData, queryContractConfig, queryWasmContractByWalletData, readArtifact, storeCodeByWalletData, writeArtifact } from "../common";
-import { ChainId, ContractDeployed, MarketDeployContracts, WalletData } from "../types";
-import { OraclePythClient, OraclePythQueryClient } from "../contracts/market/OraclePyth.client";
+import { ChainId, DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
+import { executeContractByWalletData, instantiateContract2ByWalletData, instantiateContractByWalletData, queryContractConfig, queryWasmContractByWalletData, readArtifact, storeCodeByWalletData, writeArtifact } from "@/common";
+import { OraclePythClient, OraclePythQueryClient } from "@/contracts/market/OraclePyth.client";
+import type { ContractDeployed, WalletData } from "@/types";
+import type { MarketContractsConfig, MarketContractsDeployed } from "@/modules";
+
+export const MARKET_ARTIFACTS_PATH = "../krp-market-contracts/artifacts";
+export const MARKET_CONTRACTS_PATH = "../krp-market-contracts/contracts";
+export const MARKET_MODULE_NAME = "market";
+export const marketConfigs: MarketContractsConfig = readArtifact(`${MARKET_MODULE_NAME}_config_${DEPLOY_CHAIN_ID}`, `./modules/${MARKET_MODULE_NAME}/`);
 
 export const ConfigOraclePythBaseFeedInfoList: Record<
   string,
@@ -50,7 +56,6 @@ export const ConfigOraclePythFeedInfoList: Record<
       priceFeedAge: 60
     },
     Object.assign({ asset: "usei" }, ConfigOraclePythBaseFeedInfoList[ChainId.SEI_CHAIN])
-
   ],
   // usei and btokens
   [ChainId.ATLANTIC_2]: [
@@ -70,15 +75,77 @@ export function getMarketDeployFileName(chainId: string): string {
   return `deployed_${MARKET_MODULE_NAME}_${DEPLOY_VERSION}_${chainId}`;
 }
 
-export function marketReadArtifact(chainId: string): MarketDeployContracts {
-  return readArtifact(getMarketDeployFileName(chainId), MARKET_ARTIFACTS_PATH) as MarketDeployContracts;
+export function marketReadArtifact(chainId: string): MarketContractsDeployed {
+  return readArtifact(getMarketDeployFileName(chainId), MARKET_ARTIFACTS_PATH) as MarketContractsDeployed;
 }
 
-export function marketWriteArtifact(networkMarket: MarketDeployContracts, chainId: string): void {
+export function marketWriteArtifact(networkMarket: MarketContractsDeployed, chainId: string): void {
   writeArtifact(networkMarket, getMarketDeployFileName(chainId), MARKET_ARTIFACTS_PATH);
 }
 
-export async function deployOraclePyth(walletData: WalletData, networkMarket: MarketDeployContracts): Promise<void> {
+/**
+ * aToken
+ * market
+ * interestModel
+ * distributionModel
+ * oracle
+ * overseer
+ * liquidationQueue
+ * custodyBSei
+ * oraclePyth
+ */
+export async function loadingMarketData(networkMarket: MarketContractsDeployed | undefined) {
+  const aToken: ContractDeployed = {
+    codeId: networkMarket?.aToken?.codeId || 0,
+    address: networkMarket?.aToken?.address
+  };
+  const market: ContractDeployed = {
+    codeId: networkMarket?.market?.codeId || 0,
+    address: networkMarket?.market?.address
+  };
+  const interestModel: ContractDeployed = {
+    codeId: networkMarket?.interestModel?.codeId || 0,
+    address: networkMarket?.interestModel?.address
+  };
+  const distributionModel: ContractDeployed = {
+    codeId: networkMarket?.distributionModel?.codeId || 0,
+    address: networkMarket?.distributionModel?.address
+  };
+  const oracle: ContractDeployed = {
+    codeId: networkMarket?.oracle?.codeId || 0,
+    address: networkMarket?.oracle?.address
+  };
+  const overseer: ContractDeployed = {
+    codeId: networkMarket?.overseer?.codeId || 0,
+    address: networkMarket?.overseer?.address
+  };
+  const liquidationQueue: ContractDeployed = {
+    codeId: networkMarket?.liquidationQueue?.codeId || 0,
+    address: networkMarket?.liquidationQueue?.address
+  };
+  const custodyBSei: ContractDeployed = {
+    codeId: networkMarket?.custodyBSei?.codeId || 0,
+    address: networkMarket?.custodyBSei?.address
+  };
+  const oraclePyth: ContractDeployed = {
+    codeId: networkMarket?.oraclePyth?.codeId || 0,
+    address: networkMarket?.oraclePyth?.address
+  };
+
+  return {
+    aToken,
+    market,
+    interestModel,
+    distributionModel,
+    // oracle,
+    overseer,
+    liquidationQueue,
+    custodyBSei,
+    oraclePyth
+  };
+}
+
+export async function deployOraclePyth(walletData: WalletData, networkMarket: MarketContractsDeployed): Promise<void> {
   // if ("atlantic-2" !== walletData.chainId) {
   //   return;
   // }
@@ -89,25 +156,25 @@ export async function deployOraclePyth(walletData: WalletData, networkMarket: Ma
     }
 
     if (!networkMarket?.oraclePyth?.codeId || networkMarket?.oraclePyth?.codeId <= 0) {
-      const filePath = chainConfigs?.oraclePyth?.filePath || "../krp-market-contracts/artifacts/moneymarket_oracle_pyth.wasm";
+      const filePath = marketConfigs?.oraclePyth?.filePath || "../krp-market-contracts/artifacts/moneymarket_oracle_pyth.wasm";
       networkMarket.oraclePyth.codeId = await storeCodeByWalletData(walletData, filePath);
       marketWriteArtifact(networkMarket, walletData.chainId);
     }
     if (networkMarket?.oraclePyth?.codeId > 0) {
-      const admin = chainConfigs?.oraclePyth?.admin || walletData.address;
-      const label = chainConfigs?.oraclePyth?.label;
-      const initMsg = Object.assign({}, chainConfigs?.oraclePyth?.initMsg, {
-        owner: chainConfigs?.oraclePyth?.initMsg?.owner || walletData.address
+      const admin = marketConfigs?.oraclePyth?.admin || walletData.address;
+      const label = marketConfigs?.oraclePyth?.label;
+      const initMsg = Object.assign({}, marketConfigs?.oraclePyth?.initMsg, {
+        owner: marketConfigs?.oraclePyth?.initMsg?.owner || walletData.address
       });
       networkMarket.oraclePyth.address = await instantiateContractByWalletData(walletData, admin, networkMarket.oraclePyth.codeId, initMsg, label);
       marketWriteArtifact(networkMarket, walletData.chainId);
-      chainConfigs.oraclePyth.deploy = true;
+      marketConfigs.oraclePyth.deploy = true;
     }
     console.log(`oraclePyth: `, JSON.stringify(networkMarket?.oraclePyth));
   }
 }
 
-export async function deployMarket(walletData: WalletData, network: MarketDeployContracts): Promise<void> {
+export async function deployMarket(walletData: WalletData, network: MarketContractsDeployed): Promise<void> {
   if (!network?.aToken?.address || !network?.market?.address) {
     if (!network?.aToken) {
       network.aToken = {};
@@ -117,119 +184,119 @@ export async function deployMarket(walletData: WalletData, network: MarketDeploy
     }
 
     if (network?.aToken?.codeId <= 0 || !network?.aToken?.codeId) {
-      const filePath = chainConfigs?.aToken?.filePath || "../cw-plus/artifacts/cw20_base.wasm";
+      const filePath = marketConfigs?.aToken?.filePath || "../cw-plus/artifacts/cw20_base.wasm";
       network.aToken.codeId = await storeCodeByWalletData(walletData, filePath);
       marketWriteArtifact(network, walletData.chainId);
     }
     if (!network?.market?.codeId || network?.market?.codeId <= 0) {
-      const filePath = chainConfigs?.market?.filePath || "../krp-market-contracts/artifacts/moneymarket_market.wasm";
+      const filePath = marketConfigs?.market?.filePath || "../krp-market-contracts/artifacts/moneymarket_market.wasm";
       network.market.codeId = await storeCodeByWalletData(walletData, filePath);
       marketWriteArtifact(network, walletData.chainId);
     }
     if (network?.market?.codeId > 0 && network?.aToken?.codeId > 0) {
-      const admin = chainConfigs?.market?.admin || walletData.address;
-      const label = chainConfigs?.market?.label;
+      const admin = marketConfigs?.market?.admin || walletData.address;
+      const label = marketConfigs?.market?.label;
       const initMsg = Object.assign(
         {
           atoken_code_id: network.aToken.codeId,
           stable_denom: walletData.stable_coin_denom,
           stable_name: "USDT"
         },
-        chainConfigs?.market?.initMsg,
+        marketConfigs?.market?.initMsg,
         {
-          owner_addr: chainConfigs?.market?.initMsg?.owner_addr || walletData.address
+          owner_addr: marketConfigs?.market?.initMsg?.owner_addr || walletData.address
         }
       );
-      const initCoins = chainConfigs?.market?.initCoins?.map(q => Object.assign({}, q, { denom: q?.denom || walletData.stable_coin_denom }));
+      const initCoins = marketConfigs?.market?.initCoins?.map(q => Object.assign({}, q, { denom: q?.denom || walletData.stable_coin_denom }));
       const [contract1, contract2] = await instantiateContract2ByWalletData(walletData, admin, network.market.codeId, initMsg, label, initCoins);
       network.aToken.address = contract2;
       network.market.address = contract1;
       network.market_stable_denom = walletData.stable_coin_denom;
       marketWriteArtifact(network, walletData.chainId);
-      chainConfigs.aToken.deploy = true;
-      chainConfigs.market.deploy = true;
+      marketConfigs.aToken.deploy = true;
+      marketConfigs.market.deploy = true;
     }
     console.log(`aToken: `, JSON.stringify(network?.aToken));
     console.log(`market: `, JSON.stringify(network?.market));
   }
 }
 
-export async function deployInterestModel(walletData: WalletData, network: MarketDeployContracts): Promise<void> {
+export async function deployInterestModel(walletData: WalletData, network: MarketContractsDeployed): Promise<void> {
   if (!network?.interestModel?.address) {
     if (!network?.interestModel) {
       network.interestModel = {};
     }
 
     if (!network?.interestModel?.codeId || network?.interestModel?.codeId <= 0) {
-      const filePath = chainConfigs?.interestModel?.filePath || "../krp-market-contracts/artifacts/moneymarket_interest_model.wasm";
+      const filePath = marketConfigs?.interestModel?.filePath || "../krp-market-contracts/artifacts/moneymarket_interest_model.wasm";
       network.interestModel.codeId = await storeCodeByWalletData(walletData, filePath);
       marketWriteArtifact(network, walletData.chainId);
     }
     if (network?.interestModel?.codeId > 0) {
-      const admin = chainConfigs?.interestModel?.admin || walletData.address;
-      const label = chainConfigs?.interestModel?.label;
-      const initMsg = Object.assign({}, chainConfigs?.interestModel?.initMsg, {
-        owner: chainConfigs?.interestModel?.initMsg?.owner || walletData.address
+      const admin = marketConfigs?.interestModel?.admin || walletData.address;
+      const label = marketConfigs?.interestModel?.label;
+      const initMsg = Object.assign({}, marketConfigs?.interestModel?.initMsg, {
+        owner: marketConfigs?.interestModel?.initMsg?.owner || walletData.address
       });
       network.interestModel.address = await instantiateContractByWalletData(walletData, admin, network.interestModel.codeId, initMsg, label);
       marketWriteArtifact(network, walletData.chainId);
-      chainConfigs.interestModel.deploy = true;
+      marketConfigs.interestModel.deploy = true;
     }
     console.log(`interestModel: `, JSON.stringify(network?.interestModel));
   }
 }
 
-export async function deployDistributionModel(walletData: WalletData, network: MarketDeployContracts): Promise<void> {
+export async function deployDistributionModel(walletData: WalletData, network: MarketContractsDeployed): Promise<void> {
   if (!network?.distributionModel?.address) {
     if (!network?.distributionModel) {
       network.distributionModel = {};
     }
 
     if (!network?.distributionModel?.codeId || network?.distributionModel?.codeId <= 0) {
-      const filePath = chainConfigs?.distributionModel?.filePath || "../krp-market-contracts/artifacts/moneymarket_distribution_model.wasm";
+      const filePath = marketConfigs?.distributionModel?.filePath || "../krp-market-contracts/artifacts/moneymarket_distribution_model.wasm";
       network.distributionModel.codeId = await storeCodeByWalletData(walletData, filePath);
       marketWriteArtifact(network, walletData.chainId);
     }
     if (network?.distributionModel?.codeId > 0) {
-      const admin = chainConfigs?.distributionModel?.admin || walletData.address;
-      const label = chainConfigs?.distributionModel?.label;
-      const initMsg = Object.assign({}, chainConfigs?.distributionModel?.initMsg, {
-        owner: chainConfigs?.distributionModel?.initMsg?.owner || walletData.address
+      const admin = marketConfigs?.distributionModel?.admin || walletData.address;
+      const label = marketConfigs?.distributionModel?.label;
+      const initMsg = Object.assign({}, marketConfigs?.distributionModel?.initMsg, {
+        owner: marketConfigs?.distributionModel?.initMsg?.owner || walletData.address
       });
       network.distributionModel.address = await instantiateContractByWalletData(walletData, admin, network.distributionModel.codeId, initMsg, label);
       marketWriteArtifact(network, walletData.chainId);
-      chainConfigs.distributionModel.deploy = true;
+      marketConfigs.distributionModel.deploy = true;
     }
     console.log(`distributionModel: `, JSON.stringify(network?.distributionModel));
   }
 }
 
-export async function deployOracle(walletData: WalletData, network: MarketDeployContracts): Promise<void> {
+export async function deployOracle(walletData: WalletData, network: MarketContractsDeployed): Promise<void> {
   if (!network?.oracle?.address) {
     if (!network?.oracle) {
       network.oracle = {};
     }
 
     if (!network?.oracle?.codeId || network?.oracle?.codeId <= 0) {
-      const filePath = chainConfigs?.oracle?.filePath || "../krp-market-contracts/artifacts/moneymarket_oracle.wasm";
+      const filePath = marketConfigs?.oracle?.filePath || "../krp-market-contracts/artifacts/moneymarket_oracle.wasm";
       network.oracle.codeId = await storeCodeByWalletData(walletData, filePath);
       marketWriteArtifact(network, walletData.chainId);
     }
     if (network?.oracle?.codeId > 0) {
-      const admin = chainConfigs?.oracle?.admin || walletData.address;
-      const label = chainConfigs?.oracle?.label;
-      const initMsg = Object.assign({ base_asset: walletData.stable_coin_denom }, chainConfigs?.oracle?.initMsg, {
-        owner: chainConfigs?.oracle?.initMsg?.owner || walletData.address
+      const admin = marketConfigs?.oracle?.admin || walletData.address;
+      const label = marketConfigs?.oracle?.label;
+      const initMsg = Object.assign({ base_asset: walletData.stable_coin_denom }, marketConfigs?.oracle?.initMsg, {
+        owner: marketConfigs?.oracle?.initMsg?.owner || walletData.address
       });
       network.oracle.address = await instantiateContractByWalletData(walletData, admin, network.oracle.codeId, initMsg, label);
       marketWriteArtifact(network, walletData.chainId);
-      chainConfigs.oracle.deploy = true;
+      marketConfigs.oracle.deploy = true;
     }
     console.log(`oracle: `, JSON.stringify(network?.oracle));
   }
 }
 
-export async function deployOverseer(walletData: WalletData, network: MarketDeployContracts): Promise<void> {
+export async function deployOverseer(walletData: WalletData, network: MarketContractsDeployed): Promise<void> {
   const marketAddress = network?.market?.address;
   const oracleAddress = network?.oraclePyth?.address;
   const liquidationQueueAddress = network?.liquidationQueue?.address;
@@ -243,13 +310,13 @@ export async function deployOverseer(walletData: WalletData, network: MarketDepl
     }
 
     if (!network?.overseer?.codeId || network?.overseer?.codeId <= 0) {
-      const filePath = chainConfigs?.overseer?.filePath || "../krp-market-contracts/artifacts/moneymarket_overseer.wasm";
+      const filePath = marketConfigs?.overseer?.filePath || "../krp-market-contracts/artifacts/moneymarket_overseer.wasm";
       network.overseer.codeId = await storeCodeByWalletData(walletData, filePath);
       marketWriteArtifact(network, walletData.chainId);
     }
     if (network?.overseer?.codeId > 0) {
-      const admin = chainConfigs?.overseer?.admin || walletData.address;
-      const label = chainConfigs?.overseer?.label;
+      const admin = marketConfigs?.overseer?.admin || walletData.address;
+      const label = marketConfigs?.overseer?.label;
       const initMsg = Object.assign(
         {
           market_contract: marketAddress,
@@ -257,20 +324,20 @@ export async function deployOverseer(walletData: WalletData, network: MarketDepl
           liquidation_contract: liquidationQueueAddress || walletData.address,
           stable_denom: walletData.stable_coin_denom
         },
-        chainConfigs?.overseer?.initMsg,
+        marketConfigs?.overseer?.initMsg,
         {
-          owner_addr: chainConfigs?.overseer?.initMsg?.owner_addr || walletData.address
+          owner_addr: marketConfigs?.overseer?.initMsg?.owner_addr || walletData.address
         }
       );
       network.overseer.address = await instantiateContractByWalletData(walletData, admin, network.overseer.codeId, initMsg, label);
       marketWriteArtifact(network, walletData.chainId);
-      chainConfigs.overseer.deploy = true;
+      marketConfigs.overseer.deploy = true;
     }
     console.log(`overseer: `, JSON.stringify(network?.overseer));
   }
 }
 
-export async function deployLiquidationQueue(walletData: WalletData, network: MarketDeployContracts): Promise<void> {
+export async function deployLiquidationQueue(walletData: WalletData, network: MarketContractsDeployed): Promise<void> {
   const oracleAddress = network?.oraclePyth?.address;
   const overseerAddress = network?.overseer?.address;
   if (!oracleAddress) {
@@ -283,33 +350,33 @@ export async function deployLiquidationQueue(walletData: WalletData, network: Ma
     }
 
     if (!network?.liquidationQueue?.codeId || network?.liquidationQueue?.codeId <= 0) {
-      const filePath = chainConfigs?.liquidationQueue?.filePath || "../krp-market-contracts/artifacts/moneymarket_liquidation_queue.wasm";
+      const filePath = marketConfigs?.liquidationQueue?.filePath || "../krp-market-contracts/artifacts/moneymarket_liquidation_queue.wasm";
       network.liquidationQueue.codeId = await storeCodeByWalletData(walletData, filePath);
       marketWriteArtifact(network, walletData.chainId);
     }
     if (network?.liquidationQueue?.codeId > 0) {
-      const admin = chainConfigs?.liquidationQueue?.admin || walletData.address;
-      const label = chainConfigs?.liquidationQueue?.label;
+      const admin = marketConfigs?.liquidationQueue?.admin || walletData.address;
+      const label = marketConfigs?.liquidationQueue?.label;
       const initMsg = Object.assign(
         {
           oracle_contract: oracleAddress,
           overseer: overseerAddress || walletData.address,
           stable_denom: walletData.stable_coin_denom
         },
-        chainConfigs?.liquidationQueue?.initMsg,
+        marketConfigs?.liquidationQueue?.initMsg,
         {
-          owner: chainConfigs?.liquidationQueue?.initMsg?.owner || walletData.address
+          owner: marketConfigs?.liquidationQueue?.initMsg?.owner || walletData.address
         }
       );
       network.liquidationQueue.address = await instantiateContractByWalletData(walletData, admin, network.liquidationQueue.codeId, initMsg, label);
       marketWriteArtifact(network, walletData.chainId);
-      chainConfigs.liquidationQueue.deploy = true;
+      marketConfigs.liquidationQueue.deploy = true;
     }
     console.log(`liquidationQueue: `, JSON.stringify(network?.liquidationQueue));
   }
 }
 
-export async function deployCustodyBSei(walletData: WalletData, network: MarketDeployContracts, rewardAddress: string, bSeiTokenAddress: string, swapExtention: ContractDeployed): Promise<void> {
+export async function deployCustodyBSei(walletData: WalletData, network: MarketContractsDeployed, rewardAddress: string, bSeiTokenAddress: string, swapExtention: ContractDeployed): Promise<void> {
   const marketAddress = network?.market?.address;
   const liquidationQueueAddress = network?.liquidationQueue?.address;
   const overseerAddress = network?.overseer?.address;
@@ -324,13 +391,13 @@ export async function deployCustodyBSei(walletData: WalletData, network: MarketD
     }
 
     if (!network?.custodyBSei?.codeId || network?.custodyBSei?.codeId <= 0) {
-      const filePath = chainConfigs?.custodyBSei?.filePath || "../krp-market-contracts/artifacts/moneymarket_custody_bsei.wasm";
+      const filePath = marketConfigs?.custodyBSei?.filePath || "../krp-market-contracts/artifacts/moneymarket_custody_bsei.wasm";
       network.custodyBSei.codeId = await storeCodeByWalletData(walletData, filePath);
       marketWriteArtifact(network, walletData.chainId);
     }
     if (network?.custodyBSei?.codeId > 0) {
-      const admin = chainConfigs?.custodyBSei?.admin || walletData.address;
-      const label = chainConfigs?.custodyBSei?.label;
+      const admin = marketConfigs?.custodyBSei?.admin || walletData.address;
+      const label = marketConfigs?.custodyBSei?.label;
       const initMsg = Object.assign(
         {
           collateral_token: bSeiTokenAddress,
@@ -341,16 +408,16 @@ export async function deployCustodyBSei(walletData: WalletData, network: MarketD
           stable_denom: walletData.stable_coin_denom,
           swap_contract: swapExtention?.address,
           swap_denoms: [walletData.nativeCurrency.coinMinimalDenom],
-          oracle_contract: oraclepythAddress,
+          oracle_contract: oraclepythAddress
         },
-        chainConfigs?.custodyBSei?.initMsg,
+        marketConfigs?.custodyBSei?.initMsg,
         {
-          owner: chainConfigs?.custodyBSei?.initMsg?.owner || walletData.address
+          owner: marketConfigs?.custodyBSei?.initMsg?.owner || walletData.address
         }
       );
       network.custodyBSei.address = await instantiateContractByWalletData(walletData, admin, network.custodyBSei.codeId, initMsg, label);
       marketWriteArtifact(network, walletData.chainId);
-      chainConfigs.custodyBSei.deploy = true;
+      marketConfigs.custodyBSei.deploy = true;
     }
     console.log(`custodyBSei: `, JSON.stringify(network?.custodyBSei));
   }
@@ -391,7 +458,7 @@ export async function doMarketConfig(
         collector_contract: bSeiToken.address,
         distributor_contract: rewardsDispatcher.address,
         oracle_contract: oraclepythAddress,
-        liquidation_contract: liquidationQueueAddress,
+        liquidation_contract: liquidationQueueAddress
       }
     });
     console.log("Do market's register_contracts ok. \n", marketRegisterContractsRes?.transactionHash);
@@ -411,7 +478,7 @@ export async function doOverseerConfig(walletData: WalletData, overseerConfigRes
     const overseerUpdateConfigRes = await executeContractByWalletData(walletData, overseer.address, {
       update_config: {
         liquidation_contract: liquidationQueue.address
-        // epoch_period: chainConfigs?.overseer?.initMsg.epoch_period,
+        // epoch_period: marketConfigs?.overseer?.initMsg.epoch_period,
       }
     });
     console.log("Do overseer's config ok. \n", overseerUpdateConfigRes?.transactionHash);
@@ -431,7 +498,7 @@ export async function doCustodyBSeiConfig(walletData: WalletData, custodyBSeiCon
     console.warn("Do custodyBSei's config enter");
     let custodyBSeiUpdateConfigRes = await executeContractByWalletData(walletData, custodyBSei.address, {
       update_config: {
-        // owner: chainConfigs?.custodyBSei?.initMsg?.owner || walletData.address,
+        // owner: marketConfigs?.custodyBSei?.initMsg?.owner || walletData.address,
         liquidation_contract: liquidationQueue.address
       }
     });
@@ -453,7 +520,7 @@ export async function doLiquidationQueueConfig(walletData: WalletData, liquidati
       update_config: {
         oracle_contract: oraclePyth.address,
         overseer: overseer.address
-        // owner: chainConfigs?.liquidationQueue?.initMsg?.owner || walletData.address,
+        // owner: marketConfigs?.liquidationQueue?.initMsg?.owner || walletData.address,
         // safe_ratio: "0.8",
         // bid_fee: "0.01",
         // liquidator_fee: "0.01",
@@ -489,9 +556,9 @@ export async function doOverseerWhitelist(walletData: WalletData, nativeDenom: s
       whitelist: {
         collateral_token: btoken.address,
         custody_contract: custody.address,
-        name: updateMsg?.["name"] || chainConfigs?.overseer?.updateMsg?.name || "Bond Sei",
-        symbol: updateMsg?.["symbol"] || chainConfigs?.overseer?.updateMsg?.symbol || "bSEI",
-        max_ltv: updateMsg?.["max_ltv"] || chainConfigs?.overseer?.updateMsg?.max_ltv || "0"
+        name: updateMsg?.["name"] || marketConfigs?.overseer?.updateMsg?.name || "Bond Sei",
+        symbol: updateMsg?.["symbol"] || marketConfigs?.overseer?.updateMsg?.symbol || "bSEI",
+        max_ltv: updateMsg?.["max_ltv"] || marketConfigs?.overseer?.updateMsg?.max_ltv || "0"
       }
     });
     console.log("Do overseer's add whitelist ok. \n", btoken.address, overseerWhitelistRes?.transactionHash);
@@ -518,9 +585,9 @@ export async function doLiquidationQueueWhitelistCollateral(walletData: WalletDa
     const liquidationQueueWhitelistCollateralRes = await executeContractByWalletData(walletData, liquidationQueue.address, {
       whitelist_collateral: {
         collateral_token: btoken.address,
-        bid_threshold: updateMsg?.["bid_threshold"] || chainConfigs?.liquidationQueue?.updateMsg?.bid_threshold,
-        max_slot: updateMsg?.["max_slot"] || chainConfigs?.liquidationQueue?.updateMsg?.max_slot,
-        premium_rate_per_slot: updateMsg?.["premium_rate_per_slot"] || chainConfigs?.liquidationQueue?.updateMsg?.premium_rate_per_slot
+        bid_threshold: updateMsg?.["bid_threshold"] || marketConfigs?.liquidationQueue?.updateMsg?.bid_threshold,
+        max_slot: updateMsg?.["max_slot"] || marketConfigs?.liquidationQueue?.updateMsg?.max_slot,
+        premium_rate_per_slot: updateMsg?.["premium_rate_per_slot"] || marketConfigs?.liquidationQueue?.updateMsg?.premium_rate_per_slot
       }
     });
     console.log("Do liquidationQueue's whitelist_collateral ok. \n", btoken.address, liquidationQueueWhitelistCollateralRes?.transactionHash);
@@ -644,19 +711,19 @@ export async function doOracleFeedPrice(walletData: WalletData, nativeDenom: str
   }
 }
 
-export async function printDeployedMarketContracts(networkMarket: MarketDeployContracts): Promise<any> {
+export async function printDeployedMarketContracts(networkMarket: MarketContractsDeployed): Promise<any> {
   console.log();
   console.log(`--- --- deployed market contracts info --- ---`);
   const tableData = [
-    { name: `aToken`, deploy: chainConfigs?.aToken?.deploy, codeId: networkMarket?.aToken?.codeId, address: networkMarket?.aToken?.address },
-    { name: `market`, deploy: chainConfigs?.market?.deploy, codeId: networkMarket?.market?.codeId, address: networkMarket?.market?.address },
-    { name: `interestModel`, deploy: chainConfigs?.interestModel?.deploy, codeId: networkMarket?.interestModel?.codeId, address: networkMarket?.interestModel?.address },
-    { name: `distributionModel`, deploy: chainConfigs?.distributionModel?.deploy, codeId: networkMarket?.distributionModel?.codeId, address: networkMarket?.distributionModel?.address },
-    // { name: `oracle`, deploy: chainConfigs?.oracle?.deploy, codeId: networkMarket?.oracle?.codeId, address: networkMarket?.oracle?.address },
-    { name: `overseer`, deploy: chainConfigs?.overseer?.deploy, codeId: networkMarket?.overseer?.codeId, address: networkMarket?.overseer?.address },
-    { name: `liquidationQueue`, deploy: chainConfigs?.liquidationQueue?.deploy, codeId: networkMarket?.liquidationQueue?.codeId, address: networkMarket?.liquidationQueue?.address },
-    { name: `custodyBSei`, deploy: chainConfigs?.custodyBSei?.deploy, codeId: networkMarket?.custodyBSei?.codeId, address: networkMarket?.custodyBSei?.address },
-    { name: `oraclePyth`, deploy: chainConfigs?.oraclePyth?.deploy, codeId: networkMarket?.oraclePyth?.codeId, address: networkMarket?.oraclePyth?.address }
+    { name: `aToken`, deploy: marketConfigs?.aToken?.deploy, codeId: networkMarket?.aToken?.codeId, address: networkMarket?.aToken?.address },
+    { name: `market`, deploy: marketConfigs?.market?.deploy, codeId: networkMarket?.market?.codeId, address: networkMarket?.market?.address },
+    { name: `interestModel`, deploy: marketConfigs?.interestModel?.deploy, codeId: networkMarket?.interestModel?.codeId, address: networkMarket?.interestModel?.address },
+    { name: `distributionModel`, deploy: marketConfigs?.distributionModel?.deploy, codeId: networkMarket?.distributionModel?.codeId, address: networkMarket?.distributionModel?.address },
+    // { name: `oracle`, deploy: marketConfigs?.oracle?.deploy, codeId: networkMarket?.oracle?.codeId, address: networkMarket?.oracle?.address },
+    { name: `overseer`, deploy: marketConfigs?.overseer?.deploy, codeId: networkMarket?.overseer?.codeId, address: networkMarket?.overseer?.address },
+    { name: `liquidationQueue`, deploy: marketConfigs?.liquidationQueue?.deploy, codeId: networkMarket?.liquidationQueue?.codeId, address: networkMarket?.liquidationQueue?.address },
+    { name: `custodyBSei`, deploy: marketConfigs?.custodyBSei?.deploy, codeId: networkMarket?.custodyBSei?.codeId, address: networkMarket?.custodyBSei?.address },
+    { name: `oraclePyth`, deploy: marketConfigs?.oraclePyth?.deploy, codeId: networkMarket?.oraclePyth?.codeId, address: networkMarket?.oraclePyth?.address }
   ];
   console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
 }

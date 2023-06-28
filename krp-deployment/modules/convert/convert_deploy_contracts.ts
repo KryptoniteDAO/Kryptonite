@@ -1,18 +1,23 @@
-import { printChangeBalancesByWalletData } from "./common";
-import { loadingWalletData, loadingMarketData, loadingStakingData, chainConfigs } from "./env_data";
-import type { ConvertDeployContracts, ContractDeployed, WalletData } from "./types";
-import { MarketDeployContracts, StakingDeployContracts, SwapDeployContracts } from "./types";
+import type { ContractDeployed, WalletData } from "@/types";
+import type { SwapExtentionContractsDeployed, StakingContractsDeployed, MarketContractsDeployed, ConvertContractsDeployed } from "@/modules";
+import { loadingWalletData } from "@/env_data";
 import {
-  ConfigOraclePythBaseFeedInfoList,
-  ConfigOraclePythFeedInfoList,
-  doLiquidationQueueWhitelistCollateral,
-  doOraclePythConfigFeedInfo,
-  doOverseerWhitelist,
-  marketReadArtifact
-} from "./modules/market";
-import { doSwapExtentionSetWhitelist, swapExtentionReadArtifact } from "./modules/swap";
-import { stakingReadArtifact } from "./modules/staking";
-import { convertReadArtifact, deployBtoken, deployConverter, deployCustody, doConverterRegisterTokens, printDeployedConvertContracts } from "./modules/convert";
+  swapExtentionReadArtifact,
+  stakingReadArtifact,
+  convertReadArtifact,
+  marketReadArtifact,
+  deployBtoken,
+  deployConverter,
+  deployCustody,
+  doConverterRegisterTokens,
+  printDeployedConvertContracts,
+  loadingStakingData,
+  loadingMarketData,
+  convertConfigs, doSwapExtentionSetWhitelist
+} from "@/modules";
+import { executeContractByWalletData, printChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance } from "@/common";
+
+import { ConfigOraclePythBaseFeedInfoList, ConfigOraclePythFeedInfoList, doLiquidationQueueWhitelistCollateral, doOraclePythConfigFeedInfo, doOverseerWhitelist } from "../market";
 
 main().catch(console.error);
 
@@ -21,10 +26,10 @@ async function main(): Promise<void> {
 
   const walletData: WalletData = await loadingWalletData();
 
-  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapDeployContracts;
-  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingDeployContracts;
-  const networkMarket = marketReadArtifact(walletData.chainId) as MarketDeployContracts;
-  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertDeployContracts;
+  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
+  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
+  const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
+  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;
 
   const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(networkStaking);
   if (!hub?.address || !reward?.address || !bSeiToken?.address || !rewardsDispatcher?.address || !validatorsRegistry?.address || !stSeiToken?.address) {
@@ -44,8 +49,8 @@ async function main(): Promise<void> {
   console.log(`--- --- convert contracts storeCode & instantiateContract enter --- ---`);
   console.log();
 
-  if (chainConfigs?.convertPairs && chainConfigs.convertPairs.length > 0) {
-    for (let convertPair of chainConfigs.convertPairs) {
+  if (convertConfigs?.convertPairs && convertConfigs.convertPairs.length > 0) {
+    for (let convertPair of convertConfigs.convertPairs) {
       await deployConverter(walletData, networkConvert, convertPair.native_denom);
       await deployBtoken(walletData, networkConvert, convertPair.native_denom);
       await deployCustody(walletData, networkConvert, convertPair.native_denom, reward, market, overseer, liquidationQueue, networkSwap?.swapExtention);
@@ -63,8 +68,8 @@ async function main(): Promise<void> {
   console.log(`--- --- convert contracts configure enter --- ---`);
   const print: boolean = false;
 
-  if (chainConfigs?.convertPairs && chainConfigs.convertPairs.length > 0) {
-    for (let convertPairsConfig of chainConfigs.convertPairs) {
+  if (convertConfigs?.convertPairs && convertConfigs.convertPairs.length > 0) {
+    for (let convertPairsConfig of convertConfigs.convertPairs) {
       const nativeDenom = convertPairsConfig.native_denom;
       const convertPairsNetwork = networkConvert?.convertPairs?.find((v: any) => nativeDenom === v.native_denom);
       if (!convertPairsConfig || !convertPairsNetwork) {

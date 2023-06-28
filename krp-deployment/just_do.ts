@@ -1,14 +1,10 @@
+import type { WalletData } from "./types";
+import type { ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed } from "@/modules";
 import { BnAdd, BnComparedTo, BnDiv, BnMul, BnPow, BnSub, printChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance, queryWasmContractByWalletData } from "./common";
 import { loadingWalletData } from "./env_data";
-import type { Balance, ContractDeployed, WalletData } from "./types";
-import { ConvertDeployContracts, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts } from "./types";
-import { stakingReadArtifact } from "./modules/staking";
-import { marketReadArtifact } from "./modules/market";
-import { swapExtentionReadArtifact } from "./modules/swap";
-import { convertReadArtifact } from "./modules/convert";
+import { stakingReadArtifact, marketReadArtifact, swapExtentionReadArtifact, convertReadArtifact } from "@/modules";
 
 import { marketContracts } from "./contracts";
-
 
 main().catch(console.error);
 
@@ -17,10 +13,10 @@ async function main(): Promise<void> {
 
   const walletData: WalletData = await loadingWalletData();
 
-  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapDeployContracts;
-  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingDeployContracts;
-  const networkMarket = marketReadArtifact(walletData.chainId) as MarketDeployContracts;
-  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertDeployContracts;
+  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
+  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
+  const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
+  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   // // just do what you want

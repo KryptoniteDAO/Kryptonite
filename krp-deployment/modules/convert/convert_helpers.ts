@@ -1,22 +1,27 @@
-import { readArtifact, storeCodeByWalletData, writeArtifact, instantiateContractByWalletData, queryWasmContractByWalletData, executeContractByWalletData, printChangeBalancesByWalletData, queryContractConfig } from "../common";
-import { chainConfigs, CONVERT_ARTIFACTS_PATH, CONVERT_MODULE_NAME, DEPLOY_VERSION } from "../env_data";
-import type { ContractDeployed, WalletData } from "../types";
-import { ConvertDeployContracts, ConvertPairs } from "../types";
+import { readArtifact, storeCodeByWalletData, writeArtifact, instantiateContractByWalletData, queryWasmContractByWalletData, executeContractByWalletData, printChangeBalancesByWalletData, queryContractConfig } from "../../common";
+import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
+import type { ContractDeployed, WalletData } from "@/types";
+import type { ConvertContractsConfig, ConvertContractsDeployed, ConvertPairsConfig } from "@/modules";
+
+export const CONVERT_ARTIFACTS_PATH = "../krp-basset-convert/artifacts";
+export const CONVERT_CONTRACTS_PATH = "../krp-basset-convert/contracts";
+export const CONVERT_MODULE_NAME = "convert";
+export const convertConfigs: ConvertContractsConfig = readArtifact(`${CONVERT_MODULE_NAME}_config_${DEPLOY_CHAIN_ID}`, `./modules/${CONVERT_MODULE_NAME}/`);
 
 export function getConvertDeployFileName(chainId: string): string {
   return `deployed_${CONVERT_MODULE_NAME}_${DEPLOY_VERSION}_${chainId}`;
 }
 
-export function convertReadArtifact(chainId: string): ConvertDeployContracts {
-  return readArtifact(getConvertDeployFileName(chainId), CONVERT_ARTIFACTS_PATH) as ConvertDeployContracts;
+export function convertReadArtifact(chainId: string): ConvertContractsDeployed {
+  return readArtifact(getConvertDeployFileName(chainId), CONVERT_ARTIFACTS_PATH) as ConvertContractsDeployed;
 }
 
-export function convertWriteArtifact(networkMarket: ConvertDeployContracts, chainId: string): void {
+export function convertWriteArtifact(networkMarket: ConvertContractsDeployed, chainId: string): void {
   writeArtifact(networkMarket, getConvertDeployFileName(chainId), CONVERT_ARTIFACTS_PATH);
 }
 
 export async function deployConverter(walletData: WalletData, network: any, nativeDenom: string): Promise<void> {
-  const convertPairsConfig: ConvertPairs = chainConfigs?.convertPairs?.find((v: ConvertPairs) => nativeDenom === v.native_denom);
+  const convertPairsConfig: ConvertPairsConfig = convertConfigs?.convertPairs?.find((v: ConvertPairsConfig) => nativeDenom === v.native_denom);
   if (!convertPairsConfig) {
     console.error(`unknown configuration of `, nativeDenom);
     return;
@@ -54,7 +59,7 @@ export async function deployConverter(walletData: WalletData, network: any, nati
 }
 
 export async function deployBtoken(walletData: WalletData, network: any, nativeDenom: string): Promise<void> {
-  const convertPairsConfig: ConvertPairs = chainConfigs?.convertPairs?.find((v: ConvertPairs) => nativeDenom === v.native_denom);
+  const convertPairsConfig: ConvertPairsConfig = convertConfigs?.convertPairs?.find((v: ConvertPairsConfig) => nativeDenom === v.native_denom);
   if (!convertPairsConfig) {
     console.error(`unknown configuration of `, nativeDenom);
     return;
@@ -100,7 +105,7 @@ export async function deployBtoken(walletData: WalletData, network: any, nativeD
 }
 
 export async function deployCustody(walletData: WalletData, network: any, nativeDenom: string, reward: ContractDeployed, market: ContractDeployed, overseer: ContractDeployed, liquidationQueue: ContractDeployed, swapExtention: ContractDeployed): Promise<void> {
-  const convertPairsConfig: ConvertPairs = chainConfigs?.convertPairs?.find((v: ConvertPairs) => nativeDenom === v.native_denom);
+  const convertPairsConfig: ConvertPairsConfig = convertConfigs?.convertPairs?.find((v: ConvertPairsConfig) => nativeDenom === v.native_denom);
   if (!convertPairsConfig) {
     console.error(`unknown configuration of `, nativeDenom);
     return;
@@ -145,7 +150,7 @@ export async function deployCustody(walletData: WalletData, network: any, native
           swap_contract: swapExtention?.address,
           swap_denoms: [walletData.nativeCurrency.coinMinimalDenom]
         },
-        chainConfigs?.custodyBSei?.initMsg,
+        convertPairsConfig?.custody?.initMsg,
         {
           owner: convertPairsConfig?.custody?.initMsg?.owner || walletData.address
         }
@@ -179,7 +184,7 @@ export async function doConverterRegisterTokens(walletData: WalletData, nativeDe
   }
 }
 
-export async function printDeployedConvertContracts(networkConvert: ConvertDeployContracts): Promise<void> {
+export async function printDeployedConvertContracts(networkConvert: ConvertContractsDeployed): Promise<void> {
   console.log();
   console.log(`--- --- deployed convert contracts info --- ---`);
 
@@ -187,7 +192,7 @@ export async function printDeployedConvertContracts(networkConvert: ConvertDeplo
   if (networkConvert?.convertPairs && networkConvert?.convertPairs.length > 0) {
     for (let convertPairsNetwork of networkConvert?.convertPairs) {
       const nativeDenom = convertPairsNetwork?.native_denom;
-      const convertPairsConfig: ConvertPairs = chainConfigs?.convertPairs?.find((v: ConvertPairs) => nativeDenom === v.native_denom);
+      const convertPairsConfig: ConvertPairsConfig = convertConfigs?.convertPairs?.find((v: ConvertPairsConfig) => nativeDenom === v.native_denom);
 
       const converterData = {
         nativeDenom: nativeDenom,

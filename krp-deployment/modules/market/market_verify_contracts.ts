@@ -1,24 +1,22 @@
 import { coins } from "@cosmjs/stargate";
-import { executeContract, sendCoinToOtherAddress, executeContractByWalletData, queryWasmContractByWalletData, getClientData2ByWalletData, printChangeBalancesByWalletData } from "./common";
-import { loadingWalletData, loadingMarketData, loadingStakingData, STAKING_ARTIFACTS_PATH, MARKET_ARTIFACTS_PATH } from "./env_data";
-import { swapExtentionReadArtifact } from "./modules/swap";
-import { ConvertDeployContracts, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts } from "./types";
-import { stakingReadArtifact } from "./modules/staking";
-import { marketReadArtifact } from "./modules/market";
-import { convertReadArtifact } from "./modules/convert";
+import { loadingWalletData } from "@/env_data";
+import { swapExtentionReadArtifact, stakingReadArtifact, marketReadArtifact, convertReadArtifact, loadingStakingData, loadingMarketData } from "@/modules";
+import { executeContract, executeContractByWalletData, queryWasmContractByWalletData, getClientData2ByWalletData, printChangeBalancesByWalletData } from "@/common";
+import { marketContracts } from "@/contracts";
+import type { WalletData } from "@/types";
+import type { ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed } from "@/modules";
 
 require("dotenv").config();
 
 async function main(): Promise<void> {
   console.log(`--- --- verify deployed market contracts enter --- ---`);
 
-  const walletData = await loadingWalletData();
+  const walletData: WalletData = await loadingWalletData();
 
-
-  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapDeployContracts;
-  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingDeployContracts;
-  const networkMarket = marketReadArtifact(walletData.chainId) as MarketDeployContracts;
-  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertDeployContracts;
+  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
+  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
+  const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
+  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;
 
   const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(networkStaking);
   if (!hub?.address || !reward?.address || !bSeiToken?.address || !rewardsDispatcher?.address || !validatorsRegistry?.address || !stSeiToken?.address) {
@@ -70,7 +68,6 @@ async function main(): Promise<void> {
     }
   });
   console.log("Do custodyBSei.address deposit and lock collateral ok. \n", custodyBSeiDepositCollateralRes?.transactionHash);
-
 
   //step5: unlock collateral and withdraw bSeiToken
   console.log();

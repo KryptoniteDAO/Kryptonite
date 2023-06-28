@@ -1,19 +1,8 @@
-import { printChangeBalancesByWalletData } from "./common";
-import { loadingWalletData } from "./env_data";
-import type { KptDeployContracts, WalletData } from "./types";
-import {
-  deployBlindBox,
-  deployBlindBoxReward,
-  deployKpt,
-  deployKptFund,
-  deployVeKpt,
-  deployVeKptBoost,
-  deployVeKptMiner,
-  doKptUpdateConfig,
-  doVeKptUpdateConfig,
-  kptReadArtifact,
-  printDeployedKptContracts
-} from "./modules/kpt";
+import { loadingWalletData } from "@/env_data";
+import type { WalletData } from "@/types";
+import type { KptContractsDeployed } from "@/modules";
+import { printChangeBalancesByWalletData } from "@/common";
+import { deployKpt, deployKptFund, deployVeKpt, deployVeKptBoost, deployVeKptMiner, doKptUpdateConfig, doVeKptUpdateConfig, kptReadArtifact, printDeployedKptContracts } from "./index";
 
 main().catch(console.error);
 
@@ -26,7 +15,7 @@ async function main(): Promise<void> {
   // const networkStaking = stakingReadArtifact(walletData.chainId) as StakingDeployContracts;
   // const networkMarket = marketReadArtifact(walletData.chainId) as MarketDeployContracts;
   // const networkConvert = convertReadArtifact(walletData.chainId) as ConvertDeployContracts;
-  const networkKpt = kptReadArtifact(walletData.chainId) as KptDeployContracts;
+  const networkKpt = kptReadArtifact(walletData.chainId) as KptContractsDeployed;
 
   console.log();
   console.log(`--- --- kpt contracts storeCode & instantiateContract enter --- ---`);

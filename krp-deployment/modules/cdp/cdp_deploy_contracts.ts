@@ -1,3 +1,5 @@
+import type { WalletData } from "@/types";
+import type { CdpCollateralInfo, CdpContractsDeployed, MarketContractsDeployed, StakingContractsDeployed } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
 import {
@@ -10,12 +12,10 @@ import {
   doCdpCentralControlUpdateConfig,
   doCdpLiquidationQueueConfig,
   doCdpLiquidationQueueSetWhitelistCollateral,
-  printDeployedCdpContracts
-} from "./cdp_helpers";
-import { marketReadArtifact } from "../market";
-import type { WalletData, MarketDeployContracts, CdpContractsDeployed, StakingDeployContracts } from "@/types";
-import { stakingReadArtifact } from "@/modules/staking";
-import { CdpCollateralInfo } from "@/types";
+  printDeployedCdpContracts,
+  marketReadArtifact,
+  stakingReadArtifact
+} from "@/modules";
 
 main().catch(console.error);
 
@@ -25,8 +25,8 @@ async function main(): Promise<void> {
   const walletData: WalletData = await loadingWalletData();
 
   // const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapDeployContracts;
-  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingDeployContracts;
-  const networkMarket = marketReadArtifact(walletData.chainId) as MarketDeployContracts;
+  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
+  const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
   // const networkConvert = convertReadArtifact(walletData.chainId) as ConvertDeployContracts;
   // const networkKpt = kptReadArtifact(walletData.chainId) as KptDeployContracts;
   const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;

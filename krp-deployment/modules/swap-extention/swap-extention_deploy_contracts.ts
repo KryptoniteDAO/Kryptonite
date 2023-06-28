@@ -1,11 +1,9 @@
-import { printChangeBalancesByWalletData } from "./common";
-import { loadingWalletData } from "./env_data";
-import type { ContractDeployed, WalletData } from "./types";
-import { ConvertDeployContracts, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts } from "./types";
-import { ConfigSwapPairConfigList, deploySwapExtention, doSwapExtentionSetWhitelist, doSwapExtentionUpdatePairConfig, printDeployedSwapContracts, swapExtentionReadArtifact } from "./modules/swap";
-import { stakingReadArtifact } from "./modules/staking";
-import { marketReadArtifact } from "./modules/market";
-import { convertReadArtifact } from "./modules/convert";
+import { printChangeBalancesByWalletData } from "@/common";
+import { loadingWalletData } from "@/env_data";
+import type { ContractDeployed, WalletData } from "@/types";
+import type { ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed } from "@/modules";
+import { ConfigSwapPairConfigList, deploySwapExtention, doSwapExtentionSetWhitelist, doSwapExtentionUpdatePairConfig, printDeployedSwapContracts, swapExtentionReadArtifact } from "./index";
+import { stakingReadArtifact, convertReadArtifact, marketReadArtifact } from "@/modules";
 
 main().catch(console.error);
 
@@ -14,10 +12,10 @@ async function main(): Promise<void> {
 
   const walletData: WalletData = await loadingWalletData();
 
-  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapDeployContracts;
-  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingDeployContracts;
-  const networkMarket = marketReadArtifact(walletData.chainId) as MarketDeployContracts;
-  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertDeployContracts;
+  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
+  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
+  const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
+  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;
 
   console.log();
   console.log(`--- --- swap extends contracts storeCode & instantiateContract enter --- ---`);

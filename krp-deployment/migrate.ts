@@ -1,6 +1,6 @@
+import type { WalletData } from "./types";
 import { loadingWalletData } from "./env_data";
 import { printChangeBalancesByWalletData, migrateContractByWalletData, storeCodeByWalletData } from "./common";
-import { WalletData } from "./types";
 
 interface MigrateConfig {
   codeId: number | undefined;

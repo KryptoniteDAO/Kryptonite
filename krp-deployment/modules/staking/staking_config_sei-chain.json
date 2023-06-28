@@ -1,0 +1,71 @@
+{
+  "hub": {
+    "admin": null,
+    "initMsg": {
+      "epoch_period": 30,
+      "er_threshold": "1.0",
+      "peg_recovery_fee": "0",
+      "unbonding_period": 120
+    },
+    "label": "sei hub",
+    "filePath": null,
+    "deploy": false
+  },
+  "reward": {
+    "admin": null,
+    "initMsg": {
+      "owner": null
+    },
+    "label": "sei reward",
+    "filePath": null,
+    "deploy": false
+  },
+  "bSeiToken": {
+    "admin": null,
+    "initMsg": {
+      "name": "bsei",
+      "symbol": "BSEI",
+      "decimals": 6,
+      "initial_balances": []
+    },
+    "label": "bond sei",
+    "filePath": null,
+    "deploy": false
+  },
+  "rewardsDispatcher": {
+    "admin": null,
+    "initMsg": {
+      "lido_fee_address": null,
+      "lido_fee_rate": "0.05"
+    },
+    "label": "reward dispatcher",
+    "filePath": null,
+    "deploy": false
+  },
+  "validatorsRegistry": {
+    "admin": null,
+    "initMsg": {
+      "registry": [
+        {
+          "active": true,
+          "total_delegated": "0"
+        }
+      ]
+    },
+    "label": "validator registry",
+    "filePath": null,
+    "deploy": false
+  },
+  "stSeiToken": {
+    "admin": null,
+    "initMsg": {
+      "name": "stsei",
+      "symbol": "STSEI",
+      "decimals": 6,
+      "initial_balances": []
+    },
+    "label": "staking sei",
+    "filePath": null,
+    "deploy": false
+  }
+}

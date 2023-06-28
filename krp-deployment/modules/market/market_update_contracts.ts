@@ -1,12 +1,9 @@
-import { queryContractQueryConfig } from "./common";
-import { loadingWalletData } from "./env_data";
-import type { ContractDeployed, WalletData } from "./types";
-import { ChainId, ConvertDeployContracts, MarketDeployContracts, StakingDeployContracts, SwapDeployContracts } from "./types";
-import { OraclePythClient, OraclePythQueryClient } from "./contracts/OraclePyth.client";
-import { swapExtentionReadArtifact } from "./modules/swap";
-import { stakingReadArtifact } from "./modules/staking";
-import { marketReadArtifact } from "./modules/market";
-import { convertReadArtifact } from "./modules/convert";
+import { queryContractQueryConfig } from "@/common";
+import { ChainId, loadingWalletData } from "@/env_data";
+import { swapExtentionReadArtifact, stakingReadArtifact, marketReadArtifact, convertReadArtifact } from "@/modules";
+import { marketContracts } from "@/contracts";
+import type { ContractDeployed, WalletData } from "@/types";
+import type { ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed } from "@/modules";
 
 main().catch(console.error);
 
@@ -15,10 +12,10 @@ async function main(): Promise<void> {
 
   const walletData = await loadingWalletData();
 
-  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapDeployContracts;
-  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingDeployContracts;
-  const networkMarket = marketReadArtifact(walletData.chainId) as MarketDeployContracts;
-  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertDeployContracts;
+  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
+  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
+  const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
+  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -92,8 +89,8 @@ async function doSetConfigFeedValid(walletData: WalletData, oraclePyth: Contract
   print && console.log();
   print && console.warn(`Do oraclePyth.address setConfigFeedValid enter. ${JSON.stringify(configFeedValidParams)}`);
 
-  const oraclePythClient = new OraclePythClient(walletData.signingCosmWasmClient, walletData.address, oraclePyth.address);
-  const oraclePythQueryClient = new OraclePythQueryClient(walletData.signingCosmWasmClient, oraclePyth.address);
+  const oraclePythClient = new marketContracts.OraclePyth.OraclePythClient(walletData.signingCosmWasmClient, walletData.address, oraclePyth.address);
+  const oraclePythQueryClient = new marketContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, oraclePyth.address);
   const doRes = await oraclePythClient.setConfigFeedValid(configFeedValidParams);
 
   print && console.log(`Do oraclePyth.address setConfigFeedValid ok. \n${doRes?.transactionHash}`);
@@ -108,8 +105,8 @@ async function doChangeOwner(walletData: WalletData, oraclePyth: ContractDeploye
   print && console.log();
   print && console.warn(`Do oraclePyth.address ChangeOwner enter.  ${newOwner}`);
 
-  const oraclePythClient = new OraclePythClient(walletData.signingCosmWasmClient, walletData.address, oraclePyth.address);
-  const oraclePythQueryClient = new OraclePythQueryClient(walletData.signingCosmWasmClient, oraclePyth.address);
+  const oraclePythClient = new marketContracts.OraclePyth.OraclePythClient(walletData.signingCosmWasmClient, walletData.address, oraclePyth.address);
+  const oraclePythQueryClient = new marketContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, oraclePyth.address);
   const doRes = await oraclePythClient.changeOwner({ newOwner });
 
   print && console.log(`Do oraclePyth.address ChangeOwner ok. \n${doRes?.transactionHash}`);
@@ -125,8 +122,8 @@ async function queryPythFeederConfig(walletData: WalletData, oraclePyth: Contrac
   print && console.log();
   print && console.log("Query oracle.address PythFeederConfig enter");
 
-  const oraclePythClient = new OraclePythClient(walletData.signingCosmWasmClient, walletData.address, oraclePyth.address);
-  const oraclePythQueryClient = new OraclePythQueryClient(walletData.signingCosmWasmClient, oraclePyth.address);
+  const oraclePythClient = new marketContracts.OraclePyth.OraclePythClient(walletData.signingCosmWasmClient, walletData.address, oraclePyth.address);
+  const oraclePythQueryClient = new marketContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, oraclePyth.address);
   const queryRes = await oraclePythQueryClient.queryPythFeederConfig({ asset: assetAddress });
 
   // const configRes = await queryWasmContractByWalletData(walletData, oraclePyth.address, { query_pyth_feeder_config: { asset_address: assetAddress } });
@@ -143,7 +140,7 @@ async function queryPrice(walletData: WalletData, oraclePyth: ContractDeployed, 
   print && console.log();
   print && console.log("Query oraclePyth.address queryPrice enter");
 
-  const oraclePythQueryClient = new OraclePythQueryClient(walletData.signingCosmWasmClient, oraclePyth.address);
+  const oraclePythQueryClient = new marketContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, oraclePyth.address);
   const priceRes = await oraclePythQueryClient.queryPrice({ asset: assetAddress });
 
   print && console.log(`Query oraclePyth.address queryPrice ok. asset: ${assetAddress} \n${JSON.stringify(priceRes)}`);

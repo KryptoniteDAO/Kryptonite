@@ -1,6 +1,4 @@
 {
-  "validator": "seivaloper19t4d78pt5xg6xm0mf97q8ay7v0xwrr4jmf04j3",
-  "stable_coin_denom": "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/usdt",
   "cdpCentralControl": {
     "admin": null,
     "initMsg": {

@@ -1,8 +1,9 @@
-import { printChangeBalancesByWalletData } from "./common";
-import { loadingWalletData } from "./env_data";
-import type { KptDeployContracts, WalletData } from "./types";
-import { deployStakingRewards, doVeKptSetMinters, kptReadArtifact, KptStakingRewardsConfigList, printDeployedKptStakingContracts } from "./modules/kpt";
-import { StakingRewardsPairsDeployContracts } from "./types";
+import { loadingWalletData } from "@/env_data";
+import type { WalletData } from "@/types";
+import type { KptContractsDeployed, StakingRewardsPairsContractsDeployed } from "@/modules";
+import { printChangeBalancesByWalletData } from "@/common";
+import { kptReadArtifact } from "./index";
+import { deployStakingRewards, doVeKptSetMinters, KptStakingRewardsConfigList, printDeployedKptStakingContracts } from "@/modules";
 
 main().catch(console.error);
 
@@ -15,7 +16,7 @@ async function main(): Promise<void> {
   // const networkStaking = stakingReadArtifact(walletData.chainId) as StakingDeployContracts;
   // const networkMarket = marketReadArtifact(walletData.chainId) as MarketDeployContracts;
   // const networkConvert = convertReadArtifact(walletData.chainId) as ConvertDeployContracts;
-  const networkKpt = kptReadArtifact(walletData.chainId) as KptDeployContracts;
+  const networkKpt = kptReadArtifact(walletData.chainId) as KptContractsDeployed;
 
   console.log();
   console.log(`--- --- kpt:staking contracts storeCode & instantiateContract enter --- ---`);
@@ -41,7 +42,7 @@ async function main(): Promise<void> {
 
   if (chainIdKptStakingRewardsConfigList && chainIdKptStakingRewardsConfigList.length > 0) {
     for (const stakingRewardsConfig of chainIdKptStakingRewardsConfigList) {
-      const stakingRewardsPairsNetwork = networkKpt?.stakingRewardsPairs?.find((v: StakingRewardsPairsDeployContracts) => stakingRewardsConfig.staking_token === v.staking_token);
+      const stakingRewardsPairsNetwork = networkKpt?.stakingRewardsPairs?.find((v: StakingRewardsPairsContractsDeployed) => stakingRewardsConfig.staking_token === v.staking_token);
       await doVeKptSetMinters(walletData, networkKpt?.veKpt, stakingRewardsPairsNetwork?.stakingRewards, true, print);
     }
   }

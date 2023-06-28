@@ -1,16 +1,18 @@
-import { printChangeBalancesByWalletData } from "./common";
-import { loadingWalletData } from "./env_data";
-import { ContractDeployed, KptDeployContracts, StakingRewardsPairsDeployContracts, WalletData } from "./types";
-import { kptReadArtifact, printDeployedKptContracts, printDeployedKptStakingContracts } from "./modules/kpt";
-import { kptContracts } from "./contracts";
-import { KptFundConfigResponse } from "./contracts/kpt/KptFund.types";
-import { MinterResponse, VoteConfigResponse } from "./contracts/kpt/VeKpt.types";
-import { GetBoostConfigResponse } from "./contracts/kpt/VeKptBoost.types";
-import { StakingConfigResponse, StakingStateResponse } from "./contracts/kpt/StakingRewards.types";
-import { BlindBoxConfigLevelResponse, BlindBoxConfigResponse } from "./contracts/kpt/BlindBox.types";
-import { BlindBoxConfigResponse as BlindBoxRewardConfigResponse } from "./contracts/kpt/BlindBoxReward.types";
-import { BalanceResponse, KptConfigResponse, TokenInfoResponse } from "./contracts/kpt/Kpt.types";
-import { GetMinerConfigResponse, GetMinerStateResponse } from "./contracts/kpt/VeKptMiner.types";
+import { loadingWalletData } from "@/env_data";
+import type { ContractDeployed, WalletData } from "@/types";
+import type { KptContractsDeployed, StakingRewardsPairsContractsDeployed } from "@/modules";
+import { printChangeBalancesByWalletData } from "@/common";
+import { kptReadArtifact } from "./index";
+import { printDeployedKptContracts, printDeployedKptStakingContracts } from "@/modules";
+import { kptContracts } from "@/contracts";
+import { KptFundConfigResponse } from "@/contracts/kpt/KptFund.types";
+import { MinterResponse, VoteConfigResponse } from "@/contracts/kpt/VeKpt.types";
+import { GetBoostConfigResponse } from "@/contracts/kpt/VeKptBoost.types";
+import { StakingConfigResponse, StakingStateResponse } from "@/contracts/kpt/StakingRewards.types";
+import { BlindBoxConfigLevelResponse, BlindBoxConfigResponse } from "@/contracts/kpt/BlindBox.types";
+import { BlindBoxConfigResponse as BlindBoxRewardConfigResponse } from "@/contracts/kpt/BlindBoxReward.types";
+import { BalanceResponse, KptConfigResponse, TokenInfoResponse } from "@/contracts/kpt/Kpt.types";
+import { GetMinerConfigResponse, GetMinerStateResponse } from "@/contracts/kpt/VeKptMiner.types";
 
 main().catch(console.error);
 
@@ -19,7 +21,7 @@ async function main(): Promise<void> {
 
   const walletData: WalletData = await loadingWalletData();
 
-  const networkKpt = kptReadArtifact(walletData.chainId) as KptDeployContracts;
+  const networkKpt = kptReadArtifact(walletData.chainId) as KptContractsDeployed;
 
   await printDeployedKptContracts(networkKpt);
   await printDeployedKptStakingContracts(networkKpt);
@@ -31,7 +33,7 @@ async function main(): Promise<void> {
   const veKptMiner: ContractDeployed = networkKpt?.veKptMiner;
   const blindBox: ContractDeployed = networkKpt?.blindBox;
   const blindBoxReward: ContractDeployed = networkKpt?.blindBoxReward;
-  const stakingRewardsPairs: StakingRewardsPairsDeployContracts[] = networkKpt?.stakingRewardsPairs;
+  const stakingRewardsPairs: StakingRewardsPairsContractsDeployed[] = networkKpt?.stakingRewardsPairs;
 
   if (kpt?.address) {
     const kptQueryClient = new kptContracts.Kpt.KptQueryClient(walletData.signingCosmWasmClient, kpt.address);

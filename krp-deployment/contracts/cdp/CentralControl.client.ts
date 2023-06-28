@@ -158,7 +158,6 @@ export interface CentralControlInterface {
   contractAddress: string;
   sender: string;
   updateConfig: ({
-    custodyContract,
     epochPeriod,
     liquidationContract,
     oracleContract,
@@ -166,7 +165,6 @@ export interface CentralControlInterface {
     poolContract,
     redeemFee
   }: {
-    custodyContract?: string;
     epochPeriod?: number;
     liquidationContract?: string;
     oracleContract?: string;
@@ -264,7 +262,6 @@ export class CentralControlClient implements CentralControlInterface {
   }
 
   updateConfig = async ({
-    custodyContract,
     epochPeriod,
     liquidationContract,
     oracleContract,
@@ -272,7 +269,6 @@ export class CentralControlClient implements CentralControlInterface {
     poolContract,
     redeemFee
   }: {
-    custodyContract?: string;
     epochPeriod?: number;
     liquidationContract?: string;
     oracleContract?: string;
@@ -282,7 +278,6 @@ export class CentralControlClient implements CentralControlInterface {
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
-        custody_contract: custodyContract,
         epoch_period: epochPeriod,
         liquidation_contract: liquidationContract,
         oracle_contract: oracleContract,

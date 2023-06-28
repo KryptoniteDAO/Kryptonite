@@ -6,7 +6,6 @@
 
 export type Decimal256 = string;
 export interface InstantiateMsg {
-  custody_contract: string;
   epoch_period: number;
   liquidation_contract: string;
   oracle_contract: string;
@@ -17,7 +16,6 @@ export interface InstantiateMsg {
 }
 export type ExecuteMsg = {
   update_config: {
-    custody_contract?: string | null;
     epoch_period?: number | null;
     liquidation_contract?: string | null;
     oracle_contract?: string | null;
@@ -116,11 +114,13 @@ export interface WhitelistElemResponse {
   symbol: string;
 }
 export interface ConfigResponse {
-  custody_contract: string;
   epoch_period: number;
+  liquidation_contract: string;
   oracle_contract: string;
   owner_add: string;
   pool_contract: string;
+  redeem_fee: Decimal256;
+  stable_denom: string;
 }
 export type Uint256 = string;
 export interface LoanInfoResponse {
