@@ -27,7 +27,7 @@ export async function sleep(timeout: number) {
   await new Promise(resolve => setTimeout(resolve, timeout));
 }
 
-export function toEncodedBinary(object: any) {
+export function toEncodedBinary<D extends object>(object: D) {
   return Buffer.from(JSON.stringify(object)).toString("base64");
 }
 

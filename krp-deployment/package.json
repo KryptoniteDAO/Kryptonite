@@ -14,6 +14,7 @@
     "verify:convert": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register ./verify_convert_contracts.ts --require ./suppress-experimental.cjs",
     "verify:swap": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register ./verify_swap_extention.ts --require ./suppress-experimental.cjs",
     "verify:kpt": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register ./verify_kpt_contracts.ts --require ./suppress-experimental.cjs",
+    "verify:cdp": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register ./modules/cdp/verify_cdp_contracts.ts --require ./suppress-experimental.cjs",
     "migrate": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register ./migrate.ts --require ./suppress-experimental.cjs",
     "codegen": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register ./ts_codegen.ts --require ./suppress-experimental.cjs",
     "format": "prettier --write \"./**/*.{html,ts,js,json,md}\""
