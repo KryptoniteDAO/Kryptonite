@@ -264,6 +264,7 @@ export async function deployContract<C extends BaseContractConfig = BaseContract
   walletData: WalletData,
   contractName: string,
   network: unknown,
+  contractNetwork: ContractDeployed | undefined,
   contractConfig: C,
   { defaultFilePath, defaultLabel, defaultInitMsg, defaultFunds, write = true, writeFunc }: D
 ): Promise<void> {
@@ -272,34 +273,35 @@ export async function deployContract<C extends BaseContractConfig = BaseContract
     return;
   }
 
-  let contractNetwork = network[contractName] as unknown as ContractDeployed;
-
-  if (!contractNetwork?.address) {
-    if (!contractNetwork) {
-      contractNetwork = {} as ContractDeployed;
-      network[contractName] = contractNetwork;
-    }
-
-    if (!contractNetwork?.codeId || contractNetwork?.codeId <= 0) {
-      const filePath = contractConfig?.filePath || defaultFilePath;
-      if (!filePath) {
-        console.error(`\n  Missing file: ${contractName}`);
-        return;
-      }
-
-      contractNetwork.codeId = await storeCodeByWalletData(walletData, filePath);
-      write && typeof writeFunc === "function" && writeFunc(network, walletData.chainId);
-    }
-    if (contractNetwork?.codeId > 0) {
-      const admin = contractConfig?.admin || walletData.address;
-      const label = contractConfig?.label || defaultLabel || contractName || "deploy contract";
-      const initMsg = defaultInitMsg || Object.assign({}, contractConfig?.initMsg);
-      contractNetwork.address = await instantiateContractByWalletData(walletData, admin, contractNetwork.codeId, initMsg, label, defaultFunds);
-      write && typeof writeFunc === "function" && writeFunc(network, walletData.chainId);
-      contractConfig.deploy = true;
-    }
-    console.log(`\n  [contractName]: `, contractName, JSON.stringify(contractNetwork));
+  if (!contractNetwork) {
+    contractNetwork = network[contractName] as unknown as ContractDeployed;
   }
+  if (!!contractNetwork?.address) {
+    return;
+  }
+  if (!contractNetwork) {
+    contractNetwork = {} as ContractDeployed;
+    network[contractName] = contractNetwork;
+  }
+  if (!contractNetwork?.codeId || contractNetwork?.codeId <= 0) {
+    const filePath = contractConfig?.filePath || defaultFilePath;
+    if (!filePath) {
+      console.error(`\n  Missing file: ${contractName}`);
+      return;
+    }
+
+    contractNetwork.codeId = await storeCodeByWalletData(walletData, filePath);
+    write && typeof writeFunc === "function" && writeFunc(network, walletData.chainId);
+  }
+  if (contractNetwork?.codeId > 0) {
+    const admin = contractConfig?.admin || walletData.address;
+    const label = contractConfig?.label || defaultLabel || contractName || "deploy contract";
+    const initMsg = defaultInitMsg || Object.assign({}, contractConfig?.initMsg);
+    contractNetwork.address = await instantiateContractByWalletData(walletData, admin, contractNetwork.codeId, initMsg, label, defaultFunds);
+    write && typeof writeFunc === "function" && writeFunc(network, walletData.chainId);
+    contractConfig.deploy = true;
+  }
+  console.log(`\n  [contractName]: `, contractName, JSON.stringify(contractNetwork));
 }
 
 export async function queryContractQueryConfig(walletData: WalletData, deployContract: ContractDeployed, print: boolean = true): Promise<{ initFlag; config }> {

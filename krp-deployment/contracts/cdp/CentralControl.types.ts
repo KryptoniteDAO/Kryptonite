@@ -99,7 +99,15 @@ export type QueryMsg = {
     minter?: string | null;
     start_after?: string | null;
   };
+} | {
+  collateral_available: {
+    collateral_contract: string;
+    minter: string;
+  };
 };
+export interface CollateralAvailableRespone {
+  available_balance: Uint128;
+}
 export interface WhitelistElemResponse {
   collateral_contract: string;
   custody_contract: string;

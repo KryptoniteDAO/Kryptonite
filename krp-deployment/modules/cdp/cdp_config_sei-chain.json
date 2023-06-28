@@ -23,7 +23,7 @@
     "initCoins": [
       {
         "denom": "usei",
-        "amount": "1"
+        "amount": "10000000"
       }
     ],
     "label": "cdp stable pool contract",

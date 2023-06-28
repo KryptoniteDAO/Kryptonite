@@ -6,43 +6,11 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Decimal256, InstantiateMsg, ExecuteMsg, Uint128, QueryMsg, WhitelistElemResponse, ConfigResponse, Uint256, LoanInfoResponse, MinterCollateralResponse, RedemptionProviderListRespone, MinterLoanResponse, WhitelistResponse } from "./Custody.types";
+import { InstantiateMsg, ExecuteMsg, Uint128, Binary, Cw20ReceiveMsg, QueryMsg, ConfigResponse, Uint256, StateResponse } from "./Custody.types";
 export interface CustodyReadOnlyInterface {
   contractAddress: string;
   config: () => Promise<ConfigResponse>;
-  loanInfo: ({
-    minter
-  }: {
-    minter: string;
-  }) => Promise<LoanInfoResponse>;
-  collateralElem: ({
-    collateral
-  }: {
-    collateral: string;
-  }) => Promise<WhitelistElemResponse>;
-  whitelist: ({
-    collateralContract,
-    limit,
-    startAfter
-  }: {
-    collateralContract?: string;
-    limit?: number;
-    startAfter?: string;
-  }) => Promise<WhitelistResponse>;
-  minterCollateral: ({
-    minter
-  }: {
-    minter: string;
-  }) => Promise<MinterCollateralResponse>;
-  redemptionProviderList: ({
-    limit,
-    minter,
-    startAfter
-  }: {
-    limit?: number;
-    minter?: string;
-    startAfter?: string;
-  }) => Promise<RedemptionProviderListRespone>;
+  state: () => Promise<StateResponse>;
 }
 export class CustodyQueryClient implements CustodyReadOnlyInterface {
   client: CosmWasmClient;
@@ -52,11 +20,7 @@ export class CustodyQueryClient implements CustodyReadOnlyInterface {
     this.client = client;
     this.contractAddress = contractAddress;
     this.config = this.config.bind(this);
-    this.loanInfo = this.loanInfo.bind(this);
-    this.collateralElem = this.collateralElem.bind(this);
-    this.whitelist = this.whitelist.bind(this);
-    this.minterCollateral = this.minterCollateral.bind(this);
-    this.redemptionProviderList = this.redemptionProviderList.bind(this);
+    this.state = this.state.bind(this);
   }
 
   config = async (): Promise<ConfigResponse> => {
@@ -64,71 +28,9 @@ export class CustodyQueryClient implements CustodyReadOnlyInterface {
       config: {}
     });
   };
-  loanInfo = async ({
-    minter
-  }: {
-    minter: string;
-  }): Promise<LoanInfoResponse> => {
+  state = async (): Promise<StateResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
-      loan_info: {
-        minter
-      }
-    });
-  };
-  collateralElem = async ({
-    collateral
-  }: {
-    collateral: string;
-  }): Promise<WhitelistElemResponse> => {
-    return this.client.queryContractSmart(this.contractAddress, {
-      collateral_elem: {
-        collateral
-      }
-    });
-  };
-  whitelist = async ({
-    collateralContract,
-    limit,
-    startAfter
-  }: {
-    collateralContract?: string;
-    limit?: number;
-    startAfter?: string;
-  }): Promise<WhitelistResponse> => {
-    return this.client.queryContractSmart(this.contractAddress, {
-      whitelist: {
-        collateral_contract: collateralContract,
-        limit,
-        start_after: startAfter
-      }
-    });
-  };
-  minterCollateral = async ({
-    minter
-  }: {
-    minter: string;
-  }): Promise<MinterCollateralResponse> => {
-    return this.client.queryContractSmart(this.contractAddress, {
-      minter_collateral: {
-        minter
-      }
-    });
-  };
-  redemptionProviderList = async ({
-    limit,
-    minter,
-    startAfter
-  }: {
-    limit?: number;
-    minter?: string;
-    startAfter?: string;
-  }): Promise<RedemptionProviderListRespone> => {
-    return this.client.queryContractSmart(this.contractAddress, {
-      redemption_provider_list: {
-        limit,
-        minter,
-        start_after: startAfter
-      }
+      state: {}
     });
   };
 }
@@ -136,64 +38,35 @@ export interface CustodyInterface {
   contractAddress: string;
   sender: string;
   updateConfig: ({
-    custodyContract,
-    epochPeriod,
+    collateralContract,
+    controlContract,
     liquidationContract,
-    oracleContract,
     ownerAddr,
-    poolContract,
-    redeemFee
+    poolContract
   }: {
-    custodyContract?: string;
-    epochPeriod?: number;
+    collateralContract?: string;
+    controlContract?: string;
     liquidationContract?: string;
-    oracleContract?: string;
     ownerAddr?: string;
     poolContract?: string;
-    redeemFee?: Decimal256;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  mintStableCoin: ({
-    collateralAmount,
-    collateralContract,
-    isRedemptionProvider,
-    minter,
-    stableAmount
-  }: {
-    collateralAmount?: Uint128;
-    collateralContract?: string;
-    isRedemptionProvider?: boolean;
-    minter: string;
-    stableAmount: Uint128;
-  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  becomeRedemptionProvider: ({
-    isRedemptionProvider
-  }: {
-    isRedemptionProvider: boolean;
-  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  repayStableCoin: ({
+  receive: ({
     amount,
+    msg,
     sender
   }: {
     amount: Uint128;
+    msg: Binary;
     sender: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   redeemStableCoin: ({
-    amount,
-    minter,
+    redeemAmount,
     redeemer
   }: {
-    amount: Uint128;
-    minter: string;
+    redeemAmount: Uint128;
     redeemer: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   withdrawCollateral: ({
-    collateralAmount,
-    collateralContract
-  }: {
-    collateralAmount: Uint128;
-    collateralContract: string;
-  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  depositCollateral: ({
     collateralAmount,
     collateralContract,
     minter
@@ -203,22 +76,11 @@ export interface CustodyInterface {
     minter: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   liquidateCollateral: ({
-    minter
+    amount,
+    liquidator
   }: {
-    minter: string;
-  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  whitelistCollateral: ({
-    collateralContract,
-    custodyContract,
-    maxLtv,
-    name,
-    symbol
-  }: {
-    collateralContract: string;
-    custodyContract: string;
-    maxLtv: Decimal256;
-    name: string;
-    symbol: string;
+    amount: Uint128;
+    liquidator: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class CustodyClient implements CustodyInterface {
@@ -231,125 +93,67 @@ export class CustodyClient implements CustodyInterface {
     this.sender = sender;
     this.contractAddress = contractAddress;
     this.updateConfig = this.updateConfig.bind(this);
-    this.mintStableCoin = this.mintStableCoin.bind(this);
-    this.becomeRedemptionProvider = this.becomeRedemptionProvider.bind(this);
-    this.repayStableCoin = this.repayStableCoin.bind(this);
+    this.receive = this.receive.bind(this);
     this.redeemStableCoin = this.redeemStableCoin.bind(this);
     this.withdrawCollateral = this.withdrawCollateral.bind(this);
-    this.depositCollateral = this.depositCollateral.bind(this);
     this.liquidateCollateral = this.liquidateCollateral.bind(this);
-    this.whitelistCollateral = this.whitelistCollateral.bind(this);
   }
 
   updateConfig = async ({
-    custodyContract,
-    epochPeriod,
+    collateralContract,
+    controlContract,
     liquidationContract,
-    oracleContract,
     ownerAddr,
-    poolContract,
-    redeemFee
+    poolContract
   }: {
-    custodyContract?: string;
-    epochPeriod?: number;
+    collateralContract?: string;
+    controlContract?: string;
     liquidationContract?: string;
-    oracleContract?: string;
     ownerAddr?: string;
     poolContract?: string;
-    redeemFee?: Decimal256;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
-        custody_contract: custodyContract,
-        epoch_period: epochPeriod,
-        liquidation_contract: liquidationContract,
-        oracle_contract: oracleContract,
-        owner_addr: ownerAddr,
-        pool_contract: poolContract,
-        redeem_fee: redeemFee
-      }
-    }, fee, memo, _funds);
-  };
-  mintStableCoin = async ({
-    collateralAmount,
-    collateralContract,
-    isRedemptionProvider,
-    minter,
-    stableAmount
-  }: {
-    collateralAmount?: Uint128;
-    collateralContract?: string;
-    isRedemptionProvider?: boolean;
-    minter: string;
-    stableAmount: Uint128;
-  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
-    return await this.client.execute(this.sender, this.contractAddress, {
-      mint_stable_coin: {
-        collateral_amount: collateralAmount,
         collateral_contract: collateralContract,
-        is_redemption_provider: isRedemptionProvider,
-        minter,
-        stable_amount: stableAmount
+        control_contract: controlContract,
+        liquidation_contract: liquidationContract,
+        owner_addr: ownerAddr,
+        pool_contract: poolContract
       }
     }, fee, memo, _funds);
   };
-  becomeRedemptionProvider = async ({
-    isRedemptionProvider
-  }: {
-    isRedemptionProvider: boolean;
-  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
-    return await this.client.execute(this.sender, this.contractAddress, {
-      become_redemption_provider: {
-        is_redemption_provider: isRedemptionProvider
-      }
-    }, fee, memo, _funds);
-  };
-  repayStableCoin = async ({
+  receive = async ({
     amount,
+    msg,
     sender
   }: {
     amount: Uint128;
+    msg: Binary;
     sender: string;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
-      repay_stable_coin: {
+      receive: {
         amount,
+        msg,
         sender
       }
     }, fee, memo, _funds);
   };
   redeemStableCoin = async ({
-    amount,
-    minter,
+    redeemAmount,
     redeemer
   }: {
-    amount: Uint128;
-    minter: string;
+    redeemAmount: Uint128;
     redeemer: string;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       redeem_stable_coin: {
-        amount,
-        minter,
+        redeem_amount: redeemAmount,
         redeemer
       }
     }, fee, memo, _funds);
   };
   withdrawCollateral = async ({
-    collateralAmount,
-    collateralContract
-  }: {
-    collateralAmount: Uint128;
-    collateralContract: string;
-  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
-    return await this.client.execute(this.sender, this.contractAddress, {
-      withdraw_collateral: {
-        collateral_amount: collateralAmount,
-        collateral_contract: collateralContract
-      }
-    }, fee, memo, _funds);
-  };
-  depositCollateral = async ({
     collateralAmount,
     collateralContract,
     minter
@@ -359,7 +163,7 @@ export class CustodyClient implements CustodyInterface {
     minter: string;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
-      deposit_collateral: {
+      withdraw_collateral: {
         collateral_amount: collateralAmount,
         collateral_contract: collateralContract,
         minter
@@ -367,36 +171,16 @@ export class CustodyClient implements CustodyInterface {
     }, fee, memo, _funds);
   };
   liquidateCollateral = async ({
-    minter
+    amount,
+    liquidator
   }: {
-    minter: string;
+    amount: Uint128;
+    liquidator: string;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       liquidate_collateral: {
-        minter
-      }
-    }, fee, memo, _funds);
-  };
-  whitelistCollateral = async ({
-    collateralContract,
-    custodyContract,
-    maxLtv,
-    name,
-    symbol
-  }: {
-    collateralContract: string;
-    custodyContract: string;
-    maxLtv: Decimal256;
-    name: string;
-    symbol: string;
-  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
-    return await this.client.execute(this.sender, this.contractAddress, {
-      whitelist_collateral: {
-        collateral_contract: collateralContract,
-        custody_contract: custodyContract,
-        max_ltv: maxLtv,
-        name,
-        symbol
+        amount,
+        liquidator
       }
     }, fee, memo, _funds);
   };

@@ -1,4 +1,4 @@
-import type { BaseContractConfig, ContractDeployed } from "@/types";
+import type { Addr, BaseContractConfig, ContractDeployed } from "@/types";
 
 export interface CdpCentralControlContractConfig extends BaseContractConfig {
   initMsg?: {
@@ -61,4 +61,17 @@ export interface CdpContractsDeployed {
   cdpLiquidationQueue?: ContractDeployed;
   // cdpCustody?: ContractDeployed;
   cdpCollateralPairs: CdpCollateralPairsDeployed[];
+}
+
+export interface CdpCollateralInfo {
+  collateral: Addr;
+  collateralName: string;
+  /// centralControl whitelist
+  symbol: string;
+  max_ltv: string;
+  custody?: Addr;
+  /// liquidationQueue whitelist
+  bid_threshold: string;
+  max_slot: number;
+  premium_rate_per_slot: string;
 }

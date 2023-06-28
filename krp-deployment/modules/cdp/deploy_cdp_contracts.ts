@@ -1,9 +1,21 @@
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
-import { cdpReadArtifact, deployCdpCentralControl, deployCdpCustody, deployCdpLiquidationQueue, deployCdpStablePool, printDeployedCdpContracts } from "./cdp_helpers";
+import {
+  cdpReadArtifact,
+  deployCdpCentralControl,
+  deployCdpCustody,
+  deployCdpLiquidationQueue,
+  deployCdpStablePool,
+  doCdpCentralControlSetWhitelistCollateral,
+  doCdpCentralControlUpdateConfig,
+  doCdpLiquidationQueueConfig,
+  doCdpLiquidationQueueSetWhitelistCollateral,
+  printDeployedCdpContracts
+} from "./cdp_helpers";
 import { marketReadArtifact } from "../market";
 import type { WalletData, MarketDeployContracts, CdpContractsDeployed, StakingDeployContracts } from "@/types";
 import { stakingReadArtifact } from "@/modules/staking";
+import { CdpCollateralInfo } from "@/types";
 
 main().catch(console.error);
 
@@ -27,9 +39,27 @@ async function main(): Promise<void> {
   await deployCdpStablePool(walletData, networkCdp);
   await deployCdpLiquidationQueue(walletData, networkCdp, networkMarket?.oraclePyth);
 
+  const cdpCollateralList: CdpCollateralInfo[] = [];
   const bSeiToken = networkStaking.bSeiToken;
   if (bSeiToken?.address) {
-    await deployCdpCustody(walletData, networkCdp, { collateralName: "bSEI", collateral: bSeiToken.address });
+    cdpCollateralList.push({
+      collateral: bSeiToken.address,
+      collateralName: "bSEI",
+      symbol: "bSEI",
+      max_ltv: "0.6",
+      bid_threshold: "200000000",
+      max_slot: 10,
+      premium_rate_per_slot: "0.01"
+    });
+  }
+  const stSeiToken = networkStaking.stSeiToken;
+  if (stSeiToken?.address) {
+    cdpCollateralList.push({ collateral: stSeiToken.address, collateralName: "stSEI", symbol: "stSEI", max_ltv: "0.6", bid_threshold: "200000000", max_slot: 10, premium_rate_per_slot: "0.01" });
+  }
+  if (cdpCollateralList.length > 0) {
+    for (let cdpCollateralInfo of cdpCollateralList) {
+      await deployCdpCustody(walletData, networkCdp, cdpCollateralInfo);
+    }
   }
 
   console.log();
@@ -43,8 +73,20 @@ async function main(): Promise<void> {
   console.log(`--- --- cdp contracts configure enter --- ---`);
   const print: boolean = true;
 
-  // await doKptUpdateConfig(walletData, networkCdp?.kpt, networkCdp?.kptFund, print);
-  // await doVeKptUpdateConfig(walletData, networkCdp?.veKpt, networkCdp?.kptFund, print);
+  await doCdpCentralControlUpdateConfig(walletData, networkCdp, networkMarket?.oraclePyth, print);
+  await doCdpLiquidationQueueConfig(walletData, networkCdp, networkMarket?.oraclePyth, print);
+
+  if (cdpCollateralList.length > 0) {
+    for (const cdpCollateralInfo of cdpCollateralList) {
+      const custodyAddress: string | undefined = networkCdp?.cdpCollateralPairs?.["find"]?.(value => cdpCollateralInfo?.collateral === value.collateral)?.custody?.address;
+      if (!custodyAddress) {
+        continue;
+      }
+      cdpCollateralInfo.custody = custodyAddress;
+      await doCdpCentralControlSetWhitelistCollateral(walletData, networkCdp, cdpCollateralInfo, print);
+      await doCdpLiquidationQueueSetWhitelistCollateral(walletData, networkCdp, cdpCollateralInfo, print);
+    }
+  }
 
   console.log();
   console.log(`--- --- cdp contracts configure end --- ---`);

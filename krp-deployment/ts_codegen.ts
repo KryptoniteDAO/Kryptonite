@@ -1,7 +1,8 @@
 import codegen from "@cosmwasm/ts-codegen";
 import * as fs from "fs";
 import * as path from "path";
-import { CDP_MODULE_NAME, CONVERT_MODULE_NAME, KPT_MODULE_NAME, MARKET_MODULE_NAME, STAKING_MODULE_NAME, SWAP_EXTENSION_MODULE_NAME } from "./env_data";
+import { CONVERT_MODULE_NAME, KPT_MODULE_NAME, MARKET_MODULE_NAME, STAKING_MODULE_NAME, SWAP_EXTENSION_MODULE_NAME } from "./env_data";
+import { CDP_MODULE_NAME } from "@/modules/cdp";
 export const STAKING_CONTRACTS_PATH = "../krp-staking-contracts/contracts";
 export const MARKET_CONTRACTS_PATH = "../krp-market-contracts/contracts";
 export const CONVERT_CONTRACTS_PATH = "../krp-basset-convert/contracts";

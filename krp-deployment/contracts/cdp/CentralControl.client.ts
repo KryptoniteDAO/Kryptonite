@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Decimal256, InstantiateMsg, ExecuteMsg, Uint128, QueryMsg, WhitelistElemResponse, ConfigResponse, Uint256, LoanInfoResponse, MinterCollateralResponse, RedemptionProviderListRespone, MinterLoanResponse, WhitelistResponse } from "./CentralControl.types";
+import { Decimal256, InstantiateMsg, ExecuteMsg, Uint128, QueryMsg, CollateralAvailableRespone, WhitelistElemResponse, ConfigResponse, Uint256, LoanInfoResponse, MinterCollateralResponse, RedemptionProviderListRespone, MinterLoanResponse, WhitelistResponse } from "./CentralControl.types";
 export interface CentralControlReadOnlyInterface {
   contractAddress: string;
   config: () => Promise<ConfigResponse>;
@@ -43,6 +43,13 @@ export interface CentralControlReadOnlyInterface {
     minter?: string;
     startAfter?: string;
   }) => Promise<RedemptionProviderListRespone>;
+  collateralAvailable: ({
+    collateralContract,
+    minter
+  }: {
+    collateralContract: string;
+    minter: string;
+  }) => Promise<CollateralAvailableRespone>;
 }
 export class CentralControlQueryClient implements CentralControlReadOnlyInterface {
   client: CosmWasmClient;
@@ -57,6 +64,7 @@ export class CentralControlQueryClient implements CentralControlReadOnlyInterfac
     this.whitelist = this.whitelist.bind(this);
     this.minterCollateral = this.minterCollateral.bind(this);
     this.redemptionProviderList = this.redemptionProviderList.bind(this);
+    this.collateralAvailable = this.collateralAvailable.bind(this);
   }
 
   config = async (): Promise<ConfigResponse> => {
@@ -128,6 +136,20 @@ export class CentralControlQueryClient implements CentralControlReadOnlyInterfac
         limit,
         minter,
         start_after: startAfter
+      }
+    });
+  };
+  collateralAvailable = async ({
+    collateralContract,
+    minter
+  }: {
+    collateralContract: string;
+    minter: string;
+  }): Promise<CollateralAvailableRespone> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      collateral_available: {
+        collateral_contract: collateralContract,
+        minter
       }
     });
   };
