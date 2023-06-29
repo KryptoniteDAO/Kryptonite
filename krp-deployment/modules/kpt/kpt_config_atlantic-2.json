@@ -3,12 +3,12 @@
     "admin": null,
     "initMsg": {
       "cw20_init_msg": {
-        "name": "kpt dev",
-        "symbol": "kpt",
+        "name": "kryptonite  token",
+        "symbol": "KPT",
         "decimals": 6,
-        "initial_balances": [{ "address": "", "amount": "1000000000000000" }]
+        "initial_balances": [{ "address": "", "amount": "10000000000000" }]
       },
-      "max_supply": "10000000000000000000"
+      "max_supply": "1000000000000000"
     },
     "label": "kpt",
     "filePath": null,
@@ -18,13 +18,12 @@
     "admin": null,
     "initMsg": {
       "cw20_init_msg": {
-        "name": "ve kpt dev",
-        "symbol": "vekpt",
-        "decimals": 6,
-        "initial_balances": [{ "address": "", "amount": "1000000000000000" }]
+        "name": "vest kryptonite token",
+        "symbol": "veKPT",
+        "decimals": 6
       },
-      "max_supply": "10000000000000000000",
-      "max_minted": "9999000000000000000"
+      "max_supply": "1000000000000000",
+      "max_minted": "1000000000000000"
     },
     "label": "veKpt",
     "filePath": null,
@@ -33,10 +32,10 @@
   "kptFund": {
     "admin": null,
     "initMsg": {
-      "kusd_denom": "factory/sei1f53twx2n6p9t379kkv6gmcnhxn03xpppuum8j0/dev",
-      "kusd_reward_addr": "sei1znlydlsgqrx2yan8u6sz5wl2msrmrsczdyh2c2yhrzcnajvrsjvqvtkpmv",
+      "kusd_denom": "factory/sei1eaffhjnw6kzznfhcuq69aflagc3pauq5dwtg66knxxmjk5p8xyeqhstugq/kUSD",
+      "kusd_reward_addr": "",
       "exit_cycle": "2592000",
-      "claim_able_time": "1687190400"
+      "claim_able_time": "1688005462"
     },
     "label": "kptFund",
     "filePath": null,

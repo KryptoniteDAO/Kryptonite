@@ -15,7 +15,7 @@ export const kptConfigs: KptContractsConfig = readArtifact(`${KPT_MODULE_NAME}_c
 export const KptStakingRewardsConfigList: Record<string, KptStakingRewardsConfig[]> = {
   [ChainId.SEI_CHAIN]: [
     {
-      name: "TEST1",
+      name: "SEI/KPT",
       staking_token: "sei1973hq2vajasc2uvxhdn3kfq27w3cvksyysspnrwq3swyu7t37caq2eana6",
       duration: "2592000"
     },
@@ -27,12 +27,12 @@ export const KptStakingRewardsConfigList: Record<string, KptStakingRewardsConfig
   ],
   [ChainId.ATLANTIC_2]: [
     {
-      name: "TEST1",
+      name: "SEI/KPT",
       staking_token: "sei1973hq2vajasc2uvxhdn3kfq27w3cvksyysspnrwq3swyu7t37caq2eana6",
       duration: "2592000"
     },
     {
-      name: "TEST2",
+      name: "kUSD/USDC",
       staking_token: "sei1e9ac92wc2ahh36ew8mdfvrlgntk8nqtcycc3d7qr4xrn3xuk8h8skngqtt",
       duration: "2592000"
     }
