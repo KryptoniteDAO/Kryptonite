@@ -25,7 +25,7 @@ async function main(): Promise<void> {
   await deployVeKpt(walletData, networkKpt);
   await deployKptFund(walletData, networkKpt);
   await deployVeKptBoost(walletData, networkKpt);
-  await deployVeKptMiner(walletData, networkKpt);
+  // await deployVeKptMiner(walletData, networkKpt);
   // await deployBlindBox(walletData, networkKpt);
   // await deployBlindBoxReward(walletData, networkKpt);
 

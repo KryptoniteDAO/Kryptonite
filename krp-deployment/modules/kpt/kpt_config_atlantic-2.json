@@ -20,7 +20,8 @@
       "cw20_init_msg": {
         "name": "vest kryptonite token",
         "symbol": "veKPT",
-        "decimals": 6
+        "decimals": 6,
+        "initial_balances": []
       },
       "max_supply": "1000000000000000",
       "max_minted": "1000000000000000"

@@ -1,10 +1,12 @@
 import type { WalletData } from "./types";
-import type { ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed } from "@/modules";
+import type { CdpContractsDeployed, ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed } from "./modules";
 import { BnAdd, BnComparedTo, BnDiv, BnMul, BnPow, BnSub, printChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance, queryWasmContractByWalletData } from "./common";
 import { loadingWalletData } from "./env_data";
-import { stakingReadArtifact, marketReadArtifact, swapExtentionReadArtifact, convertReadArtifact } from "@/modules";
+import { stakingReadArtifact, marketReadArtifact, swapExtentionReadArtifact, convertReadArtifact, kptReadArtifact, KptContractsDeployed, cdpReadArtifact } from "./modules";
 
-import { marketContracts } from "./contracts";
+import { cdpContracts, cw20BaseContracts, kptContracts, marketContracts } from "./contracts";
+import Cw20Base = cw20BaseContracts.Cw20Base;
+import { BalanceResponse } from "@/contracts/cw20Base/Cw20Base.types";
 
 main().catch(console.error);
 
@@ -17,6 +19,8 @@ async function main(): Promise<void> {
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
   const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
   const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;
+  const networkKpt = kptReadArtifact(walletData.chainId) as KptContractsDeployed;
+  const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   // // just do what you want
@@ -25,7 +29,15 @@ async function main(): Promise<void> {
   // const blocksPerYear = 63_072_000;
   // const blocksPerYear2 = 4656810;
   //
-  const oraclePythQueryClient = new marketContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, networkMarket?.oraclePyth?.address);
+  if (networkKpt?.kpt?.address) {
+    const kptClient = new Cw20Base.Cw20BaseClient(walletData.signingCosmWasmClient, walletData.address, networkKpt?.kpt?.address);
+    const kptQueryClient = new Cw20Base.Cw20BaseQueryClient(walletData.signingCosmWasmClient, networkKpt?.kpt?.address);
+    const balanceResponse: BalanceResponse = await kptQueryClient.balance({ address: walletData.address });
+    console.log(balanceResponse);
+    // await kptClient.transfer({amount:"1000000000000", recipient:""})
+  }
+
+  // const oraclePythQueryClient = new marketContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, networkMarket?.oraclePyth?.address);
   // // const queryRes = oraclePythQueryClient.queryPrice({asset: walletData.stable_coin_denom})
   // // const queryRes = oraclePythQueryClient.queryPrice({ asset: networkStaking.bSeiToken.address });
   // // console.log(queryRes);
@@ -39,8 +51,8 @@ async function main(): Promise<void> {
   // console.log(dynrateStateRes);
   // console.log(computeApy(epochStateRes.deposit_rate, blocksPerYear, epochConfigRes.epoch_period));
 
-  const pairToken: string = "sei1dgs47p8fe384pepp4q09fqwxu0xpr99j69d7avhqkfs5vsyzvl2sajz57m";
-  console.log(`\n  +++++++ `, await getPairPrice(walletData, pairToken));
+  // const pairToken: string = "sei1dgs47p8fe384pepp4q09fqwxu0xpr99j69d7avhqkfs5vsyzvl2sajz57m";
+  // console.log(`\n  +++++++ `, await getPairPrice(walletData, pairToken));
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   console.log();

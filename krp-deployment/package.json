@@ -16,6 +16,7 @@
     "verify:cdp": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register ./modules/cdp/cdp_verify_contracts.ts --require ./suppress-experimental.cjs",
     "migrate": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register ./migrate.ts --require ./suppress-experimental.cjs",
     "codegen": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register ./ts_codegen.ts --require ./suppress-experimental.cjs",
+    "justdo": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register ./just_do.ts --require ./suppress-experimental.cjs",
     "format": "prettier --write \"./**/*.{html,ts,js,json,md}\""
   },
   "dependencies": {

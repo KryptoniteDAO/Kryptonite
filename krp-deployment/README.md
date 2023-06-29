@@ -26,17 +26,23 @@ cp .env.example .env
 ##### Deploy contracts
 
 contracts modules:
+- swap-extention as swap
 - staking
 - market
 - convert
+- kpt
+- cdp
 
-**Deployment contracts modules order: `staking` -> `market` -> `convert`**
+**Deployment contracts modules order: `swap` -> `staking` -> `market` -> `convert` -> `kpt` -> `cdp`**
 
 ```sh
 # npm run deploy:[contracts modules]
+npm run deploy:swap
 npm run deploy:staking
 npm run deploy:market
 npm run deploy:convert
+npm run deploy:kpt
+npm run deploy:cdp
 ...
 
 ```
@@ -47,8 +53,18 @@ just a few simple tests to make sure the contracts are not failing
 
 ```sh
 # npm run verify:[contracts modules]
+npm run verify:swap
 npm run verify:staking
 npm run verify:market
+npm run verify:convert
+npm run verify:kpt
+npm run verify:cdp
 ...
 
+```
+
+### With ts-node
+
+```shell
+ts-node -r tsconfig-paths/register just_do.ts
 ```
