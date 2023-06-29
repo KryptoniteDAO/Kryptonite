@@ -1,10 +1,11 @@
 import Decimal from "decimal.js";
 import { coins } from "@cosmjs/stargate";
-import { queryStakingDelegations, queryAddressBalance, queryStaking, queryStakingParameters, queryWasmContractByWalletData, executeContractByWalletData, printChangeBalancesByWalletData, queryAddressTokenBalance } from "../../common";
-import { loadingWalletData } from "@/env_data";
-import { swapExtentionReadArtifact, stakingReadArtifact, marketReadArtifact, convertReadArtifact, loadingStakingData, STAKING_ARTIFACTS_PATH } from "@/modules";
 import type { ContractDeployed, WalletData } from "@/types";
 import type { ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed } from "@/modules";
+import { queryStakingDelegations, queryAddressBalance, queryStaking, queryStakingParameters, queryWasmContractByWalletData, executeContractByWalletData, printChangeBalancesByWalletData, queryAddressTokenBalance } from "../../common";
+import { loadingWalletData } from "@/env_data";
+import { swapExtentionReadArtifact, stakingReadArtifact, marketReadArtifact, convertReadArtifact, loadingStakingData } from "@/modules";
+
 main().catch(console.error);
 
 async function main(): Promise<void> {

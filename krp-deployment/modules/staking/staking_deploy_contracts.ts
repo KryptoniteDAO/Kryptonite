@@ -1,24 +1,37 @@
+import type { WalletData } from "@/types";
+import type { MarketContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
-import { deployBSeiToken, deployHub, deployReward, deployRewardsDispatcher, deployStSeiToken, deployValidatorsRegistry, doHubConfig, printDeployedStakingContracts, queryHubConfig, queryHubParameters, stakingReadArtifact } from "./index";
-import { doSwapExtentionSetWhitelist, swapExtentionReadArtifact, deployOraclePyth, marketReadArtifact, convertReadArtifact, loadingStakingData } from "@/modules";
-import type { WalletData } from "@/types";
-import type { ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed } from "@/modules";
+import {
+  doSwapExtentionSetWhitelist,
+  swapExtentionReadArtifact,
+  deployOraclePyth,
+  marketReadArtifact,
+  loadingStakingData,
+  deployBSeiToken,
+  deployHub,
+  deployReward,
+  deployRewardsDispatcher,
+  deployStSeiToken,
+  deployValidatorsRegistry,
+  doHubConfig,
+  printDeployedStakingContracts,
+  queryHubParameters,
+  stakingReadArtifact
+} from "@/modules";
 
 main().catch(console.error);
 
 async function main(): Promise<void> {
-  console.log(`--- --- deploy staking contracts enter --- ---`);
+  console.log(`\n  --- --- deploy staking contracts enter --- ---`);
 
   const walletData: WalletData = await loadingWalletData();
 
   const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
   const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
-  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;
 
-  console.log(`--- --- staking contracts storeCode & instantiateContract enter --- ---`);
-  console.log();
+  console.log(`\n  --- --- staking contracts storeCode & instantiateContract enter --- ---`);
 
   await deployOraclePyth(walletData, networkMarket);
 
@@ -29,8 +42,7 @@ async function main(): Promise<void> {
   await deployValidatorsRegistry(walletData, networkStaking);
   await deployStSeiToken(walletData, networkStaking);
 
-  console.log();
-  console.log(`--- --- staking contracts storeCode & instantiateContract end --- ---`);
+  console.log(`\n  --- --- staking contracts storeCode & instantiateContract end --- ---`);
 
   const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(networkStaking);
 
@@ -38,12 +50,10 @@ async function main(): Promise<void> {
 
   // //////////////////////////////////////configure contracts///////////////////////////////////////////
 
-  console.log();
-  console.log(`--- --- staking contracts configure enter --- ---`);
-  const print: boolean = false;
+  console.log(`\n  --- --- staking contracts configure enter --- ---`);
+  const print: boolean = true;
 
-  await doHubConfig(walletData, hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken);
-  await queryHubConfig(walletData, hub);
+  await doHubConfig(walletData, networkStaking);
   await queryHubParameters(walletData, hub);
 
   /// add staking.reward & staking.rewardsDispatcher to swap whitelist
@@ -63,15 +73,11 @@ async function main(): Promise<void> {
     }
   }
 
-  console.log();
-  console.log(`--- --- staking contracts configure end --- ---`);
+  console.log(`\n  --- --- staking contracts configure end --- ---`);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  console.log();
-  console.log(`--- --- deploy staking contracts end --- ---`);
+  console.log(`\n  --- --- deploy staking contracts end --- ---`);
 
-  console.log();
   await printChangeBalancesByWalletData(walletData);
-  console.log();
 }

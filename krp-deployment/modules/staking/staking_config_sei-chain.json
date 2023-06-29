@@ -8,7 +8,7 @@
       "unbonding_period": 120
     },
     "label": "sei hub",
-    "filePath": null,
+    "filePath": "../krp-staking-contracts/artifacts/basset_sei_hub.wasm",
     "deploy": false
   },
   "reward": {
@@ -17,7 +17,7 @@
       "owner": null
     },
     "label": "sei reward",
-    "filePath": null,
+    "filePath": "../krp-staking-contracts/artifacts/basset_sei_reward.wasm",
     "deploy": false
   },
   "bSeiToken": {
@@ -29,7 +29,7 @@
       "initial_balances": []
     },
     "label": "bond sei",
-    "filePath": null,
+    "filePath": "../krp-staking-contracts/artifacts/basset_sei_token_bsei.wasm",
     "deploy": false
   },
   "rewardsDispatcher": {
@@ -39,7 +39,7 @@
       "lido_fee_rate": "0.05"
     },
     "label": "reward dispatcher",
-    "filePath": null,
+    "filePath": "../krp-staking-contracts/artifacts/basset_sei_rewards_dispatcher.wasm",
     "deploy": false
   },
   "validatorsRegistry": {
@@ -53,7 +53,7 @@
       ]
     },
     "label": "validator registry",
-    "filePath": null,
+    "filePath": "../krp-staking-contracts/artifacts/basset_sei_validators_registry.wasm",
     "deploy": false
   },
   "stSeiToken": {
@@ -65,7 +65,7 @@
       "initial_balances": []
     },
     "label": "staking sei",
-    "filePath": null,
+    "filePath": "../krp-staking-contracts/artifacts/basset_sei_token_stsei.wasm",
     "deploy": false
   }
 }

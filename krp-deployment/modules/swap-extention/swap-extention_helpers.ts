@@ -56,14 +56,14 @@ export async function doSwapExtentionSetWhitelist(
   } catch (error: any) {
     if (error?.toString().includes("Swap not found")) {
       initFlag = false;
-      console.error(`swapExtention.address: need set_whitelist, address: ${whitelistConfig?.caller}`);
+      console.error(`\n  ********* swapExtention.address: need set_whitelist, address: ${whitelistConfig?.caller}`);
     } else {
       throw new Error(error);
     }
   }
 
   if (initFlag && beforeIsSwapWhitelistRes === whitelistConfig?.isWhitelist) {
-    console.warn(`********* The address is already done. set: ${whitelistConfig?.isWhitelist} / got: ${beforeIsSwapWhitelistRes} / caller: ${whitelistConfig?.caller}`);
+    console.warn(`\n  ********* The address is already done. set: ${whitelistConfig?.isWhitelist} / got: ${beforeIsSwapWhitelistRes}`);
     return;
   }
 
@@ -90,14 +90,14 @@ export async function doSwapExtentionUpdatePairConfig(walletData: WalletData, sw
   } catch (error: any) {
     if (error?.toString().includes("Pair config not found")) {
       initFlag = false;
-      console.error(`  ********* swapExtention.address: need update_pair_config. pair_address: ${pairConfig?.pairAddress}`);
+      console.error(`\n  ********* swapExtention.address: need update_pair_config.`);
     } else {
       throw new Error(error);
     }
   }
 
   if (initFlag) {
-    console.warn(`********* The pair_address is already done. pair_address: ${pairConfig?.pairAddress}`);
+    console.warn(`\n  ********* The pair_address is already done.`);
     return;
   }
   const doRes = await swapExtentionClient.updatePairConfig(pairConfig);
