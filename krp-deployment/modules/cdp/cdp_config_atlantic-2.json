@@ -42,5 +42,53 @@
     "label": "cdp liquidate queue contract",
     "filePath": "../krp-cdp-contracts/artifacts/cdp_liquidation_queue.wasm",
     "deploy": false
-  }
+  },
+  "cdpCollateralPairs": [
+    {
+      "name": "bSEI",
+      "collateral": "%bsei_address%",
+      "custody": {
+        "admin": null,
+        "initMsg": {
+          "owner_addr": null
+        },
+        "label": "cdp custody contract",
+        "filePath": "../krp-cdp-contracts/artifacts/cdp_custody.wasm",
+        "deploy": false
+      },
+      "centralControlWhitelist": {
+        "name": "bSEI",
+        "symbol": "bSEI",
+        "max_ltv": "0.6"
+      },
+      "liquidationQueueWhitelist": {
+        "bid_threshold": "200000000",
+        "max_slot": 10,
+        "premium_rate_per_slot": "0.01"
+      }
+    },
+    {
+      "name": "stSEI",
+      "collateral": "%stsei_address%",
+      "custody": {
+        "admin": null,
+        "initMsg": {
+          "owner_addr": null
+        },
+        "label": "cdp custody contract",
+        "filePath": "../krp-cdp-contracts/artifacts/cdp_custody.wasm",
+        "deploy": false
+      },
+      "centralControlWhitelist": {
+        "name": "stSEI",
+        "symbol": "stSEI",
+        "max_ltv": "0.6"
+      },
+      "liquidationQueueWhitelist": {
+        "bid_threshold": "200000000",
+        "max_slot": 10,
+        "premium_rate_per_slot": "0.01"
+      }
+    }
+  ]
 }

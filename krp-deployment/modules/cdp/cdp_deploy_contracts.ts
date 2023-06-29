@@ -1,5 +1,5 @@
-import type { WalletData } from "@/types";
-import type { CdpCollateralInfo, CdpContractsDeployed, MarketContractsDeployed, StakingContractsDeployed } from "@/modules";
+import type { ContractDeployed, WalletData } from "@/types";
+import type { CdpContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, CdpCollateralPairsConfig } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
 import {
@@ -15,11 +15,7 @@ import {
   printDeployedCdpContracts,
   marketReadArtifact,
   stakingReadArtifact,
-  kptConfigs,
-  cdpConfigs,
-  CdpCollateralPairsConfig,
-  deployStakingRewards,
-  StakingRewardsPairsContractsDeployed
+  cdpConfigs
 } from "@/modules";
 
 main().catch(console.error);
@@ -42,50 +38,23 @@ async function main(): Promise<void> {
   await deployCdpStablePool(walletData, networkCdp);
   await deployCdpLiquidationQueue(walletData, networkCdp, networkMarket?.oraclePyth);
 
-  const bSeiToken = networkStaking.bSeiToken;
-  const stSeiToken = networkStaking.stSeiToken;
   const cdpCollateralPairsConfig: CdpCollateralPairsConfig[] | undefined = cdpConfigs?.cdpCollateralPairs;
   if (!!cdpCollateralPairsConfig && cdpCollateralPairsConfig.length > 0) {
+    const bSeiToken = networkStaking.bSeiToken;
+    const stSeiToken = networkStaking.stSeiToken;
     for (const cdpCollateralPairConfig of cdpCollateralPairsConfig) {
-      if(!!bSeiToken?.address){
-      cdpCollateralPairConfig.collateral = cdpCollateralPairConfig.collateral.replaceAll("%bsei_address%", bSeiToken.address )
+      if (!!bSeiToken?.address) {
+        cdpCollateralPairConfig.collateral = cdpCollateralPairConfig.collateral.replaceAll("%bsei_address%", bSeiToken.address);
       }
-      if(!!stSeiToken?.address){
-        cdpCollateralPairConfig.collateral = cdpCollateralPairConfig.collateral.replaceAll("%stsei_address%", stSeiToken.address )
+      if (!!stSeiToken?.address) {
+        cdpCollateralPairConfig.collateral = cdpCollateralPairConfig.collateral.replaceAll("%stsei_address%", stSeiToken.address);
       }
-      if(!cdpCollateralPairConfig.collateral || !cdpCollateralPairConfig.collateral.startsWith(walletData.prefix)){
-        continue
-      }
-      const cdpCollateralPairNetwork = networkCdp?.cdpCollateralPairs?.find(v => cdpCollateralPairConfig?.collateral === v.collateral);
-      if (!cdpCollateralPairNetwork?.custody?.address) {
+      if (!cdpCollateralPairConfig.collateral || !cdpCollateralPairConfig.collateral.startsWith(walletData.prefix)) {
         continue;
       }
       await deployCdpCustody(walletData, networkCdp, cdpCollateralPairConfig);
     }
   }
-
-  // const cdpCollateralList: CdpCollateralInfo[] = [];
-  // const bSeiToken = networkStaking.bSeiToken;
-  // const stSeiToken = networkStaking.stSeiToken;
-  // if (bSeiToken?.address) {
-  //   cdpCollateralList.push({
-  //     collateral: bSeiToken.address,
-  //     collateralName: "bSEI",
-  //     symbol: "bSEI",
-  //     max_ltv: "0.6",
-  //     bid_threshold: "200000000",
-  //     max_slot: 10,
-  //     premium_rate_per_slot: "0.01"
-  //   });
-  // }
-  // if (stSeiToken?.address) {
-  //   cdpCollateralList.push({ collateral: stSeiToken.address, collateralName: "stSEI", symbol: "stSEI", max_ltv: "0.6", bid_threshold: "200000000", max_slot: 10, premium_rate_per_slot: "0.01" });
-  // }
-  // if (cdpCollateralList.length > 0) {
-  //   for (let cdpCollateralInfo of cdpCollateralList) {
-  //     await deployCdpCustody(walletData, networkCdp, cdpCollateralInfo);
-  //   }
-  // }
 
   console.log(`\n  --- --- cdp contracts storeCode & instantiateContract end --- ---`);
 
@@ -99,17 +68,28 @@ async function main(): Promise<void> {
   await doCdpCentralControlUpdateConfig(walletData, networkCdp, networkMarket?.oraclePyth, print);
   await doCdpLiquidationQueueConfig(walletData, networkCdp, networkMarket?.oraclePyth, print);
 
-  // if (cdpCollateralList.length > 0) {
-  //   for (const cdpCollateralInfo of cdpCollateralList) {
-  //     const custodyAddress: string | undefined = networkCdp?.cdpCollateralPairs?.["find"]?.(value => cdpCollateralInfo?.collateral === value.collateral)?.custody?.address;
-  //     if (!custodyAddress) {
-  //       continue;
-  //     }
-  //     cdpCollateralInfo.custody = custodyAddress;
-  //     await doCdpCentralControlSetWhitelistCollateral(walletData, networkCdp, cdpCollateralInfo, print);
-  //     await doCdpLiquidationQueueSetWhitelistCollateral(walletData, networkCdp, cdpCollateralInfo, print);
-  //   }
-  // }
+  if (!!cdpCollateralPairsConfig && cdpCollateralPairsConfig.length > 0) {
+    const bSeiToken = networkStaking.bSeiToken;
+    const stSeiToken = networkStaking.stSeiToken;
+    for (const cdpCollateralPairConfig of cdpCollateralPairsConfig) {
+      if (!!bSeiToken?.address) {
+        cdpCollateralPairConfig.collateral = cdpCollateralPairConfig.collateral.replaceAll("%bsei_address%", bSeiToken.address);
+      }
+      if (!!stSeiToken?.address) {
+        cdpCollateralPairConfig.collateral = cdpCollateralPairConfig.collateral.replaceAll("%stsei_address%", stSeiToken.address);
+      }
+      if (!cdpCollateralPairConfig.collateral || !cdpCollateralPairConfig.collateral.startsWith(walletData.prefix)) {
+        continue;
+      }
+      const cdpCollateralPairNetwork = networkCdp?.cdpCollateralPairs?.find(v => cdpCollateralPairConfig?.collateral === v.collateral);
+      const custody: ContractDeployed = cdpCollateralPairNetwork?.custody;
+      if (!custody?.address) {
+        continue;
+      }
+      await doCdpCentralControlSetWhitelistCollateral(walletData, networkCdp, cdpCollateralPairConfig, custody, print);
+      await doCdpLiquidationQueueSetWhitelistCollateral(walletData, networkCdp, cdpCollateralPairConfig, print);
+    }
+  }
 
   console.log(`\n  --- --- cdp contracts configure end --- ---`);
 

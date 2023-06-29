@@ -1,5 +1,5 @@
 import type { WalletData, ContractDeployed } from "@/types";
-import type { CdpCentralControlContractConfig, CdpContractsConfig, CdpContractsDeployed, CdpStablePoolContractConfig, CdpCustodyContractConfig, CdpLiquidationQueueContractConfig, CdpCollateralPairsDeployed, CdpCollateralPairsConfig, CdpCollateralInfo } from "@/modules";
+import type { CdpCentralControlContractConfig, CdpContractsConfig, CdpContractsDeployed, CdpStablePoolContractConfig, CdpCustodyContractConfig, CdpLiquidationQueueContractConfig, CdpCollateralPairsDeployed, CdpCollateralPairsConfig } from "@/modules";
 import { DEPLOY_VERSION, DEPLOY_CHAIN_ID } from "@/env_data";
 import { deployContract, readArtifact, writeArtifact } from "@/common";
 import { cdpContracts } from "@/contracts";
@@ -269,10 +269,10 @@ export async function doCdpLiquidationQueueConfig(walletData: WalletData, networ
   print && console.log(`\n  cdpLiquidationQueue.address config info: \n  ${JSON.stringify(afterRes)}`);
 }
 
-export async function doCdpCentralControlSetWhitelistCollateral(walletData: WalletData, networkCdp: CdpContractsDeployed, cdpCollateral: CdpCollateralInfo, print: boolean = true): Promise<any> {
-  print && console.log(`\n  Do cdpCentralControl.address WhitelistCollateral enter. collateral: ${cdpCollateral?.collateral}`);
+export async function doCdpCentralControlSetWhitelistCollateral(walletData: WalletData, networkCdp: CdpContractsDeployed, collateralPairConfig: CdpCollateralPairsConfig, custody: ContractDeployed, print: boolean = true): Promise<any> {
+  print && console.log(`\n  Do cdp.cdpCentralControl WhitelistCollateral enter. collateral: ${collateralPairConfig?.collateral}`);
   const cdpCentralControl: ContractDeployed = networkCdp?.cdpCentralControl;
-  if (!cdpCentralControl?.address || !cdpCollateral?.collateral || !cdpCollateral?.custody) {
+  if (!cdpCentralControl?.address || !collateralPairConfig?.collateral || !custody?.address) {
     console.error("\n  ********* missing info!");
     return;
   }
@@ -283,38 +283,38 @@ export async function doCdpCentralControlSetWhitelistCollateral(walletData: Wall
   let beforeRes: WhitelistResponse = null;
   let initFlag = true;
   try {
-    beforeRes = await centralControlQueryClient.whitelist({ collateralContract: cdpCollateral?.collateral });
+    beforeRes = await centralControlQueryClient.whitelist({ collateralContract: collateralPairConfig?.collateral });
   } catch (error: any) {
     if (error?.toString().includes("Token is not registered as collateral")) {
       initFlag = false;
-      console.error(`\n  cdpCentralControl.address: need set_whitelist.`);
+      console.error(`\n  cdp.cdpCentralControl: need set_whitelist.`);
     } else {
       throw new Error(error);
     }
   }
 
-  if (initFlag && !!beforeRes?.elems?.find(value => cdpCollateral?.collateral === value.collateral_contract && cdpCollateral?.custody === value.custody_contract)) {
-    console.warn(`\n  ********* cdpCentralControl.address is already done.`);
+  if (initFlag && !!beforeRes?.elems?.find(value => collateralPairConfig?.collateral === value.collateral_contract && custody?.address === value.custody_contract)) {
+    console.warn(`\n  ********* cdp.cdpCentralControl whitelist is already done.`);
     return;
   }
 
   const doRes = await centralControlClient.whitelistCollateral({
-    collateralContract: cdpCollateral.collateral,
-    name: cdpCollateral.collateralName,
-    symbol: cdpCollateral.symbol,
-    custodyContract: cdpCollateral.custody,
-    maxLtv: cdpCollateral.max_ltv
+    custodyContract: custody?.address,
+    collateralContract: collateralPairConfig?.collateral,
+    name: collateralPairConfig?.centralControlWhitelist?.name,
+    symbol: collateralPairConfig?.centralControlWhitelist?.symbol,
+    maxLtv: collateralPairConfig?.centralControlWhitelist?.max_ltv
   });
   console.log(`\n  Do cdpCentralControl.address whitelistCollateral ok. \n  ${doRes?.transactionHash}`);
 
-  const afterRes = await centralControlQueryClient.whitelist({ collateralContract: cdpCollateral?.collateral });
-  print && console.log(`\n  cdpCentralControl.address whitelist: ${JSON.stringify(afterRes)}`);
+  const afterRes = await centralControlQueryClient.whitelist({ collateralContract: collateralPairConfig?.collateral });
+  print && console.log(`\n  cdp.cdpCentralControl whitelist: ${JSON.stringify(afterRes)}`);
 }
 
-export async function doCdpLiquidationQueueSetWhitelistCollateral(walletData: WalletData, networkCdp: CdpContractsDeployed, cdpCollateral: CdpCollateralInfo, print: boolean = true): Promise<any> {
-  print && console.log(`\n  Do cdpLiquidationQueue.address WhitelistCollateral enter. collateral: ${cdpCollateral?.collateral}`);
+export async function doCdpLiquidationQueueSetWhitelistCollateral(walletData: WalletData, networkCdp: CdpContractsDeployed, collateralPairConfig: CdpCollateralPairsConfig, print: boolean = true): Promise<any> {
+  print && console.log(`\n  Do cdp.cdpLiquidationQueue WhitelistCollateral enter. collateral: ${collateralPairConfig?.collateral}`);
   const cdpLiquidationQueue: ContractDeployed = networkCdp?.cdpLiquidationQueue;
-  if (!cdpLiquidationQueue?.address || !cdpCollateral?.collateral) {
+  if (!cdpLiquidationQueue?.address || !collateralPairConfig?.collateral) {
     console.error("\n  ********* missing info!");
     return;
   }
@@ -325,29 +325,29 @@ export async function doCdpLiquidationQueueSetWhitelistCollateral(walletData: Wa
   let beforeRes: CollateralInfoResponse = null;
   let initFlag = true;
   try {
-    beforeRes = await liquidationQueueQueryClient.collateralInfo({ collateralToken: cdpCollateral?.collateral });
+    beforeRes = await liquidationQueueQueryClient.collateralInfo({ collateralToken: collateralPairConfig?.collateral });
   } catch (error: any) {
     if (error?.toString().includes("Collateral is not whitelisted")) {
       initFlag = false;
-      console.error(`\n  cdpLiquidationQueue.address: need set_whitelist.`);
+      console.error(`\n  cdp.cdpLiquidationQueue: need set_whitelist.`);
     } else {
       throw new Error(error);
     }
   }
 
-  if (initFlag && beforeRes?.collateral_token === cdpCollateral?.collateral) {
-    console.warn(`\n  ********* cdpLiquidationQueue.address is already done. collateral: ${cdpCollateral?.collateral}`);
+  if (initFlag && beforeRes?.collateral_token === collateralPairConfig?.collateral) {
+    console.warn(`\n  ********* cdp.cdpLiquidationQueue whitelist is already done.`);
     return;
   }
 
   const doRes = await liquidationQueueClient.whitelistCollateral({
-    collateralToken: cdpCollateral?.collateral,
-    bidThreshold: cdpCollateral.bid_threshold,
-    maxSlot: cdpCollateral.max_slot,
-    premiumRatePerSlot: cdpCollateral.premium_rate_per_slot
+    collateralToken: collateralPairConfig?.collateral,
+    bidThreshold: collateralPairConfig?.liquidationQueueWhitelist?.bid_threshold,
+    maxSlot: collateralPairConfig?.liquidationQueueWhitelist?.max_slot,
+    premiumRatePerSlot: collateralPairConfig?.liquidationQueueWhitelist?.premium_rate_per_slot
   });
-  console.log(`\n  Do cdpLiquidationQueue.address whitelistCollateral ok. \n  ${doRes?.transactionHash}`);
+  console.log(`\n  Do cdp.cdpLiquidationQueue whitelistCollateral ok. \n  ${doRes?.transactionHash}`);
 
-  const afterRes = await liquidationQueueQueryClient.collateralInfo({ collateralToken: cdpCollateral?.collateral });
-  print && console.log(`\n  cdpLiquidationQueue.address whitelist: ${JSON.stringify(afterRes)}`);
+  const afterRes = await liquidationQueueQueryClient.collateralInfo({ collateralToken: collateralPairConfig?.collateral });
+  print && console.log(`\n  cdp.cdpLiquidationQueue whitelist: ${JSON.stringify(afterRes)}`);
 }
