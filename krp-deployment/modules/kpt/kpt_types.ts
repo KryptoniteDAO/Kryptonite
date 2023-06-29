@@ -3,6 +3,7 @@ import { InitialBalance } from "@/types";
 
 export interface KptContractConfig extends BaseContractConfig {
   initMsg?: {
+    gov?: Addr;
     cw20_init_msg: {
       name: string;
       symbol: string;
@@ -10,13 +11,12 @@ export interface KptContractConfig extends BaseContractConfig {
       initial_balances: InitialBalance[];
     };
     max_supply: string;
-    gov?: string;
   };
 }
 
 export interface KptFundContractConfig extends BaseContractConfig {
   initMsg?: {
-    gov?: string;
+    gov?: Addr;
     kusd_denom?: string;
     kusd_reward_addr?: string;
     exit_cycle?: string;
@@ -26,6 +26,7 @@ export interface KptFundContractConfig extends BaseContractConfig {
 
 export interface VeKptContractConfig extends BaseContractConfig {
   initMsg?: {
+    gov?: Addr;
     cw20_init_msg: {
       name: string;
       symbol: string;
@@ -34,7 +35,6 @@ export interface VeKptContractConfig extends BaseContractConfig {
     };
     max_supply: string;
     max_minted: string;
-    gov?: string;
   };
 }
 
@@ -45,7 +45,7 @@ export interface VeKptBoostLockSettingConfig {
 
 export interface VeKptBoostContractConfig extends BaseContractConfig {
   initMsg?: {
-    gov?: string;
+    gov?: Addr;
     ve_kpt_lock_settings: VeKptBoostLockSettingConfig[];
   };
 }
@@ -62,12 +62,15 @@ export interface VeKptMinerContractConfig extends BaseContractConfig {
 }
 
 export interface StakingRewardsContractConfig extends BaseContractConfig {
-  initMsg?: {};
+  initMsg?: {
+    reward_controller_addr?: Addr;
+    duration: string;
+  };
 }
 
 export interface StakingRewardsPairsConfig {
   name?: string;
-  staking_token?: string;
+  staking_token?: Addr;
   stakingRewards?: StakingRewardsContractConfig;
 }
 

@@ -13,7 +13,7 @@ interface MigrateConfig {
 }
 
 async function main() {
-  console.log(`--- --- migrate contracts enter --- ---`);
+  console.log(`\n  --- --- migrate contracts enter --- ---`);
 
   const walletData: WalletData = await loadingWalletData();
 
@@ -35,12 +35,9 @@ async function main() {
     console.log(`Do migrate ok. \naddress: ${config.contractAddress} / newCodeId: ${config.codeId} \ntransactionHash: ${migrateRes?.transactionHash}`);
   }
 
-  console.log();
-  console.log(`--- --- migrate contracts end --- ---`);
+  console.log(`\n  --- --- migrate contracts end --- ---`);
 
-  console.log();
   await printChangeBalancesByWalletData(walletData);
-  console.log();
 }
 
 main().catch(console.log);

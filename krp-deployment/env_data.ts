@@ -122,6 +122,7 @@ export async function loadingWalletData(): Promise<WalletData> {
   const addressesBalances = await loadAddressesBalances({ signingStargateClient, signingCosmWasmClient } as WalletData, addressList, denomList);
 
   return {
+    prefix,
     nativeCurrency,
     LCD_ENDPOINT,
     RPC_ENDPOINT,

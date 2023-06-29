@@ -11,7 +11,7 @@ import { BalanceResponse } from "@/contracts/cw20Base/Cw20Base.types";
 main().catch(console.error);
 
 async function main(): Promise<void> {
-  console.log(`--- --- just do enter --- ---`);
+  console.log(`\n  --- --- just do enter --- ---`);
 
   const walletData: WalletData = await loadingWalletData();
 
@@ -55,12 +55,10 @@ async function main(): Promise<void> {
   // console.log(`\n  +++++++ `, await getPairPrice(walletData, pairToken));
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-  console.log();
-  console.log(`--- --- just do end --- ---`);
 
-  console.log();
+  console.log(`\n  --- --- just do end --- ---`);
+
   await printChangeBalancesByWalletData(walletData);
-  console.log();
 }
 
 export type Addr = string;

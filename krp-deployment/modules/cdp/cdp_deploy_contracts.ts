@@ -14,13 +14,18 @@ import {
   doCdpLiquidationQueueSetWhitelistCollateral,
   printDeployedCdpContracts,
   marketReadArtifact,
-  stakingReadArtifact
+  stakingReadArtifact,
+  kptConfigs,
+  cdpConfigs,
+  CdpCollateralPairsConfig,
+  deployStakingRewards,
+  StakingRewardsPairsContractsDeployed
 } from "@/modules";
 
 main().catch(console.error);
 
 async function main(): Promise<void> {
-  console.log(`--- --- deploy cdp contracts enter --- ---`);
+  console.log(`\n  --- --- deploy cdp contracts enter --- ---`);
 
   const walletData: WalletData = await loadingWalletData();
 
@@ -31,72 +36,86 @@ async function main(): Promise<void> {
   // const networkKpt = kptReadArtifact(walletData.chainId) as KptDeployContracts;
   const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
 
-  console.log();
-  console.log(`--- --- cdp contracts storeCode & instantiateContract enter --- ---`);
-  console.log();
+  console.log(`\n  --- --- cdp contracts storeCode & instantiateContract enter --- ---`);
 
   await deployCdpCentralControl(walletData, networkCdp, networkMarket?.oraclePyth);
   await deployCdpStablePool(walletData, networkCdp);
   await deployCdpLiquidationQueue(walletData, networkCdp, networkMarket?.oraclePyth);
 
-  const cdpCollateralList: CdpCollateralInfo[] = [];
   const bSeiToken = networkStaking.bSeiToken;
-  if (bSeiToken?.address) {
-    cdpCollateralList.push({
-      collateral: bSeiToken.address,
-      collateralName: "bSEI",
-      symbol: "bSEI",
-      max_ltv: "0.6",
-      bid_threshold: "200000000",
-      max_slot: 10,
-      premium_rate_per_slot: "0.01"
-    });
-  }
   const stSeiToken = networkStaking.stSeiToken;
-  if (stSeiToken?.address) {
-    cdpCollateralList.push({ collateral: stSeiToken.address, collateralName: "stSEI", symbol: "stSEI", max_ltv: "0.6", bid_threshold: "200000000", max_slot: 10, premium_rate_per_slot: "0.01" });
-  }
-  if (cdpCollateralList.length > 0) {
-    for (let cdpCollateralInfo of cdpCollateralList) {
-      await deployCdpCustody(walletData, networkCdp, cdpCollateralInfo);
+  const cdpCollateralPairsConfig: CdpCollateralPairsConfig[] | undefined = cdpConfigs?.cdpCollateralPairs;
+  if (!!cdpCollateralPairsConfig && cdpCollateralPairsConfig.length > 0) {
+    for (const cdpCollateralPairConfig of cdpCollateralPairsConfig) {
+      if(!!bSeiToken?.address){
+      cdpCollateralPairConfig.collateral = cdpCollateralPairConfig.collateral.replaceAll("%bsei_address%", bSeiToken.address )
+      }
+      if(!!stSeiToken?.address){
+        cdpCollateralPairConfig.collateral = cdpCollateralPairConfig.collateral.replaceAll("%stsei_address%", stSeiToken.address )
+      }
+      if(!cdpCollateralPairConfig.collateral || !cdpCollateralPairConfig.collateral.startsWith(walletData.prefix)){
+        continue
+      }
+      const cdpCollateralPairNetwork = networkCdp?.cdpCollateralPairs?.find(v => cdpCollateralPairConfig?.collateral === v.collateral);
+      if (!cdpCollateralPairNetwork?.custody?.address) {
+        continue;
+      }
+      await deployCdpCustody(walletData, networkCdp, cdpCollateralPairConfig);
     }
   }
 
-  console.log();
-  console.log(`--- --- cdp contracts storeCode & instantiateContract end --- ---`);
+  // const cdpCollateralList: CdpCollateralInfo[] = [];
+  // const bSeiToken = networkStaking.bSeiToken;
+  // const stSeiToken = networkStaking.stSeiToken;
+  // if (bSeiToken?.address) {
+  //   cdpCollateralList.push({
+  //     collateral: bSeiToken.address,
+  //     collateralName: "bSEI",
+  //     symbol: "bSEI",
+  //     max_ltv: "0.6",
+  //     bid_threshold: "200000000",
+  //     max_slot: 10,
+  //     premium_rate_per_slot: "0.01"
+  //   });
+  // }
+  // if (stSeiToken?.address) {
+  //   cdpCollateralList.push({ collateral: stSeiToken.address, collateralName: "stSEI", symbol: "stSEI", max_ltv: "0.6", bid_threshold: "200000000", max_slot: 10, premium_rate_per_slot: "0.01" });
+  // }
+  // if (cdpCollateralList.length > 0) {
+  //   for (let cdpCollateralInfo of cdpCollateralList) {
+  //     await deployCdpCustody(walletData, networkCdp, cdpCollateralInfo);
+  //   }
+  // }
+
+  console.log(`\n  --- --- cdp contracts storeCode & instantiateContract end --- ---`);
 
   await printDeployedCdpContracts(networkCdp);
 
   // //////////////////////////////////////configure contracts///////////////////////////////////////////
 
-  console.log();
-  console.log(`--- --- cdp contracts configure enter --- ---`);
+  console.log(`\n  --- --- cdp contracts configure enter --- ---`);
   const print: boolean = true;
 
   await doCdpCentralControlUpdateConfig(walletData, networkCdp, networkMarket?.oraclePyth, print);
   await doCdpLiquidationQueueConfig(walletData, networkCdp, networkMarket?.oraclePyth, print);
 
-  if (cdpCollateralList.length > 0) {
-    for (const cdpCollateralInfo of cdpCollateralList) {
-      const custodyAddress: string | undefined = networkCdp?.cdpCollateralPairs?.["find"]?.(value => cdpCollateralInfo?.collateral === value.collateral)?.custody?.address;
-      if (!custodyAddress) {
-        continue;
-      }
-      cdpCollateralInfo.custody = custodyAddress;
-      await doCdpCentralControlSetWhitelistCollateral(walletData, networkCdp, cdpCollateralInfo, print);
-      await doCdpLiquidationQueueSetWhitelistCollateral(walletData, networkCdp, cdpCollateralInfo, print);
-    }
-  }
+  // if (cdpCollateralList.length > 0) {
+  //   for (const cdpCollateralInfo of cdpCollateralList) {
+  //     const custodyAddress: string | undefined = networkCdp?.cdpCollateralPairs?.["find"]?.(value => cdpCollateralInfo?.collateral === value.collateral)?.custody?.address;
+  //     if (!custodyAddress) {
+  //       continue;
+  //     }
+  //     cdpCollateralInfo.custody = custodyAddress;
+  //     await doCdpCentralControlSetWhitelistCollateral(walletData, networkCdp, cdpCollateralInfo, print);
+  //     await doCdpLiquidationQueueSetWhitelistCollateral(walletData, networkCdp, cdpCollateralInfo, print);
+  //   }
+  // }
 
-  console.log();
-  console.log(`--- --- cdp contracts configure end --- ---`);
+  console.log(`\n  --- --- cdp contracts configure end --- ---`);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  console.log();
-  console.log(`--- --- deploy cdp contracts end --- ---`);
+  console.log(`\n  --- --- deploy cdp contracts end --- ---`);
 
-  console.log();
   await printChangeBalancesByWalletData(walletData);
-  console.log();
 }

@@ -39,6 +39,7 @@ export interface TokenInfo {
 }
 
 export interface WalletData {
+  prefix: string;
   nativeCurrency: BaseCurrencyInfo;
   LCD_ENDPOINT: string;
   RPC_ENDPOINT: string;

@@ -49,6 +49,7 @@ export async function storeCodeByWalletData(walletData: WalletData, contract_fil
   return storeCode(getClientDataByWalletData(walletData), contract_file, walletData.gasPrice, memo);
 }
 export async function storeCode(clientData: ClientData, contract_file: string, gasPrice?: GasPrice, memo?: string): Promise<number> {
+  console.log(`\n  storeCode enter. contract_file = ${contract_file}`);
   const fee: StdFee = calculateFee(3_100_000, clientData?.gasPrice || "0.001usei");
   let codeId = 0;
   try {
@@ -56,9 +57,9 @@ export async function storeCode(clientData: ClientData, contract_file: string, g
     const uint8Array = new Uint8Array(data);
     const storeCodeTxResult = await clientData?.signingCosmWasmClient?.upload(clientData?.senderAddress, uint8Array, fee, memo);
     codeId = storeCodeTxResult.codeId;
-    console.log(`\n  ${contract_file} stored codeId = ${codeId} / ${storeCodeTxResult?.transactionHash}`);
+    console.log(`  stored codeId = ${codeId} / ${storeCodeTxResult?.transactionHash}`);
   } catch (error: any) {
-    console.error(`\n  store code error：`, contract_file, error);
+    console.error(`\n  ********* store code error：`, contract_file, error);
   }
   return codeId;
 }
@@ -71,7 +72,7 @@ export async function instantiateContract(clientData: ClientData, admin: string,
   const fee: StdFee = calculateFee(300_000, clientData?.gasPrice || "0.001usei");
 
   const instantiateTxResult = await clientData?.signingCosmWasmClient?.instantiate(clientData?.senderAddress, codeId, message, label, fee, { memo: "", funds: coins, admin });
-  console.log(`Instantiating stored codeId = ${codeId} / ${instantiateTxResult?.transactionHash}`);
+  console.log(`  Instantiating stored codeId = ${codeId} / ${instantiateTxResult?.transactionHash}`);
   return instantiateTxResult.contractAddress;
 }
 
@@ -84,7 +85,7 @@ export async function instantiateContract2(clientData: ClientData, admin: string
 
   const instantiateTxResult = await clientData?.signingCosmWasmClient?.instantiate(clientData?.senderAddress, codeId, message, label, fee, { memo: "", funds: coins, admin });
   //   console.log(`instantiate ret:${JSON.stringify(instantiateTxResult)}`);
-  console.log(`Instantiating stored codeId = ${codeId} / ${instantiateTxResult?.transactionHash}`);
+  console.log(`  Instantiating stored codeId = ${codeId} / ${instantiateTxResult?.transactionHash}`);
   return getContractAddresses(instantiateTxResult);
 }
 
@@ -227,6 +228,7 @@ export async function printChangeBalancesByWalletData(walletData: WalletData) {
       // }
     }
   }
+  console.log();
 }
 
 export async function queryContractConfig(walletData: WalletData, deployContract: ContractDeployed, print: boolean = true): Promise<{ initFlag; config }> {

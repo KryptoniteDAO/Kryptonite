@@ -5,7 +5,7 @@
       "owner": null
     },
     "label": "swapExtention",
-    "filePath": null,
+    "filePath": "../swap-extention/artifacts/swap_extention.wasm",
     "deploy": false
   },
   "swapPairConfigList": []

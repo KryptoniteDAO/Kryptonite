@@ -9,7 +9,7 @@ import { swapExtentionContracts } from "@/contracts";
 main().catch(console.error);
 
 async function main(): Promise<void> {
-  console.log(`--- --- verify deployed swap contracts enter --- ---`);
+  console.log(`\n  --- --- verify deployed swap contracts enter --- ---`);
 
   const walletData: WalletData = await loadingWalletData();
 
@@ -25,7 +25,7 @@ async function main(): Promise<void> {
 
   const swapExtention = networkSwap?.swapExtention;
   if (!swapExtention?.address) {
-    throw new Error(`********* no deploy`);
+    throw new Error(`\n  ********* no deploy`);
   }
   const swapExtentionClient = new swapExtentionContracts.SwapExtention.SwapExtentionClient(walletData.signingCosmWasmClient, walletData.address, swapExtention.address);
   const swapExtentionQueryClient = new swapExtentionContracts.SwapExtention.SwapExtentionQueryClient(walletData.signingCosmWasmClient, swapExtention.address);
@@ -68,10 +68,7 @@ async function main(): Promise<void> {
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  console.log();
-  console.log(`--- --- verify deployed swap contracts end --- ---`);
+  console.log(`\n  --- --- verify deployed swap contracts end --- ---`);
 
-  console.log();
   await printChangeBalancesByWalletData(walletData);
-  console.log();
 }

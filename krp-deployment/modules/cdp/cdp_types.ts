@@ -2,8 +2,8 @@ import type { Addr, BaseContractConfig, ContractDeployed } from "@/types";
 
 export interface CdpCentralControlContractConfig extends BaseContractConfig {
   initMsg?: {
-    owner_addr?: string;
-    stable_denom: string;
+    owner_addr?: Addr;
+    stable_denom: Addr;
     epoch_period: number;
     redeem_fee: string;
   };
@@ -11,13 +11,13 @@ export interface CdpCentralControlContractConfig extends BaseContractConfig {
 
 export interface CdpCustodyContractConfig extends BaseContractConfig {
   initMsg?: {
-    owner_addr?: string;
+    owner_addr?: Addr;
   };
 }
 
 export interface CdpLiquidationQueueContractConfig extends BaseContractConfig {
   initMsg?: {
-    owner?: string;
+    owner?: Addr;
     safe_ratio: string;
     bid_fee: string;
     liquidator_fee: string;
@@ -29,16 +29,28 @@ export interface CdpLiquidationQueueContractConfig extends BaseContractConfig {
 
 export interface CdpStablePoolContractConfig extends BaseContractConfig {
   initMsg?: {
-    owner_addr?: string;
+    owner_addr?: Addr;
     sub_demon: string;
     min_redeem_value: string;
   };
 }
 
 export interface CdpCollateralPairsConfig {
-  name?: string;
-  collateral: string;
+  name: string;
+  collateral: Addr;
   custody: CdpCustodyContractConfig;
+  /// centralControl whitelist
+  centralControlWhitelist: {
+    name: string;
+    symbol: string;
+    max_ltv: string;
+  };
+  /// liquidationQueue whitelist
+  liquidationQueueWhitelist: {
+    bid_threshold: string;
+    max_slot: number;
+    premium_rate_per_slot: string;
+  };
 }
 
 export interface CdpContractsConfig {

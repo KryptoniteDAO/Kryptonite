@@ -11,7 +11,7 @@
       "max_supply": "1000000000000000"
     },
     "label": "kpt",
-    "filePath": null,
+    "filePath": "../krp-token-contracts/artifacts/kpt.wasm",
     "deploy": false
   },
   "veKpt": {
@@ -27,7 +27,7 @@
       "max_minted": "1000000000000000"
     },
     "label": "veKpt",
-    "filePath": null,
+    "filePath": "../krp-token-contracts/artifacts/ve_kpt.wasm",
     "deploy": false
   },
   "kptFund": {
@@ -39,7 +39,7 @@
       "claim_able_time": "1688005462"
     },
     "label": "kptFund",
-    "filePath": null,
+    "filePath": "../krp-token-contracts/artifacts/kpt_fund.wasm",
     "deploy": false
   },
   "veKptBoost": {
@@ -53,7 +53,7 @@
       ]
     },
     "label": "veKptBoost",
-    "filePath": null,
+    "filePath": "../krp-token-contracts/artifacts/ve_kpt_boost.wasm",
     "deploy": false
   },
   "veKptMiner": {
@@ -64,7 +64,7 @@
       "extra_rate": "50000000"
     },
     "label": "veKptMiner",
-    "filePath": null,
+    "filePath": "../krp-token-contracts/artifacts/ve_kpt_miner.wasm",
     "deploy": false
   },
   "blindBox": {
@@ -86,7 +86,7 @@
       "start_mint_time": 1687337418
     },
     "label": "blindBox",
-    "filePath": null,
+    "filePath": "../krp-token-contracts/artifacts/blind_box.wasm",
     "deploy": false
   },
   "blindBoxReward": {
@@ -108,7 +108,8 @@
       ]
     },
     "label": "blindBoxReward",
-    "filePath": null,
+    "filePath": "../krp-token-contracts/artifacts/blind_box_reward.wasm",
     "deploy": false
-  }
+  },
+  "stakingRewardsPairs": []
 }

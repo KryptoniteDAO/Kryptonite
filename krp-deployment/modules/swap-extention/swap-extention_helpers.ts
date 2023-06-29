@@ -24,13 +24,12 @@ export function swapExtentionWriteArtifact(networkStaking: SwapExtentionContract
 export async function deploySwapExtention(walletData: WalletData, networkSwap: SwapExtentionContractsDeployed): Promise<void> {
   const contractName: keyof Required<SwapExtentionContractsDeployed> = "swapExtention";
   const config: SwapExtentionContractConfig | undefined = swapExtentionConfigs?.[contractName];
-  const defaultFilePath: string | undefined = "../swap-extention/artifacts/swap_extention.wasm";
   const defaultInitMsg: object | undefined = Object.assign({}, config?.initMsg ?? {}, {
     owner: config?.initMsg?.owner || walletData.address
   });
   const writeFunc = swapExtentionWriteArtifact;
 
-  await deployContract(walletData, contractName, networkSwap, undefined, config, { defaultFilePath, defaultInitMsg, writeFunc });
+  await deployContract(walletData, contractName, networkSwap, undefined, config, { defaultInitMsg, writeFunc });
 }
 
 export async function doSwapExtentionSetWhitelist(
@@ -91,7 +90,7 @@ export async function doSwapExtentionUpdatePairConfig(walletData: WalletData, sw
   } catch (error: any) {
     if (error?.toString().includes("Pair config not found")) {
       initFlag = false;
-      console.error(`swapExtention.address: need update_pair_config. pair_address: ${pairConfig?.pairAddress}`);
+      console.error(`  ********* swapExtention.address: need update_pair_config. pair_address: ${pairConfig?.pairAddress}`);
     } else {
       throw new Error(error);
     }
@@ -105,11 +104,11 @@ export async function doSwapExtentionUpdatePairConfig(walletData: WalletData, sw
   console.log(`Do swapExtention.address update_pair_config ok. \n  ${doRes?.transactionHash}`);
 
   const afterConfigRes = await swapExtentionQueryClient.queryPairConfig({ assetInfos: pairConfig.assetInfos });
-  print && console.log(`pair config info: \n  ${JSON.stringify(afterConfigRes)}`);
+  print && console.log(`\n  pair config info: \n  ${JSON.stringify(afterConfigRes)}`);
 }
 
 export async function printDeployedSwapContracts(networkSwap: SwapExtentionContractsDeployed): Promise<void> {
-  console.log(`\n  --- --- deployed swap extends contracts info --- ---`);
+  console.log(`\n  --- --- deployed swap:extends contracts info --- ---`);
   const tableData = [{ name: `swapExtention`, deploy: swapExtentionConfigs?.swapExtention?.deploy ?? false, codeId: networkSwap?.swapExtention?.codeId || 0, address: networkSwap?.swapExtention?.address }];
   console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
 }

@@ -90,11 +90,11 @@ export async function deployCdpLiquidationQueue(walletData: WalletData, networkC
   await deployContract(walletData, contractName, networkCdp, undefined, config, { defaultInitMsg, writeFunc });
 }
 
-export async function deployCdpCustody(walletData: WalletData, networkCdp: CdpContractsDeployed, { collateral, collateralName }: CdpCollateralInfo): Promise<void> {
+export async function deployCdpCustody(walletData: WalletData, networkCdp: CdpContractsDeployed, collateralPairConfig: CdpCollateralPairsConfig): Promise<void> {
   const cdpCentralControl: ContractDeployed = networkCdp?.cdpCentralControl;
   const cdpStablePool: ContractDeployed = networkCdp?.cdpStablePool;
   const cdpLiquidationQueue: ContractDeployed = networkCdp?.cdpLiquidationQueue;
-  if (!cdpCentralControl?.address || !cdpStablePool?.address || !cdpLiquidationQueue?.address || !collateral) {
+  if (!cdpCentralControl?.address || !cdpStablePool?.address || !cdpLiquidationQueue?.address || !collateralPairConfig?.collateral) {
     return;
   }
 
@@ -105,11 +105,12 @@ export async function deployCdpCustody(walletData: WalletData, networkCdp: CdpCo
     cdpCollateralPairsDeployed = [];
     networkCdp.cdpCollateralPairs = cdpCollateralPairsDeployed;
   }
-  let cdpCollateralPairDeployed: CdpCollateralPairsDeployed | undefined = cdpCollateralPairsDeployed?.["find"]?.(value => collateral === value.collateral);
+
+  let cdpCollateralPairDeployed: CdpCollateralPairsDeployed | undefined = cdpCollateralPairsDeployed?.["find"]?.(value => collateralPairConfig?.collateral === value.collateral);
   if (!cdpCollateralPairDeployed) {
     cdpCollateralPairDeployed = {
-      name: collateralName,
-      collateral: collateral,
+      name: collateralPairConfig?.name,
+      collateral: collateralPairConfig?.collateral,
       custody: {} as ContractDeployed
     } as CdpCollateralPairsDeployed;
     cdpCollateralPairsDeployed.push(cdpCollateralPairDeployed);
@@ -117,26 +118,26 @@ export async function deployCdpCustody(walletData: WalletData, networkCdp: CdpCo
   let contractNetwork: ContractDeployed | undefined = cdpCollateralPairDeployed?.custody;
 
   // set contract config info
-  let cdpCollateralPairsConfigs: CdpCollateralPairsConfig[] | undefined = cdpConfigs?.cdpCollateralPairs;
-  if (!cdpCollateralPairsConfigs) {
-    cdpCollateralPairsConfigs = [];
-    cdpConfigs.cdpCollateralPairs = cdpCollateralPairsConfigs;
-  }
-  let cdpCollateralPairsConfig: CdpCollateralPairsConfig | undefined = cdpCollateralPairsConfigs?.["find"]?.(value => collateral === value.collateral);
-  if (!cdpCollateralPairsConfig) {
-    cdpCollateralPairsConfig = {
-      name: collateralName,
-      collateral: collateral,
-      custody: {} as CdpCustodyContractConfig
-    } as CdpCollateralPairsConfig;
-    cdpCollateralPairsConfigs.push(cdpCollateralPairsConfig);
-  }
-  let config: CdpCustodyContractConfig | undefined = cdpCollateralPairsConfig?.custody;
+  // let cdpCollateralPairsConfigs: CdpCollateralPairsConfig[] | undefined = cdpConfigs?.cdpCollateralPairs;
+  // if (!cdpCollateralPairsConfigs) {
+  //   cdpCollateralPairsConfigs = [];
+  //   cdpConfigs.cdpCollateralPairs = cdpCollateralPairsConfigs;
+  // }
+  // let cdpCollateralPairsConfig: CdpCollateralPairsConfig | undefined = cdpCollateralPairsConfigs?.["find"]?.(value => collateral === value.collateral);
+  // if (!cdpCollateralPairsConfig) {
+  //   cdpCollateralPairsConfig = {
+  //     name: collateralName,
+  //     collateral: collateral,
+  //     custody: {} as CdpCustodyContractConfig
+  //   } as CdpCollateralPairsConfig;
+  //   cdpCollateralPairsConfigs.push(cdpCollateralPairsConfig);
+  // }
+  let config: CdpCustodyContractConfig | undefined = collateralPairConfig?.custody;
 
-  const defaultFilePath: string | undefined = "../krp-cdp-contracts/artifacts/cdp_custody.wasm";
+  // const defaultFilePath: string | undefined = "../krp-cdp-contracts/artifacts/cdp_custody.wasm";
   const defaultInitMsg: object | undefined = Object.assign(
     {
-      collateral_contract: collateral,
+      collateral_contract: collateralPairConfig?.collateral,
       control_contract: cdpCentralControl?.address,
       pool_contract: cdpStablePool?.address,
       liquidation_contract: cdpLiquidationQueue?.address
@@ -148,12 +149,11 @@ export async function deployCdpCustody(walletData: WalletData, networkCdp: CdpCo
   );
   const writeFunc = cdpWriteArtifact;
 
-  await deployContract(walletData, contractName, networkCdp, contractNetwork, config, { defaultFilePath, defaultInitMsg, writeFunc });
+  await deployContract(walletData, contractName, networkCdp, contractNetwork, config, { defaultInitMsg, writeFunc });
 }
 
 export async function printDeployedCdpContracts(networkCdp: CdpContractsDeployed): Promise<void> {
-  console.log();
-  console.log(`--- --- deployed cdp contracts info --- ---`);
+  console.log(`\n  --- --- deployed cdp contracts info --- ---`);
   const contractNames = Object.keys(networkCdp);
   if (!contractNames || contractNames.length <= 0) {
     return;

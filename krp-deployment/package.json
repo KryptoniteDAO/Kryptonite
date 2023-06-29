@@ -6,7 +6,6 @@
     "deploy:market": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/market/market_deploy_contracts.ts --require ./suppress-experimental.cjs",
     "deploy:convert": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/convert/convert_deploy_contracts.ts --require ./suppress-experimental.cjs",
     "deploy:kpt": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/kpt/kpt_deploy_contracts.ts --require ./suppress-experimental.cjs",
-    "deploy:kpt:staking": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/kpt/kpt_deploy_staking.ts --require ./suppress-experimental.cjs",
     "deploy:cdp": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register ./modules/cdp/cdp_deploy_contracts.ts --require ./suppress-experimental.cjs",
     "verify:swap": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/swap-extention/swap-extention_verify_contracts.ts --require ./suppress-experimental.cjs",
     "verify:staking": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/staking/staking_verify_contracts.ts --require ./suppress-experimental.cjs",
