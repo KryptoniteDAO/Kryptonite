@@ -33,7 +33,7 @@
     "admin": null,
     "initMsg": {
       "kusd_denom": "factory/sei1eaffhjnw6kzznfhcuq69aflagc3pauq5dwtg66knxxmjk5p8xyeqhstugq/kUSD",
-      "kusd_reward_addr": "",
+      "kusd_reward_addr": "sei1f53twx2n6p9t379kkv6gmcnhxn03xpppuum8j0",
       "exit_cycle": "2592000",
       "claim_able_time": "1688005462"
     },
