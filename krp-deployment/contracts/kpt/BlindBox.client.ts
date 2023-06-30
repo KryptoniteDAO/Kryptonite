@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Addr, InstantiateMsg, BlindBoxLevelMsg, ExecuteMsg, Binary, Expiration, Timestamp, Uint64, QueryMsg, AllNftInfoResponseForNullable_Empty, OwnerOfResponse, Approval, NftInfoResponseForNullable_Empty, Empty, OperatorsResponse, TokensResponse, ApprovalResponse, ApprovalsResponse, ContractInfoResponse, MinterResponse, NumTokensResponse, OperatorResponse, BlindBoxConfigResponse, BlindBoxConfigLevelResponse, BlindBoxInfoResponse } from "./BlindBox.types";
+import { Addr, InstantiateMsg, BlindBoxLevelMsg, ReferralRewardConfigMsg, ReferralLevelConfig, ReferralLevelRewardBoxConfig, ReferralRewardTokenConfig, ExecuteMsg, Binary, Expiration, Timestamp, Uint64, ReferralLevelConfigMsg, ReferralLevelRewardBoxConfigMsg, QueryMsg, Uint128, AllNftInfoResponseForNullable_Empty, OwnerOfResponse, Approval, NftInfoResponseForNullable_Empty, Empty, OperatorsResponse, TokensResponse, ApprovalResponse, ApprovalsResponse, CalMintInfoResponse, CheckReferralCodeResponse, ContractInfoResponse, UserInfoResponse, MinterResponse, NumTokensResponse, OperatorResponse, ReferralRewardConfigResponse, ReferralLevelConfigResponse, ReferralLevelRewardBoxConfigResponse, ReferralRewardTokenConfigResponse, BlindBoxConfigResponse, BlindBoxConfigLevelResponse, BlindBoxInfoResponse, InviterReferralRecordResponse } from "./BlindBox.types";
 export interface BlindBoxReadOnlyInterface {
   contractAddress: string;
   ownerOf: ({
@@ -94,6 +94,35 @@ export interface BlindBoxReadOnlyInterface {
   }: {
     tokenId: string;
   }) => Promise<BlindBoxInfoResponse>;
+  queryAllReferralRewardConfig: () => Promise<ReferralRewardConfigResponse>;
+  queryInviterRecords: ({
+    inviter,
+    limit,
+    startAfter
+  }: {
+    inviter: Addr;
+    limit?: number;
+    startAfter?: Addr;
+  }) => Promise<InviterReferralRecordResponse>;
+  calMintInfo: ({
+    levelIndex,
+    mintNum,
+    referralCode
+  }: {
+    levelIndex: number;
+    mintNum: Uint128;
+    referralCode?: string;
+  }) => Promise<CalMintInfoResponse>;
+  checkReferralCode: ({
+    referralCode
+  }: {
+    referralCode: string;
+  }) => Promise<CheckReferralCodeResponse>;
+  getUserInfo: ({
+    user
+  }: {
+    user: Addr;
+  }) => Promise<UserInfoResponse>;
 }
 export class BlindBoxQueryClient implements BlindBoxReadOnlyInterface {
   client: CosmWasmClient;
@@ -117,6 +146,11 @@ export class BlindBoxQueryClient implements BlindBoxReadOnlyInterface {
     this.queryBlindBoxConfig = this.queryBlindBoxConfig.bind(this);
     this.queryBlindBoxConfigLevel = this.queryBlindBoxConfigLevel.bind(this);
     this.queryBlindBoxInfo = this.queryBlindBoxInfo.bind(this);
+    this.queryAllReferralRewardConfig = this.queryAllReferralRewardConfig.bind(this);
+    this.queryInviterRecords = this.queryInviterRecords.bind(this);
+    this.calMintInfo = this.calMintInfo.bind(this);
+    this.checkReferralCode = this.checkReferralCode.bind(this);
+    this.getUserInfo = this.getUserInfo.bind(this);
   }
 
   ownerOf = async ({
@@ -299,12 +333,76 @@ export class BlindBoxQueryClient implements BlindBoxReadOnlyInterface {
       }
     });
   };
+  queryAllReferralRewardConfig = async (): Promise<ReferralRewardConfigResponse> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      query_all_referral_reward_config: {}
+    });
+  };
+  queryInviterRecords = async ({
+    inviter,
+    limit,
+    startAfter
+  }: {
+    inviter: Addr;
+    limit?: number;
+    startAfter?: Addr;
+  }): Promise<InviterReferralRecordResponse> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      query_inviter_records: {
+        inviter,
+        limit,
+        start_after: startAfter
+      }
+    });
+  };
+  calMintInfo = async ({
+    levelIndex,
+    mintNum,
+    referralCode
+  }: {
+    levelIndex: number;
+    mintNum: Uint128;
+    referralCode?: string;
+  }): Promise<CalMintInfoResponse> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      cal_mint_info: {
+        level_index: levelIndex,
+        mint_num: mintNum,
+        referral_code: referralCode
+      }
+    });
+  };
+  checkReferralCode = async ({
+    referralCode
+  }: {
+    referralCode: string;
+  }): Promise<CheckReferralCodeResponse> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      check_referral_code: {
+        referral_code: referralCode
+      }
+    });
+  };
+  getUserInfo = async ({
+    user
+  }: {
+    user: Addr;
+  }): Promise<UserInfoResponse> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      get_user_info: {
+        user
+      }
+    });
+  };
 }
 export interface BlindBoxInterface {
   contractAddress: string;
   sender: string;
   updateConfig: ({
+    canTransferTime,
+    endMintTime,
     gov,
+    inviterRewardBoxContract,
     nftBaseUrl,
     nftUriSuffix,
     priceToken,
@@ -312,7 +410,10 @@ export interface BlindBoxInterface {
     startMintTime,
     tokenIdPrefix
   }: {
+    canTransferTime?: number;
+    endMintTime?: number;
     gov?: string;
+    inviterRewardBoxContract?: Addr;
     nftBaseUrl?: string;
     nftUriSuffix?: string;
     priceToken?: string;
@@ -329,12 +430,56 @@ export interface BlindBoxInterface {
     mintTotalCount?: number;
     price?: number;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  updateRewardTokenConfig: ({
+    conversionRatio,
+    rewardToken,
+    rewardTokenType
+  }: {
+    conversionRatio: number;
+    rewardToken: string;
+    rewardTokenType: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  updateReferralLevelConfig: ({
+    referralLevelConfigMsg
+  }: {
+    referralLevelConfigMsg: ReferralLevelConfigMsg;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  updateReferralLevelBoxConfig: ({
+    levelRewardBoxConfigMsg
+  }: {
+    levelRewardBoxConfigMsg: ReferralLevelRewardBoxConfigMsg;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  createReferralInfo: ({
+    referralCode,
+    rewardTokenType
+  }: {
+    referralCode: string;
+    rewardTokenType: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  modifyRewardTokenType: ({
+    rewardTokenType
+  }: {
+    rewardTokenType: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  doInviterRewardMint: ({
+    inviter,
+    levelIndex,
+    mintNum
+  }: {
+    inviter: Addr;
+    levelIndex: number;
+    mintNum: number;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   mint: ({
     levelIndex,
-    recipient
+    mintNum,
+    recipient,
+    referralCode
   }: {
     levelIndex: number;
+    mintNum: number;
     recipient?: string;
+    referralCode?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   transferNft: ({
     recipient,
@@ -397,6 +542,12 @@ export class BlindBoxClient implements BlindBoxInterface {
     this.contractAddress = contractAddress;
     this.updateConfig = this.updateConfig.bind(this);
     this.updateConfigLevel = this.updateConfigLevel.bind(this);
+    this.updateRewardTokenConfig = this.updateRewardTokenConfig.bind(this);
+    this.updateReferralLevelConfig = this.updateReferralLevelConfig.bind(this);
+    this.updateReferralLevelBoxConfig = this.updateReferralLevelBoxConfig.bind(this);
+    this.createReferralInfo = this.createReferralInfo.bind(this);
+    this.modifyRewardTokenType = this.modifyRewardTokenType.bind(this);
+    this.doInviterRewardMint = this.doInviterRewardMint.bind(this);
     this.mint = this.mint.bind(this);
     this.transferNft = this.transferNft.bind(this);
     this.sendNft = this.sendNft.bind(this);
@@ -408,7 +559,10 @@ export class BlindBoxClient implements BlindBoxInterface {
   }
 
   updateConfig = async ({
+    canTransferTime,
+    endMintTime,
     gov,
+    inviterRewardBoxContract,
     nftBaseUrl,
     nftUriSuffix,
     priceToken,
@@ -416,7 +570,10 @@ export class BlindBoxClient implements BlindBoxInterface {
     startMintTime,
     tokenIdPrefix
   }: {
+    canTransferTime?: number;
+    endMintTime?: number;
     gov?: string;
+    inviterRewardBoxContract?: Addr;
     nftBaseUrl?: string;
     nftUriSuffix?: string;
     priceToken?: string;
@@ -426,7 +583,10 @@ export class BlindBoxClient implements BlindBoxInterface {
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
+        can_transfer_time: canTransferTime,
+        end_mint_time: endMintTime,
         gov,
+        inviter_reward_box_contract: inviterRewardBoxContract,
         nft_base_url: nftBaseUrl,
         nft_uri_suffix: nftUriSuffix,
         price_token: priceToken,
@@ -453,17 +613,104 @@ export class BlindBoxClient implements BlindBoxInterface {
       }
     }, fee, memo, _funds);
   };
+  updateRewardTokenConfig = async ({
+    conversionRatio,
+    rewardToken,
+    rewardTokenType
+  }: {
+    conversionRatio: number;
+    rewardToken: string;
+    rewardTokenType: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      update_reward_token_config: {
+        conversion_ratio: conversionRatio,
+        reward_token: rewardToken,
+        reward_token_type: rewardTokenType
+      }
+    }, fee, memo, _funds);
+  };
+  updateReferralLevelConfig = async ({
+    referralLevelConfigMsg
+  }: {
+    referralLevelConfigMsg: ReferralLevelConfigMsg;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      update_referral_level_config: {
+        referral_level_config_msg: referralLevelConfigMsg
+      }
+    }, fee, memo, _funds);
+  };
+  updateReferralLevelBoxConfig = async ({
+    levelRewardBoxConfigMsg
+  }: {
+    levelRewardBoxConfigMsg: ReferralLevelRewardBoxConfigMsg;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      update_referral_level_box_config: {
+        level_reward_box_config_msg: levelRewardBoxConfigMsg
+      }
+    }, fee, memo, _funds);
+  };
+  createReferralInfo = async ({
+    referralCode,
+    rewardTokenType
+  }: {
+    referralCode: string;
+    rewardTokenType: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      create_referral_info: {
+        referral_code: referralCode,
+        reward_token_type: rewardTokenType
+      }
+    }, fee, memo, _funds);
+  };
+  modifyRewardTokenType = async ({
+    rewardTokenType
+  }: {
+    rewardTokenType: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      modify_reward_token_type: {
+        reward_token_type: rewardTokenType
+      }
+    }, fee, memo, _funds);
+  };
+  doInviterRewardMint = async ({
+    inviter,
+    levelIndex,
+    mintNum
+  }: {
+    inviter: Addr;
+    levelIndex: number;
+    mintNum: number;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      do_inviter_reward_mint: {
+        inviter,
+        level_index: levelIndex,
+        mint_num: mintNum
+      }
+    }, fee, memo, _funds);
+  };
   mint = async ({
     levelIndex,
-    recipient
+    mintNum,
+    recipient,
+    referralCode
   }: {
     levelIndex: number;
+    mintNum: number;
     recipient?: string;
+    referralCode?: string;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       mint: {
         level_index: levelIndex,
-        recipient
+        mint_num: mintNum,
+        recipient,
+        referral_code: referralCode
       }
     }, fee, memo, _funds);
   };

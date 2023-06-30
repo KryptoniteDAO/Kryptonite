@@ -1,4 +1,3 @@
-import { ChainId, DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
 import type { ContractDeployed, InitialBalance, WalletData } from "@/types";
 import type {
   BlindBoxContractConfig,
@@ -7,20 +6,19 @@ import type {
   KptContractsConfig,
   KptContractsDeployed,
   KptFundContractConfig,
-  KptStakingRewardsConfig,
-  RewardTokenConfigMsgConfig,
   StakingRewardsPairsConfig,
   StakingRewardsPairsContractsDeployed,
   VeKptBoostContractConfig,
   VeKptContractConfig,
-  VeKptMinerContractConfig
+  VeKptMinerContractConfig,
+  BlindBoxRewardTokenConfig
 } from "@/modules";
-import { deployContract, instantiateContractByWalletData, readArtifact, storeCodeByWalletData, writeArtifact } from "@/common";
+import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
+import { deployContract, readArtifact, writeArtifact } from "@/common";
 import { kptContracts } from "@/contracts";
 import { KptFundConfigResponse } from "@/contracts/kpt/KptFund.types";
 import { KptConfigResponse } from "@/contracts/kpt/Kpt.types";
 import { IsMinterResponse } from "@/contracts/kpt/VeKpt.types";
-import { swapExtentionConfigs, SwapExtentionContractConfig, SwapExtentionContractsDeployed, swapExtentionWriteArtifact } from "@/modules";
 
 export const KPT_ARTIFACTS_PATH = "../krp-token-contracts/artifacts";
 export const KPT_CONTRACTS_PATH = "../krp-token-contracts/contracts";
@@ -170,12 +168,33 @@ export async function deployVeKptMiner(walletData: WalletData, networkKpt: KptCo
 }
 
 export async function deployBlindBox(walletData: WalletData, networkKpt: KptContractsDeployed): Promise<void> {
+  const kpt: ContractDeployed | undefined = networkKpt?.kpt;
+  const veKpt: ContractDeployed | undefined = networkKpt?.veKpt;
+  // const blindBox: ContractDeployed | undefined = networkKpt?.blindBox;
+  if (!kpt?.address || !veKpt?.address) {
+    return;
+  }
   const contractName: keyof Required<KptContractsDeployed> = "blindBox";
   const config: BlindBoxContractConfig | undefined = kptConfigs?.[contractName];
+  const rewardTokenConfig: Record<string, BlindBoxRewardTokenConfig> | undefined = config?.initMsg?.referral_reward_config?.reward_token_config;
+  for (let rewardTokenConfigKey in rewardTokenConfig) {
+    let tokenConfig: BlindBoxRewardTokenConfig | undefined = rewardTokenConfig[rewardTokenConfigKey];
+    if (tokenConfig?.reward_token) {
+      tokenConfig.reward_token = tokenConfig.reward_token.replaceAll("%kpt_address%", kpt.address).replaceAll("%ve_kpt_address%", veKpt.address);
+    }
+  }
+  // level_infos?.map(value => {
+  //   if (value.) {
+  //     value.reward_token = value.reward_token.replaceAll("%kpt_address%", kpt.address).replaceAll("%ve_kpt_address%", veKpt.address);
+  //   }
+  // });
+
   const defaultInitMsg = Object.assign({}, config?.initMsg ?? {});
   const writeFunc = kptWriteArtifact;
+  const storeCoreGasLimit = 4_000_000;
+  const instantiateGasLimit = 500_000;
 
-  await deployContract(walletData, contractName, networkKpt, undefined, config, { defaultInitMsg, writeFunc });
+  await deployContract(walletData, contractName, networkKpt, undefined, config, { defaultInitMsg, writeFunc, storeCoreGasLimit, instantiateGasLimit });
 }
 
 export async function deployBlindBoxReward(walletData: WalletData, networkKpt: KptContractsDeployed): Promise<void> {
@@ -188,20 +207,27 @@ export async function deployBlindBoxReward(walletData: WalletData, networkKpt: K
 
   const contractName: keyof Required<KptContractsDeployed> = "blindBoxReward";
   const config: BlindBoxRewardContractConfig | undefined = kptConfigs?.[contractName];
-  const reward_token_map_msgs: RewardTokenConfigMsgConfig[] | undefined = config?.initMsg?.reward_token_map_msgs;
-  reward_token_map_msgs?.map(value => {
-    if (value.reward_token) {
-      value.reward_token = value.reward_token.replaceAll("%kpt_address%", kpt.address).replaceAll("%ve_kpt_address%", veKpt.address);
-    }
-  });
+  // const reward_token_map_msgs: RewardTokenConfigMsgConfig[] | undefined = config?.initMsg?.reward_token_map_msgs;
+  // reward_token_map_msgs?.map(value => {
+  //   if (value.reward_token) {
+  //     value.reward_token = value.reward_token.replaceAll("%kpt_address%", kpt.address).replaceAll("%ve_kpt_address%", veKpt.address);
+  //   }
+  // });
 
   const defaultInitMsg = Object.assign(
     {
-      nft_contract: blindBox.address
+      nft_contract: blindBox.address,
+      box_config: {
+        box_reward_token: kpt?.address
+      }
     },
     config?.initMsg ?? {}
   );
+  defaultInitMsg.box_config.box_reward_token = kpt?.address;
+
   const writeFunc = kptWriteArtifact;
+  // const storeCoreGasLimit = 4_000_000;
+  // const instantiateGasLimit = 500_000;
 
   await deployContract(walletData, contractName, networkKpt, undefined, config, { defaultInitMsg, writeFunc });
 }

@@ -4,45 +4,45 @@
 * and run the @cosmwasm/ts-codegen generate command to regenerate this file.
 */
 
-import * as _36 from "./BlindBox.types";
-import * as _37 from "./BlindBox.client";
-import * as _38 from "./BlindBoxReward.types";
-import * as _39 from "./BlindBoxReward.client";
-import * as _40 from "./Kpt.types";
-import * as _41 from "./Kpt.client";
-import * as _42 from "./KptFund.types";
-import * as _43 from "./KptFund.client";
-import * as _44 from "./StakingRewards.types";
-import * as _45 from "./StakingRewards.client";
-import * as _46 from "./VeKpt.types";
-import * as _47 from "./VeKpt.client";
-import * as _48 from "./VeKptBoost.types";
-import * as _49 from "./VeKptBoost.client";
-import * as _50 from "./VeKptMiner.types";
-import * as _51 from "./VeKptMiner.client";
+import * as _0 from "./BlindBox.types";
+import * as _1 from "./BlindBox.client";
+import * as _2 from "./BlindBoxReward.types";
+import * as _3 from "./BlindBoxReward.client";
+import * as _4 from "./Kpt.types";
+import * as _5 from "./Kpt.client";
+import * as _6 from "./KptFund.types";
+import * as _7 from "./KptFund.client";
+import * as _8 from "./StakingRewards.types";
+import * as _9 from "./StakingRewards.client";
+import * as _10 from "./VeKpt.types";
+import * as _11 from "./VeKpt.client";
+import * as _12 from "./VeKptBoost.types";
+import * as _13 from "./VeKptBoost.client";
+import * as _14 from "./VeKptMiner.types";
+import * as _15 from "./VeKptMiner.client";
 export namespace kptContracts {
-  export const BlindBox = { ..._36,
-    ..._37
+  export const BlindBox = { ..._0,
+    ..._1
   };
-  export const BlindBoxReward = { ..._38,
-    ..._39
+  export const BlindBoxReward = { ..._2,
+    ..._3
   };
-  export const Kpt = { ..._40,
-    ..._41
+  export const Kpt = { ..._4,
+    ..._5
   };
-  export const KptFund = { ..._42,
-    ..._43
+  export const KptFund = { ..._6,
+    ..._7
   };
-  export const StakingRewards = { ..._44,
-    ..._45
+  export const StakingRewards = { ..._8,
+    ..._9
   };
-  export const VeKpt = { ..._46,
-    ..._47
+  export const VeKpt = { ..._10,
+    ..._11
   };
-  export const VeKptBoost = { ..._48,
-    ..._49
+  export const VeKptBoost = { ..._12,
+    ..._13
   };
-  export const VeKptMiner = { ..._50,
-    ..._51
+  export const VeKptMiner = { ..._14,
+    ..._15
   };
 }

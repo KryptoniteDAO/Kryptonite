@@ -45,12 +45,12 @@ export function getClientData2ByWalletData(walletData: WalletData): ClientData {
   return { signingCosmWasmClient: walletData.signingCosmWasmClient2, signingStargateClient: walletData.signingStargateClient2, senderAddress: walletData.address2, gasPrice: walletData.gasPrice };
 }
 
-export async function storeCodeByWalletData(walletData: WalletData, contract_file: string, memo?: string): Promise<number> {
-  return storeCode(getClientDataByWalletData(walletData), contract_file, walletData.gasPrice, memo);
+export async function storeCodeByWalletData<P extends { gasLimit?: number }>(walletData: WalletData, contract_file: string, memo?: string, otherParams?: P): Promise<number> {
+  return storeCode(getClientDataByWalletData(walletData), contract_file, walletData.gasPrice, memo, otherParams);
 }
-export async function storeCode(clientData: ClientData, contract_file: string, gasPrice?: GasPrice, memo?: string): Promise<number> {
+export async function storeCode<P extends { gasLimit?: number }>(clientData: ClientData, contract_file: string, gasPrice?: GasPrice, memo?: string, otherParams?: P): Promise<number> {
   console.log(`\n  storeCode enter. contract_file = ${contract_file}`);
-  const fee: StdFee = calculateFee(3_100_000, clientData?.gasPrice || "0.001usei");
+  const fee: StdFee = calculateFee(otherParams?.gasLimit ?? 3_100_000, clientData?.gasPrice || "0.001usei");
   let codeId = 0;
   try {
     const data = fs.readFileSync(contract_file);
@@ -64,12 +64,12 @@ export async function storeCode(clientData: ClientData, contract_file: string, g
   return codeId;
 }
 
-export async function instantiateContractByWalletData(walletData: WalletData, admin: string, codeId: number, message: object, label: string = "", coins: Coin[] = []): Promise<string> {
-  return instantiateContract(getClientDataByWalletData(walletData), admin, codeId, message, label, coins);
+export async function instantiateContractByWalletData<P extends { gasLimit?: number }>(walletData: WalletData, admin: string, codeId: number, message: object, label: string = "", coins: Coin[] = [], otherParams?: P): Promise<string> {
+  return instantiateContract(getClientDataByWalletData(walletData), admin, codeId, message, label, coins, otherParams);
 }
-export async function instantiateContract(clientData: ClientData, admin: string, codeId: number, message: object, label: string = "", coins: Coin[] = []): Promise<string> {
+export async function instantiateContract<P extends { gasLimit?: number }>(clientData: ClientData, admin: string, codeId: number, message: object, label: string = "", coins: Coin[] = [], otherParams?: P): Promise<string> {
   console.log(`\n  Instantiating contract enter. code_id = ${codeId}`);
-  const fee: StdFee = calculateFee(300_000, clientData?.gasPrice || "0.001usei");
+  const fee: StdFee = calculateFee(otherParams?.gasLimit ?? 300_000, clientData?.gasPrice || "0.001usei");
 
   const instantiateTxResult = await clientData?.signingCosmWasmClient?.instantiate(clientData?.senderAddress, codeId, message, label, fee, { memo: "", funds: coins, admin });
   console.log(`  Instantiating stored codeId = ${codeId} / ${instantiateTxResult?.transactionHash}`);
@@ -252,14 +252,11 @@ export async function queryContractConfig(walletData: WalletData, deployContract
   return { initFlag, config };
 }
 
-export async function deployContract<C extends BaseContractConfig = BaseContractConfig, M extends object = object, D extends { defaultFilePath?: string; defaultLabel?: string; defaultInitMsg?: M; defaultFunds?: Coin[]; write?: boolean; writeFunc?: Function } = any>(
-  walletData: WalletData,
-  contractName: string,
-  network: unknown,
-  contractNetwork: ContractDeployed | undefined,
-  contractConfig: C,
-  { defaultFilePath, defaultLabel, defaultInitMsg, defaultFunds, write = true, writeFunc }: D
-): Promise<void> {
+export async function deployContract<
+  C extends BaseContractConfig = BaseContractConfig,
+  M extends object = object,
+  D extends { defaultFilePath?: string; defaultLabel?: string; defaultInitMsg?: M; defaultFunds?: Coin[]; write?: boolean; writeFunc?: Function; memo?: string; storeCoreGasLimit?: number; instantiateGasLimit?: number } = any
+>(walletData: WalletData, contractName: string, network: unknown, contractNetwork: ContractDeployed | undefined, contractConfig: C, { defaultFilePath, defaultLabel, defaultInitMsg, defaultFunds, write = true, writeFunc, memo, storeCoreGasLimit, instantiateGasLimit }: D): Promise<void> {
   if (!network || !contractConfig || !contractName) {
     console.error(`\n  Missing info: ${contractName}`);
     return;
@@ -282,14 +279,14 @@ export async function deployContract<C extends BaseContractConfig = BaseContract
       return;
     }
 
-    contractNetwork.codeId = await storeCodeByWalletData(walletData, filePath);
+    contractNetwork.codeId = await storeCodeByWalletData(walletData, filePath, memo, { gasLimit: storeCoreGasLimit });
     write && typeof writeFunc === "function" && writeFunc(network, walletData.chainId);
   }
   if (contractNetwork?.codeId > 0) {
     const admin = contractConfig?.admin || walletData.address;
     const label = contractConfig?.label || defaultLabel || contractName || "deploy contract";
     const initMsg = defaultInitMsg || Object.assign({}, contractConfig?.initMsg);
-    contractNetwork.address = await instantiateContractByWalletData(walletData, admin, contractNetwork.codeId, initMsg, label, defaultFunds);
+    contractNetwork.address = await instantiateContractByWalletData(walletData, admin, contractNetwork.codeId, initMsg, label, defaultFunds, { gasLimit: instantiateGasLimit });
     write && typeof writeFunc === "function" && writeFunc(network, walletData.chainId);
     contractConfig.deploy = true;
   }

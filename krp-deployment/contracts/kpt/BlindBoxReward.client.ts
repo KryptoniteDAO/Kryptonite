@@ -6,15 +6,20 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Addr, InstantiateMsg, RewardTokenConfigMsg, RewardLevelConfigMsg, ExecuteMsg, QueryMsg, BlindBoxConfigResponse, RewardTokenConfigResponse, RewardLevelConfigResponse, ArrayOfUserClaimableRewardsResponse, UserClaimableRewardsResponse, UserClaimableRewardDetailResponse } from "./BlindBoxReward.types";
+import { Addr, InstantiateMsg, BoxRewardConfig, OrdinaryBoxRewardLevelConfig, RandomBoxRewardRuleConfig, ExecuteMsg, QueryMsg, AllConfigAndStateResponse, BoxRewardConfigState, OrdinaryBoxRewardLevelConfigState, RandomBoxRewardRuleConfigState, RewardConfig, ArrayOfBoxOpenInfoResponse, BoxOpenInfoResponse, MapOfUint64 } from "./BlindBoxReward.types";
 export interface BlindBoxRewardReadOnlyInterface {
   contractAddress: string;
-  queryUserClaimRewards: ({
-    userAddr
+  queryAllConfigAndState: () => Promise<AllConfigAndStateResponse>;
+  queryBoxOpenInfo: ({
+    tokenIds
   }: {
-    userAddr: Addr;
-  }) => Promise<ArrayOfUserClaimableRewardsResponse>;
-  queryBlindBoxConfig: () => Promise<BlindBoxConfigResponse>;
+    tokenIds: string[];
+  }) => Promise<ArrayOfBoxOpenInfoResponse>;
+  testRandom: ({
+    tokenIds
+  }: {
+    tokenIds: string[];
+  }) => Promise<MapOfUint64>;
 }
 export class BlindBoxRewardQueryClient implements BlindBoxRewardReadOnlyInterface {
   client: CosmWasmClient;
@@ -23,59 +28,60 @@ export class BlindBoxRewardQueryClient implements BlindBoxRewardReadOnlyInterfac
   constructor(client: CosmWasmClient, contractAddress: string) {
     this.client = client;
     this.contractAddress = contractAddress;
-    this.queryUserClaimRewards = this.queryUserClaimRewards.bind(this);
-    this.queryBlindBoxConfig = this.queryBlindBoxConfig.bind(this);
+    this.queryAllConfigAndState = this.queryAllConfigAndState.bind(this);
+    this.queryBoxOpenInfo = this.queryBoxOpenInfo.bind(this);
+    this.testRandom = this.testRandom.bind(this);
   }
 
-  queryUserClaimRewards = async ({
-    userAddr
-  }: {
-    userAddr: Addr;
-  }): Promise<ArrayOfUserClaimableRewardsResponse> => {
+  queryAllConfigAndState = async (): Promise<AllConfigAndStateResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
-      query_user_claim_rewards: {
-        user_addr: userAddr
+      query_all_config_and_state: {}
+    });
+  };
+  queryBoxOpenInfo = async ({
+    tokenIds
+  }: {
+    tokenIds: string[];
+  }): Promise<ArrayOfBoxOpenInfoResponse> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      query_box_open_info: {
+        token_ids: tokenIds
       }
     });
   };
-  queryBlindBoxConfig = async (): Promise<BlindBoxConfigResponse> => {
+  testRandom = async ({
+    tokenIds
+  }: {
+    tokenIds: string[];
+  }): Promise<MapOfUint64> => {
     return this.client.queryContractSmart(this.contractAddress, {
-      query_blind_box_config: {}
+      test_random: {
+        token_ids: tokenIds
+      }
     });
   };
 }
 export interface BlindBoxRewardInterface {
   contractAddress: string;
   sender: string;
-  updateBlindBoxConfig: ({
+  updateRewardConfig: ({
     gov,
     nftContract
   }: {
     gov?: Addr;
     nftContract?: Addr;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  updateBlindBoxRewardTokenConfig: ({
-    claimableTime,
-    rewardToken,
-    totalRewardAmount
+  updateBoxRewardConfig: ({
+    boxOpenTime,
+    boxRewardToken
   }: {
-    claimableTime: number;
-    rewardToken: Addr;
-    totalRewardAmount: number;
+    boxOpenTime?: number;
+    boxRewardToken?: Addr;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  updateRewardTokenRewardLevel: ({
-    rewardAmount,
-    rewardLevel,
-    rewardToken
+  openBlindBox: ({
+    tokenIds
   }: {
-    rewardAmount: number;
-    rewardLevel: number;
-    rewardToken: Addr;
-  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  claimReward: ({
-    recipient
-  }: {
-    recipient?: Addr;
+    tokenIds: string[];
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class BlindBoxRewardClient implements BlindBoxRewardInterface {
@@ -87,13 +93,12 @@ export class BlindBoxRewardClient implements BlindBoxRewardInterface {
     this.client = client;
     this.sender = sender;
     this.contractAddress = contractAddress;
-    this.updateBlindBoxConfig = this.updateBlindBoxConfig.bind(this);
-    this.updateBlindBoxRewardTokenConfig = this.updateBlindBoxRewardTokenConfig.bind(this);
-    this.updateRewardTokenRewardLevel = this.updateRewardTokenRewardLevel.bind(this);
-    this.claimReward = this.claimReward.bind(this);
+    this.updateRewardConfig = this.updateRewardConfig.bind(this);
+    this.updateBoxRewardConfig = this.updateBoxRewardConfig.bind(this);
+    this.openBlindBox = this.openBlindBox.bind(this);
   }
 
-  updateBlindBoxConfig = async ({
+  updateRewardConfig = async ({
     gov,
     nftContract
   }: {
@@ -101,54 +106,34 @@ export class BlindBoxRewardClient implements BlindBoxRewardInterface {
     nftContract?: Addr;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
-      update_blind_box_config: {
+      update_reward_config: {
         gov,
         nft_contract: nftContract
       }
     }, fee, memo, _funds);
   };
-  updateBlindBoxRewardTokenConfig = async ({
-    claimableTime,
-    rewardToken,
-    totalRewardAmount
+  updateBoxRewardConfig = async ({
+    boxOpenTime,
+    boxRewardToken
   }: {
-    claimableTime: number;
-    rewardToken: Addr;
-    totalRewardAmount: number;
+    boxOpenTime?: number;
+    boxRewardToken?: Addr;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
-      update_blind_box_reward_token_config: {
-        claimable_time: claimableTime,
-        reward_token: rewardToken,
-        total_reward_amount: totalRewardAmount
+      update_box_reward_config: {
+        box_open_time: boxOpenTime,
+        box_reward_token: boxRewardToken
       }
     }, fee, memo, _funds);
   };
-  updateRewardTokenRewardLevel = async ({
-    rewardAmount,
-    rewardLevel,
-    rewardToken
+  openBlindBox = async ({
+    tokenIds
   }: {
-    rewardAmount: number;
-    rewardLevel: number;
-    rewardToken: Addr;
+    tokenIds: string[];
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
-      update_reward_token_reward_level: {
-        reward_amount: rewardAmount,
-        reward_level: rewardLevel,
-        reward_token: rewardToken
-      }
-    }, fee, memo, _funds);
-  };
-  claimReward = async ({
-    recipient
-  }: {
-    recipient?: Addr;
-  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
-    return await this.client.execute(this.sender, this.contractAddress, {
-      claim_reward: {
-        recipient
+      open_blind_box: {
+        token_ids: tokenIds
       }
     }, fee, memo, _funds);
   };

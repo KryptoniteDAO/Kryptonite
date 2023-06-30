@@ -6,73 +6,98 @@
 
 export type Addr = string;
 export interface InstantiateMsg {
+  box_config: BoxRewardConfig;
   gov?: Addr | null;
   nft_contract: Addr;
-  reward_token_map_msgs: RewardTokenConfigMsg[];
 }
-export interface RewardTokenConfigMsg {
-  claimable_time?: number | null;
-  reward_levels?: RewardLevelConfigMsg[] | null;
-  reward_token: string;
-  total_reward_amount?: number | null;
+export interface BoxRewardConfig {
+  box_open_time: number;
+  box_reward_token: Addr;
+  ordinary_box_reward_level_config: {
+    [k: string]: OrdinaryBoxRewardLevelConfig;
+  };
+  random_box_reward_rule_config: RandomBoxRewardRuleConfig[];
+  random_in_box_level_index: number;
+  [k: string]: unknown;
 }
-export interface RewardLevelConfigMsg {
-  reward_amount?: number | null;
+export interface OrdinaryBoxRewardLevelConfig {
+  max_reward_count: number;
+  reward_amount: number;
+  [k: string]: unknown;
+}
+export interface RandomBoxRewardRuleConfig {
+  max_reward_count: number;
+  random_box_index: number;
+  random_reward_amount: number;
+  random_total_count: number;
+  [k: string]: unknown;
 }
 export type ExecuteMsg = {
-  update_blind_box_config: {
+  update_reward_config: {
     gov?: Addr | null;
     nft_contract?: Addr | null;
   };
 } | {
-  update_blind_box_reward_token_config: {
-    claimable_time: number;
-    reward_token: Addr;
-    total_reward_amount: number;
+  update_box_reward_config: {
+    box_open_time?: number | null;
+    box_reward_token?: Addr | null;
   };
 } | {
-  update_reward_token_reward_level: {
-    reward_amount: number;
-    reward_level: number;
-    reward_token: Addr;
-  };
-} | {
-  claim_reward: {
-    recipient?: Addr | null;
+  open_blind_box: {
+    token_ids: string[];
   };
 };
 export type QueryMsg = {
-  query_user_claim_rewards: {
-    user_addr: Addr;
+  query_all_config_and_state: {};
+} | {
+  query_box_open_info: {
+    token_ids: string[];
   };
 } | {
-  query_blind_box_config: {};
+  test_random: {
+    token_ids: string[];
+  };
 };
-export interface BlindBoxConfigResponse {
+export interface AllConfigAndStateResponse {
+  box_config: BoxRewardConfig;
+  box_state: BoxRewardConfigState;
+  config: RewardConfig;
+}
+export interface BoxRewardConfigState {
+  ordinary_box_reward_level_config_state: {
+    [k: string]: OrdinaryBoxRewardLevelConfigState;
+  };
+  ordinary_total_open_box_count: number;
+  ordinary_total_reward_amount: number;
+  random_box_reward_rule_config_state: RandomBoxRewardRuleConfigState[];
+  random_total_open_box_count: number;
+  random_total_reward_amount: number;
+  [k: string]: unknown;
+}
+export interface OrdinaryBoxRewardLevelConfigState {
+  total_open_box_count: number;
+  total_reward_amount: number;
+  [k: string]: unknown;
+}
+export interface RandomBoxRewardRuleConfigState {
+  total_open_box_count: number;
+  total_reward_amount: number;
+  [k: string]: unknown;
+}
+export interface RewardConfig {
   gov: Addr;
   nft_contract: Addr;
-  reward_token_map_msgs: RewardTokenConfigResponse[];
+  [k: string]: unknown;
 }
-export interface RewardTokenConfigResponse {
-  claimable_time: number;
-  reward_levels: RewardLevelConfigResponse[];
-  reward_token: string;
-  total_claimed_amount: number;
-  total_claimed_count: number;
-  total_reward_amount: number;
+export type ArrayOfBoxOpenInfoResponse = BoxOpenInfoResponse[];
+export interface BoxOpenInfoResponse {
+  is_random_box: boolean;
+  open_box_time: number;
+  open_reward_amount: number;
+  open_user: Addr;
+  token_id: string;
 }
-export interface RewardLevelConfigResponse {
-  level_total_claimed_amount: number;
-  reward_amount: number;
-}
-export type ArrayOfUserClaimableRewardsResponse = UserClaimableRewardsResponse[];
-export interface UserClaimableRewardsResponse {
-  claimable_reward: number;
-  claimable_reward_details: UserClaimableRewardDetailResponse[];
-  reward_token: string;
-}
-export interface UserClaimableRewardDetailResponse {
-  claimable_reward: number;
-  level_index: number;
+export interface MapOfUint64 {
+  [k: string]: number;
 }
 export type BlindBoxRewardExecuteMsg = ExecuteMsg;

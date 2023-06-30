@@ -1,16 +1,16 @@
-import { loadingWalletData } from "@/env_data";
 import type { ContractDeployed, WalletData } from "@/types";
 import type { KptContractsDeployed, StakingRewardsPairsContractsDeployed } from "@/modules";
+import { loadingWalletData } from "@/env_data";
 import { printChangeBalancesByWalletData } from "@/common";
 import { kptReadArtifact } from "./index";
-import { printDeployedKptContracts, printDeployedKptStakingContracts } from "@/modules";
+import { printDeployedKptContracts } from "@/modules";
 import { kptContracts } from "@/contracts";
 import { KptFundConfigResponse } from "@/contracts/kpt/KptFund.types";
 import { MinterResponse, VoteConfigResponse } from "@/contracts/kpt/VeKpt.types";
 import { GetBoostConfigResponse } from "@/contracts/kpt/VeKptBoost.types";
 import { StakingConfigResponse, StakingStateResponse } from "@/contracts/kpt/StakingRewards.types";
-import { BlindBoxConfigLevelResponse, BlindBoxConfigResponse } from "@/contracts/kpt/BlindBox.types";
-import { BlindBoxConfigResponse as BlindBoxRewardConfigResponse } from "@/contracts/kpt/BlindBoxReward.types";
+import { BlindBoxConfigLevelResponse, BlindBoxConfigResponse, ReferralRewardConfigResponse } from "@/contracts/kpt/BlindBox.types";
+import { AllConfigAndStateResponse } from "@/contracts/kpt/BlindBoxReward.types";
 import { BalanceResponse, KptConfigResponse, TokenInfoResponse } from "@/contracts/kpt/Kpt.types";
 import { GetMinerConfigResponse, GetMinerStateResponse } from "@/contracts/kpt/VeKptMiner.types";
 
@@ -80,14 +80,16 @@ async function main(): Promise<void> {
     const blindBoxQueryClient = new kptContracts.BlindBox.BlindBoxQueryClient(walletData.signingCosmWasmClient, blindBox.address);
     const configRes: BlindBoxConfigResponse = await blindBoxQueryClient.queryBlindBoxConfig();
     console.log(`\n  Query kpt.blindBox config ok. \n   ${JSON.stringify(configRes)}`);
+    const referralRewardConfigResponse: ReferralRewardConfigResponse = await blindBoxQueryClient.queryAllReferralRewardConfig();
+    console.log(`\n  Query kpt.blindBox AllReferralRewardConfig ok. \n   ${JSON.stringify(referralRewardConfigResponse)}`);
     const configLevelRes: BlindBoxConfigLevelResponse = await blindBoxQueryClient.queryBlindBoxConfigLevel({ index: 0 });
     console.log(`\n  Query kpt.blindBox queryBlindBoxConfigLevel ok. \n   ${JSON.stringify(configLevelRes)}`);
   }
 
   if (blindBoxReward?.address) {
     const blindBoxRewardQueryClient = new kptContracts.BlindBoxReward.BlindBoxRewardQueryClient(walletData.signingCosmWasmClient, blindBoxReward.address);
-    const configRes: BlindBoxRewardConfigResponse = await blindBoxRewardQueryClient.queryBlindBoxConfig();
-    console.log(`\n  Query blindBoxReward.address config ok. \n   ${JSON.stringify(configRes)}`);
+    const configRes: AllConfigAndStateResponse = await blindBoxRewardQueryClient.queryAllConfigAndState();
+    console.log(`\n  Query kpt.blindBoxReward config ok. \n   ${JSON.stringify(configRes)}`);
   }
 
   if (stakingRewardsPairs && stakingRewardsPairs.length >= 0) {

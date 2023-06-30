@@ -77,13 +77,110 @@
       "price_token": "factory/sei1f53twx2n6p9t379kkv6gmcnhxn03xpppuum8j0/dev",
       "token_id_prefix": "kpt_blind_box_",
       "level_infos": [
-        { "price": "10000000", "mint_total_count": "50000" },
-        { "price": "20000000", "mint_total_count": "40000" },
-        { "price": "30000000", "mint_total_count": "30000" },
-        { "price": "40000000", "mint_total_count": "20000" },
-        { "price": "50000000", "mint_total_count": "10000" }
+        {
+          "price": "20000000",
+          "mint_total_count": "10000",
+          "is_random_box": false
+        },
+        {
+          "price": "200000000",
+          "mint_total_count": "1000",
+          "is_random_box": false
+        },
+        {
+          "price": "1000000000",
+          "mint_total_count": "200",
+          "is_random_box": false
+        },
+        {
+          "price": "100000000",
+          "mint_total_count": "1000",
+          "is_random_box": true
+        }
       ],
-      "start_mint_time": 1687337418
+      "start_mint_time": 1687337418,
+      "receiver_price_addr": "sei1sp8a3sjqy5kp87pyjtt0mslyr0y3evkse3yxk6",
+      "end_mint_time": 1690355659,
+      "can_transfer_time": 1690355659,
+      "referral_reward_config": {
+        "reward_token_config": {
+          "USDC": {
+            "reward_token": "factory/sei1f53twx2n6p9t379kkv6gmcnhxn03xpppuum8j0/dev",
+            "conversion_ratio": "1000000"
+          },
+          "KPT": {
+            "reward_token": "%kpt_address%",
+            "conversion_ratio": "11000000"
+          },
+          "VE_KPT": {
+            "reward_token": "%ve_kpt_address%",
+            "conversion_ratio": "11000000"
+          }
+        },
+        "referral_level_config": {
+          "0": {
+            "min_referral_total_amount": "0",
+            "max_referral_total_amount": "10000000000",
+            "inviter_reward_rate": "50000",
+            "invitee_discount_rate": "50000",
+            "reward_box_config": {
+              "recommended_quantity": "500000000",
+              "reward_box": {
+                "0": 1
+              }
+            }
+          },
+          "1": {
+            "min_referral_total_amount": "10000000001",
+            "max_referral_total_amount": "50000000000",
+            "inviter_reward_rate": "70000",
+            "invitee_discount_rate": "50000",
+            "reward_box_config": {
+              "recommended_quantity": "4000000000",
+              "reward_box": {
+                "1": 1
+              }
+            }
+          },
+          "2": {
+            "min_referral_total_amount": "50000000001",
+            "max_referral_total_amount": "150000000000",
+            "inviter_reward_rate": "100000",
+            "invitee_discount_rate": "50000",
+            "reward_box_config": {
+              "recommended_quantity": "20000000000",
+              "reward_box": {
+                "2": 1
+              }
+            }
+          },
+          "3": {
+            "min_referral_total_amount": "150000000001",
+            "max_referral_total_amount": "300000000000",
+            "inviter_reward_rate": "120000",
+            "invitee_discount_rate": "50000",
+            "reward_box_config": {
+              "recommended_quantity": "22000000000",
+              "reward_box": {
+                "1": 1,
+                "2": 1
+              }
+            }
+          },
+          "4": {
+            "min_referral_total_amount": "300000000001",
+            "max_referral_total_amount": "999999999999999",
+            "inviter_reward_rate": "150000",
+            "invitee_discount_rate": "50000",
+            "reward_box_config": {
+              "recommended_quantity": "36000000000",
+              "reward_box": {
+                "2": 2
+              }
+            }
+          }
+        }
+      }
     },
     "label": "blindBox",
     "filePath": "../krp-token-contracts/artifacts/blind_box.wasm",
@@ -92,20 +189,44 @@
   "blindBoxReward": {
     "admin": null,
     "initMsg": {
-      "reward_token_map_msgs": [
-        {
-          "reward_token": "%kpt_address%",
-          "total_reward_amount": "1000000000000000000",
-          "claimable_time": 1687337418,
-          "reward_levels": [{ "reward_amount": "100000000" }, { "reward_amount": "220000000" }, { "reward_amount": "330000000" }, { "reward_amount": "440000000" }, { "reward_amount": "550000000" }]
+      "box_config": {
+        "box_open_time": 1688105033,
+        "ordinary_box_reward_level_config": {
+          "0": {
+            "reward_amount": "1800000000",
+            "max_reward_count": 12000
+          },
+          "1": {
+            "reward_amount": "20000000000",
+            "max_reward_count": 3000
+          },
+          "2": {
+            "reward_amount": "57500000000",
+            "max_reward_count": 320
+          }
         },
-        {
-          "reward_token": "%ve_kpt_address%",
-          "total_reward_amount": "2000000000000000000",
-          "claimable_time": 1687337418,
-          "reward_levels": [{ "reward_amount": "111000000" }, { "reward_amount": "222000000" }, { "reward_amount": "333000000" }, { "reward_amount": "444000000" }, { "reward_amount": "555000000" }]
-        }
-      ]
+        "random_in_box_level_index": 3,
+        "random_box_reward_rule_config": [
+          {
+            "random_box_index": 0,
+            "random_total_count": 400,
+            "random_reward_amount": "2500000000",
+            "max_reward_count": 400
+          },
+          {
+            "random_box_index": 1,
+            "random_total_count": 520,
+            "random_reward_amount": "10000000000",
+            "max_reward_count": 520
+          },
+          {
+            "random_box_index": 2,
+            "random_total_count": 80,
+            "random_reward_amount": "45000000000",
+            "max_reward_count": 80
+          }
+        ]
+      }
     },
     "label": "blindBoxReward",
     "filePath": "../krp-token-contracts/artifacts/blind_box_reward.wasm",

@@ -149,7 +149,7 @@ export class KptFundQueryClient implements KptFundReadOnlyInterface {
   getUserTime2fullRedemption = async ({
     account
   }: {
-    account: Addr
+    account: Addr;
   }): Promise<UserTime2FullRedemptionResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       get_user_time2full_redemption: {
