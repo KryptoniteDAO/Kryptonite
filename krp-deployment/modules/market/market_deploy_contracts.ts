@@ -1,75 +1,71 @@
+import type { ContractDeployed, WalletData } from "@/types";
+import type { MarketContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed, OracleContractsDeployed, CollateralPairsConfig } from "@/modules";
 import { printChangeBalancesByWalletData, queryContractConfig } from "@/common";
 import { loadingWalletData } from "@/env_data";
-import { loadingMarketData, loadingStakingData, doSwapExtentionSetWhitelist, swapExtentionReadArtifact, stakingReadArtifact, convertReadArtifact, marketConfigs } from "@/modules";
 import {
-  ConfigOraclePythBaseFeedInfoList,
-  ConfigOraclePythFeedInfoList,
+  marketConfigs,
+  loadingMarketData,
+  loadingStakingData,
+  doSwapExtentionSetWhitelist,
+  swapExtentionReadArtifact,
+  stakingReadArtifact,
+  oracleReadArtifact,
   deployCustodyBSei,
   deployDistributionModel,
   deployInterestModel,
   deployLiquidationQueue,
   deployMarket,
-  deployOraclePyth,
   deployOverseer,
   doCustodyBSeiConfig,
   doLiquidationQueueConfig,
   doLiquidationQueueWhitelistCollateral,
   doMarketConfig,
-  doOraclePythConfigFeedInfo,
   doOverseerConfig,
   doOverseerWhitelist,
   marketReadArtifact,
   printDeployedMarketContracts,
   queryOverseerWhitelist
-} from "./index";
-import type { ContractDeployed, WalletData } from "@/types";
-import type { MarketContractsDeployed, ConvertContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed } from "@/modules";
+} from "@/modules";
 
 main().catch(console.error);
 
 async function main(): Promise<void> {
-  console.log(`--- --- deploy market contracts enter --- ---`);
+  console.log(`\n  --- --- deploy market contracts enter --- ---`);
 
   const walletData: WalletData = await loadingWalletData();
 
   const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
+  const networkOracle = oracleReadArtifact(walletData.chainId) as OracleContractsDeployed;
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
   const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
-  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;
 
   const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(networkStaking);
-
   if (!hub?.address || !reward?.address || !bSeiToken?.address || !rewardsDispatcher?.address || !validatorsRegistry?.address || !stSeiToken?.address) {
-    console.error(`--- --- deploy market contracts error, Please deploy staking contracts first --- ---`);
-    process.exit(0);
-    return;
+    throw new Error(`\n  --- --- deploy market contracts error, Please deploy staking contracts first --- ---`);
   }
 
-  console.log();
-  console.log(`--- --- market contracts storeCode & instantiateContract enter --- ---`);
-  console.log();
+  const swapExtention: ContractDeployed | undefined = networkSwap.swapExtention;
+  const oraclePyth: ContractDeployed | undefined = networkOracle.oraclePyth;
 
-  await deployOraclePyth(walletData, networkMarket);
+  console.log(`\n  --- --- market contracts storeCode & instantiateContract enter --- ---`);
+
   await deployMarket(walletData, networkMarket);
   await deployInterestModel(walletData, networkMarket);
   await deployDistributionModel(walletData, networkMarket);
-  // await deployOracle(walletData, network);
-  await deployOverseer(walletData, networkMarket);
-  await deployLiquidationQueue(walletData, networkMarket);
-  await deployCustodyBSei(walletData, networkMarket, reward?.address, bSeiToken?.address, networkSwap?.swapExtention);
+  await deployOverseer(walletData, networkMarket, oraclePyth);
+  await deployLiquidationQueue(walletData, networkMarket, oraclePyth);
+  await deployCustodyBSei(walletData, networkMarket, oraclePyth, reward, bSeiToken, swapExtention);
 
-  console.log();
-  console.log(`--- --- market contracts storeCode & instantiateContract end --- ---`);
-
-  const { aToken, market, interestModel, distributionModel, oraclePyth, overseer, liquidationQueue, custodyBSei } = await loadingMarketData(networkMarket);
+  console.log(`\n  --- --- market contracts storeCode & instantiateContract end --- ---`);
 
   await printDeployedMarketContracts(networkMarket);
 
   // //////////////////////////////////////configure contracts///////////////////////////////////////////
 
-  console.log();
-  console.log(`--- --- market contracts configure enter --- ---`);
-  const print: boolean = false;
+  console.log(`\n  --- --- market contracts configure enter --- ---`);
+
+  const { aToken, market, interestModel, distributionModel, overseer, liquidationQueue, custodyBSei } = await loadingMarketData(networkMarket);
+  const print: boolean = true;
 
   const marketConfigRes = await queryContractConfig(walletData, market, false);
   const interestModelConfigRes = await queryContractConfig(walletData, interestModel, false);
@@ -80,41 +76,47 @@ async function main(): Promise<void> {
   const custodyBSeiConfigRes = await queryContractConfig(walletData, custodyBSei, false);
   const overseerWhitelistRes = await queryOverseerWhitelist(walletData, overseer, false);
 
-  await doMarketConfig(walletData, networkMarket, marketConfigRes.initFlag, marketConfigRes?.config, market, interestModel, distributionModel, overseer, bSeiToken, rewardsDispatcher);
+  await doMarketConfig(walletData, networkMarket, marketConfigRes.initFlag, marketConfigRes?.config, bSeiToken, rewardsDispatcher, oraclePyth);
   await doOverseerConfig(walletData, overseerConfigRes?.config, overseer, liquidationQueue);
   await doCustodyBSeiConfig(walletData, custodyBSeiConfigRes?.config, custodyBSei, liquidationQueue);
   await doLiquidationQueueConfig(walletData, liquidationQueueConfigRes?.config, liquidationQueue, oraclePyth, overseer);
-  await doOverseerWhitelist(walletData, walletData.nativeCurrency.coinMinimalDenom, overseer, custodyBSei, bSeiToken, marketConfigs?.overseer?.updateMsg);
-  await doLiquidationQueueWhitelistCollateral(walletData, walletData.nativeCurrency.coinMinimalDenom, liquidationQueue, bSeiToken, marketConfigs?.liquidationQueue?.updateMsg);
-
-  const chainIdConfigFeedInfos = ConfigOraclePythFeedInfoList[walletData.chainId];
-  if (chainIdConfigFeedInfos && chainIdConfigFeedInfos.length > 0) {
-    for (let configFeedInfo of chainIdConfigFeedInfos) {
-      await doOraclePythConfigFeedInfo(walletData, oraclePyth, configFeedInfo);
-    }
-    if (bSeiToken?.address) {
-      const bSeiTokenConfig = chainIdConfigFeedInfos.find(value => bSeiToken?.address === value.asset);
-      if (!bSeiTokenConfig) {
-        let configFeedInfo = Object.assign({ asset: bSeiToken?.address }, ConfigOraclePythBaseFeedInfoList[walletData.chainId]);
-        await doOraclePythConfigFeedInfo(walletData, oraclePyth, configFeedInfo);
-      }
-    }
-  }
 
   /// add market.custodyBSei to swap whitelist
-  if (networkMarket?.custodyBSei?.address) {
-    await doSwapExtentionSetWhitelist(walletData, networkSwap?.swapExtention, { caller: networkMarket?.custodyBSei?.address, isWhitelist: true }, print);
+  if (custodyBSei?.address) {
+    await doSwapExtentionSetWhitelist(walletData, swapExtention, { caller: custodyBSei?.address, isWhitelist: true }, print);
+  }
+  const collateralPairsConfig: CollateralPairsConfig[] | undefined = marketConfigs?.collateralPairs;
+  if (!!collateralPairsConfig && collateralPairsConfig.length > 0) {
+    for (const collateralPairConfig of collateralPairsConfig) {
+      let custody: ContractDeployed | undefined = undefined;
+      if (!!bSeiToken?.address) {
+        if (collateralPairConfig.collateral === "%bsei_address%") {
+          custody = custodyBSei;
+        }
+        collateralPairConfig.collateral = collateralPairConfig.collateral.replaceAll("%bsei_address%", bSeiToken.address);
+        if (collateralPairConfig.collateral || !collateralPairConfig.collateral.startsWith(walletData.prefix)) {
+          continue;
+        }
+      }
+      // if (!!stSeiToken?.address) {
+      //   collateralPairConfig.collateral = collateralPairConfig.collateral.replaceAll("%stsei_address%", stSeiToken.address);
+      // }
+      if (!collateralPairConfig.collateral || !collateralPairConfig.collateral.startsWith(walletData.prefix)) {
+        continue;
+      }
+      if (!custody?.address) {
+        continue;
+      }
+      await doOverseerWhitelist(walletData, overseer, custody, collateralPairConfig.collateral, collateralPairConfig?.overseerWhitelistConfig);
+      await doLiquidationQueueWhitelistCollateral(walletData, liquidationQueue, collateralPairConfig.collateral, collateralPairConfig?.liquidationQueueWhitelistConfig);
+    }
   }
 
-  console.log();
-  console.log(`--- --- market contracts configure end --- ---`);
+  console.log(`\n  --- --- market contracts configure end --- ---`);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  console.log();
-  console.log(`--- --- deploy market contracts end --- ---`);
+  console.log(`\n  --- --- deploy market contracts end --- ---`);
 
-  console.log();
   await printChangeBalancesByWalletData(walletData);
-  console.log();
 }

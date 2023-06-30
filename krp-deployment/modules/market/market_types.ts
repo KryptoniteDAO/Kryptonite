@@ -1,9 +1,9 @@
-import type { Addr, BaseContractConfig, ContractDeployed } from "@/types";
-import { TokenInfo } from "@/types";
+import type { Addr, BaseContractConfig, ContractDeployed, TokenInfo } from "@/types";
+import { CdpCustodyContractConfig } from "@/modules";
 
 export interface MarketContractConfig extends BaseContractConfig {
   initMsg?: {
-    owner_addr: Addr;
+    owner_addr?: Addr;
     anc_emission_rate: string;
     max_borrow_factor: string;
     reserve_factor: string;
@@ -12,7 +12,7 @@ export interface MarketContractConfig extends BaseContractConfig {
 
 export interface InterestModelContractConfig extends BaseContractConfig {
   initMsg?: {
-    owner: Addr;
+    owner?: Addr;
     base_rate: string;
     interest_multiplier: string;
   };
@@ -20,7 +20,7 @@ export interface InterestModelContractConfig extends BaseContractConfig {
 
 export interface DistributionModelContractConfig extends BaseContractConfig {
   initMsg?: {
-    owner: Addr;
+    owner?: Addr;
     decrement_multiplier: string;
     emission_cap: string;
     emission_floor: string;
@@ -28,15 +28,15 @@ export interface DistributionModelContractConfig extends BaseContractConfig {
   };
 }
 
-export interface OracleContractConfig extends BaseContractConfig {
-  initMsg?: {
-    owner: Addr;
-  };
-}
+// export interface OracleContractConfig extends BaseContractConfig {
+//   initMsg?: {
+//     owner?: Addr;
+//   };
+// }
 
 export interface OverseerContractConfig extends BaseContractConfig {
   initMsg?: {
-    owner_addr: Addr;
+    owner_addr?: Addr;
     collector_contract: Addr;
     anc_purchase_factor: string;
     buffer_distribution_factor: string;
@@ -50,16 +50,11 @@ export interface OverseerContractConfig extends BaseContractConfig {
     dyn_rate_min: string;
     dyn_rate_max: string;
   };
-  updateMsg: {
-    name: string;
-    symbol: string;
-    max_ltv: string;
-  };
 }
 
 export interface LiquidationQueueContractConfig extends BaseContractConfig {
   initMsg?: {
-    owner: Addr;
+    owner?: Addr;
     safe_ratio: string;
     bid_fee: string;
     liquidator_fee: string;
@@ -67,24 +62,36 @@ export interface LiquidationQueueContractConfig extends BaseContractConfig {
     price_timeframe: number;
     waiting_period: number;
   };
-  updateMsg: {
-    bid_threshold: string;
-    max_slot: string;
-    premium_rate_per_slot: string;
-  };
 }
 
 export interface CustodyBSeiContractConfig extends BaseContractConfig {
   initMsg?: {
-    owner: Addr;
+    owner?: Addr;
     basset_info: TokenInfo;
   };
 }
 
-export interface OraclePythContractConfig extends BaseContractConfig {
-  initMsg?: {
-    owner: string;
-    pyth_contract: string;
+// export interface OraclePythContractConfig extends BaseContractConfig {
+//   initMsg?: {
+//     owner?: Addr;
+//     pyth_contract: string;
+//   };
+// }
+
+export interface CollateralPairsConfig {
+  name: string;
+  collateral: Addr;
+  /// overseer whitelist
+  overseerWhitelistConfig: {
+    name: string;
+    symbol: string;
+    max_ltv: string;
+  };
+  /// liquidationQueue whitelist
+  liquidationQueueWhitelistConfig: {
+    bid_threshold: string;
+    max_slot: number;
+    premium_rate_per_slot: string;
   };
 }
 
@@ -93,11 +100,12 @@ export interface MarketContractsConfig {
   market: MarketContractConfig;
   interestModel: InterestModelContractConfig;
   distributionModel: DistributionModelContractConfig;
-  oracle: OracleContractConfig;
+  // oracle: OracleContractConfig;
   overseer: OverseerContractConfig;
   liquidationQueue: LiquidationQueueContractConfig;
   custodyBSei: CustodyBSeiContractConfig;
-  oraclePyth: OraclePythContractConfig;
+  // oraclePyth: OraclePythContractConfig;
+  collateralPairs: CollateralPairsConfig[];
 }
 
 export interface MarketContractsDeployed {
@@ -106,9 +114,9 @@ export interface MarketContractsDeployed {
   market_stable_denom?: string;
   interestModel?: ContractDeployed;
   distributionModel?: ContractDeployed;
-  oracle?: ContractDeployed;
+  // oracle?: ContractDeployed;
   overseer?: ContractDeployed;
   liquidationQueue?: ContractDeployed;
   custodyBSei?: ContractDeployed;
-  oraclePyth?: ContractDeployed;
+  // oraclePyth?: ContractDeployed;
 }

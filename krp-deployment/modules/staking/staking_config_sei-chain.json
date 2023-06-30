@@ -65,7 +65,7 @@
       "initial_balances": []
     },
     "label": "staking sei",
-    "filePath": "../krp-staking-contracts/artifacts/basset_sei_token_stsei.wasm",
+    "filePath": "../krp-staking-contracts/artifacts/basset_sei_token_stsei.wasm" ,
     "deploy": false
   }
 }

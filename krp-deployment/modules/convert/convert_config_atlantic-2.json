@@ -9,7 +9,7 @@
           "owner": null
         },
         "label": "basset and native token convert contract",
-        "filePath": null,
+        "filePath": "../krp-basset-convert/artifacts/krp_basset_converter.wasm",
         "deploy": false
       },
       "btoken": {
@@ -21,7 +21,7 @@
           "initial_balances": []
         },
         "label": "bond stride stSei to cw20 token",
-        "filePath": null,
+        "filePath": "../krp-basset-convert/artifacts/krp_basset_token.wasm",
         "deploy": false
       },
       "custody": {
@@ -35,7 +35,7 @@
           }
         },
         "label": "custody bond stsei contract",
-        "filePath": null,
+        "filePath": "../krp-market-contracts/artifacts/moneymarket_custody_base.wasm",
         "deploy": false
       },
       "overseerWhitelistConfig": {
@@ -58,7 +58,7 @@
           "owner": null
         },
         "label": "bslsdi and slsdi convert contract",
-        "filePath": null,
+        "filePath": "../krp-basset-convert/artifacts/krp_basset_converter.wasm",
         "deploy": false
       },
       "btoken": {
@@ -70,7 +70,7 @@
           "initial_balances": []
         },
         "label": "bond slsdi to cw20 token",
-        "filePath": null,
+        "filePath": "../krp-basset-convert/artifacts/krp_basset_token.wasm",
         "deploy": false
       },
       "custody": {
@@ -84,7 +84,7 @@
           }
         },
         "label": "custody bond slsdi contract",
-        "filePath": null,
+        "filePath": "../krp-market-contracts/artifacts/moneymarket_custody_base.wasm",
         "deploy": false
       },
       "overseerWhitelistConfig": {

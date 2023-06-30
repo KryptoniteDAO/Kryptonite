@@ -3,7 +3,7 @@
     "admin": null,
     "initMsg": {},
     "label": "aToken contract",
-    "filePath": null,
+    "filePath": "../cw-plus/artifacts/cw20_base.wasm",
     "deploy": false
   },
   "market": {
@@ -20,7 +20,7 @@
       }
     ],
     "label": "money market contract",
-    "filePath": null,
+    "filePath": "../krp-market-contracts/artifacts/moneymarket_market.wasm",
     "deploy": false
   },
   "interestModel": {
@@ -31,7 +31,7 @@
       "interest_multiplier": "0.000000000631747071"
     },
     "label": "interest model contract",
-    "filePath": null,
+    "filePath": "../krp-market-contracts/artifacts/moneymarket_interest_model.wasm",
     "deploy": false
   },
   "distributionModel": {
@@ -44,7 +44,7 @@
       "increment_multiplier": "1.007266723782294841"
     },
     "label": "distribution model contract",
-    "filePath": null,
+    "filePath": "../krp-market-contracts/artifacts/moneymarket_distribution_model.wasm",
     "deploy": false
   },
   "oracle": {
@@ -53,7 +53,7 @@
       "owner": null
     },
     "label": "oracle contract",
-    "filePath": null,
+    "filePath": "../krp-market-contracts/artifacts/moneymarket_oracle.wasm",
     "deploy": false
   },
   "overseer": {
@@ -73,13 +73,8 @@
       "dyn_rate_min": "0.000001",
       "dyn_rate_max": "0.0000012"
     },
-    "updateMsg": {
-      "name": "Bond Sei",
-      "symbol": "bSEI",
-      "max_ltv": "0.65"
-    },
     "label": "overseer contract",
-    "filePath": null,
+    "filePath": "../krp-market-contracts/artifacts/moneymarket_overseer.wasm",
     "deploy": false
   },
   "liquidationQueue": {
@@ -93,13 +88,8 @@
       "price_timeframe": 86400,
       "waiting_period": 600
     },
-    "updateMsg": {
-      "bid_threshold": "500000000",
-      "max_slot": 30,
-      "premium_rate_per_slot": "0.01"
-    },
     "label": "liquidation queue contract",
-    "filePath": null,
+    "filePath": "../krp-market-contracts/artifacts/moneymarket_liquidation_queue.wasm",
     "deploy": false
   },
   "custodyBSei": {
@@ -113,17 +103,23 @@
       }
     },
     "label": "custody bond sei contract",
-    "filePath": null,
+    "filePath": "../krp-market-contracts/artifacts/moneymarket_custody_bsei.wasm",
     "deploy": false
   },
-  "oraclePyth": {
-    "admin": null,
-    "initMsg": {
-      "owner": null,
-      "pyth_contract": "sei1977nnu5jqatteqgve8tx7nzu9y7eh6cvq0e4g6xjx8tf5wm4nkmsfljunh"
-    },
-    "label": "oracle pyth contract",
-    "filePath": null,
-    "deploy": false
-  }
+  "collateralPairs": [
+    {
+      "name": "bSEI",
+      "collateral": "%bsei_address%",
+      "overseerWhitelistConfig": {
+        "name": "Bond Sei",
+        "symbol": "bSEI",
+        "max_ltv": "0.65"
+      },
+      "liquidationQueueWhitelistConfig": {
+        "bid_threshold": "500000000",
+        "max_slot": 30,
+        "premium_rate_per_slot": "0.01"
+      }
+    }
+  ]
 }

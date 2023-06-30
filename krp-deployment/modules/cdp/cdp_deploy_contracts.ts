@@ -1,5 +1,5 @@
 import type { ContractDeployed, WalletData } from "@/types";
-import type { CdpContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, CdpCollateralPairsConfig } from "@/modules";
+import type { CdpContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, CdpCollateralPairsConfig, OracleContractsDeployed } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
 import {
@@ -15,7 +15,7 @@ import {
   printDeployedCdpContracts,
   marketReadArtifact,
   stakingReadArtifact,
-  cdpConfigs
+  cdpConfigs, oracleReadArtifact
 } from "@/modules";
 
 main().catch(console.error);
@@ -26,6 +26,7 @@ async function main(): Promise<void> {
   const walletData: WalletData = await loadingWalletData();
 
   // const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapDeployContracts;
+  const networkOracle = oracleReadArtifact(walletData.chainId) as OracleContractsDeployed;
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
   const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
   // const networkConvert = convertReadArtifact(walletData.chainId) as ConvertDeployContracts;
@@ -34,9 +35,9 @@ async function main(): Promise<void> {
 
   console.log(`\n  --- --- cdp contracts storeCode & instantiateContract enter --- ---`);
 
-  await deployCdpCentralControl(walletData, networkCdp, networkMarket?.oraclePyth);
+  await deployCdpCentralControl(walletData, networkCdp, networkOracle?.oraclePyth);
   await deployCdpStablePool(walletData, networkCdp);
-  await deployCdpLiquidationQueue(walletData, networkCdp, networkMarket?.oraclePyth);
+  await deployCdpLiquidationQueue(walletData, networkCdp, networkOracle?.oraclePyth);
 
   const cdpCollateralPairsConfig: CdpCollateralPairsConfig[] | undefined = cdpConfigs?.cdpCollateralPairs;
   if (!!cdpCollateralPairsConfig && cdpCollateralPairsConfig.length > 0) {
@@ -65,8 +66,8 @@ async function main(): Promise<void> {
   console.log(`\n  --- --- cdp contracts configure enter --- ---`);
   const print: boolean = true;
 
-  await doCdpCentralControlUpdateConfig(walletData, networkCdp, networkMarket?.oraclePyth, print);
-  await doCdpLiquidationQueueConfig(walletData, networkCdp, networkMarket?.oraclePyth, print);
+  await doCdpCentralControlUpdateConfig(walletData, networkCdp, networkOracle?.oraclePyth, print);
+  await doCdpLiquidationQueueConfig(walletData, networkCdp, networkOracle?.oraclePyth, print);
 
   if (!!cdpCollateralPairsConfig && cdpCollateralPairsConfig.length > 0) {
     const bSeiToken = networkStaking.bSeiToken;

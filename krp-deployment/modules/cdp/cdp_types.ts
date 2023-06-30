@@ -40,13 +40,13 @@ export interface CdpCollateralPairsConfig {
   collateral: Addr;
   custody: CdpCustodyContractConfig;
   /// centralControl whitelist
-  centralControlWhitelist: {
+  centralControlWhitelistConfig: {
     name: string;
     symbol: string;
     max_ltv: string;
   };
   /// liquidationQueue whitelist
-  liquidationQueueWhitelist: {
+  liquidationQueueWhitelistConfig: {
     bid_threshold: string;
     max_slot: number;
     premium_rate_per_slot: string;

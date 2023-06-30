@@ -1,0 +1,30 @@
+{
+  "oraclePyth": {
+    "admin": null,
+    "initMsg": {
+      "owner": null,
+      "pyth_contract": "sei142c4zd0v44yfwxxk9khak7dvn369dttc99ryj2dgpdz95q25jf2q3904d2"
+    },
+    "label": "oracle pyth contract",
+    "filePath": "../krp-market-contracts/artifacts/moneymarket_oracle_pyth.wasm",
+    "deploy": false
+  },
+  "baseFeedInfoConfig": {
+    "checkFeedAge": true,
+    "priceFeedId": "ff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace",
+    "priceFeedSymbol": "Crypto.ETH/USD",
+    "priceFeedDecimal": 18,
+    "priceFeedAge": 60
+  },
+  "feedInfoConfigList": [
+    {
+      "asset": "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/USDT",
+      "checkFeedAge": true,
+      "priceFeedId": "5bc91f13e412c07599167bae86f07543f076a638962b8d6017ec19dab4a82814",
+      "priceFeedSymbol": "Crypto.USDT/USD",
+      "priceFeedDecimal": 8,
+      "priceFeedAge": 60
+    },
+    { "asset": "usei" }
+  ]
+}

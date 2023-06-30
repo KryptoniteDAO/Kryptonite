@@ -29,14 +29,14 @@ export interface ConvertPairsConfig {
   btoken: ConvertBtokenContractConfig;
   custody: ConvertCustodyContractConfig;
   overseerWhitelistConfig?: {
-    name?: string;
-    symbol?: string;
-    max_ltv?: string;
+    name: string;
+    symbol: string;
+    max_ltv: string;
   };
   liquidationQueueWhitelistCollateralConfig?: {
-    bid_threshold?: string;
-    max_slot?: number;
-    premium_rate_per_slot?: string;
+    bid_threshold: string;
+    max_slot: number;
+    premium_rate_per_slot: string;
   };
 }
 

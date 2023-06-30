@@ -301,9 +301,9 @@ export async function doCdpCentralControlSetWhitelistCollateral(walletData: Wall
   const doRes = await centralControlClient.whitelistCollateral({
     custodyContract: custody?.address,
     collateralContract: collateralPairConfig?.collateral,
-    name: collateralPairConfig?.centralControlWhitelist?.name,
-    symbol: collateralPairConfig?.centralControlWhitelist?.symbol,
-    maxLtv: collateralPairConfig?.centralControlWhitelist?.max_ltv
+    name: collateralPairConfig?.centralControlWhitelistConfig?.name,
+    symbol: collateralPairConfig?.centralControlWhitelistConfig?.symbol,
+    maxLtv: collateralPairConfig?.centralControlWhitelistConfig?.max_ltv
   });
   console.log(`\n  Do cdpCentralControl.address whitelistCollateral ok. \n  ${doRes?.transactionHash}`);
 
@@ -342,9 +342,9 @@ export async function doCdpLiquidationQueueSetWhitelistCollateral(walletData: Wa
 
   const doRes = await liquidationQueueClient.whitelistCollateral({
     collateralToken: collateralPairConfig?.collateral,
-    bidThreshold: collateralPairConfig?.liquidationQueueWhitelist?.bid_threshold,
-    maxSlot: collateralPairConfig?.liquidationQueueWhitelist?.max_slot,
-    premiumRatePerSlot: collateralPairConfig?.liquidationQueueWhitelist?.premium_rate_per_slot
+    bidThreshold: collateralPairConfig?.liquidationQueueWhitelistConfig?.bid_threshold,
+    maxSlot: collateralPairConfig?.liquidationQueueWhitelistConfig?.max_slot,
+    premiumRatePerSlot: collateralPairConfig?.liquidationQueueWhitelistConfig?.premium_rate_per_slot
   });
   console.log(`\n  Do cdp.cdpLiquidationQueue whitelistCollateral ok. \n  ${doRes?.transactionHash}`);
 

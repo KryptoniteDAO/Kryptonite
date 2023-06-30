@@ -13,60 +13,57 @@ import {
   printDeployedConvertContracts,
   loadingStakingData,
   loadingMarketData,
+  doSwapExtentionSetWhitelist,
+  doLiquidationQueueWhitelistCollateral,
+  doOraclePythConfigFeedInfo,
+  doOverseerWhitelist,
   convertConfigs,
-  doSwapExtentionSetWhitelist
+  oracleConfigs, oracleReadArtifact, OracleContractsDeployed
 } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
-
-import { ConfigOraclePythBaseFeedInfoList, ConfigOraclePythFeedInfoList, doLiquidationQueueWhitelistCollateral, doOraclePythConfigFeedInfo, doOverseerWhitelist } from "../market";
 
 main().catch(console.error);
 
 async function main(): Promise<void> {
-  console.log(`--- --- deploy convert contracts enter --- ---`);
+  console.log(`\n  --- --- deploy convert contracts enter --- ---`);
 
   const walletData: WalletData = await loadingWalletData();
 
   const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
+  const networkOracle = oracleReadArtifact(walletData.chainId) as OracleContractsDeployed;
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
   const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
   const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;
 
   const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(networkStaking);
   if (!hub?.address || !reward?.address || !bSeiToken?.address || !rewardsDispatcher?.address || !validatorsRegistry?.address || !stSeiToken?.address) {
-    console.error(`--- --- deploy convert contracts error, Please deploy staking contracts first --- ---`);
-    process.exit(0);
-    return;
+    throw new Error(`\n  --- --- deploy convert contracts error, Please deploy staking contracts first --- ---`);
   }
 
-  const { aToken, market, interestModel, distributionModel, overseer, liquidationQueue, custodyBSei, oraclePyth } = await loadingMarketData(networkMarket);
-  if (!aToken?.address || !market?.address || !interestModel?.address || !distributionModel?.address || !overseer?.address || !liquidationQueue?.address || !custodyBSei?.address || !oraclePyth?.address) {
-    console.log(`--- --- deploy convert contracts error, missing some deployed market address info --- ---`);
-    process.exit(0);
-    return;
+  const { aToken, market, interestModel, distributionModel, overseer, liquidationQueue, custodyBSei } = await loadingMarketData(networkMarket);
+  if (!aToken?.address || !market?.address || !interestModel?.address || !distributionModel?.address || !overseer?.address || !liquidationQueue?.address || !custodyBSei?.address) {
+    throw new Error(`\n  --- --- deploy convert contracts error, missing some deployed market address info --- ---`);
   }
+  const swapExtention = networkSwap?.swapExtention;
+  const oraclePyth = networkOracle?.oraclePyth;
 
-  console.log();
-  console.log(`--- --- convert contracts storeCode & instantiateContract enter --- ---`);
-  console.log();
+  console.log(`\n  --- --- convert contracts storeCode & instantiateContract enter --- ---`);
 
   if (convertConfigs?.convertPairs && convertConfigs.convertPairs.length > 0) {
     for (let convertPair of convertConfigs.convertPairs) {
       await deployConverter(walletData, networkConvert, convertPair.native_denom);
       await deployBtoken(walletData, networkConvert, convertPair.native_denom);
-      await deployCustody(walletData, networkConvert, convertPair.native_denom, reward, market, overseer, liquidationQueue, networkSwap?.swapExtention);
+      await deployCustody(walletData, networkConvert, convertPair.native_denom, reward, market, overseer, liquidationQueue, swapExtention);
     }
   }
 
-  console.log();
-  console.log(`--- --- convert contracts storeCode & instantiateContract end --- ---`);
+  console.log(`\n  --- --- convert contracts storeCode & instantiateContract end --- ---`);
 
   await printDeployedConvertContracts(networkConvert);
 
   // //////////////////////////////////////configure contracts///////////////////////////////////////////
 
-  console.log();
-  console.log(`--- --- convert contracts configure enter --- ---`);
+  console.log(`\n  --- --- convert contracts configure enter --- ---`);
   const print: boolean = false;
 
   if (convertConfigs?.convertPairs && convertConfigs.convertPairs.length > 0) {
@@ -85,20 +82,15 @@ async function main(): Promise<void> {
       const custodyNetwork = convertPairsNetwork?.custody;
 
       await doConverterRegisterTokens(walletData, nativeDenom, converterNetwork, btokenNetwork);
-      await doOverseerWhitelist(walletData, nativeDenom, overseer, custodyNetwork, btokenNetwork, convertPairsConfig?.overseerWhitelistConfig);
-      await doLiquidationQueueWhitelistCollateral(walletData, nativeDenom, liquidationQueue, btokenNetwork, convertPairsConfig?.liquidationQueueWhitelistCollateralConfig);
+      await doOverseerWhitelist(walletData, overseer, custodyNetwork, btokenNetwork?.address, convertPairsConfig?.overseerWhitelistConfig);
+      await doLiquidationQueueWhitelistCollateral(walletData, liquidationQueue, btokenNetwork?.address, convertPairsConfig?.liquidationQueueWhitelistCollateralConfig);
       // await doOracleRegisterFeeder(walletData, nativeDenom, oracle, btokenNetwork);
       // await doOracleFeedPrice(walletData, nativeDenom, oracle, btokenNetwork, nativeDenomItem?.["price"]);
 
-      const chainIdConfigFeedInfos = ConfigOraclePythFeedInfoList[walletData.chainId];
-      if (chainIdConfigFeedInfos && chainIdConfigFeedInfos.length > 0) {
-        if (btokenNetwork?.address) {
-          const bSeiTokenConfig = chainIdConfigFeedInfos.find(value => btokenNetwork?.address === value.asset);
-          if (!bSeiTokenConfig) {
-            let configFeedInfo = Object.assign({ asset: btokenNetwork?.address }, ConfigOraclePythBaseFeedInfoList[walletData.chainId]);
-            await doOraclePythConfigFeedInfo(walletData, oraclePyth, configFeedInfo);
-          }
-        }
+      /// add bToken feed price
+      if (btokenNetwork?.address) {
+        const feedInfo = Object.assign({ asset: btokenNetwork?.address }, oracleConfigs.baseFeedInfoConfig);
+        await doOraclePythConfigFeedInfo(walletData, oraclePyth, feedInfo, print);
       }
 
       /// add custody to swap whitelist
@@ -108,15 +100,11 @@ async function main(): Promise<void> {
     }
   }
 
-  console.log();
-  console.log(`--- --- convert contracts configure end --- ---`);
+  console.log(`\n  --- --- convert contracts configure end --- ---`);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  console.log();
-  console.log(`--- --- deploy convert contracts end --- ---`);
+  console.log(`\n  --- --- deploy convert contracts end --- ---`);
 
-  console.log();
   await printChangeBalancesByWalletData(walletData);
-  console.log();
 }

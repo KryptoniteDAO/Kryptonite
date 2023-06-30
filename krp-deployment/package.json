@@ -1,7 +1,8 @@
 {
   "scripts": {
-    "deploy:all": "npm run deploy:swap && npm run deploy:staking && npm run deploy:market && npm run deploy:convert && npm run deploy:kpt && npm run deploy:kpt:staking && npm run deploy:cdp",
+    "deploy:all": "npm run deploy:swap && npm run deploy:oracle && npm run deploy:staking && npm run deploy:market && npm run deploy:convert && npm run deploy:kpt && npm run deploy:cdp",
     "deploy:swap": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/swap-extention/swap-extention_deploy_contracts.ts --require ./suppress-experimental.cjs",
+    "deploy:oracle": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/oracle/oracle_deploy_contracts.ts --require ./suppress-experimental.cjs",
     "deploy:staking": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/staking/staking_deploy_contracts.ts --require ./suppress-experimental.cjs",
     "deploy:market": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/market/market_deploy_contracts.ts --require ./suppress-experimental.cjs",
     "deploy:convert": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/convert/convert_deploy_contracts.ts --require ./suppress-experimental.cjs",

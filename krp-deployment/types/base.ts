@@ -89,9 +89,6 @@ export interface BaseContractConfig {
     [key: string]: any;
   };
   initCoins?: Coin[];
-  updateMsg?: {
-    [key: string]: any;
-  };
   label?: string;
   codeId?: number;
   address?: Addr;

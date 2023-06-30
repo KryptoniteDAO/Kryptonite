@@ -56,12 +56,12 @@
         "filePath": "../krp-cdp-contracts/artifacts/cdp_custody.wasm",
         "deploy": false
       },
-      "centralControlWhitelist": {
+      "centralControlWhitelistConfig": {
         "name": "bSEI",
         "symbol": "bSEI",
         "max_ltv": "0.6"
       },
-      "liquidationQueueWhitelist": {
+      "liquidationQueueWhitelistConfig": {
         "bid_threshold": "200000000",
         "max_slot": 10,
         "premium_rate_per_slot": "0.01"
@@ -79,12 +79,12 @@
         "filePath": "../krp-cdp-contracts/artifacts/cdp_custody.wasm",
         "deploy": false
       },
-      "centralControlWhitelist": {
+      "centralControlWhitelistConfig": {
         "name": "stSEI",
         "symbol": "stSEI",
         "max_ltv": "0.6"
       },
-      "liquidationQueueWhitelist": {
+      "liquidationQueueWhitelistConfig": {
         "bid_threshold": "200000000",
         "max_slot": 10,
         "premium_rate_per_slot": "0.01"
