@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Addr, InstantiateMsg, BlindBoxLevelMsg, ReferralRewardConfigMsg, ReferralLevelConfig, ReferralLevelRewardBoxConfig, ReferralRewardTokenConfig, ExecuteMsg, Binary, Expiration, Timestamp, Uint64, ReferralLevelConfigMsg, ReferralLevelRewardBoxConfigMsg, QueryMsg, Uint128, AllNftInfoResponseForNullable_Empty, OwnerOfResponse, Approval, NftInfoResponseForNullable_Empty, Empty, OperatorsResponse, TokensResponse, ApprovalResponse, ApprovalsResponse, CalMintInfoResponse, CheckReferralCodeResponse, ContractInfoResponse, UserInfoResponse, MinterResponse, NumTokensResponse, OperatorResponse, ReferralRewardConfigResponse, ReferralLevelConfigResponse, ReferralLevelRewardBoxConfigResponse, ReferralRewardTokenConfigResponse, BlindBoxConfigResponse, BlindBoxConfigLevelResponse, BlindBoxInfoResponse, InviterReferralRecordResponse } from "./BlindBox.types";
+import { Addr, InstantiateMsg, BlindBoxLevelMsg, ReferralRewardConfigMsg, ReferralLevelConfig, ReferralLevelRewardBoxConfig, ReferralRewardTokenConfig, ExecuteMsg, Binary, Expiration, Timestamp, Uint64, ReferralLevelConfigMsg, ReferralLevelRewardBoxConfigMsg, QueryMsg, Uint128, AllNftInfoResponseForNullable_Empty, OwnerOfResponse, Approval, NftInfoResponseForNullable_Empty, Empty, OperatorsResponse, TokensResponse, ApprovalResponse, ApprovalsResponse, CalMintInfoResponse, CheckReferralCodeResponse, ContractInfoResponse, UserInfoResponse, MinterResponse, NumTokensResponse, OperatorResponse, ReferralRewardConfigResponse, ReferralLevelConfigResponse, ReferralLevelRewardBoxConfigResponse, ReferralRewardTokenConfigResponse, BlindBoxConfigResponse, BlindBoxConfigLevelResponse, BlindBoxInfoResponse, ArrayOfBlindBoxInfoResponse, InviterReferralRecordResponse } from "./BlindBox.types";
 export interface BlindBoxReadOnlyInterface {
   contractAddress: string;
   ownerOf: ({
@@ -94,6 +94,11 @@ export interface BlindBoxReadOnlyInterface {
   }: {
     tokenId: string;
   }) => Promise<BlindBoxInfoResponse>;
+  queryBlindBoxInfos: ({
+    tokenIds
+  }: {
+    tokenIds: string[];
+  }) => Promise<ArrayOfBlindBoxInfoResponse>;
   queryAllReferralRewardConfig: () => Promise<ReferralRewardConfigResponse>;
   queryInviterRecords: ({
     inviter,
@@ -146,6 +151,7 @@ export class BlindBoxQueryClient implements BlindBoxReadOnlyInterface {
     this.queryBlindBoxConfig = this.queryBlindBoxConfig.bind(this);
     this.queryBlindBoxConfigLevel = this.queryBlindBoxConfigLevel.bind(this);
     this.queryBlindBoxInfo = this.queryBlindBoxInfo.bind(this);
+    this.queryBlindBoxInfos = this.queryBlindBoxInfos.bind(this);
     this.queryAllReferralRewardConfig = this.queryAllReferralRewardConfig.bind(this);
     this.queryInviterRecords = this.queryInviterRecords.bind(this);
     this.calMintInfo = this.calMintInfo.bind(this);
@@ -330,6 +336,17 @@ export class BlindBoxQueryClient implements BlindBoxReadOnlyInterface {
     return this.client.queryContractSmart(this.contractAddress, {
       query_blind_box_info: {
         token_id: tokenId
+      }
+    });
+  };
+  queryBlindBoxInfos = async ({
+    tokenIds
+  }: {
+    tokenIds: string[];
+  }): Promise<ArrayOfBlindBoxInfoResponse> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      query_blind_box_infos: {
+        token_ids: tokenIds
       }
     });
   };

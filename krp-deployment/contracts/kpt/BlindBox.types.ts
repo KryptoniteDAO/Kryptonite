@@ -234,6 +234,10 @@ export type QueryMsg = {
     token_id: string;
   };
 } | {
+  query_blind_box_infos: {
+    token_ids: string[];
+  };
+} | {
   query_all_referral_reward_config: {};
 } | {
   query_inviter_records: {
@@ -362,6 +366,7 @@ export interface ReferralRewardTokenConfigResponse {
 export interface BlindBoxConfigResponse {
   can_transfer_time: number;
   gov: string;
+  inviter_reward_box_contract: Addr;
   level_infos: BlindBoxConfigLevelResponse[];
   nft_base_url: string;
   nft_uri_suffix: string;
@@ -385,6 +390,7 @@ export interface BlindBoxInfoResponse {
   level_index: number;
   price: number;
 }
+export type ArrayOfBlindBoxInfoResponse = BlindBoxInfoResponse[];
 export interface InviterReferralRecordResponse {
   invitee: Addr;
   invitee_index: number;

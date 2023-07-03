@@ -123,6 +123,7 @@ export interface BoxClaimableAmountInfoResponse {
 }
 export type ArrayOfBoxOpenInfoResponse = BoxOpenInfoResponse[];
 export interface BoxOpenInfoResponse {
+  box_level_index: number;
   is_random_box: boolean;
   is_reward_box: boolean;
   open_box_time: number;
