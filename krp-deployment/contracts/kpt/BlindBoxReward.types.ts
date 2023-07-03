@@ -12,7 +12,10 @@ export interface InstantiateMsg {
 }
 export interface BoxRewardConfig {
   box_open_time: number;
+  box_reward_distribute_addr: Addr;
+  box_reward_distribute_rule_type: string;
   box_reward_token: Addr;
+  global_reward_total_amount: number;
   ordinary_box_reward_level_config: {
     [k: string]: OrdinaryBoxRewardLevelConfig;
   };
@@ -33,6 +36,8 @@ export interface RandomBoxRewardRuleConfig {
   [k: string]: unknown;
 }
 export type ExecuteMsg = {
+  receive: Cw20ReceiveMsg;
+} | {
   update_reward_config: {
     gov?: Addr | null;
     nft_contract?: Addr | null;
@@ -46,7 +51,18 @@ export type ExecuteMsg = {
   open_blind_box: {
     token_ids: string[];
   };
+} | {
+  user_claim_nft_reward: {
+    token_ids: string[];
+  };
 };
+export type Uint128 = string;
+export type Binary = string;
+export interface Cw20ReceiveMsg {
+  amount: Uint128;
+  msg: Binary;
+  sender: string;
+}
 export type QueryMsg = {
   query_all_config_and_state: {};
 } | {
@@ -57,6 +73,10 @@ export type QueryMsg = {
   test_random: {
     token_ids: string[];
   };
+} | {
+  query_box_claimable_infos: {
+    token_ids: string[];
+  };
 };
 export interface AllConfigAndStateResponse {
   box_config: BoxRewardConfig;
@@ -64,6 +84,8 @@ export interface AllConfigAndStateResponse {
   config: RewardConfig;
 }
 export interface BoxRewardConfigState {
+  global_reward_claim_index: number;
+  global_reward_claim_total_amount: number;
   ordinary_box_reward_level_config_state: {
     [k: string]: OrdinaryBoxRewardLevelConfigState;
   };
@@ -89,9 +111,20 @@ export interface RewardConfig {
   nft_contract: Addr;
   [k: string]: unknown;
 }
+export interface QueryBoxClaimableInfoResponse {
+  box_claimable_infos: BoxClaimableAmountInfoResponse[];
+  next_reward_claim_index: number;
+  total_claimable_amount: number;
+  total_claimable_distribute_amount: number;
+}
+export interface BoxClaimableAmountInfoResponse {
+  claimable_amount: number;
+  token_id: string;
+}
 export type ArrayOfBoxOpenInfoResponse = BoxOpenInfoResponse[];
 export interface BoxOpenInfoResponse {
   is_random_box: boolean;
+  is_reward_box: boolean;
   open_box_time: number;
   open_reward_amount: number;
   open_user: Addr;

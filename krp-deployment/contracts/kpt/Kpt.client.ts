@@ -175,10 +175,12 @@ export interface KptInterface {
   sender: string;
   updateConfig: ({
     gov,
+    kptDistribute,
     kptFund,
     maxSupply
   }: {
     gov?: Addr;
+    kptDistribute?: Addr;
     kptFund?: Addr;
     maxSupply?: Uint128;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
@@ -291,16 +293,19 @@ export class KptClient implements KptInterface {
 
   updateConfig = async ({
     gov,
+    kptDistribute,
     kptFund,
     maxSupply
   }: {
     gov?: Addr;
+    kptDistribute?: Addr;
     kptFund?: Addr;
     maxSupply?: Uint128;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
         gov,
+        kpt_distribute: kptDistribute,
         kpt_fund: kptFund,
         max_supply: maxSupply
       }

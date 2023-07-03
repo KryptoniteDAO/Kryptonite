@@ -42,7 +42,7 @@ async function loadingEnvData() {
   };
 }
 
-export async function loadingWalletData(): Promise<WalletData> {
+export async function loadingWalletData(loadBalances: boolean = true): Promise<WalletData> {
   const { LCD_ENDPOINT, RPC_ENDPOINT, mnemonic, privateKey, mnemonic2, privateKey2, chainId, gasPriceValue } = await loadingEnvData();
 
   if (!LCD_ENDPOINT) {
@@ -119,7 +119,10 @@ export async function loadingWalletData(): Promise<WalletData> {
 
   const addressList = [address, address2];
   const denomList = [nativeCurrency.coinMinimalDenom, stable_coin_denom];
-  const addressesBalances = await loadAddressesBalances({ signingStargateClient, signingCosmWasmClient } as WalletData, addressList, denomList);
+  let addressesBalances = [];
+  if (loadBalances) {
+    addressesBalances = await loadAddressesBalances({ signingStargateClient, signingCosmWasmClient } as WalletData, addressList, denomList);
+  }
 
   return {
     prefix,

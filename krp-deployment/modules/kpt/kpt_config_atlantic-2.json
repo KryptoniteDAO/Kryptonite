@@ -232,5 +232,19 @@
     "filePath": "../krp-token-contracts/artifacts/blind_box_reward.wasm",
     "deploy": false
   },
-  "stakingRewardsPairs": []
+  "stakingRewardsPairs": [
+    {
+      "name": "SEI/KPT",
+      "staking_token": "sei1gx9fvy0p6uls9n0hmu22yx9u2slg7403dep0492g0dymdqlhnjrsp9fs8l",
+      "stakingRewards": {
+        "admin": null,
+        "initMsg": {
+          "duration": "2592000"
+        },
+        "label": "stakingRewards",
+        "filePath": "../krp-token-contracts/artifacts/staking_rewards.wasm",
+        "deploy": false
+      }
+    }
+  ]
 }

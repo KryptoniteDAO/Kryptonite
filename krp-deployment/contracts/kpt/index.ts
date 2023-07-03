@@ -6,43 +6,53 @@
 
 import * as _0 from "./BlindBox.types";
 import * as _1 from "./BlindBox.client";
-import * as _2 from "./BlindBoxReward.types";
-import * as _3 from "./BlindBoxReward.client";
-import * as _4 from "./Kpt.types";
-import * as _5 from "./Kpt.client";
-import * as _6 from "./KptFund.types";
-import * as _7 from "./KptFund.client";
-import * as _8 from "./StakingRewards.types";
-import * as _9 from "./StakingRewards.client";
-import * as _10 from "./VeKpt.types";
-import * as _11 from "./VeKpt.client";
-import * as _12 from "./VeKptBoost.types";
-import * as _13 from "./VeKptBoost.client";
-import * as _14 from "./VeKptMiner.types";
-import * as _15 from "./VeKptMiner.client";
+import * as _2 from "./BlindBoxInviterReward.types";
+import * as _3 from "./BlindBoxInviterReward.client";
+import * as _4 from "./BlindBoxReward.types";
+import * as _5 from "./BlindBoxReward.client";
+import * as _6 from "./Kpt.types";
+import * as _7 from "./Kpt.client";
+import * as _8 from "./KptDistribute.types";
+import * as _9 from "./KptDistribute.client";
+import * as _10 from "./KptFund.types";
+import * as _11 from "./KptFund.client";
+import * as _12 from "./StakingRewards.types";
+import * as _13 from "./StakingRewards.client";
+import * as _14 from "./VeKpt.types";
+import * as _15 from "./VeKpt.client";
+import * as _16 from "./VeKptBoost.types";
+import * as _17 from "./VeKptBoost.client";
+import * as _18 from "./VeKptMiner.types";
+import * as _19 from "./VeKptMiner.client";
 export namespace kptContracts {
   export const BlindBox = { ..._0,
     ..._1
   };
-  export const BlindBoxReward = { ..._2,
+  export const BlindBoxInviterReward = { ..._2,
     ..._3
   };
-  export const Kpt = { ..._4,
+  export const BlindBoxReward = { ..._4,
     ..._5
   };
-  export const KptFund = { ..._6,
+  export const Kpt = { ..._6,
     ..._7
   };
-  export const StakingRewards = { ..._8,
+  export const KptDistribute = { ..._8,
     ..._9
   };
-  export const VeKpt = { ..._10,
+  export const KptFund = { ..._10,
     ..._11
   };
-  export const VeKptBoost = { ..._12,
+  export const StakingRewards = { ..._12,
     ..._13
   };
-  export const VeKptMiner = { ..._14,
+  export const VeKpt = { ..._14,
     ..._15
+  };
+  export const VeKptBoost = { ..._16,
+    ..._17
+  };
+  export const VeKptMiner = { ..._18,
+    ..._19
   };
 }
