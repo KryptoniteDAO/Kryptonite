@@ -1,4 +1,6 @@
 {
+  "kusd_denom": "factory/sei1f53twx2n6p9t379kkv6gmcnhxn03xpppuum8j0/dev",
+  "kusd_reward_controller": "sei1znlydlsgqrx2yan8u6sz5wl2msrmrsczdyh2c2yhrzcnajvrsjvqvtkpmv",
   "kpt": {
     "admin": null,
     "initMsg": {
@@ -33,8 +35,8 @@
   "kptFund": {
     "admin": null,
     "initMsg": {
-      "kusd_denom": "factory/sei1f53twx2n6p9t379kkv6gmcnhxn03xpppuum8j0/dev",
-      "kusd_reward_addr": "sei1znlydlsgqrx2yan8u6sz5wl2msrmrsczdyh2c2yhrzcnajvrsjvqvtkpmv",
+      "kusd_denom": null,
+      "kusd_reward_addr": null,
       "exit_cycle": "2592000",
       "claim_able_time": "1687190400"
     },
@@ -74,7 +76,7 @@
       "symbol": "KPTBOX",
       "nft_base_url": "https://www.google.com/",
       "nft_uri_suffix": ".json",
-      "price_token": "factory/sei1f53twx2n6p9t379kkv6gmcnhxn03xpppuum8j0/dev",
+      "price_token": null,
       "token_id_prefix": "kpt_blind_box_",
       "level_infos": [
         {
@@ -105,16 +107,8 @@
       "referral_reward_config": {
         "reward_token_config": {
           "USDC": {
-            "reward_token": "factory/sei1f53twx2n6p9t379kkv6gmcnhxn03xpppuum8j0/dev",
+            "reward_token": "%kusd_address%",
             "conversion_ratio": "1000000"
-          },
-          "KPT": {
-            "reward_token": "%kpt_address%",
-            "conversion_ratio": "11000000"
-          },
-          "VE_KPT": {
-            "reward_token": "%ve_kpt_address%",
-            "conversion_ratio": "11000000"
           }
         },
         "referral_level_config": {
@@ -186,6 +180,105 @@
     "filePath": "../krp-token-contracts/artifacts/blind_box.wasm",
     "deploy": false
   },
+  "kptDistribute": {
+    "admin": null,
+    "initMsg": {
+      "total_amount": "1000000000000000",
+      "rule_configs_map": {
+        "loot_box": {
+          "rule_name": "loot_box",
+          "rule_owner": null,
+          "rule_total_amount": "100000000000000",
+          "start_release_amount": "20000000000000",
+          "lock_start_time": 1688366468,
+          "lock_end_time": 1696315268,
+          "start_linear_release_time": 1696315269,
+          "unlock_linear_release_amount": "80000000000000",
+          "unlock_linear_release_time": 1727937668
+        },
+        "team": {
+          "rule_name": "team",
+          "rule_owner": null,
+          "rule_total_amount": "120000000000000",
+          "start_release_amount": "0",
+          "lock_start_time": 1688366468,
+          "lock_end_time": 1704264068,
+          "start_linear_release_time": 1704264069,
+          "unlock_linear_release_amount": "120000000000000",
+          "unlock_linear_release_time": 1862116868
+        },
+        "sho": {
+          "rule_name": "sho",
+          "rule_owner": null,
+          "rule_total_amount": "10000000000000",
+          "start_release_amount": "5000000000000",
+          "lock_start_time": 1688366468,
+          "lock_end_time": 1696315268,
+          "start_linear_release_time": 1696315269,
+          "unlock_linear_release_amount": "5000000000000",
+          "unlock_linear_release_time": 1712126468
+        },
+        "dao": {
+          "rule_name": "dao",
+          "rule_owner": null,
+          "rule_total_amount": "100000000000000",
+          "start_release_amount": "0",
+          "lock_start_time": 1688366468,
+          "lock_end_time": 1704264068,
+          "start_linear_release_time": 1704264069,
+          "unlock_linear_release_amount": "100000000000000",
+          "unlock_linear_release_time": 1798958469
+        },
+        "mining": {
+          "rule_name": "mining",
+          "rule_owner": null,
+          "rule_total_amount": "500000000000000",
+          "start_release_amount": "0",
+          "lock_start_time": 1688366468,
+          "lock_end_time": 1704264068,
+          "start_linear_release_time": 1704264069,
+          "unlock_linear_release_amount": "500000000000000",
+          "unlock_linear_release_time": 1770100869
+        },
+        "mm": {
+          "rule_name": "mm",
+          "rule_owner": null,
+          "rule_total_amount": "50000000000000",
+          "start_release_amount": "0",
+          "lock_start_time": 1688366468,
+          "lock_end_time": 1688366468,
+          "start_linear_release_time": 1688366468,
+          "unlock_linear_release_amount": "500000000000000",
+          "unlock_linear_release_time": 1743662468
+        },
+        "reserve": {
+          "rule_name": "reserve",
+          "rule_owner": null,
+          "rule_total_amount": "110000000000000",
+          "start_release_amount": "0",
+          "lock_start_time": 1688366468,
+          "lock_end_time": 1704264068,
+          "start_linear_release_time": 1704264069,
+          "unlock_linear_release_amount": "110000000000000",
+          "unlock_linear_release_time": 1798958469
+        },
+        "airdrop": {
+          "rule_name": "airdrop",
+          "rule_owner": null,
+          "rule_total_amount": "10000000000000",
+          "start_release_amount": "0",
+          "lock_start_time": 1688366468,
+          "lock_end_time": 1688366468,
+          "start_linear_release_time": 1688366468,
+          "unlock_linear_release_amount": "10000000000000",
+          "unlock_linear_release_time": 1719988868
+        }
+      }
+    },
+    "label": "blindBox",
+    "filePath": "../krp-token-contracts/artifacts/kpt_distribute.wasm",
+    "deploy": false
+  },
   "blindBoxReward": {
     "admin": null,
     "initMsg": {
@@ -225,11 +318,26 @@
             "random_reward_amount": "45000000000",
             "max_reward_count": 80
           }
-        ]
+        ],
+        "box_reward_distribute_rule_type": "loot_box",
+        "global_reward_total_amount": "100000000000000"
       }
     },
     "label": "blindBoxReward",
     "filePath": "../krp-token-contracts/artifacts/blind_box_reward.wasm",
+    "deploy": false
+  },
+  "blindBoxInviterReward": {
+    "admin": null,
+    "initMsg": {
+      "reward_native_token": null,
+      "start_mint_box_time": 1688128677,
+      "end_mint_box_time": 1690720710,
+      "start_claim_token_time": 1688128677,
+      "end_claim_token_time": 1690720710
+    },
+    "label": "blindBoxReward",
+    "filePath": "../krp-token-contracts/artifacts/blind_box_inviter_reward.wasm",
     "deploy": false
   },
   "stakingRewardsPairs": [

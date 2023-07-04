@@ -389,6 +389,7 @@ export interface BlindBoxInfoResponse {
   is_reward_box: boolean;
   level_index: number;
   price: number;
+  token_id: string;
 }
 export type ArrayOfBlindBoxInfoResponse = BlindBoxInfoResponse[];
 export interface InviterReferralRecordResponse {

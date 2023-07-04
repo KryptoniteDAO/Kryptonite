@@ -193,6 +193,7 @@ export interface DownloadLogoResponse {
 }
 export interface KptConfigResponse {
   gov: Addr;
+  kpt_distribute: Addr;
   kpt_fund: Addr;
   max_supply: number;
 }

@@ -78,7 +78,7 @@ export async function doOraclePythConfigFeedInfo(walletData: WalletData, oracleP
   }
 
   if (initFlag) {
-    console.warn(`\n  ********* oracle.oraclePyth FeederInfo is already done. \n  ${JSON.stringify(configRes)}`);
+    console.warn(`\n  ######### oracle.oraclePyth FeederInfo is already done. \n  ${JSON.stringify(configRes)}`);
     return;
   }
 
@@ -133,7 +133,7 @@ export async function queryOraclePythFeederConfig(walletData: WalletData, oracle
 //   // const feederRes = await queryWasmContractByWalletData(walletData, oracle.address, { feeder: { asset: btoken.address } });
 //   const doneFlag: boolean = initFlag && walletData.address === feederRes?.feeder && btoken.address === feederRes?.asset;
 //   if (!doneFlag) {
-//     console.warn(`\n  ********* Do oracle's register_feeder enter. collateral ` + btoken.address);
+//     console.warn(`\n  ######### Do oracle's register_feeder enter. collateral ` + btoken.address);
 //     const doRes = await executeContractByWalletData(walletData, oracle.address, {
 //       register_feeder: {
 //         asset: btoken.address,

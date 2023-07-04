@@ -215,7 +215,7 @@ export async function doCdpCentralControlUpdateConfig(walletData: WalletData, ne
   }
 
   if (initFlag && cdpStablePool?.address === beforeRes?.pool_contract && oraclePyth?.address === beforeRes?.oracle_contract) {
-    console.warn(`\n  ********* The cdpCentralControl.address config is already done. \n  ${JSON.stringify(beforeRes)}`);
+    console.warn(`\n  ######### The cdpCentralControl.address config is already done. \n  ${JSON.stringify(beforeRes)}`);
     return;
   }
   const doRes = await centralControlClient.updateConfig({
@@ -256,7 +256,7 @@ export async function doCdpLiquidationQueueConfig(walletData: WalletData, networ
   }
 
   if (initFlag && cdpCentralControl?.address === beforeRes?.control_contract && oraclePyth?.address === beforeRes?.oracle_contract) {
-    console.warn(`\n  ********* The cdpLiquidationQueue.address config is already done.\n  ${JSON.stringify(beforeRes)}`);
+    console.warn(`\n  ######### The cdpLiquidationQueue.address config is already done.\n  ${JSON.stringify(beforeRes)}`);
     return;
   }
   const doRes = await liquidationQueueClient.updateConfig({
@@ -294,7 +294,7 @@ export async function doCdpCentralControlSetWhitelistCollateral(walletData: Wall
   }
 
   if (initFlag && !!beforeRes?.elems?.find(value => collateralPairConfig?.collateral === value.collateral_contract && custody?.address === value.custody_contract)) {
-    console.warn(`\n  ********* cdp.cdpCentralControl whitelist is already done.`);
+    console.warn(`\n  ######### cdp.cdpCentralControl whitelist is already done.`);
     return;
   }
 
@@ -336,7 +336,7 @@ export async function doCdpLiquidationQueueSetWhitelistCollateral(walletData: Wa
   }
 
   if (initFlag && beforeRes?.collateral_token === collateralPairConfig?.collateral) {
-    console.warn(`\n  ********* cdp.cdpLiquidationQueue whitelist is already done.`);
+    console.warn(`\n  ######### cdp.cdpLiquidationQueue whitelist is already done.`);
     return;
   }
 

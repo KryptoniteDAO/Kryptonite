@@ -215,7 +215,7 @@ export async function doHubConfig(walletData: WalletData, networkStaking: Stakin
   // {"owner":"","reward_dispatcher_contract":"","validators_registry_contract":"","bsei_token_contract":"","stsei_token_contract":"","airdrop_registry_contract":null,"token_contract":""}
   const initFlag: boolean = rewardsDispatcher.address === beforeRes?.reward_dispatcher_contract && validatorsRegistry.address === beforeRes?.validators_registry_contract && bSeiToken.address === beforeRes?.bsei_token_contract && stSeiToken.address === beforeRes?.stsei_token_contract;
   if (initFlag) {
-    console.warn(`\n  ********* staking.hub config is already done.`);
+    console.warn(`\n  ######### staking.hub config is already done.`);
     return;
   }
 

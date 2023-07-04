@@ -17,10 +17,10 @@ export interface KptContractConfig extends BaseContractConfig {
 export interface KptFundContractConfig extends BaseContractConfig {
   initMsg?: {
     gov?: Addr;
-    kusd_denom?: string;
-    kusd_reward_addr?: string;
-    exit_cycle?: string;
-    claim_able_time?: string;
+    kusd_denom?: Addr;
+    kusd_reward_addr?: Addr;
+    exit_cycle: string;
+    claim_able_time: string;
   };
 }
 
@@ -106,7 +106,7 @@ export interface BlindBoxContractConfig extends BaseContractConfig {
     symbol: string;
     nft_base_url: string;
     nft_uri_suffix: string;
-    price_token: string;
+    price_token?: Addr;
     token_id_prefix: string;
     receiver_price_addr: Addr;
     start_mint_time?: number | null;
@@ -127,15 +127,15 @@ export interface RewardLevelConfigMsgConfig {
 //   reward_token: string;
 //   total_reward_amount?: number | null;
 // }
-export interface  RewardBoxRewardLevelConfig {
+export interface RewardBoxRewardLevelConfig {
   reward_amount: string;
   max_reward_count: string;
 }
-export interface  RewardBoxRewardRuleConfig {
-  "random_box_index": number,
-  "random_total_count": number,
-  "random_reward_amount": string,
-  "max_reward_count": number
+export interface RewardBoxRewardRuleConfig {
+  random_box_index: number;
+  random_total_count: number;
+  random_reward_amount: string;
+  max_reward_count: number;
 }
 export interface RewardBoxConfig {
   // box_reward_token: Addr;
@@ -143,8 +143,9 @@ export interface RewardBoxConfig {
   random_in_box_level_index: number;
   ordinary_box_reward_level_config: Record<string, RewardBoxRewardLevelConfig>;
   random_box_reward_rule_config: RewardBoxRewardRuleConfig[];
+  box_reward_distribute_rule_type: string;
+  global_reward_total_amount: string;
 }
-
 
 export interface BlindBoxRewardContractConfig extends BaseContractConfig {
   initMsg?: {
@@ -155,7 +156,39 @@ export interface BlindBoxRewardContractConfig extends BaseContractConfig {
   };
 }
 
+export interface KptDistributeRuleConfig {
+  rule_name: string;
+  rule_owner?: Addr;
+  rule_total_amount: string;
+  start_release_amount: string;
+  lock_start_time: number;
+  lock_end_time: number;
+  start_linear_release_time: number;
+  unlock_linear_release_amount: string;
+  unlock_linear_release_time: number;
+}
+
+export interface KptDistributeContractConfig extends BaseContractConfig {
+  initMsg?: {
+    gov?: Addr | null;
+    total_amount: string;
+    rule_configs_map: Record<string, KptDistributeRuleConfig>;
+  };
+}
+
+export interface BlindBoxInviterRewardContractConfig extends BaseContractConfig {
+  initMsg?: {
+    reward_native_token?: Addr;
+    start_mint_box_time: number;
+    end_mint_box_time: number;
+    start_claim_token_time: number;
+    end_claim_token_time: number;
+  };
+}
+
 export interface KptContractsConfig {
+  kusd_denom: Addr,
+  kusd_reward_controller: Addr,
   kpt?: KptContractConfig;
   kptFund?: KptFundContractConfig;
   veKpt?: VeKptContractConfig;
@@ -163,7 +196,9 @@ export interface KptContractsConfig {
   veKptMiner?: VeKptMinerContractConfig;
   stakingRewardsPairs?: StakingRewardsPairsConfig[];
   blindBox?: BlindBoxContractConfig;
+  kptDistribute?: KptDistributeContractConfig;
   blindBoxReward?: BlindBoxRewardContractConfig;
+  blindBoxInviterReward?: BlindBoxInviterRewardContractConfig;
 }
 
 export interface StakingRewardsPairsContractsDeployed {
@@ -180,11 +215,7 @@ export interface KptContractsDeployed {
   veKptMiner?: ContractDeployed;
   stakingRewardsPairs?: StakingRewardsPairsContractsDeployed[];
   blindBox?: ContractDeployed;
+  kptDistribute?: ContractDeployed;
   blindBoxReward?: ContractDeployed;
+  blindBoxInviterReward?: ContractDeployed;
 }
-
-export type KptStakingRewardsConfig = {
-  name?: string;
-  staking_token: string;
-  duration: string;
-};

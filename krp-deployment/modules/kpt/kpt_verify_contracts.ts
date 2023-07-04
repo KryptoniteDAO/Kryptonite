@@ -5,7 +5,7 @@ import { printChangeBalancesByWalletData } from "@/common";
 import { kptReadArtifact } from "./index";
 import { printDeployedKptContracts } from "@/modules";
 import { kptContracts } from "@/contracts";
-import { KptFundConfigResponse } from "@/contracts/kpt/KptFund.types";
+import { GetClaimAbleKptResponse, GetClaimAbleKusdResponse, GetReservedKptForVestingResponse, KptFundConfigResponse } from "@/contracts/kpt/KptFund.types";
 import { MinterResponse, VoteConfigResponse } from "@/contracts/kpt/VeKpt.types";
 import { GetBoostConfigResponse } from "@/contracts/kpt/VeKptBoost.types";
 import { StakingConfigResponse, StakingStateResponse } from "@/contracts/kpt/StakingRewards.types";
@@ -13,6 +13,8 @@ import { BlindBoxConfigLevelResponse, BlindBoxConfigResponse, ReferralRewardConf
 import { AllConfigAndStateResponse } from "@/contracts/kpt/BlindBoxReward.types";
 import { BalanceResponse, KptConfigResponse, TokenInfoResponse } from "@/contracts/kpt/Kpt.types";
 import { GetMinerConfigResponse, GetMinerStateResponse } from "@/contracts/kpt/VeKptMiner.types";
+import { ConfigAndStateResponse } from "@/contracts/kpt/BlindBoxInviterReward.types";
+import { QueryConfigResponse } from "@/contracts/kpt/KptDistribute.types";
 
 main().catch(console.error);
 
@@ -31,8 +33,11 @@ async function main(): Promise<void> {
   const veKptBoost: ContractDeployed = networkKpt?.veKptBoost;
   const veKptMiner: ContractDeployed = networkKpt?.veKptMiner;
   const blindBox: ContractDeployed = networkKpt?.blindBox;
+  const kptDistribute: ContractDeployed = networkKpt?.kptDistribute;
   const blindBoxReward: ContractDeployed = networkKpt?.blindBoxReward;
+  const blindBoxInviterReward: ContractDeployed = networkKpt?.blindBoxInviterReward;
   const stakingRewardsPairs: StakingRewardsPairsContractsDeployed[] = networkKpt?.stakingRewardsPairs;
+  const doFunc: boolean = true;
 
   if (kpt?.address) {
     const kptQueryClient = new kptContracts.Kpt.KptQueryClient(walletData.signingCosmWasmClient, kpt.address);
@@ -60,6 +65,12 @@ async function main(): Promise<void> {
     const kptFundQueryClient = new kptContracts.KptFund.KptFundQueryClient(walletData.signingCosmWasmClient, kptFund.address);
     const configRes: KptFundConfigResponse = await kptFundQueryClient.kptFundConfig();
     console.log(`\n   Query kpt.kptFund config ok. \n   ${JSON.stringify(configRes)}`);
+    const claimAbleKptResponse: GetClaimAbleKptResponse = await kptFundQueryClient.getClaimAbleKpt({ user: walletData.address });
+    console.log(`\n   Query kpt.kptFund getClaimAbleKpt ok. \n   ${JSON.stringify(claimAbleKptResponse)}`);
+    const reservedKptForVestingResponse: GetReservedKptForVestingResponse = await kptFundQueryClient.getReservedKptForVesting({ user: walletData.address });
+    console.log(`\n   Query kpt.kptFund getReservedKptForVesting ok. \n   ${JSON.stringify(reservedKptForVestingResponse)}`);
+    const claimAbleKusdResponse: GetClaimAbleKusdResponse = await kptFundQueryClient.getClaimAbleKusd({ account: walletData.address });
+    console.log(`\n   Query kpt.kptFund getClaimAbleKusd ok. \n   ${JSON.stringify(claimAbleKusdResponse)}`);
   }
 
   if (veKptBoost?.address) {
@@ -86,10 +97,22 @@ async function main(): Promise<void> {
     console.log(`\n  Query kpt.blindBox queryBlindBoxConfigLevel ok. \n   ${JSON.stringify(configLevelRes)}`);
   }
 
+  if (kptDistribute?.address) {
+    const kptDistributeQueryClient = new kptContracts.KptDistribute.KptDistributeQueryClient(walletData.signingCosmWasmClient, kptDistribute.address);
+    const configRes: QueryConfigResponse = await kptDistributeQueryClient.queryConfig();
+    console.log(`\n  Query kpt.kptDistribute config ok. \n   ${JSON.stringify(configRes)}`);
+  }
+
   if (blindBoxReward?.address) {
     const blindBoxRewardQueryClient = new kptContracts.BlindBoxReward.BlindBoxRewardQueryClient(walletData.signingCosmWasmClient, blindBoxReward.address);
     const configRes: AllConfigAndStateResponse = await blindBoxRewardQueryClient.queryAllConfigAndState();
     console.log(`\n  Query kpt.blindBoxReward config ok. \n   ${JSON.stringify(configRes)}`);
+  }
+
+  if (blindBoxInviterReward?.address) {
+    const blindBoxInviterRewardQueryClient = new kptContracts.BlindBoxInviterReward.BlindBoxInviterRewardQueryClient(walletData.signingCosmWasmClient, blindBoxInviterReward.address);
+    const configRes: ConfigAndStateResponse = await blindBoxInviterRewardQueryClient.queryAllConfigAndState();
+    console.log(`\n  Query kpt.blindBoxInviterReward queryAllConfigAndState ok. \n   ${JSON.stringify(configRes)}`);
   }
 
   if (stakingRewardsPairs && stakingRewardsPairs.length >= 0) {

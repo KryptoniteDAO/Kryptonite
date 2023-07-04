@@ -63,7 +63,7 @@ export async function doSwapExtentionSetWhitelist(
   }
 
   if (initFlag && beforeIsSwapWhitelistRes === whitelistConfig?.isWhitelist) {
-    console.warn(`\n  ********* The address is already done. set: ${whitelistConfig?.isWhitelist} / got: ${beforeIsSwapWhitelistRes}`);
+    console.warn(`\n  ######### The address is already done. set: ${whitelistConfig?.isWhitelist} / got: ${beforeIsSwapWhitelistRes}`);
     return;
   }
 
@@ -97,7 +97,7 @@ export async function doSwapExtentionUpdatePairConfig(walletData: WalletData, sw
   }
 
   if (initFlag) {
-    console.warn(`\n  ********* The pair_address is already done.`);
+    console.warn(`\n  ######### The pair_address is already done.`);
     return;
   }
   const doRes = await swapExtentionClient.updatePairConfig(pairConfig);

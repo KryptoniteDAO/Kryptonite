@@ -11,14 +11,19 @@ import type {
   VeKptBoostContractConfig,
   VeKptContractConfig,
   VeKptMinerContractConfig,
-  BlindBoxRewardTokenConfig
+  BlindBoxRewardTokenConfig,
+  KptDistributeContractConfig,
+  BlindBoxInviterRewardContractConfig
 } from "@/modules";
 import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
 import { deployContract, readArtifact, writeArtifact } from "@/common";
 import { kptContracts } from "@/contracts";
 import { KptFundConfigResponse } from "@/contracts/kpt/KptFund.types";
 import { KptConfigResponse } from "@/contracts/kpt/Kpt.types";
-import { IsMinterResponse } from "@/contracts/kpt/VeKpt.types";
+import { IsMinterResponse, VoteConfigResponse } from "@/contracts/kpt/VeKpt.types";
+import { KptDistributeRuleConfig } from "@/modules";
+import { QueryRuleInfoResponse } from "@/contracts/kpt/KptDistribute.types";
+import { BlindBoxConfigResponse } from "@/contracts/kpt/BlindBox.types";
 
 export const KPT_ARTIFACTS_PATH = "../krp-token-contracts/artifacts";
 export const KPT_CONTRACTS_PATH = "../krp-token-contracts/contracts";
@@ -66,7 +71,11 @@ export async function deployKptFund(walletData: WalletData, networkKpt: KptContr
       kpt_addr: kpt.address,
       ve_kpt_addr: veKpt.address
     },
-    config?.initMsg ?? {}
+    config?.initMsg ?? {},
+    {
+      kusd_denom: config?.initMsg?.kusd_denom ?? kptConfigs.kusd_denom,
+      kusd_reward_addr: config?.initMsg?.kusd_reward_addr ?? kptConfigs.kusd_reward_controller
+    }
   );
   const writeFunc = kptWriteArtifact;
 
@@ -180,7 +189,7 @@ export async function deployBlindBox(walletData: WalletData, networkKpt: KptCont
   for (let rewardTokenConfigKey in rewardTokenConfig) {
     let tokenConfig: BlindBoxRewardTokenConfig | undefined = rewardTokenConfig[rewardTokenConfigKey];
     if (tokenConfig?.reward_token) {
-      tokenConfig.reward_token = tokenConfig.reward_token.replaceAll("%kpt_address%", kpt.address).replaceAll("%ve_kpt_address%", veKpt.address);
+      tokenConfig.reward_token = tokenConfig.reward_token.replaceAll("%kpt_address%", kpt.address).replaceAll("%ve_kpt_address%", veKpt.address).replaceAll("%kusd_address%", kptConfigs.kusd_denom);
     }
   }
   // level_infos?.map(value => {
@@ -189,7 +198,7 @@ export async function deployBlindBox(walletData: WalletData, networkKpt: KptCont
   //   }
   // });
 
-  const defaultInitMsg = Object.assign({}, config?.initMsg ?? {});
+  const defaultInitMsg = Object.assign({}, config?.initMsg ?? {}, { price_token: config?.initMsg?.price_token ?? kptConfigs.kusd_denom });
   const writeFunc = kptWriteArtifact;
   const storeCoreGasLimit = 4_000_000;
   const instantiateGasLimit = 500_000;
@@ -197,33 +206,58 @@ export async function deployBlindBox(walletData: WalletData, networkKpt: KptCont
   await deployContract(walletData, contractName, networkKpt, undefined, config, { defaultInitMsg, writeFunc, storeCoreGasLimit, instantiateGasLimit });
 }
 
+export async function deployKptDistribute(walletData: WalletData, networkKpt: KptContractsDeployed): Promise<void> {
+  const kpt: ContractDeployed | undefined = networkKpt?.kpt;
+  if (!kpt?.address) {
+    return;
+  }
+  const contractName: keyof Required<KptContractsDeployed> = "kptDistribute";
+  const config: KptDistributeContractConfig | undefined = kptConfigs?.[contractName];
+  const ruleConfigs: Record<string, KptDistributeRuleConfig> | undefined = config?.initMsg?.rule_configs_map;
+  for (let ruleConfigKey in ruleConfigs) {
+    let ruleConfig: KptDistributeRuleConfig | undefined = ruleConfigs[ruleConfigKey];
+    if (!ruleConfig?.rule_owner) {
+      ruleConfig.rule_owner = walletData.address;
+    }
+  }
+
+  const defaultInitMsg = Object.assign(
+    {
+      distribute_token: kpt?.address
+    },
+    config?.initMsg ?? {}
+  );
+  const writeFunc = kptWriteArtifact;
+  // const storeCoreGasLimit = 4_000_000;
+  const instantiateGasLimit = 500_000;
+
+  await deployContract(walletData, contractName, networkKpt, undefined, config, { defaultInitMsg, writeFunc, instantiateGasLimit });
+}
+
 export async function deployBlindBoxReward(walletData: WalletData, networkKpt: KptContractsDeployed): Promise<void> {
   const kpt: ContractDeployed | undefined = networkKpt?.kpt;
   const veKpt: ContractDeployed | undefined = networkKpt?.veKpt;
   const blindBox: ContractDeployed | undefined = networkKpt?.blindBox;
-  if (!kpt?.address || !veKpt?.address || !blindBox?.address) {
+  const kptDistribute: ContractDeployed | undefined = networkKpt?.kptDistribute;
+  if (!kpt?.address || !veKpt?.address || !blindBox?.address || !kptDistribute?.address) {
     return;
   }
 
   const contractName: keyof Required<KptContractsDeployed> = "blindBoxReward";
   const config: BlindBoxRewardContractConfig | undefined = kptConfigs?.[contractName];
-  // const reward_token_map_msgs: RewardTokenConfigMsgConfig[] | undefined = config?.initMsg?.reward_token_map_msgs;
-  // reward_token_map_msgs?.map(value => {
-  //   if (value.reward_token) {
-  //     value.reward_token = value.reward_token.replaceAll("%kpt_address%", kpt.address).replaceAll("%ve_kpt_address%", veKpt.address);
-  //   }
-  // });
 
   const defaultInitMsg = Object.assign(
     {
       nft_contract: blindBox.address,
       box_config: {
-        box_reward_token: kpt?.address
+        box_reward_token: kpt?.address,
+        box_reward_distribute_addr: kptDistribute?.address
       }
     },
     config?.initMsg ?? {}
   );
   defaultInitMsg.box_config.box_reward_token = kpt?.address;
+  defaultInitMsg.box_config.box_reward_distribute_addr = kptDistribute?.address;
 
   const writeFunc = kptWriteArtifact;
   // const storeCoreGasLimit = 4_000_000;
@@ -232,9 +266,40 @@ export async function deployBlindBoxReward(walletData: WalletData, networkKpt: K
   await deployContract(walletData, contractName, networkKpt, undefined, config, { defaultInitMsg, writeFunc });
 }
 
-export async function doKptUpdateConfig(walletData: WalletData, kpt: ContractDeployed, kptFund: ContractDeployed, print: boolean = true): Promise<any> {
-  print && console.log(`\n  Do kpt.kpt update_config enter. kptFund: ${kptFund?.address}`);
-  if (!kpt?.address || !kptFund?.address) {
+export async function deployBlindBoxInviterReward(walletData: WalletData, networkKpt: KptContractsDeployed): Promise<void> {
+  const kpt: ContractDeployed | undefined = networkKpt?.kpt;
+  const veKpt: ContractDeployed | undefined = networkKpt?.veKpt;
+  const blindBox: ContractDeployed | undefined = networkKpt?.blindBox;
+  const kptDistribute: ContractDeployed | undefined = networkKpt?.kptDistribute;
+  if (!kpt?.address || !veKpt?.address || !blindBox?.address || !kptDistribute?.address) {
+    return;
+  }
+
+  const contractName: keyof Required<KptContractsDeployed> = "blindBoxInviterReward";
+  const config: BlindBoxInviterRewardContractConfig | undefined = kptConfigs?.[contractName];
+  const defaultInitMsg = Object.assign(
+    {
+      nft_contract: blindBox.address
+    },
+    config?.initMsg ?? {},
+    {
+      reward_native_token: config?.initMsg?.reward_native_token ?? kptConfigs.kusd_denom
+    }
+  );
+
+  const writeFunc = kptWriteArtifact;
+  // const storeCoreGasLimit = 4_000_000;
+  // const instantiateGasLimit = 500_000;
+
+  await deployContract(walletData, contractName, networkKpt, undefined, config, { defaultInitMsg, writeFunc });
+}
+
+export async function doKptUpdateConfig(walletData: WalletData, networkKpt: KptContractsDeployed, print: boolean = true): Promise<any> {
+  print && console.log(`\n  Do kpt.kpt update_config enter.`);
+  const kpt: ContractDeployed | undefined = networkKpt?.kpt;
+  const kptFund: ContractDeployed | undefined = networkKpt?.kptFund;
+  const kptDistribute: ContractDeployed | undefined = networkKpt?.kptDistribute;
+  if (!kpt?.address || !kptFund?.address || !kptDistribute?.address) {
     console.error(`\n  ********* missing info!`);
     return;
   }
@@ -254,19 +319,21 @@ export async function doKptUpdateConfig(walletData: WalletData, kpt: ContractDep
     }
   }
 
-  if (initFlag && kptFund?.address === beforeConfigRes?.kpt_fund) {
-    console.warn(`\n  ********* The kpt.kpt config is already done. `);
+  if (initFlag && kptFund?.address === beforeConfigRes?.kpt_fund && kptDistribute?.address === beforeConfigRes?.kpt_distribute) {
+    console.warn(`\n  ######### The kpt.kpt config is already done. `);
     return;
   }
-  const doRes = await kptClient.updateConfig({ kptFund: kptFund.address });
+  const doRes = await kptClient.updateConfig({ kptFund: kptFund.address, kptDistribute: kptDistribute?.address });
   console.log(`Do kpt.kpt update_config ok. \n  ${doRes?.transactionHash}`);
 
   const afterConfigRes = await kptQueryClient.kptConfig();
   print && console.log(`config info: \n  ${JSON.stringify(afterConfigRes)}`);
 }
 
-export async function doVeKptUpdateConfig(walletData: WalletData, veKpt: ContractDeployed, kptFund: ContractDeployed, print: boolean = true): Promise<any> {
-  print && console.log(`\n  Do kpt.veKpt update_config enter. kptFund: ${kptFund?.address}`);
+export async function doVeKptUpdateConfig(walletData: WalletData, networkKpt: KptContractsDeployed, print: boolean = true): Promise<any> {
+  print && console.log(`\n  Do kpt.veKpt update_config enter.`);
+  const veKpt: ContractDeployed | undefined = networkKpt?.veKpt;
+  const kptFund: ContractDeployed | undefined = networkKpt?.kptFund;
   if (!veKpt?.address || !kptFund?.address) {
     console.error(`\n  ********* missing info!`);
     return;
@@ -274,7 +341,7 @@ export async function doVeKptUpdateConfig(walletData: WalletData, veKpt: Contrac
   const veKptClient = new kptContracts.VeKpt.VeKptClient(walletData.signingCosmWasmClient, walletData.address, veKpt.address);
   const veKptQueryClient = new kptContracts.VeKpt.VeKptQueryClient(walletData.signingCosmWasmClient, veKpt.address);
 
-  let beforeConfigRes: KptConfigResponse = null;
+  let beforeConfigRes: VoteConfigResponse = null;
   let initFlag = true;
   try {
     beforeConfigRes = await veKptQueryClient.voteConfig();
@@ -288,7 +355,7 @@ export async function doVeKptUpdateConfig(walletData: WalletData, veKpt: Contrac
   }
 
   if (initFlag && kptFund?.address === beforeConfigRes?.kpt_fund) {
-    console.warn(`\n  ********* The kpt.veKpt config is already done.`);
+    console.warn(`\n  ######### The kpt.veKpt config is already done.`);
     return;
   }
   const doRes = await veKptClient.updateConfig({ kptFund: kptFund.address });
@@ -296,6 +363,41 @@ export async function doVeKptUpdateConfig(walletData: WalletData, veKpt: Contrac
 
   const afterConfigRes = await veKptQueryClient.voteConfig();
   print && console.log(`kpt.veKpt config info: ${JSON.stringify(afterConfigRes)}`);
+}
+
+export async function doBlindBoxConfig(walletData: WalletData, networkKpt: KptContractsDeployed, print: boolean = true): Promise<any> {
+  print && console.log(`\n  Do kpt.blindBox update_config enter.`);
+  const blindBox: ContractDeployed | undefined = networkKpt?.blindBox;
+  const blindBoxInviterReward: ContractDeployed | undefined = networkKpt?.blindBoxInviterReward;
+  if (!blindBox?.address || !blindBoxInviterReward?.address) {
+    console.error(`\n  ********* missing info!`);
+    return;
+  }
+  const blindBoxClient = new kptContracts.BlindBox.BlindBoxClient(walletData.signingCosmWasmClient, walletData.address, blindBox.address);
+  const blindBoxQueryClient = new kptContracts.BlindBox.BlindBoxQueryClient(walletData.signingCosmWasmClient, blindBox.address);
+
+  let beforeConfigRes: BlindBoxConfigResponse = null;
+  let initFlag = true;
+  try {
+    beforeConfigRes = await blindBoxQueryClient.queryBlindBoxConfig();
+  } catch (error: any) {
+    if (error?.toString().includes("config not found")) {
+      initFlag = false;
+      console.error(`\n  ********* kpt.blindBox: need update_config. `);
+    } else {
+      throw new Error(error);
+    }
+  }
+
+  if (initFlag && blindBoxInviterReward?.address === beforeConfigRes?.inviter_reward_box_contract) {
+    console.warn(`\n  ######### The kpt.blindBox config is already done. `);
+    return;
+  }
+  const doRes = await blindBoxClient.updateConfig({ inviterRewardBoxContract: blindBoxInviterReward.address });
+  console.log(`Do kpt.blindBox update_config ok. \n  ${doRes?.transactionHash}`);
+
+  const afterConfigRes = await blindBoxQueryClient.queryBlindBoxConfig();
+  print && console.log(`config info: \n  ${JSON.stringify(afterConfigRes)}`);
 }
 
 export async function doVeKptSetMinters(walletData: WalletData, veKpt: ContractDeployed, stakingRewards: ContractDeployed, isMinter: boolean, print: boolean = true): Promise<any> {
@@ -321,7 +423,7 @@ export async function doVeKptSetMinters(walletData: WalletData, veKpt: ContractD
   }
 
   if (initFlag && beforeRes?.is_minter) {
-    console.warn(`\n  ********* The kpt.veKpt minter is already done.`);
+    console.warn(`\n  ######### The kpt.veKpt minter is already done.`);
     return;
   }
   const doRes = await veKptClient.setMinters({ contracts: [stakingRewards.address], isMinter: [isMinter] });
@@ -329,6 +431,41 @@ export async function doVeKptSetMinters(walletData: WalletData, veKpt: ContractD
 
   const afterRes = await veKptQueryClient.isMinter({ address: stakingRewards.address });
   print && console.log(`kpt.veKpt isMinter: ${JSON.stringify(afterRes)}`);
+}
+
+export async function doKptDistributeUpdateRuleConfig(walletData: WalletData, networkKpt: KptContractsDeployed, {ruleType, ruleOwner}:{ruleType: string,ruleOwner: string }, print: boolean = true): Promise<any> {
+  print && console.log(`\n  Do kpt.kptDistribute UpdateRuleConfig enter. ruleType: ${ruleType}`);
+  const kptDistribute: ContractDeployed | undefined = networkKpt?.kptDistribute;
+  // const blindBoxInviterReward: ContractDeployed | undefined = networkKpt?.blindBoxInviterReward;
+  if (!kptDistribute?.address || !ruleType || !ruleOwner) {
+    console.error(`\n  ********* missing info!`);
+    return;
+  }
+  const kptDistributeClient = new kptContracts.KptDistribute.KptDistributeClient(walletData.signingCosmWasmClient, walletData.address, kptDistribute.address);
+  const kptDistributeQueryClient = new kptContracts.KptDistribute.KptDistributeQueryClient(walletData.signingCosmWasmClient, kptDistribute.address);
+
+  let beforeRes: QueryRuleInfoResponse = null;
+  let initFlag = true;
+  try {
+    beforeRes = await kptDistributeQueryClient.queryRuleInfo({ ruleType });
+  } catch (error: any) {
+    if (error?.toString().includes("minter not found")) {
+      initFlag = false;
+      console.error(`\n  ********* kpt.kptDistribute: need UpdateRuleConfig.`);
+    } else {
+      throw new Error(error);
+    }
+  }
+
+  if (initFlag && beforeRes?.rule_config.rule_owner === ruleOwner) {
+    console.warn(`\n  ######### The kpt.kptDistribute rule_config is already done.`);
+    return;
+  }
+  const doRes = await kptDistributeClient.updateRuleConfig({ updateRuleMsg: { rule_type: ruleType, rule_owner: ruleOwner } });
+  console.log(`Do kpt.veKpt setMinters ok. \n  ${doRes?.transactionHash}`);
+
+  const afterRes = await kptDistributeQueryClient.queryRuleInfo({ ruleType });
+  print && console.log(`kpt.kptDistribute: ${JSON.stringify(afterRes)}`);
 }
 
 export async function printDeployedKptContracts(networkKpt: KptContractsDeployed): Promise<void> {
@@ -340,7 +477,9 @@ export async function printDeployedKptContracts(networkKpt: KptContractsDeployed
     { name: `veKptBoost`, deploy: kptConfigs?.veKptBoost?.deploy, codeId: networkKpt?.veKptBoost?.codeId || 0, address: networkKpt?.veKptBoost?.address },
     { name: `veKptMiner`, deploy: kptConfigs?.veKptMiner?.deploy, codeId: networkKpt?.veKptMiner?.codeId || 0, address: networkKpt?.veKptMiner?.address },
     { name: `blindBox`, deploy: kptConfigs?.blindBox?.deploy, codeId: networkKpt?.blindBox?.codeId || 0, address: networkKpt?.blindBox?.address },
-    { name: `blindBoxReward`, deploy: kptConfigs?.blindBoxReward?.deploy, codeId: networkKpt?.blindBoxReward?.codeId || 0, address: networkKpt?.blindBoxReward?.address }
+    { name: `kptDistribute`, deploy: kptConfigs?.kptDistribute?.deploy, codeId: networkKpt?.kptDistribute?.codeId || 0, address: networkKpt?.kptDistribute?.address },
+    { name: `blindBoxReward`, deploy: kptConfigs?.blindBoxReward?.deploy, codeId: networkKpt?.blindBoxReward?.codeId || 0, address: networkKpt?.blindBoxReward?.address },
+    { name: `blindBoxInviterReward`, deploy: kptConfigs?.blindBoxInviterReward?.deploy, codeId: networkKpt?.blindBoxInviterReward?.codeId || 0, address: networkKpt?.blindBoxInviterReward?.address }
   ];
   console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
   await printDeployedKptStakingContracts(networkKpt);
