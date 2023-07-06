@@ -48,16 +48,22 @@ export interface WalletData {
   gasPrice: GasPrice;
 
   wallet: DirectSecp256k1Wallet | DirectSecp256k1HdWallet | Secp256k1Wallet | Secp256k1HdWallet;
+  walletAmino: Secp256k1Wallet | Secp256k1HdWallet;
   account: AccountData;
   address: Addr;
   signingCosmWasmClient: SigningCosmWasmClient;
+  signingCosmWasmClientAmino: SigningCosmWasmClient;
   signingStargateClient: SigningStargateClient;
+  signingStargateClientAmino: SigningStargateClient;
 
   wallet2: DirectSecp256k1Wallet | DirectSecp256k1HdWallet | Secp256k1Wallet | Secp256k1HdWallet;
+  wallet2Amino: Secp256k1Wallet | Secp256k1HdWallet;
   account2: AccountData;
   address2: Addr;
   signingCosmWasmClient2: SigningCosmWasmClient;
+  signingCosmWasmClient2Amino: SigningCosmWasmClient;
   signingStargateClient2: SigningStargateClient;
+  signingStargateClient2Amino: SigningStargateClient;
 
   validator: Addr;
   stable_coin_denom: Addr;

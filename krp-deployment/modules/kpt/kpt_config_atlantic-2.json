@@ -344,6 +344,7 @@
     {
       "name": "SEI/KPT",
       "staking_token": "sei1gx9fvy0p6uls9n0hmu22yx9u2slg7403dep0492g0dymdqlhnjrsp9fs8l",
+      "pool_address": "sei1dgs47p8fe384pepp4q09fqwxu0xpr99j69d7avhqkfs5vsyzvl2sajz57m",
       "stakingRewards": {
         "admin": null,
         "initMsg": {
@@ -357,19 +358,7 @@
     {
       "name": "USDC/KUSD",
       "staking_token": "sei10snsks4hpdlm30ylfkgadvdsw8tvwgduwmkvfxaq2e6naf0yl48qyzrhzy",
-      "stakingRewards": {
-        "admin": null,
-        "initMsg": {
-          "duration": "2592000"
-        },
-        "label": "stakingRewards",
-        "filePath": "../krp-token-contracts/artifacts/staking_rewards.wasm",
-        "deploy": false
-      }
-    },
-    {
-      "name": "USDC/KUSD",
-      "staking_token": "sei1fqy9cclcs2sl6d47f6zyjayzg9hqn3lmyc9mhsuwsn6m6ezfvdeqm9pe8e",
+      "pool_address": "sei1fqy9cclcs2sl6d47f6zyjayzg9hqn3lmyc9mhsuwsn6m6ezfvdeqm9pe8e",
       "stakingRewards": {
         "admin": null,
         "initMsg": {

@@ -27,17 +27,19 @@ cp .env.example .env
 
 contracts modules:
 - swap-extention as swap
+- oracle
 - staking
 - market
 - convert
 - kpt
 - cdp
 
-**Deployment contracts modules order: `swap` -> `staking` -> `market` -> `convert` -> `kpt` -> `cdp`**
+**Deployment contracts modules order: `swap` -> `oracle` -> `staking` -> `market` -> `convert` -> `kpt` -> `cdp`**
 
 ```sh
 # npm run deploy:[contracts modules]
 npm run deploy:swap
+npm run deploy:oracle
 npm run deploy:staking
 npm run deploy:market
 npm run deploy:convert
@@ -54,6 +56,7 @@ just a few simple tests to make sure the contracts are not failing
 ```sh
 # npm run verify:[contracts modules]
 npm run verify:swap
+npm run verify:oracle
 npm run verify:staking
 npm run verify:market
 npm run verify:convert

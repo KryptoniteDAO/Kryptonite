@@ -56,7 +56,7 @@ export async function doSwapExtentionSetWhitelist(
   } catch (error: any) {
     if (error?.toString().includes("Swap not found")) {
       initFlag = false;
-      console.error(`\n  ********* swapExtention.address: need set_whitelist, address: ${whitelistConfig?.caller}`);
+      console.warn(`\n  ######### swapExtention.address: need set_whitelist, address: ${whitelistConfig?.caller}`);
     } else {
       throw new Error(error);
     }
@@ -71,7 +71,7 @@ export async function doSwapExtentionSetWhitelist(
   console.log(`Do swapExtention.address set_whitelist ok. \n  ${doRes?.transactionHash}`);
 
   const afterIsSwapWhitelistRes = await swapExtentionQueryClient.queryIsSwapWhitelist({ caller: whitelistConfig?.caller });
-  print && console.log(`is_swap_whitelist: ${afterIsSwapWhitelistRes}`);
+  print && console.log(`\n after is_swap_whitelist: ${afterIsSwapWhitelistRes}`);
 }
 
 export async function doSwapExtentionUpdatePairConfig(walletData: WalletData, swapExtention: ContractDeployed, pairConfig: SwapPairInfo, print: boolean = true): Promise<any> {
@@ -90,7 +90,7 @@ export async function doSwapExtentionUpdatePairConfig(walletData: WalletData, sw
   } catch (error: any) {
     if (error?.toString().includes("Pair config not found")) {
       initFlag = false;
-      console.error(`\n  ********* swapExtention.address: need update_pair_config.`);
+      console.warn(`\n  ######### swapExtention.address: need update_pair_config.`);
     } else {
       throw new Error(error);
     }
@@ -104,7 +104,7 @@ export async function doSwapExtentionUpdatePairConfig(walletData: WalletData, sw
   console.log(`Do swapExtention.address update_pair_config ok. \n  ${doRes?.transactionHash}`);
 
   const afterConfigRes = await swapExtentionQueryClient.queryPairConfig({ assetInfos: pairConfig.assetInfos });
-  print && console.log(`\n  pair config info: \n  ${JSON.stringify(afterConfigRes)}`);
+  print && console.log(`\n  after pair config info: \n  ${JSON.stringify(afterConfigRes)}`);
 }
 
 export async function printDeployedSwapContracts(networkSwap: SwapExtentionContractsDeployed): Promise<void> {

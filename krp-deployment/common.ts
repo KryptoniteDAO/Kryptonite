@@ -1,4 +1,4 @@
-import type { InstantiateOptions, MsgInstantiateContractEncodeObject, MsgStoreCodeEncodeObject, SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
+import type { InstantiateOptions, MsgInstantiateContractEncodeObject, MsgMigrateContractEncodeObject } from "@cosmjs/cosmwasm-stargate";
 import type { ExecuteInstruction, InstantiateResult, JsonObject, MsgExecuteContractEncodeObject } from "@cosmjs/cosmwasm-stargate";
 import type { Balance, BaseContractConfig, ClientData, ContractDeployed, WalletData } from "./types";
 import { getQueryClient } from "@sei-js/core";
@@ -18,8 +18,10 @@ import pako from "pako";
 import { Uint53 } from "@cosmjs/math";
 import Long from "long";
 import { EncodeObject } from "@cosmjs/proto-signing";
-
 const Decimal = require("decimal.js");
+
+export const FEE_AMOUNT_WARNING: number = 500000;
+export const GAS_MULTIPLIER: number = 1.3;
 
 export function readArtifact(name: string = "artifact", from: string) {
   try {
@@ -61,11 +63,24 @@ export async function storeCodeByWalletData<P extends { gasLimit?: number }>(wal
 }
 export async function storeCode<P extends { gasLimit?: number }>(clientData: ClientData, contract_file: string, gasPrice?: GasPrice, memo?: string, otherParams?: P): Promise<number> {
   console.log(`\n  storeCode enter. contract_file = ${contract_file}`);
-  const fee: StdFee = calculateFee(otherParams?.gasLimit ?? 3_100_000, clientData?.gasPrice || "0.001usei");
+
   let codeId = 0;
   try {
     const data = fs.readFileSync(contract_file);
     const uint8Array = new Uint8Array(data);
+    let fee: StdFee;
+    if (otherParams?.gasLimit && otherParams?.gasLimit > 0) {
+      fee = calculateFee(otherParams?.gasLimit, clientData?.gasPrice);
+    } else {
+      const gasEstimation = await clientData.signingCosmWasmClient.simulate(clientData.senderAddress, uploadMsgEncodeObject(clientData.senderAddress, uint8Array), memo);
+      fee = calculateFee(Math.round(gasEstimation * GAS_MULTIPLIER), clientData?.gasPrice);
+    }
+    console.log(`  storeCode fee`, fee);
+    if (BnComparedTo(fee.amount[0].amount, FEE_AMOUNT_WARNING) >= 0) {
+      console.error(`\n  ********* store code error：too large fee.`, contract_file);
+      return;
+    }
+    // const fee: StdFee = calculateFee(otherParams?.gasLimit ?? 3_100_000, clientData?.gasPrice || "0.001usei");
     const storeCodeTxResult = await clientData?.signingCosmWasmClient?.upload(clientData?.senderAddress, uint8Array, fee, memo);
     codeId = storeCodeTxResult.codeId;
     console.log(`  stored codeId = ${codeId} / ${storeCodeTxResult?.transactionHash}`);
@@ -80,8 +95,19 @@ export async function instantiateContractByWalletData<P extends { gasLimit?: num
 }
 export async function instantiateContract<P extends { gasLimit?: number }>(clientData: ClientData, admin: string, codeId: number, message: object, label: string = "", coins: Coin[] = [], otherParams?: P): Promise<string> {
   console.log(`\n  Instantiating contract enter. code_id = ${codeId}`);
-  const fee: StdFee = calculateFee(otherParams?.gasLimit ?? 300_000, clientData?.gasPrice || "0.001usei");
-
+  // const fee: StdFee = calculateFee(otherParams?.gasLimit ?? 300_000, clientData?.gasPrice || "0.001usei");
+  let fee: StdFee;
+  if (otherParams?.gasLimit && otherParams?.gasLimit > 0) {
+    fee = calculateFee(otherParams?.gasLimit, clientData?.gasPrice);
+  } else {
+    const gasEstimation = await clientData.signingCosmWasmClient.simulate(clientData.senderAddress, instantiateMsgEncodeObject(clientData.senderAddress, codeId, message, label, { memo: "", funds: coins, admin }), label);
+    fee = calculateFee(Math.round(gasEstimation * GAS_MULTIPLIER), clientData?.gasPrice);
+  }
+  console.log(`  instantiateContract fee`, fee);
+  if (BnComparedTo(fee.amount[0].amount, FEE_AMOUNT_WARNING) >= 0) {
+    console.error(`\n  ********* instantiateContract error：too large fee. codeId: `, codeId);
+    return;
+  }
   const instantiateTxResult = await clientData?.signingCosmWasmClient?.instantiate(clientData?.senderAddress, codeId, message, label, fee, { memo: "", funds: coins, admin });
   console.log(`  Instantiating stored codeId = ${codeId} / ${instantiateTxResult?.transactionHash}`);
   return instantiateTxResult.contractAddress;
@@ -114,33 +140,69 @@ function getContractAddresses(txResult: InstantiateResult, msgIndex = 0): [strin
   return [contractAddress1, contractAddress2];
 }
 
-export async function executeContractByWalletData(walletData: WalletData, contractAddress: string, message: object, label: string = "", coins: Coin[] = []) {
-  return executeContract(getClientDataByWalletData(walletData), contractAddress, message, label, coins);
+export async function executeContractByWalletData<P extends { gasLimit?: number }>(walletData: WalletData, contractAddress: string, message: object, label: string = "", coins: Coin[] = [], otherParams?: P) {
+  return executeContract(getClientDataByWalletData(walletData), contractAddress, message, label, coins, otherParams);
 }
 
-export async function executeContract(clientData: ClientData, contractAddress: string, message: object, label: string = "", coins: Coin[] = []) {
-  const fee: StdFee = calculateFee(3_000_000, clientData?.gasPrice || "0.001usei");
+export async function executeContract<P extends { gasLimit?: number }>(clientData: ClientData, contractAddress: string, message: object, label: string = "", coins: Coin[] = [], otherParams?: P) {
+  // const fee: StdFee = calculateFee(3_000_000, clientData?.gasPrice || "0.001usei");
+  let fee: StdFee;
+  if (otherParams?.gasLimit && otherParams?.gasLimit > 0) {
+    fee = calculateFee(otherParams?.gasLimit, clientData?.gasPrice);
+  } else {
+    const gasEstimation = await clientData.signingCosmWasmClient.simulate(clientData.senderAddress, executeMsgEncodeObject(clientData.senderAddress, contractAddress, message, coins), label);
+    fee = calculateFee(Math.round(gasEstimation * GAS_MULTIPLIER), clientData?.gasPrice);
+  }
+  console.log(`  executeContract fee`, fee);
+  if (BnComparedTo(fee.amount[0].amount, FEE_AMOUNT_WARNING) >= 0) {
+    console.error(`\n  ********* executeContract error：too large fee. `, contractAddress, message);
+    return;
+  }
   return await clientData?.signingCosmWasmClient?.execute(clientData?.senderAddress, contractAddress, message, fee, label, coins);
 }
 
-export async function migrateContractByWalletData(walletData: WalletData, contractAddress: string, newCodeId: number, message: object, memo?: string) {
-  return migrateContract(getClientDataByWalletData(walletData), contractAddress, newCodeId, message, memo);
+export async function migrateContractByWalletData<P extends { gasLimit?: number }>(walletData: WalletData, contractAddress: string, newCodeId: number, message: object, memo: string = "", otherParams?: P) {
+  return migrateContract(getClientDataByWalletData(walletData), contractAddress, newCodeId, message, memo, otherParams);
 }
-export async function migrateContract(clientData: ClientData, contractAddress: string, newCodeId: number, migrateMsg: object, memo?: string) {
+export async function migrateContract<P extends { gasLimit?: number }>(clientData: ClientData, contractAddress: string, newCodeId: number, migrateMsg: object, memo: string = "", otherParams?: P) {
   console.log(`\n  migrate contract enter. address = ${contractAddress} / new_code_id = ${newCodeId}`);
-  const fee: StdFee = calculateFee(2_000_000, clientData?.gasPrice || "0.001usei");
+  // const fee: StdFee = calculateFee(2_000_000, clientData?.gasPrice || "0.001usei");
+  let fee: StdFee;
+  if (otherParams?.gasLimit && otherParams?.gasLimit > 0) {
+    fee = calculateFee(otherParams?.gasLimit, clientData?.gasPrice);
+  } else {
+    const gasEstimation = await clientData.signingCosmWasmClient.simulate(clientData.senderAddress, migrateMsgEncodeObject(clientData.senderAddress, contractAddress, newCodeId, migrateMsg), memo);
+    fee = calculateFee(Math.round(gasEstimation * GAS_MULTIPLIER), clientData?.gasPrice);
+  }
+  console.log(`  migrateContract fee`, fee);
+  if (BnComparedTo(fee.amount[0].amount, FEE_AMOUNT_WARNING) >= 0) {
+    console.error(`\n  ********* migrateContract error：too large fee. `, newCodeId, contractAddress, migrateMsg);
+    return;
+  }
   return await clientData?.signingCosmWasmClient?.migrate(clientData?.senderAddress, contractAddress, newCodeId, migrateMsg, fee, memo);
 }
 
-export async function sendTokensByWalletData(walletData: WalletData, recipientAddress: string, coins: Coin[], memo?: string) {
-  return sendTokens(getClientDataByWalletData(walletData), recipientAddress, coins, memo);
+export async function sendTokensByWalletData<P extends { gasLimit?: number }>(walletData: WalletData, recipientAddress: string, coins: Coin[], memo: string = "", otherParams?: P) {
+  return sendTokens(getClientDataByWalletData(walletData), recipientAddress, coins, memo, otherParams);
 }
-export async function sendTokens(clientData: ClientData, recipientAddress: string, coins: Coin[], memo?: string) {
+export async function sendTokens<P extends { gasLimit?: number }>(clientData: ClientData, recipientAddress: string, coins: Coin[], memo: string = "", otherParams?: P) {
   // const sendCoin = {
   //   denom: coin.denom,
   //   amount: new Decimal(coin.amount).mul(new Decimal("10").pow(6)).toString()
   // };
-  const fee: StdFee = calculateFee(2_000_000, clientData?.gasPrice || "0.001usei");
+  // const fee: StdFee = calculateFee(2_000_000, clientData?.gasPrice || "0.001usei");
+  let fee: StdFee;
+  if (otherParams?.gasLimit && otherParams?.gasLimit > 0) {
+    fee = calculateFee(otherParams?.gasLimit, clientData?.gasPrice);
+  } else {
+    const gasEstimation = await clientData.signingCosmWasmClient.simulate(clientData.senderAddress, sendTokensMsgEncodeObject(clientData.senderAddress, recipientAddress, coins), memo);
+    fee = calculateFee(Math.round(gasEstimation * GAS_MULTIPLIER), clientData?.gasPrice);
+  }
+  console.log(`  migrateContract fee`, fee);
+  if (BnComparedTo(fee.amount[0].amount, FEE_AMOUNT_WARNING) >= 0) {
+    console.error(`\n  ********* sendTokens error：too large fee. `, recipientAddress, coins);
+    return;
+  }
   return await clientData?.signingStargateClient?.sendTokens(clientData?.senderAddress, recipientAddress, coins, fee, memo);
 }
 
@@ -514,6 +576,21 @@ export const instantiateMsgEncodeObject = (senderAddress: string, codeId: number
         msg: toUtf8(JSON.stringify(msg)),
         funds: [...(options.funds || [])],
         admin: options.admin
+      })
+    }
+  ];
+};
+
+export const migrateMsgEncodeObject = (senderAddress: string, contractAddress: string, codeId: number, migrateMsg: JsonObject): MsgMigrateContractEncodeObject[] => {
+  const typeUrl = MsgTypeUrls.Migrate;
+  return [
+    {
+      typeUrl,
+      value: MsgCodecs[typeUrl].fromPartial({
+        sender: senderAddress,
+        contract: contractAddress,
+        codeId: Long.fromString(new Uint53(codeId).toString()),
+        msg: toUtf8(JSON.stringify(migrateMsg))
       })
     }
   ];

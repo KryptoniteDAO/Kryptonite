@@ -1,8 +1,7 @@
 import type { ContractDeployed, WalletData } from "@/types";
-import type { CustodyBSeiContractConfig, DistributionModelContractConfig, InterestModelContractConfig, LiquidationQueueContractConfig, OracleContractsConfig, OracleContractsDeployed, OraclePythContractConfig } from "@/modules";
-import { ChainId, DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
-import { deployContract, executeContractByWalletData, instantiateContract2ByWalletData, instantiateContractByWalletData, queryContractConfig, queryWasmContractByWalletData, readArtifact, storeCodeByWalletData, writeArtifact } from "@/common";
-import { cdpConfigs, CdpContractsConfig } from "@/modules";
+import type { OracleContractsConfig, OracleContractsDeployed, OraclePythContractConfig } from "@/modules";
+import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
+import { deployContract, readArtifact, writeArtifact } from "@/common";
 import { marketContracts } from "@/contracts";
 import { PythFeederConfigResponse } from "@/contracts/market/OraclePyth.types";
 
@@ -71,7 +70,7 @@ export async function doOraclePythConfigFeedInfo(walletData: WalletData, oracleP
   } catch (error: any) {
     if (error?.toString().includes("Pyth feeder config not found")) {
       initFlag = false;
-      console.error(`\n  ********* oracle.oraclePyth: need config FeederInfo.`);
+      console.warn(`\n  ######### oracle.oraclePyth: need config FeederInfo.`);
     } else {
       throw new Error(error);
     }
@@ -103,7 +102,7 @@ export async function queryOraclePythFeederConfig(walletData: WalletData, oracle
   } catch (error: any) {
     if (error?.toString().includes("Pyth feeder config not found")) {
       initFlag = false;
-      console.error(`\n  ********* oracle.oraclePyth: need config FeederInfo.`);
+      console.warn(`\n  ######### oracle.oraclePyth: need config FeederInfo.`);
     } else {
       throw new Error(error);
     }
@@ -125,7 +124,7 @@ export async function queryOraclePythFeederConfig(walletData: WalletData, oracle
 //   } catch (error: any) {
 //     if (error?.toString().includes("No feeder data for the specified asset exist")) {
 //       initFlag = false;
-//       console.error(`\n  ********* No feeder data for the specified asset exist`);
+//       console.warn(`\n  ######### No feeder data for the specified asset exist`);
 //     } else {
 //       throw new Error(error);
 //     }

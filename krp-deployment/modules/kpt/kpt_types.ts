@@ -71,6 +71,7 @@ export interface StakingRewardsContractConfig extends BaseContractConfig {
 export interface StakingRewardsPairsConfig {
   name?: string;
   staking_token?: Addr;
+  pool_address?: Addr;
   stakingRewards?: StakingRewardsContractConfig;
 }
 

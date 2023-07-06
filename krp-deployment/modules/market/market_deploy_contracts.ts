@@ -78,7 +78,8 @@ async function main(): Promise<void> {
 
   await doMarketConfig(walletData, networkMarket, marketConfigRes.initFlag, marketConfigRes?.config, bSeiToken, rewardsDispatcher, oraclePyth);
   await doOverseerConfig(walletData, overseerConfigRes?.config, overseer, liquidationQueue);
-  await doCustodyBSeiConfig(walletData, custodyBSeiConfigRes?.config, custodyBSei, liquidationQueue);
+  /// no need
+  // await doCustodyBSeiConfig(walletData, custodyBSeiConfigRes?.config, custodyBSei, liquidationQueue);
   await doLiquidationQueueConfig(walletData, liquidationQueueConfigRes?.config, liquidationQueue, oraclePyth, overseer);
 
   /// add market.custodyBSei to swap whitelist

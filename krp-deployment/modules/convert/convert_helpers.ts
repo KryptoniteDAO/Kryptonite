@@ -100,14 +100,14 @@ export async function deployBtoken(walletData: WalletData, networkConvert: Conve
       convertWriteArtifact(networkConvert, walletData.chainId);
       convertPairsConfig.btoken.deploy = true;
     }
-    console.log(convertPairsNetwork?.btoken?.codeId, ` btoken: `, JSON.stringify(convertPairsNetwork?.btoken));
+    console.log(`  `, convertPairsNetwork?.btoken?.codeId, ` btoken: `, JSON.stringify(convertPairsNetwork?.btoken));
   }
 }
 
 export async function deployCustody(walletData: WalletData, networkConvert: ConvertContractsDeployed, nativeDenom: string, reward: ContractDeployed, market: ContractDeployed, overseer: ContractDeployed, liquidationQueue: ContractDeployed, swapExtention: ContractDeployed): Promise<void> {
   const convertPairsConfig: ConvertPairsConfig = convertConfigs?.convertPairs?.find((v: ConvertPairsConfig) => nativeDenom === v.native_denom);
   if (!convertPairsConfig) {
-    console.error(`unknown configuration of `, nativeDenom);
+    console.error(`\n  ********* unknown configuration of `, nativeDenom);
     return;
   }
   if (!reward?.address || !market?.address || !overseer?.address || !liquidationQueue?.address || !swapExtention?.address) {
@@ -123,7 +123,7 @@ export async function deployCustody(walletData: WalletData, networkConvert: Conv
   }
   const btoken = convertPairsNetwork?.btoken;
   if (!btoken?.address) {
-    console.error(`please deploy btoken first of `, nativeDenom);
+    console.error(`\n  ********* please deploy btoken first of `, nativeDenom);
     return;
   }
   if (!convertPairsNetwork?.custody?.address) {

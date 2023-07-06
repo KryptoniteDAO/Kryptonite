@@ -74,22 +74,23 @@ export async function loadingWalletData(loadBalances: boolean = true): Promise<W
   if (!stable_coin_denom) {
     throw new Error("\n  Set the stable_coin_denom in configuration file variable to the stable coin denom");
   }
-  // const wallet = privateKey ? await DirectSecp256k1Wallet.fromKey(toBeArray(privateKey), prefix) : await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, { prefix });
-  const wallet = privateKey ? await Secp256k1Wallet.fromKey(toBeArray(privateKey), prefix) : await Secp256k1HdWallet.fromMnemonic(mnemonic, { prefix });
-  const [account] = await wallet.getAccounts();
+  const gasPrice: GasPrice = GasPrice.fromString(gasPriceValue);
 
+  const wallet = privateKey ? await DirectSecp256k1Wallet.fromKey(toBeArray(privateKey), prefix) : await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, { prefix });
+  const [account] = await wallet.getAccounts();
   if (!account?.address) {
     throw new Error("\n  No account1 found in wallet");
   }
   const address = account.address;
-  const gasPrice: GasPrice = GasPrice.fromString(gasPriceValue);
   const signingCosmWasmClient = await getSigningCosmWasmClient(RPC_ENDPOINT, wallet, { gasPrice: gasPrice });
   const netChainId = await signingCosmWasmClient.getChainId();
-
   if (netChainId !== chainId) {
     throw new Error(`\n  Chain ID mismatch. Expected ${chainId}, got ${netChainId}`);
   }
   const signingStargateClient = await getSigningClient(RPC_ENDPOINT, wallet, { gasPrice: gasPrice });
+  const walletAmino = privateKey ? await Secp256k1Wallet.fromKey(toBeArray(privateKey), prefix) : await Secp256k1HdWallet.fromMnemonic(mnemonic, { prefix });
+  const signingCosmWasmClientAmino = await getSigningCosmWasmClient(RPC_ENDPOINT, walletAmino, { gasPrice: gasPrice });
+  const signingStargateClientAmino = await getSigningClient(RPC_ENDPOINT, walletAmino, { gasPrice: gasPrice });
 
   // const wallet2 = privateKey2 ? await DirectSecp256k1Wallet.fromKey(toBeArray(privateKey2), prefix) : await DirectSecp256k1HdWallet.fromMnemonic(mnemonic2, { prefix });
   const wallet2 = privateKey2 ? await Secp256k1Wallet.fromKey(toBeArray(privateKey2), prefix) : await Secp256k1HdWallet.fromMnemonic(mnemonic2, { prefix });
@@ -100,6 +101,9 @@ export async function loadingWalletData(loadBalances: boolean = true): Promise<W
   const address2 = account2.address;
   const signingCosmWasmClient2 = await getSigningCosmWasmClient(RPC_ENDPOINT, wallet2, { gasPrice: gasPrice });
   const signingStargateClient2 = await getSigningClient(RPC_ENDPOINT, wallet2, { gasPrice: gasPrice });
+  const wallet2Amino = privateKey2 ? await Secp256k1Wallet.fromKey(toBeArray(privateKey2), prefix) : await Secp256k1HdWallet.fromMnemonic(mnemonic2, { prefix });
+  const signingCosmWasmClient2Amino = await getSigningCosmWasmClient(RPC_ENDPOINT, wallet2Amino, { gasPrice: gasPrice });
+  const signingStargateClient2Amino = await getSigningClient(RPC_ENDPOINT, wallet2Amino, { gasPrice: gasPrice });
 
   console.log(`\n  current chainId: ${chainId} / deploy version: ${DEPLOY_VERSION} \n  address1: ${address} / address2: ${address2}`);
 
@@ -119,16 +123,22 @@ export async function loadingWalletData(loadBalances: boolean = true): Promise<W
     gasPrice,
 
     wallet,
+    walletAmino,
     account,
     address,
     signingCosmWasmClient,
+    signingCosmWasmClientAmino,
     signingStargateClient,
+    signingStargateClientAmino,
 
     wallet2,
+    wallet2Amino,
     account2,
     address2,
     signingCosmWasmClient2,
+    signingCosmWasmClient2Amino,
     signingStargateClient2,
+    signingStargateClient2Amino,
 
     validator,
     stable_coin_denom,

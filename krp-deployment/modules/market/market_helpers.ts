@@ -300,7 +300,7 @@ export async function doOverseerConfig(walletData: WalletData, overseerConfigRes
 }
 
 export async function doCustodyBSeiConfig(walletData: WalletData, custodyBSeiConfigRes: any, custodyBSei: ContractDeployed, liquidationQueue: ContractDeployed): Promise<void> {
-  console.warn(`\n  Do custodyBSei's config enter`);
+  console.warn(`\n  Do custodyBSei's config enter.`, custodyBSeiConfigRes, liquidationQueue?.address);
   if (!custodyBSei?.address || !liquidationQueue?.address) {
     return;
   }
@@ -314,7 +314,7 @@ export async function doCustodyBSeiConfig(walletData: WalletData, custodyBSeiCon
         liquidation_contract: liquidationQueue.address
       }
     });
-    console.log("Do custodyBSei's config ok. \n", custodyBSeiUpdateConfigRes?.transactionHash);
+    console.log(`  Do custodyBSei's config ok. \n`, custodyBSeiUpdateConfigRes?.transactionHash);
     await queryContractConfig(walletData, custodyBSei);
   }
 }
