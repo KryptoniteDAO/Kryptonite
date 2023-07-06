@@ -1,9 +1,21 @@
-import type { InstantiateOptions, MsgInstantiateContractEncodeObject, MsgMigrateContractEncodeObject } from "@cosmjs/cosmwasm-stargate";
-import type { ExecuteInstruction, InstantiateResult, JsonObject, MsgExecuteContractEncodeObject } from "@cosmjs/cosmwasm-stargate";
+import type {
+  CosmWasmClient,
+  ExecuteInstruction,
+  InstantiateResult,
+  JsonObject,
+  MsgExecuteContractEncodeObject,
+  InstantiateOptions,
+  MsgClearAdminEncodeObject,
+  MsgInstantiateContractEncodeObject,
+  MsgMigrateContractEncodeObject,
+  MsgUpdateAdminEncodeObject,
+  MsgStoreCodeEncodeObject
+} from "@cosmjs/cosmwasm-stargate";
+import type { GasPrice, MsgDelegateEncodeObject, MsgSendEncodeObject, MsgTransferEncodeObject, MsgUndelegateEncodeObject, MsgWithdrawDelegatorRewardEncodeObject } from "@cosmjs/stargate";
 import type { Balance, BaseContractConfig, ClientData, ContractDeployed, WalletData } from "./types";
+import type { Coin, StdFee } from "@cosmjs/amino";
 import { getQueryClient } from "@sei-js/core";
-import { calculateFee, coins, GasPrice, MsgSendEncodeObject } from "@cosmjs/stargate";
-import { Coin, StdFee } from "@cosmjs/amino";
+import { calculateFee, coins } from "@cosmjs/stargate";
 import * as fs from "fs";
 import * as path from "path";
 import { fromBech32, toUtf8 } from "@cosmjs/encoding";
@@ -13,11 +25,10 @@ import { MsgBeginRedelegate, MsgDelegate, MsgUndelegate } from "cosmjs-types/cos
 import { MsgCreateVestingAccount } from "cosmjs-types/cosmos/vesting/v1beta1/tx";
 import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
 import { MsgClearAdmin, MsgExecuteContract, MsgInstantiateContract, MsgInstantiateContract2, MsgMigrateContract, MsgStoreCode, MsgUpdateAdmin } from "cosmjs-types/cosmwasm/wasm/v1/tx";
-import { CosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 import pako from "pako";
 import { Uint53 } from "@cosmjs/math";
 import Long from "long";
-import { EncodeObject } from "@cosmjs/proto-signing";
+import { Height } from "cosmjs-types/ibc/core/client/v1/client";
 const Decimal = require("decimal.js");
 
 export const FEE_AMOUNT_WARNING: number = 500000;
@@ -63,7 +74,6 @@ export async function storeCodeByWalletData<P extends { gasLimit?: number }>(wal
 }
 export async function storeCode<P extends { gasLimit?: number }>(clientData: ClientData, contract_file: string, gasPrice?: GasPrice, memo?: string, otherParams?: P): Promise<number> {
   console.log(`\n  storeCode enter. contract_file = ${contract_file}`);
-
   let codeId = 0;
   try {
     const data = fs.readFileSync(contract_file);
@@ -550,7 +560,7 @@ export const executeMultipleMsgEncodeObject = (senderAddress: string, instructio
   }));
 };
 
-export const uploadMsgEncodeObject = (senderAddress: string, wasmCode: Uint8Array): EncodeObject[] => {
+export const uploadMsgEncodeObject = (senderAddress: string, wasmCode: Uint8Array): MsgStoreCodeEncodeObject[] => {
   const typeUrl = MsgTypeUrls.Upload;
   const compressed = pako.gzip(wasmCode, { level: 9 });
   return [
@@ -591,6 +601,103 @@ export const migrateMsgEncodeObject = (senderAddress: string, contractAddress: s
         contract: contractAddress,
         codeId: Long.fromString(new Uint53(codeId).toString()),
         msg: toUtf8(JSON.stringify(migrateMsg))
+      })
+    }
+  ];
+};
+
+export const updateAdminMsgEncodeObject = (senderAddress: string, contractAddress: string, newAdmin: string): MsgUpdateAdminEncodeObject[] => {
+  const typeUrl = MsgTypeUrls.UpdateAdmin;
+  return [
+    {
+      typeUrl,
+      value: MsgCodecs[typeUrl].fromPartial({
+        sender: senderAddress,
+        contract: contractAddress,
+        newAdmin: newAdmin
+      })
+    }
+  ];
+};
+
+export const clearAdminMsgEncodeObject = (senderAddress: string, contractAddress: string): MsgClearAdminEncodeObject[] => {
+  const typeUrl = MsgTypeUrls.ClearAdmin;
+  return [
+    {
+      typeUrl,
+      value: MsgCodecs[typeUrl].fromPartial({
+        sender: senderAddress,
+        contract: contractAddress
+      })
+    }
+  ];
+};
+
+export const delegateMsgEncodeObject = (delegatorAddress: string, validatorAddress: string, amount: Coin): MsgDelegateEncodeObject[] => {
+  const typeUrl = MsgTypeUrls.Delegate;
+  return [
+    {
+      typeUrl,
+      value: MsgCodecs[typeUrl].fromPartial({
+        delegatorAddress: delegatorAddress,
+        validatorAddress,
+        amount
+      })
+    }
+  ];
+};
+
+export const undelegateMsgEncodeObject = (delegatorAddress: string, validatorAddress: string, amount: Coin): MsgUndelegateEncodeObject[] => {
+  const typeUrl = MsgTypeUrls.Undelegate;
+  return [
+    {
+      typeUrl,
+      value: MsgCodecs[typeUrl].fromPartial({
+        delegatorAddress: delegatorAddress,
+        validatorAddress,
+        amount
+      })
+    }
+  ];
+};
+
+export const withdrawDelegatorRewardMsgEncodeObject = (delegatorAddress: string, validatorAddress: string): MsgWithdrawDelegatorRewardEncodeObject[] => {
+  const typeUrl = MsgTypeUrls.WithdrawDelegatorReward;
+  return [
+    {
+      typeUrl,
+      value: MsgCodecs[typeUrl].fromPartial({
+        delegatorAddress: delegatorAddress,
+        validatorAddress
+      })
+    }
+  ];
+};
+
+export const sendIbcTokensMsgEncodeObject = (
+  senderAddress: string,
+  recipientAddress: string,
+  transferAmount: Coin,
+  sourcePort: string,
+  sourceChannel: string,
+  timeoutHeight: Height | undefined,
+  /** timeout in seconds */
+  timeoutTimestamp: number | undefined
+): MsgTransferEncodeObject[] => {
+  const timeoutTimestampNanoseconds = timeoutTimestamp ? Long.fromNumber(timeoutTimestamp).multiply(1_000_000_000) : undefined;
+
+  const typeUrl = MsgTypeUrls.Transfer;
+  return [
+    {
+      typeUrl,
+      value: MsgCodecs[typeUrl].fromPartial({
+        sourcePort: sourcePort,
+        sourceChannel: sourceChannel,
+        sender: senderAddress,
+        receiver: recipientAddress,
+        token: transferAmount,
+        timeoutHeight: timeoutHeight,
+        timeoutTimestamp: timeoutTimestampNanoseconds
       })
     }
   ];

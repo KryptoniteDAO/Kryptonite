@@ -1,8 +1,8 @@
 import type { WalletData } from "./types";
 import type { CdpContractsDeployed, ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, KptContractsDeployed, SwapExtentionContractsDeployed, OracleContractsDeployed } from "./modules";
-import { BnAdd, BnComparedTo, BnDiv, BnMul, BnPow, BnSub, printChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance, queryWasmContractByWalletData } from "./common";
-import { loadingWalletData } from "./env_data";
 import { stakingReadArtifact, marketReadArtifact, swapExtentionReadArtifact, convertReadArtifact, kptReadArtifact, cdpReadArtifact, oracleReadArtifact } from "./modules";
+import { BnAdd, BnComparedTo, BnDiv, BnMul, BnPow, BnSub, executeContractByWalletData, printChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance, queryWasmContractByWalletData, sendCoinToOtherAddress, sendTokensByWalletData } from "./common";
+import { loadingWalletData } from "./env_data";
 
 import { cdpContracts, cw20BaseContracts, kptContracts, marketContracts } from "./contracts";
 import Cw20Base = cw20BaseContracts.Cw20Base;
@@ -35,7 +35,14 @@ async function main(): Promise<void> {
     const kptQueryClient = new Cw20Base.Cw20BaseQueryClient(walletData.signingCosmWasmClient, networkKpt?.kpt?.address);
     const balanceResponse: BalanceResponse = await kptQueryClient.balance({ address: walletData.address });
     console.log(balanceResponse);
-    // await kptClient.transfer({amount:"1000000000000", recipient:""})
+    // const doRes = await kptClient.transfer({ amount: "1000000000000", recipient: "" });
+    // const doRes = await executeContractByWalletData(walletData, networkKpt?.kpt?.address, {
+    //   transfer: {
+    //     amount: "1000000000000",
+    //     recipient: ""
+    //   }
+    // });
+    // console.log(doRes);
   }
 
   // const oraclePythQueryClient = new marketContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, networkMarket?.oraclePyth?.address);
@@ -121,14 +128,14 @@ const getPairPrice = async (walletData: WalletData, pairToken: string): Promise<
   let pairTotalValue = "0";
   for (const assetInfo of pairRes.asset_infos) {
     if (!!assetInfo?.["native_token"]) {
-      const balanceRaw = (await queryAddressBalance(walletData, pairToken, assetInfo?.["native_token"].denom))?.amount ?? 0;
+      const balanceRaw = (await queryAddressBalance(walletData, pairToken, assetInfo?.["native_token"].denom))?.amount ?? "0";
       const balance = BnDiv(balanceRaw, BnPow(10, 6));
       const price = await getAssetPrice(walletData, pairToken, assetInfo);
       const asset_value = BnMul(balance, price);
       pairTotalValue = BnAdd(pairTotalValue, asset_value);
       assetDataInfoList.push({ asset_info: assetInfo, price, asset_balance: { balanceRaw, balance }, asset_value });
     } else if (!!assetInfo?.["token"]) {
-      const balanceRaw = (await queryAddressTokenBalance(walletData.signingCosmWasmClient, pairToken, assetInfo?.["token"].contract_addr))?.amount ?? 0;
+      const balanceRaw = (await queryAddressTokenBalance(walletData.signingCosmWasmClient, pairToken, assetInfo?.["token"].contract_addr))?.amount ?? "0";
       const balance = BnDiv(balanceRaw, BnPow(10, 6));
       const price = await getAssetPrice(walletData, pairToken, assetInfo);
       const asset_value = BnMul(balance, price);
