@@ -21,7 +21,6 @@ export interface InstantiateMsg {
   token_id_prefix: string;
 }
 export interface BlindBoxLevelMsg {
-  is_random_box: boolean;
   mint_total_count: number;
   price: number;
 }
@@ -29,9 +28,6 @@ export interface ReferralRewardConfigMsg {
   referral_level_config: {
     [k: string]: ReferralLevelConfig;
   };
-  reward_token_config?: {
-    [k: string]: ReferralRewardTokenConfig;
-  } | null;
 }
 export interface ReferralLevelConfig {
   invitee_discount_rate: number;
@@ -48,11 +44,6 @@ export interface ReferralLevelRewardBoxConfig {
   };
   [k: string]: unknown;
 }
-export interface ReferralRewardTokenConfig {
-  conversion_ratio: number;
-  reward_token: string;
-  [k: string]: unknown;
-}
 export type ExecuteMsg = {
   update_config: {
     can_transfer_time?: number | null;
@@ -64,19 +55,12 @@ export type ExecuteMsg = {
     price_token?: string | null;
     receiver_price_addr?: Addr | null;
     start_mint_time?: number | null;
-    token_id_prefix?: string | null;
   };
 } | {
   update_config_level: {
     index: number;
     mint_total_count?: number | null;
     price?: number | null;
-  };
-} | {
-  update_reward_token_config: {
-    conversion_ratio: number;
-    reward_token: string;
-    reward_token_type: string;
   };
 } | {
   update_referral_level_config: {
@@ -89,11 +73,6 @@ export type ExecuteMsg = {
 } | {
   create_referral_info: {
     referral_code: string;
-    reward_token_type: string;
-  };
-} | {
-  modify_reward_token_type: {
-    reward_token_type: string;
   };
 } | {
   do_inviter_reward_mint: {
@@ -322,7 +301,6 @@ export interface UserInfoResponse {
   user_reward_box: {
     [k: string]: number;
   };
-  user_reward_token_type: string;
   user_reward_total_base_amount: number;
 }
 export interface MinterResponse {
@@ -342,9 +320,6 @@ export interface ReferralRewardConfigResponse {
     [k: string]: number;
   };
   referral_reward_total_base_amount: number;
-  reward_token_config: {
-    [k: string]: ReferralRewardTokenConfigResponse;
-  };
 }
 export interface ReferralLevelConfigResponse {
   invitee_discount_rate: number;
@@ -358,10 +333,6 @@ export interface ReferralLevelRewardBoxConfigResponse {
   reward_box: {
     [k: string]: number;
   };
-}
-export interface ReferralRewardTokenConfigResponse {
-  conversion_ratio: number;
-  reward_token: string;
 }
 export interface BlindBoxConfigResponse {
   can_transfer_time: number;
@@ -385,7 +356,6 @@ export interface BlindBoxConfigLevelResponse {
 }
 export interface BlindBoxInfoResponse {
   block_number: number;
-  is_random_box: boolean;
   is_reward_box: boolean;
   level_index: number;
   price: number;

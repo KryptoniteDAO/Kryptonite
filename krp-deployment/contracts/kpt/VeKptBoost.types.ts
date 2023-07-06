@@ -21,12 +21,6 @@ export type ExecuteMsg = {
     mining_boost: Uint128;
   };
 } | {
-  modify_lock_setting: {
-    duration: Uint128;
-    index: number;
-    mining_boost: Uint128;
-  };
-} | {
   change_gov: {
     gov: Addr;
   };

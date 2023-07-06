@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Uint128, Logo, EmbeddedLogo, Binary, Addr, InstantiateMsg, InstantiateMsg1, Cw20Coin, InstantiateMarketingInfo, MinterResponse, ExecuteMsg, Expiration, Timestamp, Uint64, QueryMsg, AllAccountsResponse, AllAllowancesResponse, AllowanceInfo, AllSpenderAllowancesResponse, SpenderAllowanceInfo, AllowanceResponse, BalanceResponse, CheckpointResponse, DelegatesResponse, DownloadLogoResponse, GetPastTotalSupplyResponse, GetPastVotesResponse, GetVotesResponse, IsMinterResponse, LogoInfo, MarketingInfoResponse, NumCheckpointsResponse, TokenInfoResponse, VoteConfigResponse } from "./VeKpt.types";
+import { Uint128, Logo, EmbeddedLogo, Binary, Addr, InstantiateMsg, InstantiateMsg1, Cw20Coin, InstantiateMarketingInfo, MinterResponse, ExecuteMsg, QueryMsg, AllAccountsResponse, BalanceResponse, CheckpointResponse, DownloadLogoResponse, GetPastTotalSupplyResponse, GetPastVotesResponse, GetVotesResponse, IsMinterResponse, LogoInfo, MarketingInfoResponse, NumCheckpointsResponse, TokenInfoResponse, VoteConfigResponse } from "./VeKpt.types";
 export interface VeKptReadOnlyInterface {
   contractAddress: string;
   voteConfig: () => Promise<VoteConfigResponse>;
@@ -27,11 +27,6 @@ export interface VeKptReadOnlyInterface {
   }: {
     account: Addr;
   }) => Promise<NumCheckpointsResponse>;
-  delegates: ({
-    account
-  }: {
-    account: Addr;
-  }) => Promise<DelegatesResponse>;
   getVotes: ({
     account
   }: {
@@ -56,31 +51,6 @@ export interface VeKptReadOnlyInterface {
   }) => Promise<BalanceResponse>;
   tokenInfo: () => Promise<TokenInfoResponse>;
   minter: () => Promise<MinterResponse>;
-  allowance: ({
-    owner,
-    spender
-  }: {
-    owner: string;
-    spender: string;
-  }) => Promise<AllowanceResponse>;
-  allAllowances: ({
-    limit,
-    owner,
-    startAfter
-  }: {
-    limit?: number;
-    owner: string;
-    startAfter?: string;
-  }) => Promise<AllAllowancesResponse>;
-  allSpenderAllowances: ({
-    limit,
-    spender,
-    startAfter
-  }: {
-    limit?: number;
-    spender: string;
-    startAfter?: string;
-  }) => Promise<AllSpenderAllowancesResponse>;
   allAccounts: ({
     limit,
     startAfter
@@ -102,16 +72,12 @@ export class VeKptQueryClient implements VeKptReadOnlyInterface {
     this.isMinter = this.isMinter.bind(this);
     this.checkpoints = this.checkpoints.bind(this);
     this.numCheckpoints = this.numCheckpoints.bind(this);
-    this.delegates = this.delegates.bind(this);
     this.getVotes = this.getVotes.bind(this);
     this.getPastVotes = this.getPastVotes.bind(this);
     this.getPastTotalSupply = this.getPastTotalSupply.bind(this);
     this.balance = this.balance.bind(this);
     this.tokenInfo = this.tokenInfo.bind(this);
     this.minter = this.minter.bind(this);
-    this.allowance = this.allowance.bind(this);
-    this.allAllowances = this.allAllowances.bind(this);
-    this.allSpenderAllowances = this.allSpenderAllowances.bind(this);
     this.allAccounts = this.allAccounts.bind(this);
     this.marketingInfo = this.marketingInfo.bind(this);
     this.downloadLogo = this.downloadLogo.bind(this);
@@ -154,17 +120,6 @@ export class VeKptQueryClient implements VeKptReadOnlyInterface {
   }): Promise<NumCheckpointsResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       num_checkpoints: {
-        account
-      }
-    });
-  };
-  delegates = async ({
-    account
-  }: {
-    account: Addr;
-  }): Promise<DelegatesResponse> => {
-    return this.client.queryContractSmart(this.contractAddress, {
-      delegates: {
         account
       }
     });
@@ -226,54 +181,6 @@ export class VeKptQueryClient implements VeKptReadOnlyInterface {
       minter: {}
     });
   };
-  allowance = async ({
-    owner,
-    spender
-  }: {
-    owner: string;
-    spender: string;
-  }): Promise<AllowanceResponse> => {
-    return this.client.queryContractSmart(this.contractAddress, {
-      allowance: {
-        owner,
-        spender
-      }
-    });
-  };
-  allAllowances = async ({
-    limit,
-    owner,
-    startAfter
-  }: {
-    limit?: number;
-    owner: string;
-    startAfter?: string;
-  }): Promise<AllAllowancesResponse> => {
-    return this.client.queryContractSmart(this.contractAddress, {
-      all_allowances: {
-        limit,
-        owner,
-        start_after: startAfter
-      }
-    });
-  };
-  allSpenderAllowances = async ({
-    limit,
-    spender,
-    startAfter
-  }: {
-    limit?: number;
-    spender: string;
-    startAfter?: string;
-  }): Promise<AllSpenderAllowancesResponse> => {
-    return this.client.queryContractSmart(this.contractAddress, {
-      all_spender_allowances: {
-        limit,
-        spender,
-        start_after: startAfter
-      }
-    });
-  };
   allAccounts = async ({
     limit,
     startAfter
@@ -332,72 +239,6 @@ export interface VeKptInterface {
     amount: Uint128;
     user: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  transfer: ({
-    amount,
-    recipient
-  }: {
-    amount: Uint128;
-    recipient: string;
-  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  send: ({
-    amount,
-    contract,
-    msg
-  }: {
-    amount: Uint128;
-    contract: string;
-    msg: Binary;
-  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  increaseAllowance: ({
-    amount,
-    expires,
-    spender
-  }: {
-    amount: Uint128;
-    expires?: Expiration;
-    spender: string;
-  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  decreaseAllowance: ({
-    amount,
-    expires,
-    spender
-  }: {
-    amount: Uint128;
-    expires?: Expiration;
-    spender: string;
-  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  transferFrom: ({
-    amount,
-    owner,
-    recipient
-  }: {
-    amount: Uint128;
-    owner: string;
-    recipient: string;
-  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  sendFrom: ({
-    amount,
-    contract,
-    msg,
-    owner
-  }: {
-    amount: Uint128;
-    contract: string;
-    msg: Binary;
-    owner: string;
-  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  burnFrom: ({
-    amount,
-    owner
-  }: {
-    amount: Uint128;
-    owner: string;
-  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  updateMinter: ({
-    newMinter
-  }: {
-    newMinter?: string;
-  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   updateMarketing: ({
     description,
     marketing,
@@ -422,14 +263,6 @@ export class VeKptClient implements VeKptInterface {
     this.setMinters = this.setMinters.bind(this);
     this.mint = this.mint.bind(this);
     this.burn = this.burn.bind(this);
-    this.transfer = this.transfer.bind(this);
-    this.send = this.send.bind(this);
-    this.increaseAllowance = this.increaseAllowance.bind(this);
-    this.decreaseAllowance = this.decreaseAllowance.bind(this);
-    this.transferFrom = this.transferFrom.bind(this);
-    this.sendFrom = this.sendFrom.bind(this);
-    this.burnFrom = this.burnFrom.bind(this);
-    this.updateMinter = this.updateMinter.bind(this);
     this.updateMarketing = this.updateMarketing.bind(this);
     this.uploadLogo = this.uploadLogo.bind(this);
   }
@@ -490,133 +323,6 @@ export class VeKptClient implements VeKptInterface {
       burn: {
         amount,
         user
-      }
-    }, fee, memo, _funds);
-  };
-  transfer = async ({
-    amount,
-    recipient
-  }: {
-    amount: Uint128;
-    recipient: string;
-  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
-    return await this.client.execute(this.sender, this.contractAddress, {
-      transfer: {
-        amount,
-        recipient
-      }
-    }, fee, memo, _funds);
-  };
-  send = async ({
-    amount,
-    contract,
-    msg
-  }: {
-    amount: Uint128;
-    contract: string;
-    msg: Binary;
-  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
-    return await this.client.execute(this.sender, this.contractAddress, {
-      send: {
-        amount,
-        contract,
-        msg
-      }
-    }, fee, memo, _funds);
-  };
-  increaseAllowance = async ({
-    amount,
-    expires,
-    spender
-  }: {
-    amount: Uint128;
-    expires?: Expiration;
-    spender: string;
-  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
-    return await this.client.execute(this.sender, this.contractAddress, {
-      increase_allowance: {
-        amount,
-        expires,
-        spender
-      }
-    }, fee, memo, _funds);
-  };
-  decreaseAllowance = async ({
-    amount,
-    expires,
-    spender
-  }: {
-    amount: Uint128;
-    expires?: Expiration;
-    spender: string;
-  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
-    return await this.client.execute(this.sender, this.contractAddress, {
-      decrease_allowance: {
-        amount,
-        expires,
-        spender
-      }
-    }, fee, memo, _funds);
-  };
-  transferFrom = async ({
-    amount,
-    owner,
-    recipient
-  }: {
-    amount: Uint128;
-    owner: string;
-    recipient: string;
-  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
-    return await this.client.execute(this.sender, this.contractAddress, {
-      transfer_from: {
-        amount,
-        owner,
-        recipient
-      }
-    }, fee, memo, _funds);
-  };
-  sendFrom = async ({
-    amount,
-    contract,
-    msg,
-    owner
-  }: {
-    amount: Uint128;
-    contract: string;
-    msg: Binary;
-    owner: string;
-  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
-    return await this.client.execute(this.sender, this.contractAddress, {
-      send_from: {
-        amount,
-        contract,
-        msg,
-        owner
-      }
-    }, fee, memo, _funds);
-  };
-  burnFrom = async ({
-    amount,
-    owner
-  }: {
-    amount: Uint128;
-    owner: string;
-  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
-    return await this.client.execute(this.sender, this.contractAddress, {
-      burn_from: {
-        amount,
-        owner
-      }
-    }, fee, memo, _funds);
-  };
-  updateMinter = async ({
-    newMinter
-  }: {
-    newMinter?: string;
-  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
-    return await this.client.execute(this.sender, this.contractAddress, {
-      update_minter: {
-        new_minter: newMinter
       }
     }, fee, memo, _funds);
   };

@@ -98,15 +98,6 @@ export interface VeKptBoostInterface {
     duration: Uint128;
     miningBoost: Uint128;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  modifyLockSetting: ({
-    duration,
-    index,
-    miningBoost
-  }: {
-    duration: Uint128;
-    index: number;
-    miningBoost: Uint128;
-  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   changeGov: ({
     gov
   }: {
@@ -128,7 +119,6 @@ export class VeKptBoostClient implements VeKptBoostInterface {
     this.sender = sender;
     this.contractAddress = contractAddress;
     this.addLockSetting = this.addLockSetting.bind(this);
-    this.modifyLockSetting = this.modifyLockSetting.bind(this);
     this.changeGov = this.changeGov.bind(this);
     this.setLockStatus = this.setLockStatus.bind(this);
   }
@@ -143,23 +133,6 @@ export class VeKptBoostClient implements VeKptBoostInterface {
     return await this.client.execute(this.sender, this.contractAddress, {
       add_lock_setting: {
         duration,
-        mining_boost: miningBoost
-      }
-    }, fee, memo, _funds);
-  };
-  modifyLockSetting = async ({
-    duration,
-    index,
-    miningBoost
-  }: {
-    duration: Uint128;
-    index: number;
-    miningBoost: Uint128;
-  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
-    return await this.client.execute(this.sender, this.contractAddress, {
-      modify_lock_setting: {
-        duration,
-        index,
         mining_boost: miningBoost
       }
     }, fee, memo, _funds);

@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Addr, InstantiateMsg, BoxRewardConfig, OrdinaryBoxRewardLevelConfig, RandomBoxRewardRuleConfig, ExecuteMsg, Uint128, Binary, Cw20ReceiveMsg, QueryMsg, AllConfigAndStateResponse, BoxRewardConfigState, OrdinaryBoxRewardLevelConfigState, RandomBoxRewardRuleConfigState, RewardConfig, QueryBoxClaimableInfoResponse, BoxClaimableAmountInfoResponse, ArrayOfBoxOpenInfoResponse, BoxOpenInfoResponse, MapOfUint64 } from "./BlindBoxReward.types";
+import { Addr, InstantiateMsg, BoxRewardConfig, OrdinaryBoxRewardLevelConfig, ExecuteMsg, Uint128, Binary, Cw20ReceiveMsg, QueryMsg, AllConfigAndStateResponse, BoxRewardConfigState, OrdinaryBoxRewardLevelConfigState, RewardConfig, QueryBoxClaimableInfoResponse, BoxClaimableAmountInfoResponse, ArrayOfBoxOpenInfoResponse, BoxOpenInfoResponse } from "./BlindBoxReward.types";
 export interface BlindBoxRewardReadOnlyInterface {
   contractAddress: string;
   queryAllConfigAndState: () => Promise<AllConfigAndStateResponse>;
@@ -15,11 +15,6 @@ export interface BlindBoxRewardReadOnlyInterface {
   }: {
     tokenIds: string[];
   }) => Promise<ArrayOfBoxOpenInfoResponse>;
-  testRandom: ({
-    tokenIds
-  }: {
-    tokenIds: string[];
-  }) => Promise<MapOfUint64>;
   queryBoxClaimableInfos: ({
     tokenIds
   }: {
@@ -35,7 +30,6 @@ export class BlindBoxRewardQueryClient implements BlindBoxRewardReadOnlyInterfac
     this.contractAddress = contractAddress;
     this.queryAllConfigAndState = this.queryAllConfigAndState.bind(this);
     this.queryBoxOpenInfo = this.queryBoxOpenInfo.bind(this);
-    this.testRandom = this.testRandom.bind(this);
     this.queryBoxClaimableInfos = this.queryBoxClaimableInfos.bind(this);
   }
 
@@ -51,17 +45,6 @@ export class BlindBoxRewardQueryClient implements BlindBoxRewardReadOnlyInterfac
   }): Promise<ArrayOfBoxOpenInfoResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       query_box_open_info: {
-        token_ids: tokenIds
-      }
-    });
-  };
-  testRandom = async ({
-    tokenIds
-  }: {
-    tokenIds: string[];
-  }): Promise<MapOfUint64> => {
-    return this.client.queryContractSmart(this.contractAddress, {
-      test_random: {
         token_ids: tokenIds
       }
     });

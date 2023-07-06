@@ -17,13 +17,7 @@ export interface InstantiateMsg {
 }
 export type ExecuteMsg = {
   update_kpt_fund_config: {
-    claim_able_time?: Uint64 | null;
-    exit_cycle?: Uint64 | null;
-    gov?: Addr | null;
-    kpt_addr?: Addr | null;
-    kusd_denom?: string | null;
-    kusd_reward_addr?: Addr | null;
-    ve_kpt_addr?: Addr | null;
+    update_config_msg: UpdateConfigMsg;
   };
 } | {
   refresh_reward: {
@@ -49,6 +43,14 @@ export type ExecuteMsg = {
   notify_reward_amount: {};
 };
 export type Uint128 = string;
+export interface UpdateConfigMsg {
+  claim_able_time?: Uint64 | null;
+  gov?: Addr | null;
+  kpt_addr?: Addr | null;
+  kusd_denom?: string | null;
+  kusd_reward_addr?: Addr | null;
+  ve_kpt_addr?: Addr | null;
+}
 export type QueryMsg = {
   kpt_fund_config: {};
 } | {

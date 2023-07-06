@@ -19,20 +19,11 @@ export interface BoxRewardConfig {
   ordinary_box_reward_level_config: {
     [k: string]: OrdinaryBoxRewardLevelConfig;
   };
-  random_box_reward_rule_config: RandomBoxRewardRuleConfig[];
-  random_in_box_level_index: number;
   [k: string]: unknown;
 }
 export interface OrdinaryBoxRewardLevelConfig {
   max_reward_count: number;
   reward_amount: number;
-  [k: string]: unknown;
-}
-export interface RandomBoxRewardRuleConfig {
-  max_reward_count: number;
-  random_box_index: number;
-  random_reward_amount: number;
-  random_total_count: number;
   [k: string]: unknown;
 }
 export type ExecuteMsg = {
@@ -70,10 +61,6 @@ export type QueryMsg = {
     token_ids: string[];
   };
 } | {
-  test_random: {
-    token_ids: string[];
-  };
-} | {
   query_box_claimable_infos: {
     token_ids: string[];
   };
@@ -91,17 +78,9 @@ export interface BoxRewardConfigState {
   };
   ordinary_total_open_box_count: number;
   ordinary_total_reward_amount: number;
-  random_box_reward_rule_config_state: RandomBoxRewardRuleConfigState[];
-  random_total_open_box_count: number;
-  random_total_reward_amount: number;
   [k: string]: unknown;
 }
 export interface OrdinaryBoxRewardLevelConfigState {
-  total_open_box_count: number;
-  total_reward_amount: number;
-  [k: string]: unknown;
-}
-export interface RandomBoxRewardRuleConfigState {
   total_open_box_count: number;
   total_reward_amount: number;
   [k: string]: unknown;
@@ -124,14 +103,10 @@ export interface BoxClaimableAmountInfoResponse {
 export type ArrayOfBoxOpenInfoResponse = BoxOpenInfoResponse[];
 export interface BoxOpenInfoResponse {
   box_level_index: number;
-  is_random_box: boolean;
   is_reward_box: boolean;
   open_box_time: number;
   open_reward_amount: number;
   open_user: Addr;
   token_id: string;
-}
-export interface MapOfUint64 {
-  [k: string]: number;
 }
 export type BlindBoxRewardExecuteMsg = ExecuteMsg;

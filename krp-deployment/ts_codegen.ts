@@ -19,6 +19,9 @@ export type ContractConfig = {
  * 1. Hub.client.ts: `ParametersResponse` => `Parameters[]`
  * 2. RewardsDispatcher.client.ts: `ConfigResponse` => `Config`
  * 3. ValidatorsRegistry.client.ts: `ConfigResponse` => `Config`, `GetValidatorsForDelegationResponse` => `Validator[]`
+ * module: kpt
+ * 1.BlindBox.client.ts: `NullableEmpty` => `Nullable_Empty`,
+ * 2.KptFund.client.ts: `UserTime2fullRedemptionResponse` => `UserTime2FullRedemptionResponse`,
  */
 async function main(): Promise<void> {
   console.log(`✨✨✨ do code generate enter.`);

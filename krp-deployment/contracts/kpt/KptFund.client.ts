@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Uint64, Addr, InstantiateMsg, ExecuteMsg, Uint128, QueryMsg, EarnedResponse, GetClaimAbleKptResponse, GetClaimAbleKusdResponse, GetReservedKptForVestingResponse, UserLastWithdrawTimeResponse, UserRewardPerTokenPaidResponse, UserTime2FullRedemptionResponse, Uint256, UserUnstakeRateResponse, KptFundConfigResponse } from "./KptFund.types";
+import { Uint64, Addr, InstantiateMsg, ExecuteMsg, Uint128, UpdateConfigMsg, QueryMsg, EarnedResponse, GetClaimAbleKptResponse, GetClaimAbleKusdResponse, GetReservedKptForVestingResponse, UserLastWithdrawTimeResponse, UserRewardPerTokenPaidResponse, UserTime2FullRedemptionResponse, Uint256, UserUnstakeRateResponse, KptFundConfigResponse } from "./KptFund.types";
 export interface KptFundReadOnlyInterface {
   contractAddress: string;
   kptFundConfig: () => Promise<KptFundConfigResponse>;
@@ -184,21 +184,9 @@ export interface KptFundInterface {
   contractAddress: string;
   sender: string;
   updateKptFundConfig: ({
-    claimAbleTime,
-    exitCycle,
-    gov,
-    kptAddr,
-    kusdDenom,
-    kusdRewardAddr,
-    veKptAddr
+    updateConfigMsg
   }: {
-    claimAbleTime?: Uint64;
-    exitCycle?: Uint64;
-    gov?: Addr;
-    kptAddr?: Addr;
-    kusdDenom?: string;
-    kusdRewardAddr?: Addr;
-    veKptAddr?: Addr;
+    updateConfigMsg: UpdateConfigMsg;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   refreshReward: ({
     account
@@ -244,31 +232,13 @@ export class KptFundClient implements KptFundInterface {
   }
 
   updateKptFundConfig = async ({
-    claimAbleTime,
-    exitCycle,
-    gov,
-    kptAddr,
-    kusdDenom,
-    kusdRewardAddr,
-    veKptAddr
+    updateConfigMsg
   }: {
-    claimAbleTime?: Uint64;
-    exitCycle?: Uint64;
-    gov?: Addr;
-    kptAddr?: Addr;
-    kusdDenom?: string;
-    kusdRewardAddr?: Addr;
-    veKptAddr?: Addr;
+    updateConfigMsg: UpdateConfigMsg;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_kpt_fund_config: {
-        claim_able_time: claimAbleTime,
-        exit_cycle: exitCycle,
-        gov,
-        kpt_addr: kptAddr,
-        kusd_denom: kusdDenom,
-        kusd_reward_addr: kusdRewardAddr,
-        ve_kpt_addr: veKptAddr
+        update_config_msg: updateConfigMsg
       }
     }, fee, memo, _funds);
   };

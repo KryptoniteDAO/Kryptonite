@@ -20,7 +20,6 @@ export type Addr = string;
 export interface InstantiateMsg {
   cw20_init_msg: InstantiateMsg1;
   gov?: Addr | null;
-  kpt_distribute?: Addr | null;
   max_supply: number;
 }
 export interface InstantiateMsg1 {
@@ -50,7 +49,6 @@ export type ExecuteMsg = {
     gov?: Addr | null;
     kpt_distribute?: Addr | null;
     kpt_fund?: Addr | null;
-    max_supply?: Uint128 | null;
   };
 } | {
   mint: {

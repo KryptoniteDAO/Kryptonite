@@ -67,51 +67,6 @@ export type ExecuteMsg = {
     user: string;
   };
 } | {
-  transfer: {
-    amount: Uint128;
-    recipient: string;
-  };
-} | {
-  send: {
-    amount: Uint128;
-    contract: string;
-    msg: Binary;
-  };
-} | {
-  increase_allowance: {
-    amount: Uint128;
-    expires?: Expiration | null;
-    spender: string;
-  };
-} | {
-  decrease_allowance: {
-    amount: Uint128;
-    expires?: Expiration | null;
-    spender: string;
-  };
-} | {
-  transfer_from: {
-    amount: Uint128;
-    owner: string;
-    recipient: string;
-  };
-} | {
-  send_from: {
-    amount: Uint128;
-    contract: string;
-    msg: Binary;
-    owner: string;
-  };
-} | {
-  burn_from: {
-    amount: Uint128;
-    owner: string;
-  };
-} | {
-  update_minter: {
-    new_minter?: string | null;
-  };
-} | {
   update_marketing: {
     description?: string | null;
     marketing?: string | null;
@@ -120,15 +75,6 @@ export type ExecuteMsg = {
 } | {
   upload_logo: Logo;
 };
-export type Expiration = {
-  at_height: number;
-} | {
-  at_time: Timestamp;
-} | {
-  never: {};
-};
-export type Timestamp = Uint64;
-export type Uint64 = string;
 export type QueryMsg = {
   vote_config: {};
 } | {
@@ -142,10 +88,6 @@ export type QueryMsg = {
   };
 } | {
   num_checkpoints: {
-    account: Addr;
-  };
-} | {
-  delegates: {
     account: Addr;
   };
 } | {
@@ -170,23 +112,6 @@ export type QueryMsg = {
 } | {
   minter: {};
 } | {
-  allowance: {
-    owner: string;
-    spender: string;
-  };
-} | {
-  all_allowances: {
-    limit?: number | null;
-    owner: string;
-    start_after?: string | null;
-  };
-} | {
-  all_spender_allowances: {
-    limit?: number | null;
-    spender: string;
-    start_after?: string | null;
-  };
-} | {
   all_accounts: {
     limit?: number | null;
     start_after?: string | null;
@@ -200,38 +125,12 @@ export interface AllAccountsResponse {
   accounts: string[];
   [k: string]: unknown;
 }
-export interface AllAllowancesResponse {
-  allowances: AllowanceInfo[];
-  [k: string]: unknown;
-}
-export interface AllowanceInfo {
-  allowance: Uint128;
-  expires: Expiration;
-  spender: string;
-}
-export interface AllSpenderAllowancesResponse {
-  allowances: SpenderAllowanceInfo[];
-  [k: string]: unknown;
-}
-export interface SpenderAllowanceInfo {
-  allowance: Uint128;
-  expires: Expiration;
-  owner: string;
-}
-export interface AllowanceResponse {
-  allowance: Uint128;
-  expires: Expiration;
-  [k: string]: unknown;
-}
 export interface BalanceResponse {
   balance: Uint128;
 }
 export interface CheckpointResponse {
   from_block: number;
   votes: number;
-}
-export interface DelegatesResponse {
-  delegate: Addr;
 }
 export interface DownloadLogoResponse {
   data: Binary;

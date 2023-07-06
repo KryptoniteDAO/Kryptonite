@@ -29,12 +29,6 @@ export type ExecuteMsg = {
     ve_kpt_boost_addr?: Addr | null;
   };
 } | {
-  update_miner_state: {
-    duration?: Uint128 | null;
-    extra_rate?: Uint128 | null;
-    lockdown_period?: Uint128 | null;
-  };
-} | {
   set_is_redemption_provider: {
     is_redemption_provider: boolean;
     user: Addr;

@@ -119,15 +119,6 @@ export interface VeKptMinerInterface {
     veKptAddr?: Addr;
     veKptBoostAddr?: Addr;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  updateMinerState: ({
-    duration,
-    extraRate,
-    lockdownPeriod
-  }: {
-    duration?: Uint128;
-    extraRate?: Uint128;
-    lockdownPeriod?: Uint128;
-  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   setIsRedemptionProvider: ({
     isRedemptionProvider,
     user
@@ -157,7 +148,6 @@ export class VeKptMinerClient implements VeKptMinerInterface {
     this.sender = sender;
     this.contractAddress = contractAddress;
     this.updateMinerConfig = this.updateMinerConfig.bind(this);
-    this.updateMinerState = this.updateMinerState.bind(this);
     this.setIsRedemptionProvider = this.setIsRedemptionProvider.bind(this);
     this.refreshReward = this.refreshReward.bind(this);
     this.getReward = this.getReward.bind(this);
@@ -190,23 +180,6 @@ export class VeKptMinerClient implements VeKptMinerInterface {
         reward_controller_addr: rewardControllerAddr,
         ve_kpt_addr: veKptAddr,
         ve_kpt_boost_addr: veKptBoostAddr
-      }
-    }, fee, memo, _funds);
-  };
-  updateMinerState = async ({
-    duration,
-    extraRate,
-    lockdownPeriod
-  }: {
-    duration?: Uint128;
-    extraRate?: Uint128;
-    lockdownPeriod?: Uint128;
-  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
-    return await this.client.execute(this.sender, this.contractAddress, {
-      update_miner_state: {
-        duration,
-        extra_rate: extraRate,
-        lockdown_period: lockdownPeriod
       }
     }, fee, memo, _funds);
   };
