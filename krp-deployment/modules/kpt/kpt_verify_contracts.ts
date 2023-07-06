@@ -8,7 +8,7 @@ import { kptContracts } from "@/contracts";
 import { GetClaimAbleKptResponse, GetClaimAbleKusdResponse, GetReservedKptForVestingResponse, KptFundConfigResponse } from "@/contracts/kpt/KptFund.types";
 import { MinterResponse, VoteConfigResponse } from "@/contracts/kpt/VeKpt.types";
 import { GetBoostConfigResponse } from "@/contracts/kpt/VeKptBoost.types";
-import { StakingConfigResponse, StakingStateResponse } from "@/contracts/kpt/StakingRewards.types";
+import { BalanceOfResponse, StakingConfigResponse, StakingStateResponse } from "@/contracts/kpt/StakingRewards.types";
 import { BlindBoxConfigLevelResponse, BlindBoxConfigResponse, ReferralRewardConfigResponse } from "@/contracts/kpt/BlindBox.types";
 import { AllConfigAndStateResponse } from "@/contracts/kpt/BlindBoxReward.types";
 import { BalanceResponse, KptConfigResponse, TokenInfoResponse } from "@/contracts/kpt/Kpt.types";
@@ -118,11 +118,14 @@ async function main(): Promise<void> {
   if (stakingRewardsPairs && stakingRewardsPairs.length >= 0) {
     for (let stakingRewardsItem of stakingRewardsPairs) {
       if (stakingRewardsItem?.stakingRewards?.address) {
+        console.log(`\n  stakingRewards: ${stakingRewardsItem?.stakingRewards?.address}`);
         const stakingRewardsQueryClient = new kptContracts.StakingRewards.StakingRewardsQueryClient(walletData.signingCosmWasmClient, stakingRewardsItem?.stakingRewards?.address);
         const configRes: StakingConfigResponse = await stakingRewardsQueryClient.queryStakingConfig();
         console.log(`\n  Query kpt.stakingRewards config ok. staking_token: ${stakingRewardsItem?.staking_token} \n   ${JSON.stringify(configRes)}`);
         const stateResponse: StakingStateResponse = await stakingRewardsQueryClient.queryStakingState();
         console.log(`\n  Query kpt.stakingRewards queryStakingState ok. staking_token: ${stakingRewardsItem?.staking_token} \n   ${JSON.stringify(stateResponse)}`);
+        const balanceOfResponse: BalanceOfResponse = await stakingRewardsQueryClient.balanceOf({account: walletData.address});
+        console.log(`\n  Query kpt.stakingRewards balanceOf ok. staking_token: ${stakingRewardsItem?.staking_token} \n   ${JSON.stringify(balanceOfResponse)}`);
       }
     }
   }

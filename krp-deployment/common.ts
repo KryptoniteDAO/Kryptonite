@@ -1,12 +1,23 @@
+import type { InstantiateOptions, MsgInstantiateContractEncodeObject, MsgStoreCodeEncodeObject, SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
+import type { ExecuteInstruction, InstantiateResult, JsonObject, MsgExecuteContractEncodeObject } from "@cosmjs/cosmwasm-stargate";
+import type { Balance, BaseContractConfig, ClientData, ContractDeployed, WalletData } from "./types";
 import { getQueryClient } from "@sei-js/core";
-import type { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
-import type { SigningStargateClient } from "@cosmjs/stargate";
-import { calculateFee, coins, GasPrice } from "@cosmjs/stargate";
-import { InstantiateResult } from "@cosmjs/cosmwasm-stargate";
+import { calculateFee, coins, GasPrice, MsgSendEncodeObject } from "@cosmjs/stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
 import * as fs from "fs";
 import * as path from "path";
-import type { Balance, WalletData, ClientData, ContractDeployed, BaseContractConfig } from "./types";
+import { fromBech32, toUtf8 } from "@cosmjs/encoding";
+import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
+import { MsgSetWithdrawAddress, MsgWithdrawDelegatorReward } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
+import { MsgBeginRedelegate, MsgDelegate, MsgUndelegate } from "cosmjs-types/cosmos/staking/v1beta1/tx";
+import { MsgCreateVestingAccount } from "cosmjs-types/cosmos/vesting/v1beta1/tx";
+import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
+import { MsgClearAdmin, MsgExecuteContract, MsgInstantiateContract, MsgInstantiateContract2, MsgMigrateContract, MsgStoreCode, MsgUpdateAdmin } from "cosmjs-types/cosmwasm/wasm/v1/tx";
+import { CosmWasmClient } from "@cosmjs/cosmwasm-stargate";
+import pako from "pako";
+import { Uint53 } from "@cosmjs/math";
+import Long from "long";
+import { EncodeObject } from "@cosmjs/proto-signing";
 
 const Decimal = require("decimal.js");
 
@@ -143,7 +154,7 @@ export async function sendTokens(clientData: ClientData, recipientAddress: strin
 // }
 
 export async function queryAddressBalance(walletData: WalletData, address: string, denom: string) {
-  return walletData.signingStargateClient?.getBalance(address, denom);
+  return walletData.signingCosmWasmClient?.getBalance(address, denom);
 }
 
 export async function queryAddressAllBalances(walletData: WalletData, address: string) {
@@ -153,17 +164,17 @@ export async function queryAddressAllBalances(walletData: WalletData, address: s
 export async function queryWasmContractByWalletData(walletData: WalletData, contractAddress: string, message: object) {
   return queryWasmContract(walletData.signingCosmWasmClient, contractAddress, message);
 }
-export async function queryWasmContract(signingCosmWasmClient: SigningCosmWasmClient, contractAddress: string, message: object) {
-  return await signingCosmWasmClient.queryContractSmart(contractAddress, message);
+export async function queryWasmContract(cosmWasmClient: CosmWasmClient, contractAddress: string, message: object) {
+  return await cosmWasmClient.queryContractSmart(contractAddress, message);
 }
 
-export async function queryAddressTokenBalance(signingCosmWasmClient: SigningCosmWasmClient, userAddress: string, contractAddress: string) {
+export async function queryAddressTokenBalance(cosmWasmClient: CosmWasmClient, userAddress: string, contractAddress: string) {
   const queryMsg = {
     balance: {
       address: userAddress
     }
   };
-  return await queryWasmContract(signingCosmWasmClient, contractAddress, queryMsg);
+  return await queryWasmContract(cosmWasmClient, contractAddress, queryMsg);
 }
 
 export async function queryStaking(LCD_ENDPOINT: string) {
@@ -314,6 +325,39 @@ export async function queryContractQueryConfig(walletData: WalletData, deployCon
   return { initFlag, config };
 }
 
+/**
+ * Returns an error message for invalid addresses.
+ * Returns null of there is no error.
+ *
+ * If `chainAddressPrefix` is null, the prefix check will be skipped.
+ */
+export const checkAddress = (input: string, chainAddressPrefix: string | null) => {
+  if (!input) return "Empty";
+
+  let data;
+  let prefix;
+  try {
+    ({ data, prefix } = fromBech32(input));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    return error.toString();
+  }
+
+  if (chainAddressPrefix) {
+    if (!prefix.startsWith(chainAddressPrefix)) {
+      return `Expected address prefix '${chainAddressPrefix}' but got '${prefix}'`;
+    }
+  } else {
+    // any prefix is allowed
+  }
+
+  if (data.length !== 20 && data.length !== 32) {
+    return "Invalid address length in bech32 data. Expected 20 or 32 bytes.";
+  }
+
+  return null;
+};
+
 export const BnAdd = (a: any, b: any): string => {
   if (!a && !b) return "0";
   return new Decimal(a || 0).add(b || 0).toString();
@@ -342,4 +386,135 @@ export const BnPow = (a: any, b: string | number): string => {
 
 export const BnComparedTo = (a: any, b: any): number => {
   return new Decimal(a).comparedTo(new Decimal(b));
+};
+
+export const MsgTypeUrls = {
+  Send: "/cosmos.bank.v1beta1.MsgSend",
+  SetWithdrawAddress: "/cosmos.distribution.v1beta1.MsgSetWithdrawAddress",
+  WithdrawDelegatorReward: "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
+  BeginRedelegate: "/cosmos.staking.v1beta1.MsgBeginRedelegate",
+  Delegate: "/cosmos.staking.v1beta1.MsgDelegate",
+  Undelegate: "/cosmos.staking.v1beta1.MsgUndelegate",
+  CreateVestingAccount: "/cosmos.vesting.v1beta1.MsgCreateVestingAccount",
+  Transfer: "/ibc.applications.transfer.v1.MsgTransfer",
+  Upload: "/cosmwasm.wasm.v1.MsgStoreCode",
+  Instantiate: "/cosmwasm.wasm.v1.MsgInstantiateContract",
+  Instantiate2: "/cosmwasm.wasm.v1.MsgInstantiateContract2",
+  UpdateAdmin: "/cosmwasm.wasm.v1.MsgUpdateAdmin",
+  ClearAdmin: "/cosmwasm.wasm.v1.MsgClearAdmin",
+  Migrate: "/cosmwasm.wasm.v1.MsgMigrateContract",
+  Execute: "/cosmwasm.wasm.v1.MsgExecuteContract"
+} as const;
+
+export type MsgTypeUrl = (typeof MsgTypeUrls)[keyof typeof MsgTypeUrls];
+
+export const MsgCodecs = {
+  [MsgTypeUrls.Send]: MsgSend,
+  [MsgTypeUrls.SetWithdrawAddress]: MsgSetWithdrawAddress,
+  [MsgTypeUrls.WithdrawDelegatorReward]: MsgWithdrawDelegatorReward,
+  [MsgTypeUrls.BeginRedelegate]: MsgBeginRedelegate,
+  [MsgTypeUrls.Delegate]: MsgDelegate,
+  [MsgTypeUrls.Undelegate]: MsgUndelegate,
+  [MsgTypeUrls.CreateVestingAccount]: MsgCreateVestingAccount,
+  [MsgTypeUrls.Transfer]: MsgTransfer,
+  [MsgTypeUrls.Upload]: MsgStoreCode,
+  [MsgTypeUrls.Instantiate]: MsgInstantiateContract,
+  [MsgTypeUrls.Instantiate2]: MsgInstantiateContract2,
+  [MsgTypeUrls.UpdateAdmin]: MsgUpdateAdmin,
+  [MsgTypeUrls.ClearAdmin]: MsgClearAdmin,
+  [MsgTypeUrls.Migrate]: MsgMigrateContract,
+  [MsgTypeUrls.Execute]: MsgExecuteContract
+};
+
+const gasOfMsg = (msgType: MsgTypeUrl): number => {
+  switch (msgType) {
+    case MsgTypeUrls.Send:
+      return 100_000;
+    case MsgTypeUrls.SetWithdrawAddress:
+      return 100_000;
+    case MsgTypeUrls.WithdrawDelegatorReward:
+      return 100_000;
+    case MsgTypeUrls.BeginRedelegate:
+      return 150_000;
+    case MsgTypeUrls.Delegate:
+      return 150_000;
+    case MsgTypeUrls.Undelegate:
+      return 150_000;
+    case MsgTypeUrls.CreateVestingAccount:
+      return 100_000;
+    case MsgTypeUrls.Transfer:
+      return 180_000;
+    case MsgTypeUrls.Execute:
+      return 100_000;
+    default:
+      throw new Error("Unknown msg type");
+  }
+};
+
+export const gasOfTx = (msgTypes: readonly MsgTypeUrl[]): number => {
+  const txFlatGas = 100_000;
+  return msgTypes.reduce((acc, msgType) => acc + gasOfMsg(msgType), txFlatGas);
+};
+
+export const sendTokensMsgEncodeObject = (senderAddress: string, recipientAddress: string, amount: readonly Coin[]): MsgSendEncodeObject[] => {
+  const typeUrl = MsgTypeUrls.Send;
+  return [
+    {
+      typeUrl,
+      value: MsgCodecs[typeUrl].fromPartial({
+        fromAddress: senderAddress,
+        toAddress: recipientAddress,
+        amount: [...amount]
+      })
+    }
+  ];
+};
+
+export const executeMsgEncodeObject = (senderAddress: string, contractAddress: string, msg: JsonObject, funds?: readonly Coin[]): MsgExecuteContractEncodeObject[] => {
+  const instruction: ExecuteInstruction = { contractAddress, msg, funds };
+  return executeMultipleMsgEncodeObject(senderAddress, [instruction]);
+};
+
+export const executeMultipleMsgEncodeObject = (senderAddress: string, instructions: readonly ExecuteInstruction[]): MsgExecuteContractEncodeObject[] => {
+  const typeUrl = MsgTypeUrls.Execute;
+  return instructions.map(i => ({
+    typeUrl,
+    value: MsgCodecs[typeUrl].fromPartial({
+      sender: senderAddress,
+      contract: i.contractAddress,
+      msg: toUtf8(JSON.stringify(i.msg)),
+      funds: [...(i.funds || [])]
+    })
+  }));
+};
+
+export const uploadMsgEncodeObject = (senderAddress: string, wasmCode: Uint8Array): EncodeObject[] => {
+  const typeUrl = MsgTypeUrls.Upload;
+  const compressed = pako.gzip(wasmCode, { level: 9 });
+  return [
+    {
+      typeUrl,
+      value: MsgCodecs[typeUrl].fromPartial({
+        sender: senderAddress,
+        wasmByteCode: compressed
+      })
+    }
+  ];
+};
+
+export const instantiateMsgEncodeObject = (senderAddress: string, codeId: number, msg: JsonObject, label: string, options: InstantiateOptions = {}): MsgInstantiateContractEncodeObject[] => {
+  const typeUrl = MsgTypeUrls.Instantiate;
+  return [
+    {
+      typeUrl,
+      value: MsgCodecs[typeUrl].fromPartial({
+        sender: senderAddress,
+        codeId: Long.fromString(new Uint53(codeId).toString()),
+        label: label,
+        msg: toUtf8(JSON.stringify(msg)),
+        funds: [...(options.funds || [])],
+        admin: options.admin
+      })
+    }
+  ];
 };

@@ -1,6 +1,7 @@
 import type { GasPrice, SigningStargateClient } from "@cosmjs/stargate";
 import type { AccountData, DirectSecp256k1HdWallet, DirectSecp256k1Wallet } from "@cosmjs/proto-signing";
 import type { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
+import type { Secp256k1Wallet, Secp256k1HdWallet } from "@cosmjs/amino";
 
 export type Addr = string;
 export type TokenAssetInfo = {
@@ -46,17 +47,17 @@ export interface WalletData {
   chainId: string;
   gasPrice: GasPrice;
 
-  wallet: DirectSecp256k1Wallet | DirectSecp256k1HdWallet;
+  wallet: DirectSecp256k1Wallet | DirectSecp256k1HdWallet | Secp256k1Wallet | Secp256k1HdWallet;
   account: AccountData;
   address: Addr;
-  signingCosmWasmClient: SigningCosmWasmClient | any;
-  signingStargateClient: SigningStargateClient | any;
+  signingCosmWasmClient: SigningCosmWasmClient;
+  signingStargateClient: SigningStargateClient;
 
-  wallet2: DirectSecp256k1Wallet | DirectSecp256k1HdWallet;
+  wallet2: DirectSecp256k1Wallet | DirectSecp256k1HdWallet | Secp256k1Wallet | Secp256k1HdWallet;
   account2: AccountData;
   address2: Addr;
-  signingCosmWasmClient2: SigningCosmWasmClient | any;
-  signingStargateClient2: SigningStargateClient | any;
+  signingCosmWasmClient2: SigningCosmWasmClient;
+  signingStargateClient2: SigningStargateClient;
 
   validator: Addr;
   stable_coin_denom: Addr;
@@ -67,8 +68,8 @@ export interface WalletData {
 }
 
 export interface ClientData {
-  signingCosmWasmClient?: SigningCosmWasmClient | any;
-  signingStargateClient?: SigningStargateClient | any;
+  signingCosmWasmClient?: SigningCosmWasmClient;
+  signingStargateClient?: SigningStargateClient;
   senderAddress?: Addr;
   gasPrice?: GasPrice;
 }

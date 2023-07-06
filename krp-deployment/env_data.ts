@@ -1,9 +1,11 @@
+import type { Config, BaseCurrencyInfo, WalletData } from "./types";
 import { DirectSecp256k1Wallet, DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { GasPrice } from "@cosmjs/stargate";
 import { getSigningClient, getSigningCosmWasmClient } from "@sei-js/core";
 import { toBeArray } from "ethers";
 import { loadAddressesBalances, readArtifact } from "./common";
-import type { Config, BaseCurrencyInfo, WalletData } from "./types";
+import { Secp256k1HdWallet } from "@cosmjs/amino/build/secp256k1hdwallet";
+import { Secp256k1Wallet } from "@cosmjs/amino";
 require("dotenv").config();
 
 const prefix = "sei";
@@ -46,14 +48,10 @@ export async function loadingWalletData(loadBalances: boolean = true): Promise<W
   const { LCD_ENDPOINT, RPC_ENDPOINT, mnemonic, privateKey, mnemonic2, privateKey2, chainId, gasPriceValue } = await loadingEnvData();
 
   if (!LCD_ENDPOINT) {
-    console.error("\n  Set the LCD_ENDPOINT env variable to the LCD URL of the node to use");
-    process.exit(0);
-    return;
+    throw new Error("\n  Set the LCD_ENDPOINT env variable to the LCD URL of the node to use");
   }
   if (!RPC_ENDPOINT) {
-    console.error("\n  Set the LCD_ENDPOINT env variable to the RPC URL of the node to use");
-    process.exit(0);
-    return;
+    throw new Error("\n  Set the LCD_ENDPOINT env variable to the RPC URL of the node to use");
   }
   // if (!process.env.GAS_PRICE) {
   //   console.error("Set the GAS_PRICE env variable to the gas price to use when creating client");
@@ -62,58 +60,46 @@ export async function loadingWalletData(loadBalances: boolean = true): Promise<W
   // }
 
   if (!mnemonic && !privateKey) {
-    console.error("\n  Set the PRIVATE_KEY or MNEMONIC env variable to the address1 to use");
-    process.exit(0);
-    return;
+    throw new Error("\n  Set the PRIVATE_KEY or MNEMONIC env variable to the address1 to use");
   }
   if (!mnemonic2 && !privateKey2) {
-    console.error("\n  Set the PRIVATE_KEY2 or MNEMONIC2 env variable to the address2 to use");
-    process.exit(0);
-    return;
+    throw new Error("\n  Set the PRIVATE_KEY2 or MNEMONIC2 env variable to the address2 to use");
   }
 
   const validator = chainConfigs.validator;
   const stable_coin_denom = chainConfigs.stable_coin_denom;
   if (!validator) {
-    console.error("\n  Set the validator in configuration file variable to the validator address of the node");
-    process.exit(0);
-    return;
+    throw new Error("\n  Set the validator in configuration file variable to the validator address of the node");
   }
   if (!stable_coin_denom) {
-    console.error("\n  Set the stable_coin_denom in configuration file variable to the stable coin denom");
-    process.exit(0);
-    return;
+    throw new Error("\n  Set the stable_coin_denom in configuration file variable to the stable coin denom");
   }
-  const wallet = privateKey ? await DirectSecp256k1Wallet.fromKey(toBeArray(privateKey), prefix) : await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, { prefix });
+  // const wallet = privateKey ? await DirectSecp256k1Wallet.fromKey(toBeArray(privateKey), prefix) : await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, { prefix });
+  const wallet = privateKey ? await Secp256k1Wallet.fromKey(toBeArray(privateKey), prefix) : await Secp256k1HdWallet.fromMnemonic(mnemonic, { prefix });
   const [account] = await wallet.getAccounts();
 
-  if (!account || !account?.address) {
-    console.error("\n  No account1 found in wallet");
-    process.exit(0);
-    return;
+  if (!account?.address) {
+    throw new Error("\n  No account1 found in wallet");
   }
   const address = account.address;
   const gasPrice: GasPrice = GasPrice.fromString(gasPriceValue);
-  const signingCosmWasmClient = await getSigningCosmWasmClient(RPC_ENDPOINT, wallet, { gasPrice: gasPrice } as unknown as undefined);
+  const signingCosmWasmClient = await getSigningCosmWasmClient(RPC_ENDPOINT, wallet, { gasPrice: gasPrice });
   const netChainId = await signingCosmWasmClient.getChainId();
 
   if (netChainId !== chainId) {
-    console.error(`\n  Chain ID mismatch. Expected ${chainId}, got ${netChainId}`);
-    process.exit(0);
-    return;
+    throw new Error(`\n  Chain ID mismatch. Expected ${chainId}, got ${netChainId}`);
   }
-  const signingStargateClient = await getSigningClient(RPC_ENDPOINT, wallet);
+  const signingStargateClient = await getSigningClient(RPC_ENDPOINT, wallet, { gasPrice: gasPrice });
 
-  const wallet2 = privateKey2 ? await DirectSecp256k1Wallet.fromKey(toBeArray(privateKey2), prefix) : await DirectSecp256k1HdWallet.fromMnemonic(mnemonic2, { prefix });
+  // const wallet2 = privateKey2 ? await DirectSecp256k1Wallet.fromKey(toBeArray(privateKey2), prefix) : await DirectSecp256k1HdWallet.fromMnemonic(mnemonic2, { prefix });
+  const wallet2 = privateKey2 ? await Secp256k1Wallet.fromKey(toBeArray(privateKey2), prefix) : await Secp256k1HdWallet.fromMnemonic(mnemonic2, { prefix });
   const [account2] = await wallet2.getAccounts();
-  if (!account2 || !account2?.address) {
-    console.error("\n  No account2 found in wallet");
-    process.exit(0);
-    return;
+  if (!account2?.address) {
+    throw new Error("\n  No account2 found in wallet");
   }
   const address2 = account2.address;
-  const signingCosmWasmClient2 = await getSigningCosmWasmClient(RPC_ENDPOINT, wallet2, { gasPrice: gasPrice } as unknown as undefined);
-  const signingStargateClient2 = await getSigningClient(RPC_ENDPOINT, wallet2);
+  const signingCosmWasmClient2 = await getSigningCosmWasmClient(RPC_ENDPOINT, wallet2, { gasPrice: gasPrice });
+  const signingStargateClient2 = await getSigningClient(RPC_ENDPOINT, wallet2, { gasPrice: gasPrice });
 
   console.log(`\n  current chainId: ${chainId} / deploy version: ${DEPLOY_VERSION} \n  address1: ${address} / address2: ${address2}`);
 

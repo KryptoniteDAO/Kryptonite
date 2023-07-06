@@ -353,6 +353,32 @@
         "filePath": "../krp-token-contracts/artifacts/staking_rewards.wasm",
         "deploy": false
       }
+    },
+    {
+      "name": "USDC/KUSD",
+      "staking_token": "sei10snsks4hpdlm30ylfkgadvdsw8tvwgduwmkvfxaq2e6naf0yl48qyzrhzy",
+      "stakingRewards": {
+        "admin": null,
+        "initMsg": {
+          "duration": "2592000"
+        },
+        "label": "stakingRewards",
+        "filePath": "../krp-token-contracts/artifacts/staking_rewards.wasm",
+        "deploy": false
+      }
+    },
+    {
+      "name": "USDC/KUSD",
+      "staking_token": "sei1fqy9cclcs2sl6d47f6zyjayzg9hqn3lmyc9mhsuwsn6m6ezfvdeqm9pe8e",
+      "stakingRewards": {
+        "admin": null,
+        "initMsg": {
+          "duration": "2592000"
+        },
+        "label": "stakingRewards",
+        "filePath": "../krp-token-contracts/artifacts/staking_rewards.wasm",
+        "deploy": false
+      }
     }
   ]
 }
