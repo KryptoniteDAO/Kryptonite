@@ -24,7 +24,7 @@ import { MsgSetWithdrawAddress, MsgWithdrawDelegatorReward } from "cosmjs-types/
 import { MsgBeginRedelegate, MsgDelegate, MsgUndelegate } from "cosmjs-types/cosmos/staking/v1beta1/tx";
 import { MsgCreateVestingAccount } from "cosmjs-types/cosmos/vesting/v1beta1/tx";
 import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
-import { MsgClearAdmin, MsgExecuteContract, MsgInstantiateContract, MsgInstantiateContract2, MsgMigrateContract, MsgStoreCode, MsgUpdateAdmin } from "cosmjs-types/cosmwasm/wasm/v1/tx";
+import { MsgClearAdmin, MsgExecuteContract, MsgInstantiateContract, MsgMigrateContract, MsgStoreCode, MsgUpdateAdmin } from "cosmjs-types/cosmwasm/wasm/v1/tx";
 import pako from "pako";
 import { Uint53 } from "@cosmjs/math";
 import Long from "long";
@@ -491,7 +491,7 @@ export const MsgCodecs = {
   [MsgTypeUrls.Transfer]: MsgTransfer,
   [MsgTypeUrls.Upload]: MsgStoreCode,
   [MsgTypeUrls.Instantiate]: MsgInstantiateContract,
-  [MsgTypeUrls.Instantiate2]: MsgInstantiateContract2,
+  // [MsgTypeUrls.Instantiate2]: MsgInstantiateContract2,
   [MsgTypeUrls.UpdateAdmin]: MsgUpdateAdmin,
   [MsgTypeUrls.ClearAdmin]: MsgClearAdmin,
   [MsgTypeUrls.Migrate]: MsgMigrateContract,
@@ -561,8 +561,8 @@ export const executeMultipleMsgEncodeObject = (senderAddress: string, instructio
 };
 
 export const uploadMsgEncodeObject = (senderAddress: string, wasmCode: Uint8Array): MsgStoreCodeEncodeObject[] => {
-  const typeUrl = MsgTypeUrls.Upload;
   const compressed = pako.gzip(wasmCode, { level: 9 });
+  const typeUrl = MsgTypeUrls.Upload;
   return [
     {
       typeUrl,
@@ -667,7 +667,7 @@ export const withdrawDelegatorRewardMsgEncodeObject = (delegatorAddress: string,
     {
       typeUrl,
       value: MsgCodecs[typeUrl].fromPartial({
-        delegatorAddress: delegatorAddress,
+        delegatorAddress,
         validatorAddress
       })
     }

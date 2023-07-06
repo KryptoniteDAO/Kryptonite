@@ -98,6 +98,7 @@ export async function deployStakingRewards(walletData: WalletData, networkKpt: K
     stakingRewardsPairsNetwork = {
       name: stakingRewardsPairsConfig?.name,
       staking_token: stakingRewardsPairsConfig?.staking_token,
+      pool_address: stakingRewardsPairsConfig?.pool_address,
       stakingRewards: {} as ContractDeployed
     };
     if (!networkKpt?.stakingRewardsPairs) {

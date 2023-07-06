@@ -204,7 +204,8 @@ export interface KptContractsConfig {
 
 export interface StakingRewardsPairsContractsDeployed {
   name?: string;
-  staking_token?: string;
+  staking_token?: Addr;
+  pool_address?: Addr;
   stakingRewards?: ContractDeployed;
 }
 

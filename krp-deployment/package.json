@@ -35,7 +35,7 @@
     "@types/bech32": "^1.1.4",
     "@types/bip32": "^2.0.0",
     "@types/bip39": "^3.0.0",
-    "cosmjs-types": "^0.8.0",
+    "cosmjs-types": "^0.5.2",
     "decimal.js": "^10.4.3",
     "dotenv": "^16.3.1",
     "ethers": "^6.6.2",
