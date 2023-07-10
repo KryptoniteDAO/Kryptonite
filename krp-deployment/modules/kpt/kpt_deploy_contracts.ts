@@ -2,26 +2,7 @@ import type { WalletData } from "@/types";
 import type { KptContractsDeployed, StakingRewardsPairsContractsDeployed } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
-import {
-  deployBlindBox,
-  deployBlindBoxReward,
-  deployStakingRewards,
-  doVeKptSetMinters,
-  kptConfigs,
-  deployKpt,
-  deployKptFund,
-  deployVeKpt,
-  deployVeKptBoost,
-  deployVeKptMiner,
-  doKptUpdateConfig,
-  doVeKptUpdateConfig,
-  kptReadArtifact,
-  printDeployedKptContracts,
-  deployBlindBoxInviterReward,
-  deployKptDistribute,
-  doKptDistributeUpdateRuleConfig,
-  doBlindBoxConfig
-} from "@/modules";
+import { deployStakingRewards, doVeKptSetMinters, kptConfigs, deployKpt, deployKptFund, deployVeKpt, deployVeKptBoost, doKptUpdateConfig, doVeKptUpdateConfig, kptReadArtifact, printDeployedKptContracts, deployKptDistribute } from "@/modules";
 
 main().catch(console.error);
 
@@ -43,10 +24,10 @@ async function main(): Promise<void> {
   await deployVeKptBoost(walletData, networkKpt);
   /// no need
   // await deployVeKptMiner(walletData, networkKpt);
-  await deployBlindBox(walletData, networkKpt);
+  // await deployBlindBox(walletData, networkKpt);
   await deployKptDistribute(walletData, networkKpt);
-  await deployBlindBoxReward(walletData, networkKpt);
-  await deployBlindBoxInviterReward(walletData, networkKpt);
+  // await deployBlindBoxReward(walletData, networkKpt);
+  // await deployBlindBoxInviterReward(walletData, networkKpt);
 
   const stakingRewardsPairsConfig = kptConfigs.stakingRewardsPairs;
   if (!!stakingRewardsPairsConfig && stakingRewardsPairsConfig.length > 0) {
@@ -66,8 +47,8 @@ async function main(): Promise<void> {
 
   await doKptUpdateConfig(walletData, networkKpt, print);
   await doVeKptUpdateConfig(walletData, networkKpt, print);
-  await doBlindBoxConfig(walletData, networkKpt, print);
-  await doKptDistributeUpdateRuleConfig(walletData, networkKpt, { ruleType: "loot_box", ruleOwner: networkKpt?.blindBoxInviterReward?.address }, print);
+  // await doBlindBoxConfig(walletData, networkKpt, print);
+  // await doKptDistributeUpdateRuleConfig(walletData, networkKpt, { ruleType: "loot_box", ruleOwner: networkKpt?.blindBoxInviterReward?.address }, print);
 
   if (!!stakingRewardsPairsConfig && stakingRewardsPairsConfig.length > 0) {
     for (const stakingRewardsPairConfig of stakingRewardsPairsConfig) {

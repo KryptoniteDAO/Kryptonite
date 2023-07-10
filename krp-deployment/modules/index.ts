@@ -1,3 +1,4 @@
+export * from "./blind-box";
 export * from "./cdp";
 export * from "./convert";
 export * from "./kpt";

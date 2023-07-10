@@ -5,3 +5,4 @@ export * from "./convert";
 export * from "./swap-extention";
 export * from "./kpt";
 export * from "./cdp";
+export * from "./blind-box";

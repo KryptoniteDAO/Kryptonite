@@ -105,6 +105,6 @@ export interface BaseContractConfig {
 }
 
 export interface Config {
-  validator: Addr;
-  stable_coin_denom: Addr;
+  readonly validator: Addr;
+  readonly stable_coin_denom: Addr;
 }

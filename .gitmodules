@@ -16,3 +16,6 @@
 [submodule "krp-cdp-contracts"]
     path = krp-cdp-contracts
     url = git@github.com:KryptoniteDAO/krp-cdp-contracts.git
+[submodule "blind-box-contracts"]
+    path = blind-box-contracts
+    url = git@github.com:KryptoniteDAO/blind-box-contracts.git

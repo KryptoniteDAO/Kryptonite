@@ -1,0 +1,139 @@
+{
+  "blindBox": {
+    "admin": null,
+    "initMsg": {
+      "name": "KPT Blind Box",
+      "symbol": "KPTBOX",
+      "nft_base_url": "https://www.google.com/",
+      "nft_uri_suffix": ".json",
+      "price_token": null,
+      "token_id_prefix": "kpt_blind_box_",
+      "level_infos": [
+        {
+          "price": "20000000",
+          "mint_total_count": "99999999"
+        },
+        {
+          "price": "200000000",
+          "mint_total_count": "99999999"
+        },
+        {
+          "price": "1000000000",
+          "mint_total_count": "99999999"
+        }
+      ],
+      "start_mint_time": 1687337418,
+      "receiver_price_addr": "sei1sp8a3sjqy5kp87pyjtt0mslyr0y3evkse3yxk6",
+      "end_mint_time": 1690355659,
+      "can_transfer_time": 1690355659,
+      "referral_reward_config": {
+        "referral_level_config": {
+          "0": {
+            "min_referral_total_amount": "0",
+            "max_referral_total_amount": "10000000000",
+            "inviter_reward_rate": "50000",
+            "invitee_discount_rate": "50000",
+            "reward_box_config": {
+              "recommended_quantity": "500000000",
+              "reward_box": {
+                "0": 1
+              }
+            }
+          },
+          "1": {
+            "min_referral_total_amount": "10000000001",
+            "max_referral_total_amount": "50000000000",
+            "inviter_reward_rate": "70000",
+            "invitee_discount_rate": "50000",
+            "reward_box_config": {
+              "recommended_quantity": "4000000000",
+              "reward_box": {
+                "1": 1
+              }
+            }
+          },
+          "2": {
+            "min_referral_total_amount": "50000000001",
+            "max_referral_total_amount": "150000000000",
+            "inviter_reward_rate": "100000",
+            "invitee_discount_rate": "50000",
+            "reward_box_config": {
+              "recommended_quantity": "20000000000",
+              "reward_box": {
+                "2": 1
+              }
+            }
+          },
+          "3": {
+            "min_referral_total_amount": "150000000001",
+            "max_referral_total_amount": "300000000000",
+            "inviter_reward_rate": "120000",
+            "invitee_discount_rate": "50000",
+            "reward_box_config": {
+              "recommended_quantity": "22000000000",
+              "reward_box": {
+                "1": 1,
+                "2": 1
+              }
+            }
+          },
+          "4": {
+            "min_referral_total_amount": "300000000001",
+            "max_referral_total_amount": "999999999999999",
+            "inviter_reward_rate": "150000",
+            "invitee_discount_rate": "50000",
+            "reward_box_config": {
+              "recommended_quantity": "36000000000",
+              "reward_box": {
+                "2": 2
+              }
+            }
+          }
+        }
+      }
+    },
+    "label": "blindBox",
+    "filePath": "../blind-box-contracts/artifacts/blind_box.wasm",
+    "deploy": false
+  },
+  "blindBoxReward": {
+    "admin": null,
+    "initMsg": {
+      "box_config": {
+        "box_open_time": 1688105033,
+        "ordinary_box_reward_level_config": {
+          "0": {
+            "reward_amount": "1800000000",
+            "max_reward_count": 12000
+          },
+          "1": {
+            "reward_amount": "20000000000",
+            "max_reward_count": 3000
+          },
+          "2": {
+            "reward_amount": "57500000000",
+            "max_reward_count": 320
+          }
+        },
+        "box_reward_distribute_rule_type": "loot_box",
+        "global_reward_total_amount": "100000000000000"
+      }
+    },
+    "label": "blindBoxReward",
+    "filePath": "../blind-box-contracts/artifacts/blind_box_reward.wasm",
+    "deploy": false
+  },
+  "blindBoxInviterReward": {
+    "admin": null,
+    "initMsg": {
+      "reward_native_token": null,
+      "start_mint_box_time": 1688128677,
+      "end_mint_box_time": 1690720710,
+      "start_claim_token_time": 1688128677,
+      "end_claim_token_time": 1690720710
+    },
+    "label": "blindBoxInviterReward",
+    "filePath": "../blind-box-contracts/artifacts/blind_box_inviter_reward.wasm",
+    "deploy": false
+  }
+}

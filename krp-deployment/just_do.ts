@@ -35,14 +35,14 @@ async function main(): Promise<void> {
     const kptQueryClient = new Cw20Base.Cw20BaseQueryClient(walletData.signingCosmWasmClient, networkKpt?.kpt?.address);
     const balanceResponse: BalanceResponse = await kptQueryClient.balance({ address: walletData.address });
     console.log(balanceResponse);
-    // const doRes = await kptClient.transfer({ amount: "1000000000000", recipient: "" });
     // const doRes = await executeContractByWalletData(walletData, networkKpt?.kpt?.address, {
     //   transfer: {
     //     amount: "1000000000000",
     //     recipient: ""
     //   }
     // });
-    // console.log(doRes);
+    const doRes = await kptClient.transfer({ amount: "1000000", recipient: "sei17cylnnnxa92pd6w40y6af78zk3yslr3n8st588" });
+    console.log(doRes);
   }
 
   // const oraclePythQueryClient = new marketContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, networkMarket?.oraclePyth?.address);

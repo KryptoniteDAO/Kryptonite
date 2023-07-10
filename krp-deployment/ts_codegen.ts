@@ -1,7 +1,22 @@
 import codegen from "@cosmwasm/ts-codegen";
 import * as fs from "fs";
 import * as path from "path";
-import { CONVERT_MODULE_NAME, KPT_MODULE_NAME, MARKET_MODULE_NAME, STAKING_MODULE_NAME, SWAP_EXTENSION_MODULE_NAME, CDP_MODULE_NAME, STAKING_CONTRACTS_PATH, MARKET_CONTRACTS_PATH, CONVERT_CONTRACTS_PATH, SWAP_EXTENSION_CONTRACTS_PATH, KPT_CONTRACTS_PATH, CDP_CONTRACTS_PATH } from "@/modules";
+import {
+  CONVERT_MODULE_NAME,
+  KPT_MODULE_NAME,
+  MARKET_MODULE_NAME,
+  STAKING_MODULE_NAME,
+  SWAP_EXTENSION_MODULE_NAME,
+  CDP_MODULE_NAME,
+  STAKING_CONTRACTS_PATH,
+  MARKET_CONTRACTS_PATH,
+  CONVERT_CONTRACTS_PATH,
+  SWAP_EXTENSION_CONTRACTS_PATH,
+  KPT_CONTRACTS_PATH,
+  CDP_CONTRACTS_PATH,
+  BLIND_BOX_CONTRACTS_PATH,
+  BLIND_BOX_MODULE_NAME
+} from "@/modules";
 
 export type ContractConfig = {
   name: string;
@@ -20,11 +35,12 @@ export type ContractConfig = {
  * 2. RewardsDispatcher.client.ts: `ConfigResponse` => `Config`
  * 3. ValidatorsRegistry.client.ts: `ConfigResponse` => `Config`, `GetValidatorsForDelegationResponse` => `Validator[]`
  * module: kpt
+ * 1.KptFund.client.ts: `UserTime2fullRedemptionResponse` => `UserTime2FullRedemptionResponse`,
+ * module: blind-box
  * 1.BlindBox.client.ts: `NullableEmpty` => `Nullable_Empty`,
- * 2.KptFund.client.ts: `UserTime2fullRedemptionResponse` => `UserTime2FullRedemptionResponse`,
  */
 async function main(): Promise<void> {
-  console.log(`✨✨✨ do code generate enter.`);
+  console.log(`\n  ✨✨✨ do code generate enter.`);
 
   /// code gen by modules
   const modulesMap: Map<string, ContractConfig[]> = new Map<string, ContractConfig[]>();
@@ -34,14 +50,15 @@ async function main(): Promise<void> {
   // modulesMap.set(STAKING_MODULE_NAME, getContractConfigByPath(STAKING_CONTRACTS_PATH));
   // modulesMap.set(MARKET_MODULE_NAME, getContractConfigByPath(MARKET_CONTRACTS_PATH));
   // modulesMap.set(CONVERT_MODULE_NAME, getContractConfigByPath(CONVERT_CONTRACTS_PATH));
-  modulesMap.set(KPT_MODULE_NAME, getContractConfigByPath(KPT_CONTRACTS_PATH));
+  // modulesMap.set(KPT_MODULE_NAME, getContractConfigByPath(KPT_CONTRACTS_PATH));
+  modulesMap.set(BLIND_BOX_MODULE_NAME, getContractConfigByPath(BLIND_BOX_CONTRACTS_PATH));
   // modulesMap.set(CDP_MODULE_NAME, getContractConfigByPath(CDP_CONTRACTS_PATH));
   /// custom modules - end
 
   if (modulesMap.size <= 0) {
     return;
   }
-  console.log(`\n✨✨✨ code generate info, modules: ${modulesMap.size} / `, modulesMap.keys());
+  console.log(`\n  ✨✨✨ code generate info, modules: ${modulesMap.size} / `, modulesMap.keys());
 
   const outPath = "./contracts";
 
@@ -72,7 +89,7 @@ async function main(): Promise<void> {
     await doCodegen(key, value, outPath);
   }
 
-  console.log(`\n✨✨✨ do code generate all done!\n`);
+  console.log(`\n  ✨✨✨ do code generate all done!\n`);
 }
 
 /**
@@ -91,6 +108,7 @@ export const doCodegen = async (modulesName: string, contracts: ContractConfig[]
     // options are completely optional ;)
     options: {
       bundle: {
+        enabled: true,
         bundleFile: "index.ts",
         scope
       },
@@ -124,7 +142,7 @@ export const doCodegen = async (modulesName: string, contracts: ContractConfig[]
       }
     }
   });
-  console.log(`\n✨✨✨ gen done! modulesName: ${modulesName} / contracts length: ${contracts.length}`);
+  console.log(`\n  ✨✨✨ gen done! modulesName: ${modulesName} / contracts length: ${contracts.length}`);
 };
 
 export const getContractConfigByPath = (contractsPath: string): ContractConfig[] => {
