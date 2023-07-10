@@ -172,6 +172,7 @@
     {
       "name": "SEI/KPT",
       "staking_token": "sei1973hq2vajasc2uvxhdn3kfq27w3cvksyysspnrwq3swyu7t37caq2eana6",
+      "pool_address": "",
       "stakingRewards": {
         "admin": null,
         "initMsg": {
@@ -185,6 +186,7 @@
     {
       "name": "kUSD/USDC",
       "staking_token": "sei1e9ac92wc2ahh36ew8mdfvrlgntk8nqtcycc3d7qr4xrn3xuk8h8skngqtt",
+      "pool_address": "",
       "stakingRewards": {
         "admin": null,
         "initMsg": {

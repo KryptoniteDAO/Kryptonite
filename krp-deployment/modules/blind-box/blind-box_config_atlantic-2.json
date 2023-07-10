@@ -11,23 +11,15 @@
       "level_infos": [
         {
           "price": "20000000",
-          "mint_total_count": "10000",
-          "is_random_box": false
+          "mint_total_count": "99999999"
         },
         {
           "price": "200000000",
-          "mint_total_count": "1000",
-          "is_random_box": false
+          "mint_total_count": "99999999"
         },
         {
           "price": "1000000000",
-          "mint_total_count": "200",
-          "is_random_box": false
-        },
-        {
-          "price": "100000000",
-          "mint_total_count": "1000",
-          "is_random_box": true
+          "mint_total_count": "99999999"
         }
       ],
       "start_mint_time": 1687337418,
@@ -35,12 +27,6 @@
       "end_mint_time": 1690355659,
       "can_transfer_time": 1690355659,
       "referral_reward_config": {
-        "reward_token_config": {
-          "USDC": {
-            "reward_token": "%kusd_address%",
-            "conversion_ratio": "1000000"
-          }
-        },
         "referral_level_config": {
           "0": {
             "min_referral_total_amount": "0",
@@ -129,27 +115,6 @@
             "max_reward_count": 320
           }
         },
-        "random_in_box_level_index": 3,
-        "random_box_reward_rule_config": [
-          {
-            "random_box_index": 0,
-            "random_total_count": 400,
-            "random_reward_amount": "2500000000",
-            "max_reward_count": 400
-          },
-          {
-            "random_box_index": 1,
-            "random_total_count": 520,
-            "random_reward_amount": "10000000000",
-            "max_reward_count": 520
-          },
-          {
-            "random_box_index": 2,
-            "random_total_count": 80,
-            "random_reward_amount": "45000000000",
-            "max_reward_count": 80
-          }
-        ],
         "box_reward_distribute_rule_type": "loot_box",
         "global_reward_total_amount": "100000000000000"
       }
