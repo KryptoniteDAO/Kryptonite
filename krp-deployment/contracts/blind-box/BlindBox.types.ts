@@ -278,10 +278,12 @@ export interface CalMintInfoResponse {
   next_inviter_reward_level?: number | null;
   paid_amount: Uint128;
   price: Uint128;
+  [k: string]: unknown;
 }
 export interface CheckReferralCodeResponse {
   exists: boolean;
   user: Addr;
+  [k: string]: unknown;
 }
 export interface ContractInfoResponse {
   name: string;
@@ -302,6 +304,7 @@ export interface UserInfoResponse {
     [k: string]: number;
   };
   user_reward_total_base_amount: number;
+  [k: string]: unknown;
 }
 export interface MinterResponse {
   minter?: string | null;
@@ -320,6 +323,7 @@ export interface ReferralRewardConfigResponse {
     [k: string]: number;
   };
   referral_reward_total_base_amount: number;
+  [k: string]: unknown;
 }
 export interface ReferralLevelConfigResponse {
   invitee_discount_rate: number;
@@ -327,15 +331,18 @@ export interface ReferralLevelConfigResponse {
   max_referral_total_amount: number;
   min_referral_total_amount: number;
   reward_box_config: ReferralLevelRewardBoxConfigResponse;
+  [k: string]: unknown;
 }
 export interface ReferralLevelRewardBoxConfigResponse {
   recommended_quantity: number;
   reward_box: {
     [k: string]: number;
   };
+  [k: string]: unknown;
 }
 export interface BlindBoxConfigResponse {
   can_transfer_time: number;
+  end_mint_time: number;
   gov: string;
   inviter_reward_box_contract: Addr;
   level_infos: BlindBoxConfigLevelResponse[];
@@ -346,6 +353,7 @@ export interface BlindBoxConfigResponse {
   start_mint_time: number;
   token_id_index: number;
   token_id_prefix: string;
+  [k: string]: unknown;
 }
 export interface BlindBoxConfigLevelResponse {
   level_index: number;
@@ -353,6 +361,7 @@ export interface BlindBoxConfigLevelResponse {
   minted_count: number;
   price: number;
   received_total_amount: number;
+  [k: string]: unknown;
 }
 export interface BlindBoxInfoResponse {
   block_number: number;
@@ -360,6 +369,7 @@ export interface BlindBoxInfoResponse {
   level_index: number;
   price: number;
   token_id: string;
+  [k: string]: unknown;
 }
 export type ArrayOfBlindBoxInfoResponse = BlindBoxInfoResponse[];
 export interface InviterReferralRecordResponse {
@@ -372,5 +382,6 @@ export interface InviterReferralRecordResponse {
   reward_level: number;
   reward_to_inviter_base_amount: number;
   token_ids: string[];
+  [k: string]: unknown;
 }
 export type BlindBoxExecuteMsg = ExecuteMsg;

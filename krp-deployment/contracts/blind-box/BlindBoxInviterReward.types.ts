@@ -15,6 +15,12 @@ export interface InstantiateMsg {
   start_mint_box_time: number;
 }
 export type ExecuteMsg = {
+  mint_multilevel_reward_box: {
+    level_info_map: {
+      [k: string]: number;
+    };
+  };
+} | {
   mint_reward_box: {
     level_index: number;
     mint_num: number;
@@ -57,15 +63,18 @@ export interface CalCanClaimRewardTokenResponse {
   can_claim_token_quantity: number;
   claimed_reward_token_quantity: number;
   total_reward_token_quantity: number;
+  [k: string]: unknown;
 }
 export interface CalCanMintRewardBoxResponse {
   can_mint_box_quantity: number;
   minted_reward_box_quantity: number;
   total_reward_box_quantity: number;
+  [k: string]: unknown;
 }
 export interface ConfigAndStateResponse {
   config: InviterRewardConfig;
   state: InviterRewardConfigState;
+  [k: string]: unknown;
 }
 export interface InviterRewardConfig {
   end_claim_token_time: number;
