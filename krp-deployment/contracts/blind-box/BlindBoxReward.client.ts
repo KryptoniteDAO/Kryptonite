@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Addr, InstantiateMsg, BoxRewardConfig, OrdinaryBoxRewardLevelConfig, ExecuteMsg, Uint128, Binary, Cw20ReceiveMsg, QueryMsg, AllConfigAndStateResponse, BoxRewardConfigState, OrdinaryBoxRewardLevelConfigState, RewardConfig, QueryBoxClaimableInfoResponse, BoxClaimableAmountInfoResponse, ArrayOfBoxOpenInfoResponse, BoxOpenInfoResponse } from "./BlindBoxReward.types";
+import { Addr, InstantiateMsg, BoxRewardConfig, OrdinaryBoxRewardLevelConfig, ExecuteMsg, Uint128, Binary, Cw20MintReceiveMsg, QueryMsg, AllConfigAndStateResponse, BoxRewardConfigState, OrdinaryBoxRewardLevelConfigState, RewardConfig, QueryBoxClaimableInfoResponse, BoxClaimableAmountInfoResponse, ArrayOfBoxOpenInfoResponse, BoxOpenInfoResponse } from "./BlindBoxReward.types";
 export interface BlindBoxRewardReadOnlyInterface {
   contractAddress: string;
   queryAllConfigAndState: () => Promise<AllConfigAndStateResponse>;
@@ -64,7 +64,7 @@ export class BlindBoxRewardQueryClient implements BlindBoxRewardReadOnlyInterfac
 export interface BlindBoxRewardInterface {
   contractAddress: string;
   sender: string;
-  receive: ({
+  mintReceive: ({
     amount,
     msg,
     sender
@@ -107,14 +107,14 @@ export class BlindBoxRewardClient implements BlindBoxRewardInterface {
     this.client = client;
     this.sender = sender;
     this.contractAddress = contractAddress;
-    this.receive = this.receive.bind(this);
+    this.mintReceive = this.mintReceive.bind(this);
     this.updateRewardConfig = this.updateRewardConfig.bind(this);
     this.updateBoxRewardConfig = this.updateBoxRewardConfig.bind(this);
     this.openBlindBox = this.openBlindBox.bind(this);
     this.userClaimNftReward = this.userClaimNftReward.bind(this);
   }
 
-  receive = async ({
+  mintReceive = async ({
     amount,
     msg,
     sender
@@ -124,7 +124,7 @@ export class BlindBoxRewardClient implements BlindBoxRewardInterface {
     sender: string;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
-      receive: {
+      mint_receive: {
         amount,
         msg,
         sender

@@ -27,7 +27,7 @@ export interface OrdinaryBoxRewardLevelConfig {
   [k: string]: unknown;
 }
 export type ExecuteMsg = {
-  receive: Cw20ReceiveMsg;
+  mint_receive: Cw20MintReceiveMsg;
 } | {
   update_reward_config: {
     gov?: Addr | null;
@@ -49,7 +49,7 @@ export type ExecuteMsg = {
 };
 export type Uint128 = string;
 export type Binary = string;
-export interface Cw20ReceiveMsg {
+export interface Cw20MintReceiveMsg {
   amount: Uint128;
   msg: Binary;
   sender: string;
@@ -69,6 +69,7 @@ export interface AllConfigAndStateResponse {
   box_config: BoxRewardConfig;
   box_state: BoxRewardConfigState;
   config: RewardConfig;
+  [k: string]: unknown;
 }
 export interface BoxRewardConfigState {
   global_reward_claim_index: number;
@@ -95,10 +96,12 @@ export interface QueryBoxClaimableInfoResponse {
   next_reward_claim_index: number;
   total_claimable_amount: number;
   total_claimable_distribute_amount: number;
+  [k: string]: unknown;
 }
 export interface BoxClaimableAmountInfoResponse {
   claimable_amount: number;
   token_id: string;
+  [k: string]: unknown;
 }
 export type ArrayOfBoxOpenInfoResponse = BoxOpenInfoResponse[];
 export interface BoxOpenInfoResponse {
@@ -108,5 +111,6 @@ export interface BoxOpenInfoResponse {
   open_reward_amount: number;
   open_user: Addr;
   token_id: string;
+  [k: string]: unknown;
 }
 export type BlindBoxRewardExecuteMsg = ExecuteMsg;
