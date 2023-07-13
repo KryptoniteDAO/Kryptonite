@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Addr, InstantiateMsg, ExecuteMsg, UpdateInviterRewardConfigMsg, QueryMsg, CalCanClaimRewardTokenResponse, CalCanMintRewardBoxResponse, ConfigAndStateResponse, InviterRewardConfig, InviterRewardConfigState, InviterOptDetail } from "./BlindBoxInviterReward.types";
+import { Addr, InstantiateMsg, ExecuteMsg, MultiLevelRewardBoxMsg, UpdateInviterRewardConfigMsg, QueryMsg, CalCanClaimRewardTokenResponse, CalCanMintRewardBoxResponse, MapOfCalCanMintRewardBoxResponse, ConfigAndStateResponse, InviterRewardConfig, InviterRewardConfigState, InviterOptDetail } from "./BlindBoxInviterReward.types";
 export interface BlindBoxInviterRewardReadOnlyInterface {
   contractAddress: string;
   queryAllConfigAndState: () => Promise<ConfigAndStateResponse>;
@@ -17,6 +17,13 @@ export interface BlindBoxInviterRewardReadOnlyInterface {
     levelIndex: number;
     user: Addr;
   }) => Promise<CalCanMintRewardBoxResponse>;
+  calMultiLevelRewardBox: ({
+    levelIndexes,
+    user
+  }: {
+    levelIndexes: number[];
+    user: Addr;
+  }) => Promise<MapOfCalCanMintRewardBoxResponse>;
   calCanClaimRewardToken: ({
     user
   }: {
@@ -37,6 +44,7 @@ export class BlindBoxInviterRewardQueryClient implements BlindBoxInviterRewardRe
     this.contractAddress = contractAddress;
     this.queryAllConfigAndState = this.queryAllConfigAndState.bind(this);
     this.calCanMintRewardBox = this.calCanMintRewardBox.bind(this);
+    this.calMultiLevelRewardBox = this.calMultiLevelRewardBox.bind(this);
     this.calCanClaimRewardToken = this.calCanClaimRewardToken.bind(this);
     this.queryInviterDetail = this.queryInviterDetail.bind(this);
   }
@@ -56,6 +64,20 @@ export class BlindBoxInviterRewardQueryClient implements BlindBoxInviterRewardRe
     return this.client.queryContractSmart(this.contractAddress, {
       cal_can_mint_reward_box: {
         level_index: levelIndex,
+        user
+      }
+    });
+  };
+  calMultiLevelRewardBox = async ({
+    levelIndexes,
+    user
+  }: {
+    levelIndexes: number[];
+    user: Addr;
+  }): Promise<MapOfCalCanMintRewardBoxResponse> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      cal_multi_level_reward_box: {
+        level_indexes: levelIndexes,
         user
       }
     });
@@ -86,6 +108,11 @@ export class BlindBoxInviterRewardQueryClient implements BlindBoxInviterRewardRe
 export interface BlindBoxInviterRewardInterface {
   contractAddress: string;
   sender: string;
+  mintMultilevelRewardBox: ({
+    levelInfos
+  }: {
+    levelInfos: MultiLevelRewardBoxMsg[];
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   mintRewardBox: ({
     levelIndex,
     mintNum
@@ -113,11 +140,23 @@ export class BlindBoxInviterRewardClient implements BlindBoxInviterRewardInterfa
     this.client = client;
     this.sender = sender;
     this.contractAddress = contractAddress;
+    this.mintMultilevelRewardBox = this.mintMultilevelRewardBox.bind(this);
     this.mintRewardBox = this.mintRewardBox.bind(this);
     this.claimRewardToken = this.claimRewardToken.bind(this);
     this.updateConfig = this.updateConfig.bind(this);
   }
 
+  mintMultilevelRewardBox = async ({
+    levelInfos
+  }: {
+    levelInfos: MultiLevelRewardBoxMsg[];
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      mint_multilevel_reward_box: {
+        level_infos: levelInfos
+      }
+    }, fee, memo, _funds);
+  };
   mintRewardBox = async ({
     levelIndex,
     mintNum

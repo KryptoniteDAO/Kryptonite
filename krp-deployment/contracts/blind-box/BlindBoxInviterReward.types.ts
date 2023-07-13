@@ -16,9 +16,7 @@ export interface InstantiateMsg {
 }
 export type ExecuteMsg = {
   mint_multilevel_reward_box: {
-    level_info_map: {
-      [k: string]: number;
-    };
+    level_infos: MultiLevelRewardBoxMsg[];
   };
 } | {
   mint_reward_box: {
@@ -34,6 +32,10 @@ export type ExecuteMsg = {
     update_msg: UpdateInviterRewardConfigMsg;
   };
 };
+export interface MultiLevelRewardBoxMsg {
+  level_index: number;
+  mint_num: number;
+}
 export interface UpdateInviterRewardConfigMsg {
   end_claim_token_time?: number | null;
   end_mint_box_time?: number | null;
