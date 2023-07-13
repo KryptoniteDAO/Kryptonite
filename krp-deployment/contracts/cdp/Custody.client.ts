@@ -42,13 +42,15 @@ export interface CustodyInterface {
     controlContract,
     liquidationContract,
     ownerAddr,
-    poolContract
+    poolContract,
+    rewardBookContract
   }: {
     collateralContract?: string;
     controlContract?: string;
     liquidationContract?: string;
     ownerAddr?: string;
     poolContract?: string;
+    rewardBookContract?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   receive: ({
     amount,
@@ -82,6 +84,11 @@ export interface CustodyInterface {
     amount: Uint128;
     liquidator: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  claimRewards: ({
+    rewardContract
+  }: {
+    rewardContract: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class CustodyClient implements CustodyInterface {
   client: SigningCosmWasmClient;
@@ -97,6 +104,7 @@ export class CustodyClient implements CustodyInterface {
     this.redeemStableCoin = this.redeemStableCoin.bind(this);
     this.withdrawCollateral = this.withdrawCollateral.bind(this);
     this.liquidateCollateral = this.liquidateCollateral.bind(this);
+    this.claimRewards = this.claimRewards.bind(this);
   }
 
   updateConfig = async ({
@@ -104,13 +112,15 @@ export class CustodyClient implements CustodyInterface {
     controlContract,
     liquidationContract,
     ownerAddr,
-    poolContract
+    poolContract,
+    rewardBookContract
   }: {
     collateralContract?: string;
     controlContract?: string;
     liquidationContract?: string;
     ownerAddr?: string;
     poolContract?: string;
+    rewardBookContract?: string;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
@@ -118,7 +128,8 @@ export class CustodyClient implements CustodyInterface {
         control_contract: controlContract,
         liquidation_contract: liquidationContract,
         owner_addr: ownerAddr,
-        pool_contract: poolContract
+        pool_contract: poolContract,
+        reward_book_contract: rewardBookContract
       }
     }, fee, memo, _funds);
   };
@@ -181,6 +192,17 @@ export class CustodyClient implements CustodyInterface {
       liquidate_collateral: {
         amount,
         liquidator
+      }
+    }, fee, memo, _funds);
+  };
+  claimRewards = async ({
+    rewardContract
+  }: {
+    rewardContract: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      claim_rewards: {
+        reward_contract: rewardContract
       }
     }, fee, memo, _funds);
   };

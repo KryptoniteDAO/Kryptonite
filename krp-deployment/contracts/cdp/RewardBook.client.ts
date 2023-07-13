@@ -6,8 +6,8 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Decimal256, InstantiateMsg, ExecuteMsg, Uint128, QueryMsg, CollateralAvailableRespone, WhitelistElemResponse, ConfigResponse, Uint256, LoanInfoResponse, MinterCollateralResponse, RedemptionProviderListRespone, MinterLoanResponse, WhitelistResponse } from "./CentralControl.types";
-export interface CentralControlReadOnlyInterface {
+import { Decimal256, InstantiateMsg, ExecuteMsg, Uint128, QueryMsg, CollateralAvailableRespone, WhitelistElemResponse, ConfigResponse, Uint256, LoanInfoResponse, MinterCollateralResponse, RedemptionProviderListRespone, MinterLoanResponse, WhitelistResponse } from "./RewardBook.types";
+export interface RewardBookReadOnlyInterface {
   contractAddress: string;
   config: () => Promise<ConfigResponse>;
   loanInfo: ({
@@ -51,7 +51,7 @@ export interface CentralControlReadOnlyInterface {
     minter: string;
   }) => Promise<CollateralAvailableRespone>;
 }
-export class CentralControlQueryClient implements CentralControlReadOnlyInterface {
+export class RewardBookQueryClient implements RewardBookReadOnlyInterface {
   client: CosmWasmClient;
   contractAddress: string;
 
@@ -154,7 +154,7 @@ export class CentralControlQueryClient implements CentralControlReadOnlyInterfac
     });
   };
 }
-export interface CentralControlInterface {
+export interface RewardBookInterface {
   contractAddress: string;
   sender: string;
   updateConfig: ({
@@ -245,7 +245,7 @@ export interface CentralControlInterface {
     symbol: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
-export class CentralControlClient implements CentralControlInterface {
+export class RewardBookClient implements RewardBookInterface {
   client: SigningCosmWasmClient;
   sender: string;
   contractAddress: string;

@@ -10,6 +10,7 @@ export interface InstantiateMsg {
   liquidation_contract: string;
   owner_addr: string;
   pool_contract: string;
+  reward_book_contract: string;
 }
 export type ExecuteMsg = {
   update_config: {
@@ -18,6 +19,7 @@ export type ExecuteMsg = {
     liquidation_contract?: string | null;
     owner_addr?: string | null;
     pool_contract?: string | null;
+    reward_book_contract?: string | null;
   };
 } | {
   receive: Cw20ReceiveMsg;
@@ -36,6 +38,10 @@ export type ExecuteMsg = {
   liquidate_collateral: {
     amount: Uint128;
     liquidator: string;
+  };
+} | {
+  claim_rewards: {
+    reward_contract: string;
   };
 };
 export type Uint128 = string;
@@ -56,6 +62,7 @@ export interface ConfigResponse {
   liquidation_contract: string;
   owner_addr: string;
   pool_contract: string;
+  reward_book_contract: string;
 }
 export type Uint256 = string;
 export interface StateResponse {

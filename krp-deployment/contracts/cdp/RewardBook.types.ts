@@ -145,4 +145,4 @@ export interface MinterLoanResponse {
 export interface WhitelistResponse {
   elems: WhitelistElemResponse[];
 }
-export type CentralControlExecuteMsg = ExecuteMsg;
+export type RewardBookExecuteMsg = ExecuteMsg;
