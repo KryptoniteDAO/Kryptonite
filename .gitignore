@@ -27,3 +27,4 @@ package-lock.json
 .DS_Store
 
 *.iml
+**/*/deployed_*.json

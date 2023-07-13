@@ -51,6 +51,11 @@ export type QueryMsg = {
     user: Addr;
   };
 } | {
+  cal_multi_level_reward_box: {
+    level_indexes: number[];
+    user: Addr;
+  };
+} | {
   cal_can_claim_reward_token: {
     user: Addr;
   };
@@ -63,18 +68,18 @@ export interface CalCanClaimRewardTokenResponse {
   can_claim_token_quantity: number;
   claimed_reward_token_quantity: number;
   total_reward_token_quantity: number;
-  [k: string]: unknown;
 }
 export interface CalCanMintRewardBoxResponse {
   can_mint_box_quantity: number;
   minted_reward_box_quantity: number;
   total_reward_box_quantity: number;
-  [k: string]: unknown;
+}
+export interface MapOfCalCanMintRewardBoxResponse {
+  [k: string]: CalCanMintRewardBoxResponse;
 }
 export interface ConfigAndStateResponse {
   config: InviterRewardConfig;
   state: InviterRewardConfigState;
-  [k: string]: unknown;
 }
 export interface InviterRewardConfig {
   end_claim_token_time: number;
