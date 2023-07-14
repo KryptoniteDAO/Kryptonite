@@ -1,5 +1,17 @@
 import type { ContractDeployed, InitialBalance, WalletData } from "@/types";
-import type { KptContractConfig, KptContractsConfig, KptContractsDeployed, KptFundContractConfig, StakingRewardsPairsConfig, StakingRewardsPairsContractsDeployed, VeKptBoostContractConfig, VeKptContractConfig, VeKptMinerContractConfig, KptDistributeContractConfig } from "@/modules";
+import type {
+  KptContractConfig,
+  KptContractsConfig,
+  KptContractsDeployed,
+  KptFundContractConfig,
+  StakingRewardsPairsConfig,
+  StakingRewardsPairsContractsDeployed,
+  VeKptBoostContractConfig,
+  VeKptContractConfig,
+  VeKptMinerContractConfig,
+  KptDistributeContractConfig,
+  KeeperContractConfig
+} from "@/modules";
 import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
 import { deployContract, readArtifact, writeArtifact } from "@/common";
 import { kptContracts } from "@/contracts";
@@ -189,6 +201,29 @@ export async function deployKptDistribute(walletData: WalletData, networkKpt: Kp
   await deployContract(walletData, contractName, networkKpt, undefined, config, { defaultInitMsg, writeFunc });
 }
 
+export async function deployKeeper(walletData: WalletData, networkKpt: KptContractsDeployed): Promise<void> {
+  const kptFund: ContractDeployed | undefined = networkKpt?.kptFund;
+  if (!kptFund?.address) {
+    return;
+  }
+
+  const contractName: keyof Required<KptContractsDeployed> = "keeper";
+  const config: KeeperContractConfig | undefined = kptConfigs?.[contractName];
+  const defaultInitMsg = Object.assign(
+    {
+      rewards_contract: kptFund?.address,
+      rewards_denom: walletData?.stable_coin_denom
+    },
+    config?.initMsg ?? {},
+    {
+      owner: config?.initMsg?.owner ?? walletData.address
+    }
+  );
+  const writeFunc = kptWriteArtifact;
+
+  await deployContract(walletData, contractName, networkKpt, undefined, config, { defaultInitMsg, writeFunc });
+}
+
 export async function doKptUpdateConfig(walletData: WalletData, networkKpt: KptContractsDeployed, print: boolean = true): Promise<any> {
   print && console.log(`\n  Do kpt.kpt update_config enter.`);
   const kpt: ContractDeployed | undefined = networkKpt?.kpt;
@@ -335,7 +370,8 @@ export async function printDeployedKptContracts(networkKpt: KptContractsDeployed
     { name: `veKpt`, deploy: kptConfigs?.veKpt?.deploy, codeId: networkKpt?.veKpt?.codeId || 0, address: networkKpt?.veKpt?.address },
     { name: `veKptBoost`, deploy: kptConfigs?.veKptBoost?.deploy, codeId: networkKpt?.veKptBoost?.codeId || 0, address: networkKpt?.veKptBoost?.address },
     // { name: `veKptMiner`, deploy: kptConfigs?.veKptMiner?.deploy, codeId: networkKpt?.veKptMiner?.codeId || 0, address: networkKpt?.veKptMiner?.address },
-    { name: `kptDistribute`, deploy: kptConfigs?.kptDistribute?.deploy, codeId: networkKpt?.kptDistribute?.codeId || 0, address: networkKpt?.kptDistribute?.address }
+    { name: `kptDistribute`, deploy: kptConfigs?.kptDistribute?.deploy, codeId: networkKpt?.kptDistribute?.codeId || 0, address: networkKpt?.kptDistribute?.address },
+    { name: `keeper`, deploy: kptConfigs?.keeper?.deploy, codeId: networkKpt?.keeper?.codeId || 0, address: networkKpt?.keeper?.address }
   ];
   console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
   await printDeployedKptStakingContracts(networkKpt);

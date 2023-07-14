@@ -16,6 +16,14 @@ export interface ConfigResponse {
   [k: string]: unknown;
 }
 export type ExecuteMsg = {
+  update_config: {
+    hub_contract?: string | null;
+    owner_addr?: string | null;
+    reward_denom?: string | null;
+    swap_contract?: string | null;
+    [k: string]: unknown;
+  };
+} | {
   swap_to_reward_denom: {
     [k: string]: unknown;
   };
@@ -38,11 +46,6 @@ export type ExecuteMsg = {
 } | {
   claim_rewards: {
     recipient?: string | null;
-    [k: string]: unknown;
-  };
-} | {
-  update_swap_contract: {
-    swap_contract: string;
     [k: string]: unknown;
   };
 } | {

@@ -21,7 +21,7 @@ import {
   oracleReadArtifact,
   OracleContractsDeployed,
   doOraclePythConfigFeedInfo,
-  oracleConfigs
+  oracleConfigs, kptReadArtifact, KptContractsDeployed
 } from "@/modules";
 import { ContractDeployed } from "@/types";
 
@@ -34,6 +34,7 @@ async function main(): Promise<void> {
 
   const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
   const networkOracle = oracleReadArtifact(walletData.chainId) as OracleContractsDeployed;
+  const networkKpt = kptReadArtifact(walletData.chainId) as KptContractsDeployed;
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
 
   const swapExtention: ContractDeployed | undefined = networkSwap?.swapExtention;
@@ -52,7 +53,7 @@ async function main(): Promise<void> {
   await deployHub(walletData, networkStaking, swapExtention);
   await deployReward(walletData, networkStaking, swapExtention);
   await deployBSeiToken(walletData, networkStaking);
-  await deployRewardsDispatcher(walletData, networkStaking, swapExtention, oraclePyth);
+  await deployRewardsDispatcher(walletData, networkStaking, swapExtention, oraclePyth, networkKpt?.keeper?.address);
   await deployValidatorsRegistry(walletData, networkStaking);
   await deployStSeiToken(walletData, networkStaking);
 

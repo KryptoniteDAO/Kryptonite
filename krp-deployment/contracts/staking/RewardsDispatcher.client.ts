@@ -48,16 +48,16 @@ export interface RewardsDispatcherInterface {
     bseiRewardContract,
     bseiRewardDenom,
     hubContract,
-    lidoFeeAddress,
-    lidoFeeRate,
+    krpKeeperAddress,
+    krpKeeperRate,
     owner,
     stseiRewardDenom
   }: {
     bseiRewardContract?: string;
     bseiRewardDenom?: string;
     hubContract?: string;
-    lidoFeeAddress?: string;
-    lidoFeeRate?: Decimal;
+    krpKeeperAddress?: string;
+    krpKeeperRate?: Decimal;
     owner?: string;
     stseiRewardDenom?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
@@ -115,16 +115,16 @@ export class RewardsDispatcherClient implements RewardsDispatcherInterface {
     bseiRewardContract,
     bseiRewardDenom,
     hubContract,
-    lidoFeeAddress,
-    lidoFeeRate,
+    krpKeeperAddress,
+    krpKeeperRate,
     owner,
     stseiRewardDenom
   }: {
     bseiRewardContract?: string;
     bseiRewardDenom?: string;
     hubContract?: string;
-    lidoFeeAddress?: string;
-    lidoFeeRate?: Decimal;
+    krpKeeperAddress?: string;
+    krpKeeperRate?: Decimal;
     owner?: string;
     stseiRewardDenom?: string;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
@@ -133,8 +133,8 @@ export class RewardsDispatcherClient implements RewardsDispatcherInterface {
         bsei_reward_contract: bseiRewardContract,
         bsei_reward_denom: bseiRewardDenom,
         hub_contract: hubContract,
-        lido_fee_address: lidoFeeAddress,
-        lido_fee_rate: lidoFeeRate,
+        krp_keeper_address: krpKeeperAddress,
+        krp_keeper_rate: krpKeeperRate,
         owner,
         stsei_reward_denom: stseiRewardDenom
       }

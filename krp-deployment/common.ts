@@ -338,8 +338,8 @@ export async function queryContractConfig(walletData: WalletData, deployContract
 export async function deployContract<
   C extends BaseContractConfig = BaseContractConfig,
   M extends object = object,
-  D extends { defaultFilePath?: string; defaultLabel?: string; defaultInitMsg?: M; defaultFunds?: Coin[]; write?: boolean; writeFunc?: Function; memo?: string; storeCoreGasLimit?: number; instantiateGasLimit?: number } = any
->(walletData: WalletData, contractName: string, network: unknown, contractNetwork: ContractDeployed | undefined, contractConfig: C, { defaultFilePath, defaultLabel, defaultInitMsg, defaultFunds, write = true, writeFunc, memo, storeCoreGasLimit, instantiateGasLimit }: D): Promise<void> {
+  D extends { defaultFilePath?: string; defaultLabel?: string; defaultInitMsg?: M; defaultFunds?: Coin[]; writeAble?: boolean; writeFunc?: Function; memo?: string; storeCoreGasLimit?: number; instantiateGasLimit?: number } = any
+>(walletData: WalletData, contractName: string, network: unknown, contractNetwork: ContractDeployed | undefined, contractConfig: C, { defaultFilePath, defaultLabel, defaultInitMsg, defaultFunds, writeAble = true, writeFunc, memo, storeCoreGasLimit, instantiateGasLimit }: D): Promise<void> {
   if (!network || !contractConfig || !contractName) {
     console.error(`\n  Missing info: ${contractName}`);
     return;
@@ -363,14 +363,14 @@ export async function deployContract<
     }
 
     contractNetwork.codeId = await storeCodeByWalletData(walletData, filePath, memo, { gasLimit: storeCoreGasLimit });
-    write && typeof writeFunc === "function" && writeFunc(network, walletData.chainId);
+    writeAble && typeof writeFunc === "function" && writeFunc(network, walletData.chainId);
   }
   if (contractNetwork?.codeId > 0) {
     const admin = contractConfig?.admin || walletData.address;
     const label = contractConfig?.label || defaultLabel || contractName || "deploy contract";
     const initMsg = defaultInitMsg || Object.assign({}, contractConfig?.initMsg);
     contractNetwork.address = await instantiateContractByWalletData(walletData, admin, contractNetwork.codeId, initMsg, label, defaultFunds, { gasLimit: instantiateGasLimit });
-    write && typeof writeFunc === "function" && writeFunc(network, walletData.chainId);
+    writeAble && typeof writeFunc === "function" && writeFunc(network, walletData.chainId);
     contractConfig.deploy = true;
   }
   console.log(`\n  [contractName]: `, contractName, JSON.stringify(contractNetwork));

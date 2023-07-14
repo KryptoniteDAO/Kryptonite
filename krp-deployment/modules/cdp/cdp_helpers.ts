@@ -1,5 +1,14 @@
 import type { WalletData, ContractDeployed } from "@/types";
-import type { CdpCentralControlContractConfig, CdpContractsConfig, CdpContractsDeployed, CdpStablePoolContractConfig, CdpCustodyContractConfig, CdpLiquidationQueueContractConfig, CdpCollateralPairsDeployed, CdpCollateralPairsConfig } from "@/modules";
+import type {
+  CdpCentralControlContractConfig,
+  CdpContractsConfig,
+  CdpContractsDeployed,
+  CdpStablePoolContractConfig,
+  CdpCustodyContractConfig,
+  CdpLiquidationQueueContractConfig,
+  CdpCollateralPairsDeployed,
+  CdpCollateralPairsConfig
+} from "@/modules";
 import { DEPLOY_VERSION, DEPLOY_CHAIN_ID } from "@/env_data";
 import { deployContract, readArtifact, writeArtifact } from "@/common";
 import { cdpContracts } from "@/contracts";
@@ -300,11 +309,13 @@ export async function doCdpCentralControlSetWhitelistCollateral(walletData: Wall
 
   const doRes = await centralControlClient.whitelistCollateral({
     custodyContract: custody?.address,
+    rewardBookContract: walletData?.address,
     collateralContract: collateralPairConfig?.collateral,
     name: collateralPairConfig?.centralControlWhitelistConfig?.name,
     symbol: collateralPairConfig?.centralControlWhitelistConfig?.symbol,
     maxLtv: collateralPairConfig?.centralControlWhitelistConfig?.max_ltv
   });
+
   console.log(`\n  Do cdpCentralControl.address whitelistCollateral ok. \n  ${doRes?.transactionHash}`);
 
   const afterRes = await centralControlQueryClient.whitelist({ collateralContract: collateralPairConfig?.collateral });

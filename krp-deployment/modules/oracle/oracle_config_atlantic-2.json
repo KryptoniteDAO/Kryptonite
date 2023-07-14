@@ -18,7 +18,7 @@
   },
   "feedInfoConfigList": [
     {
-      "asset": "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/usdt",
+      "asset": "%stable_coin_denom%",
       "checkFeedAge": true,
       "priceFeedId": "5bc91f13e412c07599167bae86f07543f076a638962b8d6017ec19dab4a82814",
       "priceFeedSymbol": "Crypto.USDT/USD",

@@ -83,7 +83,9 @@ export async function doOraclePythConfigFeedInfo(walletData: WalletData, oracleP
 
   const doRes = await oraclePythClient.configFeedInfo(configFeedInfoParams);
 
-  print && console.log(`\n  Do oraclePyth.address ConfigFeedInfo ok. \n  ${doRes?.transactionHash}`);
+  print && console.log(`\n  Do Validator[] ConfigFeedInfo ok. \n  ${doRes?.transactionHash}`);
+  let afterRes = await oraclePythQueryClient.queryPythFeederConfig({ asset: configFeedInfoParams.asset });
+  print && console.log(`\n  after oracle.oraclePyth ConfigFeedInfo. \n  ${JSON.stringify(afterRes)}`);
 }
 
 export async function queryOraclePythFeederConfig(walletData: WalletData, oraclePyth: ContractDeployed, assetAddress: string, print: boolean = true): Promise<PythFeederConfigResponse | boolean> {

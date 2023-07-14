@@ -3,6 +3,7 @@ import type { BSeiTokenContractConfig, HubContractConfig, RewardContractConfig, 
 import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
 import { deployContract, readArtifact, writeArtifact } from "@/common";
 import { stakingContracts } from "@/contracts";
+import { Config } from "@/contracts/staking/RewardsDispatcher.types";
 
 export const STAKING_ARTIFACTS_PATH = "../krp-staking-contracts/artifacts";
 export const STAKING_CONTRACTS_PATH = "../krp-staking-contracts/contracts";
@@ -131,10 +132,10 @@ export async function deployBSeiToken(walletData: WalletData, networkStaking: St
   await deployContract(walletData, contractName, networkStaking, undefined, config, { defaultInitMsg, writeFunc });
 }
 
-export async function deployRewardsDispatcher(walletData: WalletData, networkStaking: StakingContractsDeployed, swapExtention: ContractDeployed, oraclePyth: ContractDeployed): Promise<void> {
+export async function deployRewardsDispatcher(walletData: WalletData, networkStaking: StakingContractsDeployed, swapExtention: ContractDeployed, oraclePyth: ContractDeployed, keeperAddress: string|undefined): Promise<void> {
   const hub: ContractDeployed | undefined = networkStaking?.hub;
   const reward: ContractDeployed | undefined = networkStaking?.reward;
-  if (!hub?.address || !reward?.address || !swapExtention?.address || !oraclePyth?.address) {
+  if (!hub?.address || !reward?.address || !swapExtention?.address || !oraclePyth?.address || !keeperAddress) {
     return;
   }
 
@@ -152,7 +153,7 @@ export async function deployRewardsDispatcher(walletData: WalletData, networkSta
     },
     config?.initMsg ?? {},
     {
-      lido_fee_address: config?.initMsg?.lido_fee_address || walletData.address
+      krp_keeper_address: config?.initMsg?.krp_keeper_address || keeperAddress || walletData.address
     }
   );
   const writeFunc = stakingWriteArtifact;
@@ -230,6 +231,46 @@ export async function doHubConfig(walletData: WalletData, networkStaking: Stakin
 
   const afterRes = await hubQueryClient.config();
   print && console.log(`\n  staking.hub config info: \n  ${JSON.stringify(afterRes)}`);
+}
+
+export async function doRewardsDispatcherConfig(walletData: WalletData, networkStaking: StakingContractsDeployed, print: boolean = true): Promise<void> {
+  print && console.log(`\n  query staking.rewardsDispatcher config enter.`);
+  const hub: ContractDeployed | undefined = networkStaking?.hub;
+  const reward: ContractDeployed | undefined = networkStaking?.reward;
+  const bSeiToken: ContractDeployed | undefined = networkStaking?.bSeiToken;
+  const rewardsDispatcher: ContractDeployed | undefined = networkStaking?.rewardsDispatcher;
+  const validatorsRegistry: ContractDeployed | undefined = networkStaking?.validatorsRegistry;
+  const stSeiToken: ContractDeployed | undefined = networkStaking?.stSeiToken;
+  if (!hub?.address || !reward?.address || !bSeiToken?.address || !rewardsDispatcher?.address || !validatorsRegistry?.address || !stSeiToken?.address) {
+    console.error(`\n  ********* missing info!`);
+    return;
+  }
+
+  const rewardsDispatcherClient = new stakingContracts.RewardsDispatcher.RewardsDispatcherClient(walletData.signingCosmWasmClient, walletData.address, rewardsDispatcher.address);
+  const rewardsDispatcherQueryClient = new stakingContracts.RewardsDispatcher.RewardsDispatcherQueryClient(walletData.signingCosmWasmClient, rewardsDispatcher.address);
+
+  const beforeRes: Config = await rewardsDispatcherQueryClient.config();
+  // {"owner":"","reward_dispatcher_contract":"","validators_registry_contract":"","bsei_token_contract":"","stsei_token_contract":"","airdrop_registry_contract":null,"token_contract":""}
+  // const initFlag: boolean = rewardsDispatcher.address === beforeRes?.reward_dispatcher_contract && validatorsRegistry.address === beforeRes?.validators_registry_contract && bSeiToken.address === beforeRes?.bsei_token_contract && stSeiToken.address === beforeRes?.stsei_token_contract;
+  // if (initFlag) {
+  //   console.warn(`\n  ######### staking.rewardsDispatcher config is already done.`);
+  //   return;
+  // }
+  //
+  // const doRes = await rewardsDispatcherClient.updateConfig({
+  //   bseiRewardContract
+  //   bseiRewardDenom
+  //   hubContract,
+  //   bseiTokenContract: bSeiToken.address,
+  //   stseiTokenContract: stSeiToken.address,
+  //   rewardsDispatcherContract: rewardsDispatcher.address,
+  //   validatorsRegistryContract: validatorsRegistry.address,
+  //   rewardsContract: reward.address
+  // });
+  // console.log(`\n  Do staking.rewardsDispatcher update_config ok. \n  ${doRes?.transactionHash}`);
+
+  const afterRes = await rewardsDispatcherQueryClient.config();
+  print && console.log(`\n  after staking.rewardsDispatcher config info: \n  ${JSON.stringify(afterRes)}`);
 }
 
 /**

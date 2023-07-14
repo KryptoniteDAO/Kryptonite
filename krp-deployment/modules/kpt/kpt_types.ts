@@ -94,6 +94,13 @@ export interface KptDistributeContractConfig extends BaseContractConfig {
   };
 }
 
+export interface KeeperContractConfig extends BaseContractConfig {
+  initMsg?: {
+    owner?: Addr | null;
+    threshold: string;
+  };
+}
+
 export interface KptContractsConfig {
   kusd_denom: Addr;
   kusd_reward_controller: Addr;
@@ -104,6 +111,7 @@ export interface KptContractsConfig {
   veKptMiner?: VeKptMinerContractConfig;
   stakingRewardsPairs?: StakingRewardsPairsConfig[];
   kptDistribute?: KptDistributeContractConfig;
+  keeper?: KeeperContractConfig;
 }
 
 export interface StakingRewardsPairsContractsDeployed {
@@ -121,4 +129,5 @@ export interface KptContractsDeployed {
   veKptMiner?: ContractDeployed;
   stakingRewardsPairs?: StakingRewardsPairsContractsDeployed[];
   kptDistribute?: ContractDeployed;
+  keeper?: ContractDeployed;
 }

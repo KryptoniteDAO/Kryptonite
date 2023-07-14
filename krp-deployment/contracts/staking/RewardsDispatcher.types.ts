@@ -11,8 +11,8 @@ export interface Config {
   bsei_reward_contract: CanonicalAddr;
   bsei_reward_denom: string;
   hub_contract: CanonicalAddr;
-  lido_fee_address: CanonicalAddr;
-  lido_fee_rate: Decimal;
+  krp_keeper_address: CanonicalAddr;
+  krp_keeper_rate: Decimal;
   oracle_contract: CanonicalAddr;
   owner: CanonicalAddr;
   stsei_reward_denom: string;
@@ -31,8 +31,8 @@ export type ExecuteMsg = {
     bsei_reward_contract?: string | null;
     bsei_reward_denom?: string | null;
     hub_contract?: string | null;
-    lido_fee_address?: string | null;
-    lido_fee_rate?: Decimal | null;
+    krp_keeper_address?: string | null;
+    krp_keeper_rate?: Decimal | null;
     owner?: string | null;
     stsei_reward_denom?: string | null;
     [k: string]: unknown;
@@ -66,8 +66,8 @@ export interface InstantiateMsg {
   bsei_reward_contract: string;
   bsei_reward_denom: string;
   hub_contract: string;
-  lido_fee_address: string;
-  lido_fee_rate: Decimal;
+  krp_keeper_address: string;
+  krp_keeper_rate: Decimal;
   oracle_contract: string;
   stsei_reward_denom: string;
   swap_contract: string;

@@ -2,7 +2,21 @@ import type { WalletData } from "@/types";
 import type { KptContractsDeployed, StakingRewardsPairsContractsDeployed } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
-import { deployStakingRewards, doVeKptSetMinters, kptConfigs, deployKpt, deployKptFund, deployVeKpt, deployVeKptBoost, doKptUpdateConfig, doVeKptUpdateConfig, kptReadArtifact, printDeployedKptContracts, deployKptDistribute } from "@/modules";
+import {
+  deployStakingRewards,
+  doVeKptSetMinters,
+  kptConfigs,
+  deployKpt,
+  deployKptFund,
+  deployVeKpt,
+  deployVeKptBoost,
+  doKptUpdateConfig,
+  doVeKptUpdateConfig,
+  kptReadArtifact,
+  printDeployedKptContracts,
+  deployKptDistribute,
+  deployKeeper
+} from "@/modules";
 
 main().catch(console.error);
 
@@ -26,6 +40,7 @@ async function main(): Promise<void> {
   // await deployVeKptMiner(walletData, networkKpt);
   // await deployBlindBox(walletData, networkKpt);
   await deployKptDistribute(walletData, networkKpt);
+  await deployKeeper(walletData, networkKpt);
   // await deployBlindBoxReward(walletData, networkKpt);
   // await deployBlindBoxInviterReward(walletData, networkKpt);
 

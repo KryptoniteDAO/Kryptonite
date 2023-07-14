@@ -1,7 +1,22 @@
 import type { WalletData } from "./types";
 import type { CdpContractsDeployed, ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, KptContractsDeployed, SwapExtentionContractsDeployed, OracleContractsDeployed } from "./modules";
 import { stakingReadArtifact, marketReadArtifact, swapExtentionReadArtifact, convertReadArtifact, kptReadArtifact, cdpReadArtifact, oracleReadArtifact } from "./modules";
-import { BnAdd, BnComparedTo, BnDiv, BnMul, BnPow, BnSub, executeContractByWalletData, printChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance, queryWasmContractByWalletData, sendCoinToOtherAddress, sendTokensByWalletData } from "./common";
+import {
+  BnAdd,
+  BnComparedTo,
+  BnDiv,
+  BnMul,
+  BnPow,
+  BnSub,
+  checkAddress,
+  executeContractByWalletData,
+  printChangeBalancesByWalletData,
+  queryAddressBalance,
+  queryAddressTokenBalance,
+  queryWasmContractByWalletData,
+  sendCoinToOtherAddress,
+  sendTokensByWalletData
+} from "./common";
 import { loadingWalletData } from "./env_data";
 
 import { cdpContracts, cw20BaseContracts, kptContracts, marketContracts } from "./contracts";
@@ -23,6 +38,8 @@ async function main(): Promise<void> {
   const networkKpt = kptReadArtifact(walletData.chainId) as KptContractsDeployed;
   const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
 
+  // console.log(checkAddress("factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/usdt", "sei"));
+
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   // // just do what you want
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,8 +58,8 @@ async function main(): Promise<void> {
     //     recipient: ""
     //   }
     // });
-    const doRes = await kptClient.transfer({ amount: "1000000", recipient: "sei17cylnnnxa92pd6w40y6af78zk3yslr3n8st588" });
-    console.log(doRes);
+    // const doRes = await kptClient.transfer({ amount: "1000000", recipient: "sei17cylnnnxa92pd6w40y6af78zk3yslr3n8st588" });
+    // console.log(doRes);
   }
 
   // const oraclePythQueryClient = new marketContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, networkMarket?.oraclePyth?.address);

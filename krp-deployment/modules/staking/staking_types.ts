@@ -28,8 +28,8 @@ export interface BSeiTokenContractConfig extends BaseContractConfig {
 
 export interface RewardsDispatcherContractConfig extends BaseContractConfig {
   initMsg?: {
-    lido_fee_address: string;
-    lido_fee_rate: string;
+    krp_keeper_address: string;
+    krp_keeper_rate: string;
   };
 }
 
