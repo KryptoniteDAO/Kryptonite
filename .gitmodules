@@ -1,15 +1,18 @@
-[submodule "krp-market-contracts"]
-	path = krp-market-contracts
-	url = git@github.com:KryptoniteDAO/krp-market-contracts.git
-[submodule "krp-staking-contracts"]
-	path = krp-staking-contracts
-	url = git@github.com:KryptoniteDAO/krp-staking-contracts.git
-[submodule "krp-basset-convert"]
-	path = krp-basset-convert
-	url = git@github.com:KryptoniteDAO/krp-basset-convert.git
 [submodule "swap-extention"]
 	path = swap-extention
 	url = git@github.com:KryptoniteDAO/swap-extention.git
+[submodule "krp-oracle"]
+	path = krp-oracle
+	url = git@github.com:KryptoniteDAO/krp-oracle.git
+[submodule "krp-staking-contracts"]
+	path = krp-staking-contracts
+	url = git@github.com:KryptoniteDAO/krp-staking-contracts.git
+[submodule "krp-market-contracts"]
+	path = krp-market-contracts
+	url = git@github.com:KryptoniteDAO/krp-market-contracts.git
+[submodule "krp-basset-convert"]
+	path = krp-basset-convert
+	url = git@github.com:KryptoniteDAO/krp-basset-convert.git
 [submodule "krp-token-contracts"]
     path = krp-token-contracts
     url = git@github.com:KryptoniteDAO/krp-token-contracts.git
