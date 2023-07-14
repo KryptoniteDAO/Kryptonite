@@ -2,7 +2,7 @@ import type { ContractDeployed, WalletData } from "@/types";
 import type { BaseFeedInfo, OracleContractsDeployed } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
-import { oracleReadArtifact, printDeployedOracleContracts, deployOraclePyth, oracleConfigs, FeedInfo, doOraclePythConfigFeedInfo } from "@/modules";
+import { oracleReadArtifact, printDeployedOracleContracts, deployOraclePyth, oracleConfigs, FeedInfo, doOraclePythConfigFeedInfo, writeDeployed } from "@/modules";
 
 main().catch(console.error);
 
@@ -16,6 +16,7 @@ async function main(): Promise<void> {
   console.log(`\n  --- --- oracle contracts storeCode & instantiateContract enter --- ---`);
 
   await deployOraclePyth(walletData, networkOracle);
+  await writeDeployed({});
 
   console.log(`\n  --- --- oracle contracts storeCode & instantiateContract end --- ---`);
 

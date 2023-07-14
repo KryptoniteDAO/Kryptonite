@@ -15,7 +15,7 @@ import {
   printDeployedCdpContracts,
   marketReadArtifact,
   stakingReadArtifact,
-  cdpConfigs, oracleReadArtifact
+  cdpConfigs, oracleReadArtifact, writeDeployed
 } from "@/modules";
 
 main().catch(console.error);
@@ -56,6 +56,7 @@ async function main(): Promise<void> {
       await deployCdpCustody(walletData, networkCdp, cdpCollateralPairConfig);
     }
   }
+  await writeDeployed({});
 
   console.log(`\n  --- --- cdp contracts storeCode & instantiateContract end --- ---`);
 

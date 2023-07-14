@@ -15,7 +15,7 @@ import {
   kptReadArtifact,
   printDeployedKptContracts,
   deployKptDistribute,
-  deployKeeper
+  deployKeeper, writeDeployed
 } from "@/modules";
 
 main().catch(console.error);
@@ -50,6 +50,7 @@ async function main(): Promise<void> {
       await deployStakingRewards(walletData, networkKpt, stakingRewardsPairConfig);
     }
   }
+  await writeDeployed({});
 
   console.log(`\n  --- --- kpt contracts storeCode & instantiateContract end --- ---`);
 

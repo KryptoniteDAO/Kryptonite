@@ -21,7 +21,7 @@ import {
   oracleReadArtifact,
   OracleContractsDeployed,
   doOraclePythConfigFeedInfo,
-  oracleConfigs, kptReadArtifact, KptContractsDeployed
+  oracleConfigs, kptReadArtifact, KptContractsDeployed, writeDeployed
 } from "@/modules";
 import { ContractDeployed } from "@/types";
 
@@ -56,6 +56,7 @@ async function main(): Promise<void> {
   await deployRewardsDispatcher(walletData, networkStaking, swapExtention, oraclePyth, networkKpt?.keeper?.address);
   await deployValidatorsRegistry(walletData, networkStaking);
   await deployStSeiToken(walletData, networkStaking);
+  await writeDeployed({});
 
   console.log(`\n  --- --- staking contracts storeCode & instantiateContract end --- ---`);
 

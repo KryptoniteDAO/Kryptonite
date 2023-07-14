@@ -2,7 +2,7 @@ import type { ContractDeployed, WalletData } from "@/types";
 import type { SwapExtentionContractsDeployed } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
-import { deploySwapExtention, doSwapExtentionUpdatePairConfig, printDeployedSwapContracts, swapExtentionReadArtifact, swapExtentionConfigs } from "@/modules";
+import { deploySwapExtention, doSwapExtentionUpdatePairConfig, printDeployedSwapContracts, swapExtentionReadArtifact, swapExtentionConfigs, writeDeployed } from "@/modules";
 
 main().catch(console.error);
 
@@ -16,6 +16,7 @@ async function main(): Promise<void> {
   console.log(`\n  --- --- swap:extends contracts storeCode & instantiateContract enter --- ---`);
 
   await deploySwapExtention(walletData, networkSwap);
+  await writeDeployed({});
 
   console.log(`\n  --- --- swap:extends contracts storeCode & instantiateContract end --- ---`);
 

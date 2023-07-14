@@ -18,7 +18,7 @@ import {
   doOraclePythConfigFeedInfo,
   doOverseerWhitelist,
   convertConfigs,
-  oracleConfigs, oracleReadArtifact, OracleContractsDeployed
+  oracleConfigs, oracleReadArtifact, OracleContractsDeployed, writeDeployed
 } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
 
@@ -56,6 +56,7 @@ async function main(): Promise<void> {
       await deployCustody(walletData, networkConvert, convertPair.native_denom, reward, market, overseer, liquidationQueue, swapExtention);
     }
   }
+  await writeDeployed({});
 
   console.log(`\n  --- --- convert contracts storeCode & instantiateContract end --- ---`);
 

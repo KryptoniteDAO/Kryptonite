@@ -24,7 +24,7 @@ import {
   doOverseerWhitelist,
   marketReadArtifact,
   printDeployedMarketContracts,
-  queryOverseerWhitelist
+  queryOverseerWhitelist, writeDeployed
 } from "@/modules";
 
 main().catch(console.error);
@@ -55,6 +55,7 @@ async function main(): Promise<void> {
   await deployOverseer(walletData, networkMarket, oraclePyth);
   await deployLiquidationQueue(walletData, networkMarket, oraclePyth);
   await deployCustodyBSei(walletData, networkMarket, oraclePyth, reward, bSeiToken, swapExtention);
+  await writeDeployed({});
 
   console.log(`\n  --- --- market contracts storeCode & instantiateContract end --- ---`);
 

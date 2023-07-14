@@ -2,7 +2,18 @@ import type { WalletData } from "@/types";
 import type { BlindBoxContractsDeployed, KptContractsDeployed } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
-import { kptConfigs, kptReadArtifact, doKptDistributeUpdateRuleConfig, deployBlindBox, deployBlindBoxReward, deployBlindBoxInviterReward, printDeployedBlindBoxContracts, doBlindBoxConfig, blindBoxReadArtifact } from "@/modules";
+import {
+  kptConfigs,
+  kptReadArtifact,
+  doKptDistributeUpdateRuleConfig,
+  deployBlindBox,
+  deployBlindBoxReward,
+  deployBlindBoxInviterReward,
+  printDeployedBlindBoxContracts,
+  doBlindBoxConfig,
+  blindBoxReadArtifact,
+  writeDeployed
+} from "@/modules";
 
 main().catch(console.error);
 
@@ -22,6 +33,7 @@ async function main(): Promise<void> {
   await deployBlindBox(walletData, networkBlindBox, networkKpt);
   await deployBlindBoxReward(walletData, networkBlindBox, networkKpt);
   await deployBlindBoxInviterReward(walletData, networkBlindBox, networkKpt);
+  await writeDeployed({});
 
   console.log(`\n  --- --- blindBox contracts storeCode & instantiateContract end --- ---`);
 
