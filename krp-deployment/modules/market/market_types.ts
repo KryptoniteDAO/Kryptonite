@@ -1,10 +1,9 @@
 import type { Addr, BaseContractConfig, ContractDeployed, TokenInfo } from "@/types";
-import { CdpCustodyContractConfig } from "@/modules";
 
 export interface MarketContractConfig extends BaseContractConfig {
   initMsg?: {
     owner_addr?: Addr;
-    anc_emission_rate: string;
+    kpt_emission_rate: string;
     max_borrow_factor: string;
     reserve_factor: string;
   };
@@ -38,7 +37,7 @@ export interface OverseerContractConfig extends BaseContractConfig {
   initMsg?: {
     owner_addr?: Addr;
     collector_contract: Addr;
-    anc_purchase_factor: string;
+    kpt_purchase_factor: string;
     buffer_distribution_factor: string;
     epoch_period: number;
     price_timeframe: number;

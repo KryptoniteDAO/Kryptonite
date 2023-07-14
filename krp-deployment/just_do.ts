@@ -1,27 +1,13 @@
 import type { WalletData } from "./types";
 import type { CdpContractsDeployed, ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, KptContractsDeployed, SwapExtentionContractsDeployed, OracleContractsDeployed } from "./modules";
 import { stakingReadArtifact, marketReadArtifact, swapExtentionReadArtifact, convertReadArtifact, kptReadArtifact, cdpReadArtifact, oracleReadArtifact } from "./modules";
-import {
-  BnAdd,
-  BnComparedTo,
-  BnDiv,
-  BnMul,
-  BnPow,
-  BnSub,
-  checkAddress,
-  executeContractByWalletData,
-  printChangeBalancesByWalletData,
-  queryAddressBalance,
-  queryAddressTokenBalance,
-  queryWasmContractByWalletData,
-  sendCoinToOtherAddress,
-  sendTokensByWalletData
-} from "./common";
+import { BnAdd, BnComparedTo, BnDiv, BnMul, BnPow, BnSub, checkAddress, executeContractByWalletData, printChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance, queryWasmContractByWalletData, sendCoinToOtherAddress, sendTokensByWalletData } from "./common";
 import { loadingWalletData } from "./env_data";
 
 import { cdpContracts, cw20BaseContracts, kptContracts, marketContracts } from "./contracts";
 import Cw20Base = cw20BaseContracts.Cw20Base;
 import { BalanceResponse } from "@/contracts/cw20Base/Cw20Base.types";
+import { coins } from "@cosmjs/stargate";
 
 main().catch(console.error);
 
@@ -47,6 +33,17 @@ async function main(): Promise<void> {
   // const blocksPerYear = 63_072_000;
   // const blocksPerYear2 = 4656810;
   //
+  if (networkMarket?.market?.address) {
+    // const marketClient = new marketContracts.Market.MarketClient(walletData.signingCosmWasmClient, walletData.address, networkMarket?.market?.address);
+    // const marketQueryClient = new marketContracts.Market.MarketQueryClient(walletData.signingCosmWasmClient, networkMarket?.market?.address);
+    // let res = await marketClient.depositStable(undefined, undefined, coins(1000000, walletData.stable_coin_denom));
+    // console.log(res);
+
+    const atokenClient = new Cw20Base.Cw20BaseClient(walletData.signingCosmWasmClient, walletData.address, networkMarket?.aToken?.address);
+    const atokenQueryClient = new Cw20Base.Cw20BaseQueryClient(walletData.signingCosmWasmClient, networkMarket?.aToken?.address);
+    const balanceResponse: BalanceResponse = await atokenQueryClient.balance({ address: walletData.address });
+    console.log(balanceResponse);
+  }
   if (networkKpt?.kpt?.address) {
     const kptClient = new Cw20Base.Cw20BaseClient(walletData.signingCosmWasmClient, walletData.address, networkKpt?.kpt?.address);
     const kptQueryClient = new Cw20Base.Cw20BaseQueryClient(walletData.signingCosmWasmClient, networkKpt?.kpt?.address);

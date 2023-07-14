@@ -63,7 +63,7 @@ export async function doOraclePythConfigFeedInfo(walletData: WalletData, oracleP
   const oraclePythClient = new marketContracts.OraclePyth.OraclePythClient(walletData.signingCosmWasmClient, walletData.address, oraclePyth.address);
   const oraclePythQueryClient = new marketContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, oraclePyth.address);
 
-  let configRes = null;
+  let configRes: PythFeederConfigResponse = null;
   let initFlag = true;
   try {
     configRes = await oraclePythQueryClient.queryPythFeederConfig({ asset: configFeedInfoParams.asset });
