@@ -4,7 +4,7 @@
     "initMsg": {
       "owner": null
     },
-    "label": "swapExtention",
+    "label": "swapSparrow",
     "filePath": "../swap-extention/artifacts/swap_sparrow.wasm",
     "deploy": false
   },

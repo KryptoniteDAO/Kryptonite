@@ -10,9 +10,8 @@
     "admin": null,
     "initMsg": {
       "owner_addr": null,
-      "krp_emission_rate": "6793787.950524103374549206",
-      "max_borrow_factor": "0.95",
-      "reserve_factor": "0.0"
+      "kpt_emission_rate": "6793787.950524103374549206",
+      "max_borrow_factor": "0.95"
     },
     "initCoins": [
       {
@@ -61,7 +60,7 @@
     "initMsg": {
       "owner_addr": null,
       "collector_contract": "sei1xxrlcs6kekmh63ks26yuf47qxdrkkqw0srvh7w",
-      "krp_purchase_factor": "0.1",
+      "kpt_purchase_factor": "0.1",
       "buffer_distribution_factor": "0.1",
       "epoch_period": 1681,
       "price_timeframe": 86400,
