@@ -168,6 +168,16 @@
     "filePath": "../krp-token-contracts/artifacts/kpt_distribute.wasm",
     "deploy": false
   },
+  "keeper": {
+    "admin": null,
+    "initMsg": {
+      "owner": null,
+      "threshold": "1000000"
+    },
+    "label": "keeper",
+    "filePath": "../krp-token-contracts/artifacts/keeper.wasm",
+    "deploy": false
+  },
   "stakingRewardsPairs": [
     {
       "name": "SEI/KPT",
