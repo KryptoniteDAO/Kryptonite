@@ -6,8 +6,8 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { StdFee } from "@cosmjs/amino";
-import { Addr, InstantiateMsg, ExecuteMsg, AssetInfo, Decimal, Uint128, Coin, QueryMsg, Asset, ConfigResponse, CumulativePricesResponse, Boolean, PairConfigResponse, ReverseSimulationResponse, SimulationResponse, SwapInfoResponse } from "./SwapExtention.types";
-export interface SwapExtentionReadOnlyInterface {
+import { Addr, InstantiateMsg, ExecuteMsg, AssetInfo, Decimal, Uint128, Coin, QueryMsg, Asset, ConfigResponse, CumulativePricesResponse, Boolean, PairConfigResponse, ReverseSimulationResponse, SimulationResponse, SwapInfoResponse } from "./SwapSparrow.types";
+export interface SwapSparrowReadOnlyInterface {
   contractAddress: string;
   queryConfig: () => Promise<ConfigResponse>;
   queryIsSwapWhitelist: ({
@@ -45,7 +45,7 @@ export interface SwapExtentionReadOnlyInterface {
     assetInfos: AssetInfo[];
   }) => Promise<CumulativePricesResponse>;
 }
-export class SwapExtentionQueryClient implements SwapExtentionReadOnlyInterface {
+export class SwapSparrowQueryClient implements SwapSparrowReadOnlyInterface {
   client: CosmWasmClient;
   contractAddress: string;
 
@@ -139,7 +139,7 @@ export class SwapExtentionQueryClient implements SwapExtentionReadOnlyInterface 
     });
   };
 }
-export interface SwapExtentionInterface {
+export interface SwapSparrowInterface {
   contractAddress: string;
   sender: string;
   updatePairConfig: ({
@@ -187,7 +187,7 @@ export interface SwapExtentionInterface {
     targetDenom: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
-export class SwapExtentionClient implements SwapExtentionInterface {
+export class SwapSparrowClient implements SwapSparrowInterface {
   client: SigningCosmWasmClient;
   sender: string;
   contractAddress: string;

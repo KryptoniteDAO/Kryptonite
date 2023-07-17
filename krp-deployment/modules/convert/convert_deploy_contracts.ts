@@ -13,12 +13,15 @@ import {
   printDeployedConvertContracts,
   loadingStakingData,
   loadingMarketData,
-  doSwapExtentionSetWhitelist,
+  doSwapSparrowSetWhitelist,
   doLiquidationQueueWhitelistCollateral,
   doOraclePythConfigFeedInfo,
   doOverseerWhitelist,
   convertConfigs,
-  oracleConfigs, oracleReadArtifact, OracleContractsDeployed, writeDeployed
+  oracleConfigs,
+  oracleReadArtifact,
+  OracleContractsDeployed,
+  writeDeployed
 } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
 
@@ -44,16 +47,16 @@ async function main(): Promise<void> {
   if (!aToken?.address || !market?.address || !interestModel?.address || !distributionModel?.address || !overseer?.address || !liquidationQueue?.address || !custodyBSei?.address) {
     throw new Error(`\n  --- --- deploy convert contracts error, missing some deployed market address info --- ---`);
   }
-  const swapExtention = networkSwap?.swapExtention;
+  const swapSparrow = networkSwap?.swapSparrow;
   const oraclePyth = networkOracle?.oraclePyth;
 
   console.log(`\n  --- --- convert contracts storeCode & instantiateContract enter --- ---`);
 
   if (convertConfigs?.convertPairs && convertConfigs.convertPairs.length > 0) {
-    for (let convertPair of convertConfigs.convertPairs) {
+    for (const convertPair of convertConfigs.convertPairs) {
       await deployConverter(walletData, networkConvert, convertPair.native_denom);
       await deployBtoken(walletData, networkConvert, convertPair.native_denom);
-      await deployCustody(walletData, networkConvert, convertPair.native_denom, reward, market, overseer, liquidationQueue, swapExtention);
+      await deployCustody(walletData, networkConvert, convertPair.native_denom, reward, market, overseer, liquidationQueue, swapSparrow);
     }
   }
   await writeDeployed({});
@@ -96,7 +99,7 @@ async function main(): Promise<void> {
 
       /// add custody to swap whitelist
       if (custodyNetwork?.address) {
-        await doSwapExtentionSetWhitelist(walletData, networkSwap?.swapExtention, { caller: custodyNetwork?.address, isWhitelist: true }, print);
+        await doSwapSparrowSetWhitelist(walletData, swapSparrow, { caller: custodyNetwork?.address, isWhitelist: true }, print);
       }
     }
   }

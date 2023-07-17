@@ -104,13 +104,14 @@ export async function deployBtoken(walletData: WalletData, networkConvert: Conve
   }
 }
 
-export async function deployCustody(walletData: WalletData, networkConvert: ConvertContractsDeployed, nativeDenom: string, reward: ContractDeployed, market: ContractDeployed, overseer: ContractDeployed, liquidationQueue: ContractDeployed, swapExtention: ContractDeployed): Promise<void> {
+export async function deployCustody(walletData: WalletData, networkConvert: ConvertContractsDeployed, nativeDenom: string, reward: ContractDeployed, market: ContractDeployed, overseer: ContractDeployed, liquidationQueue: ContractDeployed, swapSparrow: ContractDeployed): Promise<void> {
   const convertPairsConfig: ConvertPairsConfig = convertConfigs?.convertPairs?.find((v: ConvertPairsConfig) => nativeDenom === v.native_denom);
   if (!convertPairsConfig) {
     console.error(`\n  ********* unknown configuration of `, nativeDenom);
     return;
   }
-  if (!reward?.address || !market?.address || !overseer?.address || !liquidationQueue?.address || !swapExtention?.address) {
+  if (!reward?.address || !market?.address || !overseer?.address || !liquidationQueue?.address || !swapSparrow?.address) {
+    console.error(`\n  ********* deploy error: missing info`);
     return;
   }
   let convertPairsNetwork = networkConvert?.convertPairs?.find((v: any) => nativeDenom === v.native_denom);
@@ -147,7 +148,7 @@ export async function deployCustody(walletData: WalletData, networkConvert: Conv
           overseer_contract: overseer.address,
           reward_contract: reward.address,
           stable_denom: walletData.stable_coin_denom,
-          swap_contract: swapExtention?.address,
+          swap_contract: swapSparrow?.address,
           swap_denoms: [walletData.nativeCurrency.coinMinimalDenom]
         },
         convertPairsConfig?.custody?.initMsg,
@@ -166,6 +167,7 @@ export async function deployCustody(walletData: WalletData, networkConvert: Conv
 export async function doConverterRegisterTokens(walletData: WalletData, nativeDenom: string, converter: ContractDeployed, btoken: ContractDeployed): Promise<void> {
   console.warn(`\n  Do converter's register_contracts enter`);
   if (!converter?.address || !btoken?.address) {
+    console.error(`\n  ********* missing info`);
     return;
   }
   //  {owner: '', native_denom: '', basset_token_address: ''}

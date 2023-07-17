@@ -133,7 +133,7 @@ export interface OverseerInterface {
   contractAddress: string;
   sender: string;
   updateConfig: ({
-    ancPurchaseFactor,
+    kptPurchaseFactor,
     bufferDistributionFactor,
     dynRateEpoch,
     dynRateMax,
@@ -148,7 +148,7 @@ export interface OverseerInterface {
     targetDepositRate,
     thresholdDepositRate
   }: {
-    ancPurchaseFactor?: Decimal256;
+    kptPurchaseFactor?: Decimal256;
     bufferDistributionFactor?: Decimal256;
     dynRateEpoch?: number;
     dynRateMax?: Decimal256;
@@ -239,7 +239,7 @@ export class OverseerClient implements OverseerInterface {
   }
 
   updateConfig = async ({
-    ancPurchaseFactor,
+    kptPurchaseFactor,
     bufferDistributionFactor,
     dynRateEpoch,
     dynRateMax,
@@ -254,7 +254,7 @@ export class OverseerClient implements OverseerInterface {
     targetDepositRate,
     thresholdDepositRate
   }: {
-    ancPurchaseFactor?: Decimal256;
+    kptPurchaseFactor?: Decimal256;
     bufferDistributionFactor?: Decimal256;
     dynRateEpoch?: number;
     dynRateMax?: Decimal256;
@@ -271,7 +271,7 @@ export class OverseerClient implements OverseerInterface {
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
-        anc_purchase_factor: ancPurchaseFactor,
+        kpt_purchase_factor: kptPurchaseFactor,
         buffer_distribution_factor: bufferDistributionFactor,
         dyn_rate_epoch: dynRateEpoch,
         dyn_rate_max: dynRateMax,

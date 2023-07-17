@@ -7,7 +7,6 @@
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
 import { ChangeOwnerMsg, ConfigResponse, ExecuteMsg, Addr, InstantiateMsg, Decimal256, PriceResponse, Identifier, PythFeederConfigResponse, QueryMsg, SetConfigFeedValidMsg } from "./OraclePyth.types";
-import { PricesResponse } from "@/contracts/market/Oracle.types";
 export interface OraclePythReadOnlyInterface {
   contractAddress: string;
   queryPrice: ({
@@ -19,7 +18,7 @@ export interface OraclePythReadOnlyInterface {
     assets
   }: {
     assets: string[];
-  }) => Promise<PricesResponse>;
+  }) => Promise<PriceResponse[]>;
   queryConfig: () => Promise<ConfigResponse>;
   queryPythFeederConfig: ({
     asset
@@ -32,7 +31,7 @@ export interface OraclePythReadOnlyInterface {
   }: {
     baseLabel: string;
     quoteLabel: string;
-  }) => Promise<Decimal256[]>;
+  }) => Promise<Decimal256>;
 }
 export class OraclePythQueryClient implements OraclePythReadOnlyInterface {
   client: CosmWasmClient;
@@ -63,7 +62,7 @@ export class OraclePythQueryClient implements OraclePythReadOnlyInterface {
     assets
   }: {
     assets: string[];
-  }): Promise<PricesResponse> => {
+  }): Promise<PriceResponse[]> => {
     return this.client.queryContractSmart(this.contractAddress, {
       query_prices: {
         assets
@@ -92,7 +91,7 @@ export class OraclePythQueryClient implements OraclePythReadOnlyInterface {
   }: {
     baseLabel: string;
     quoteLabel: string;
-  }): Promise<Decimal256[]> => {
+  }): Promise<Decimal256> => {
     return this.client.queryContractSmart(this.contractAddress, {
       query_exchange_rate_by_asset_label: {
         base_label: baseLabel,

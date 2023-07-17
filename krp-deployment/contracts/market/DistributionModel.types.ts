@@ -40,7 +40,7 @@ export type QueryMsg = {
     [k: string]: unknown;
   };
 } | {
-  anc_emission_rate: {
+  kpt_emission_rate: {
     current_emission_rate: Decimal256;
     deposit_rate: Decimal256;
     target_deposit_rate: Decimal256;

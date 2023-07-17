@@ -55,6 +55,7 @@ export async function deployCdpCentralControl(walletData: WalletData, networkCdp
 export async function deployCdpStablePool(walletData: WalletData, networkCdp: CdpContractsDeployed): Promise<void> {
   const cdpCentralControl: ContractDeployed = networkCdp?.cdpCentralControl;
   if (!cdpCentralControl?.address) {
+    console.error(`\n  ********* deploy error: missing info`);
     return;
   }
 
@@ -78,6 +79,7 @@ export async function deployCdpStablePool(walletData: WalletData, networkCdp: Cd
 export async function deployCdpLiquidationQueue(walletData: WalletData, networkCdp: CdpContractsDeployed, oraclePyth?: ContractDeployed): Promise<void> {
   const cdpCentralControl: ContractDeployed = networkCdp?.cdpCentralControl;
   if (!cdpCentralControl?.address) {
+    console.error(`\n  ********* deploy error: missing info`);
     return;
   }
 

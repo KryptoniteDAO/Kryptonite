@@ -110,7 +110,7 @@ export interface Cw20ReceiveMsg {
   sender: string;
 }
 export interface InstantiateMsg {
-  anc_emission_rate: Decimal256;
+  kpt_emission_rate: Decimal256;
   atoken_code_id: number;
   max_borrow_factor: Decimal256;
   owner_addr: string;
@@ -149,7 +149,7 @@ export type QueryMsg = {
   };
 };
 export interface State {
-  anc_emission_rate: Decimal256;
+  kpt_emission_rate: Decimal256;
   global_interest_index: Decimal256;
   global_reward_index: Decimal256;
   last_interest_updated: number;

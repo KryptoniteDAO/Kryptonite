@@ -6,7 +6,7 @@ import {
   marketConfigs,
   loadingMarketData,
   loadingStakingData,
-  doSwapExtentionSetWhitelist,
+  doSwapSparrowSetWhitelist,
   swapExtentionReadArtifact,
   stakingReadArtifact,
   oracleReadArtifact,
@@ -44,7 +44,7 @@ async function main(): Promise<void> {
     throw new Error(`\n  --- --- deploy market contracts error, Please deploy staking contracts first --- ---`);
   }
 
-  const swapExtention: ContractDeployed | undefined = networkSwap.swapExtention;
+  const swapSparrow: ContractDeployed | undefined = networkSwap.swapSparrow;
   const oraclePyth: ContractDeployed | undefined = networkOracle.oraclePyth;
 
   console.log(`\n  --- --- market contracts storeCode & instantiateContract enter --- ---`);
@@ -54,7 +54,7 @@ async function main(): Promise<void> {
   await deployDistributionModel(walletData, networkMarket);
   await deployOverseer(walletData, networkMarket, oraclePyth);
   await deployLiquidationQueue(walletData, networkMarket, oraclePyth);
-  await deployCustodyBSei(walletData, networkMarket, oraclePyth, reward, bSeiToken, swapExtention);
+  await deployCustodyBSei(walletData, networkMarket, oraclePyth, reward, bSeiToken, swapSparrow);
   await writeDeployed({});
 
   console.log(`\n  --- --- market contracts storeCode & instantiateContract end --- ---`);
@@ -85,7 +85,7 @@ async function main(): Promise<void> {
 
   /// add market.custodyBSei to swap whitelist
   if (custodyBSei?.address) {
-    await doSwapExtentionSetWhitelist(walletData, swapExtention, { caller: custodyBSei?.address, isWhitelist: true }, print);
+    await doSwapSparrowSetWhitelist(walletData, swapSparrow, { caller: custodyBSei?.address, isWhitelist: true }, print);
   }
   const collateralPairsConfig: CollateralPairsConfig[] | undefined = marketConfigs?.collateralPairs;
   if (!!collateralPairsConfig && collateralPairsConfig.length > 0) {

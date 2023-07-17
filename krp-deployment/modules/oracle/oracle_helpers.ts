@@ -3,10 +3,10 @@ import type { OracleContractsConfig, OracleContractsDeployed, OraclePythContract
 import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
 import { deployContract, readArtifact, writeArtifact } from "@/common";
 import { marketContracts } from "@/contracts";
-import { PythFeederConfigResponse } from "@/contracts/market/OraclePyth.types";
+import { PythFeederConfigResponse } from "@/contracts/oracle/OraclePyth.types";
 
-export const ORACLE_ARTIFACTS_PATH = "../krp-market-contracts/artifacts";
-// export const ORACLE_CONTRACTS_PATH = "../krp-oracle-contracts/contracts";
+export const ORACLE_ARTIFACTS_PATH = "../krp-oracle/artifacts";
+export const ORACLE_CONTRACTS_PATH = "../krp-oracle/contracts";
 export const ORACLE_MODULE_NAME = "oracle";
 export const oracleConfigs: OracleContractsConfig = readArtifact(`${ORACLE_MODULE_NAME}_config_${DEPLOY_CHAIN_ID}`, `./modules/${ORACLE_MODULE_NAME}/`);
 

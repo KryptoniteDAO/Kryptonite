@@ -15,7 +15,7 @@ import {
   KPT_CONTRACTS_PATH,
   CDP_CONTRACTS_PATH,
   BLIND_BOX_CONTRACTS_PATH,
-  BLIND_BOX_MODULE_NAME
+  BLIND_BOX_MODULE_NAME, ORACLE_CONTRACTS_PATH, ORACLE_MODULE_NAME
 } from "@/modules";
 
 export type ContractConfig = {
@@ -47,8 +47,9 @@ async function main(): Promise<void> {
 
   /// custom modules - start
   // modulesMap.set(SWAP_EXTENSION_MODULE_NAME, getContractConfigByPath(SWAP_EXTENSION_CONTRACTS_PATH));
+  // modulesMap.set(ORACLE_MODULE_NAME, getContractConfigByPath(ORACLE_CONTRACTS_PATH));
   // modulesMap.set(STAKING_MODULE_NAME, getContractConfigByPath(STAKING_CONTRACTS_PATH));
-  // modulesMap.set(MARKET_MODULE_NAME, getContractConfigByPath(MARKET_CONTRACTS_PATH));
+  modulesMap.set(MARKET_MODULE_NAME, getContractConfigByPath(MARKET_CONTRACTS_PATH));
   // modulesMap.set(CONVERT_MODULE_NAME, getContractConfigByPath(CONVERT_CONTRACTS_PATH));
   // modulesMap.set(KPT_MODULE_NAME, getContractConfigByPath(KPT_CONTRACTS_PATH));
   // modulesMap.set(BLIND_BOX_MODULE_NAME, getContractConfigByPath(BLIND_BOX_CONTRACTS_PATH));

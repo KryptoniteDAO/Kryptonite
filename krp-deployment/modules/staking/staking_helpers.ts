@@ -66,8 +66,9 @@ export async function loadingStakingData(networkStaking: StakingContractsDeploye
   };
 }
 
-export async function deployHub(walletData: WalletData, networkStaking: StakingContractsDeployed, swapExtention: ContractDeployed): Promise<void> {
-  if (!swapExtention?.address) {
+export async function deployHub(walletData: WalletData, networkStaking: StakingContractsDeployed, swapSparrow: ContractDeployed): Promise<void> {
+  if (!swapSparrow?.address) {
+    console.error(`\n  ********* deploy error: missing info`);
     return;
   }
   const contractName: keyof Required<StakingContractsDeployed> = "hub";
@@ -77,7 +78,7 @@ export async function deployHub(walletData: WalletData, networkStaking: StakingC
       reward_denom: walletData.stable_coin_denom,
       underlying_coin_denom: walletData.nativeCurrency.coinMinimalDenom,
       validator: walletData.validator,
-      swap_contract: swapExtention?.address
+      swap_contract: swapSparrow?.address
     },
     config?.initMsg ?? {}
   );
@@ -86,9 +87,10 @@ export async function deployHub(walletData: WalletData, networkStaking: StakingC
   await deployContract(walletData, contractName, networkStaking, undefined, config, { defaultInitMsg, writeFunc });
 }
 
-export async function deployReward(walletData: WalletData, networkStaking: StakingContractsDeployed, swapExtention: ContractDeployed): Promise<void> {
+export async function deployReward(walletData: WalletData, networkStaking: StakingContractsDeployed, swapSparrow: ContractDeployed): Promise<void> {
   const hub: ContractDeployed | undefined = networkStaking?.hub;
-  if (!hub?.address || !swapExtention?.address) {
+  if (!hub?.address || !swapSparrow?.address) {
+    console.error(`\n  ********* deploy error: missing info`);
     return;
   }
 
@@ -98,7 +100,7 @@ export async function deployReward(walletData: WalletData, networkStaking: Staki
     {
       hub_contract: hub?.address,
       reward_denom: walletData.stable_coin_denom,
-      swap_contract: swapExtention?.address,
+      swap_contract: swapSparrow?.address,
       swap_denoms: [walletData.nativeCurrency.coinMinimalDenom]
     },
     config?.initMsg ?? {},
@@ -115,6 +117,7 @@ export async function deployReward(walletData: WalletData, networkStaking: Staki
 export async function deployBSeiToken(walletData: WalletData, networkStaking: StakingContractsDeployed): Promise<void> {
   const hub: ContractDeployed | undefined = networkStaking?.hub;
   if (!hub?.address) {
+    console.error(`\n  ********* deploy error: missing info`);
     return;
   }
 
@@ -132,10 +135,11 @@ export async function deployBSeiToken(walletData: WalletData, networkStaking: St
   await deployContract(walletData, contractName, networkStaking, undefined, config, { defaultInitMsg, writeFunc });
 }
 
-export async function deployRewardsDispatcher(walletData: WalletData, networkStaking: StakingContractsDeployed, swapExtention: ContractDeployed, oraclePyth: ContractDeployed, keeperAddress: string|undefined): Promise<void> {
+export async function deployRewardsDispatcher(walletData: WalletData, networkStaking: StakingContractsDeployed, swapSparrow: ContractDeployed, oraclePyth: ContractDeployed, keeperAddress: string|undefined): Promise<void> {
   const hub: ContractDeployed | undefined = networkStaking?.hub;
   const reward: ContractDeployed | undefined = networkStaking?.reward;
-  if (!hub?.address || !reward?.address || !swapExtention?.address || !oraclePyth?.address || !keeperAddress) {
+  if (!hub?.address || !reward?.address || !swapSparrow?.address || !oraclePyth?.address || !keeperAddress) {
+    console.error(`\n  ********* deploy error: missing info`);
     return;
   }
 
@@ -147,7 +151,7 @@ export async function deployRewardsDispatcher(walletData: WalletData, networkSta
       bsei_reward_contract: reward?.address,
       stsei_reward_denom: walletData.nativeCurrency.coinMinimalDenom,
       bsei_reward_denom: walletData.stable_coin_denom,
-      swap_contract: swapExtention?.address,
+      swap_contract: swapSparrow?.address,
       swap_denoms: [walletData.nativeCurrency.coinMinimalDenom],
       oracle_contract: oraclePyth?.address
     },
@@ -164,6 +168,7 @@ export async function deployRewardsDispatcher(walletData: WalletData, networkSta
 export async function deployValidatorsRegistry(walletData: WalletData, networkStaking: StakingContractsDeployed): Promise<void> {
   const hub: ContractDeployed | undefined = networkStaking?.hub;
   if (!hub?.address) {
+    console.error(`\n  ********* deploy error: missing info`);
     return;
   }
 
@@ -179,6 +184,7 @@ export async function deployValidatorsRegistry(walletData: WalletData, networkSt
 export async function deployStSeiToken(walletData: WalletData, networkStaking: StakingContractsDeployed): Promise<void> {
   const hub: ContractDeployed | undefined = networkStaking?.hub;
   if (!hub?.address) {
+    console.error(`\n  ********* deploy error: missing info`);
     return;
   }
 

@@ -323,11 +323,11 @@ export async function queryContractConfig(walletData: WalletData, deployContract
   try {
     print && console.log(`\n  Query deployed.address config enter. address: ${deployContract.address}`);
     config = await queryWasmContractByWalletData(walletData, deployContract.address, { config: {} });
-    print && console.log(`Query deployed.address config ok. address: ${deployContract.address} \n  ${JSON.stringify(config)}`);
+    print && console.log(`  Query deployed.address config ok. address: ${deployContract.address} \n  ${JSON.stringify(config)}`);
   } catch (error: any) {
     if (error?.toString().includes("addr_humanize")) {
       initFlag = false;
-      console.error(`deployed.config: need update config`);
+      console.error(`  deployed.config: need update config`);
     } else {
       throw new Error(error);
     }

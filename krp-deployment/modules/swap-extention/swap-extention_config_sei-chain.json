@@ -1,11 +1,11 @@
 {
-  "swapExtention": {
+  "swapSparrow": {
     "admin": null,
     "initMsg": {
       "owner": null
     },
-    "label": "swapExtention",
-    "filePath": "../swap-extention/artifacts/swap_extention.wasm",
+    "label": "swapSparrow",
+    "filePath": "../swap-extention/artifacts/swap_sparrow.wasm",
     "deploy": false
   },
   "swapPairConfigList": []

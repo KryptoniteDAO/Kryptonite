@@ -119,4 +119,4 @@ export interface SwapInfoResponse {
   total_amount_in: Uint128;
   total_amount_out: Uint128;
 }
-export type SwapExtentionExecuteMsg = ExecuteMsg;
+export type SwapSparrowExecuteMsg = ExecuteMsg;

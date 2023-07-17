@@ -1,12 +1,12 @@
 import type { WalletData } from "@/types";
-import type { MarketContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed } from "@/modules";
+import type { KptContractsDeployed, OracleContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed } from "@/modules";
+import type { ContractDeployed } from "@/types";
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
 import {
-  doSwapExtentionSetWhitelist,
+  doSwapSparrowSetWhitelist,
   swapExtentionReadArtifact,
   deployOraclePyth,
-  marketReadArtifact,
   loadingStakingData,
   deployBSeiToken,
   deployHub,
@@ -19,11 +19,11 @@ import {
   queryHubParameters,
   stakingReadArtifact,
   oracleReadArtifact,
-  OracleContractsDeployed,
   doOraclePythConfigFeedInfo,
-  oracleConfigs, kptReadArtifact, KptContractsDeployed, writeDeployed
+  oracleConfigs,
+  kptReadArtifact,
+  writeDeployed
 } from "@/modules";
-import { ContractDeployed } from "@/types";
 
 main().catch(console.error);
 
@@ -37,8 +37,8 @@ async function main(): Promise<void> {
   const networkKpt = kptReadArtifact(walletData.chainId) as KptContractsDeployed;
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
 
-  const swapExtention: ContractDeployed | undefined = networkSwap?.swapExtention;
-  if (!swapExtention?.address) {
+  const swapSparrow: ContractDeployed | undefined = networkSwap?.swapSparrow;
+  if (!swapSparrow?.address) {
     throw new Error(`\n  --- --- deploy staking contracts error, Please deploy swapExtention contracts first --- ---`);
   }
   const oraclePyth: ContractDeployed | undefined = networkOracle.oraclePyth;
@@ -50,10 +50,10 @@ async function main(): Promise<void> {
 
   await deployOraclePyth(walletData, networkOracle);
 
-  await deployHub(walletData, networkStaking, swapExtention);
-  await deployReward(walletData, networkStaking, swapExtention);
+  await deployHub(walletData, networkStaking, swapSparrow);
+  await deployReward(walletData, networkStaking, swapSparrow);
   await deployBSeiToken(walletData, networkStaking);
-  await deployRewardsDispatcher(walletData, networkStaking, swapExtention, oraclePyth, networkKpt?.keeper?.address);
+  await deployRewardsDispatcher(walletData, networkStaking, swapSparrow, oraclePyth, networkKpt?.keeper?.address);
   await deployValidatorsRegistry(walletData, networkStaking);
   await deployStSeiToken(walletData, networkStaking);
   await writeDeployed({});
@@ -91,7 +91,7 @@ async function main(): Promise<void> {
   }
   if (swapWhitelistList.length > 0) {
     for (const swapWhitelist of swapWhitelistList) {
-      await doSwapExtentionSetWhitelist(walletData, swapExtention, swapWhitelist, print);
+      await doSwapSparrowSetWhitelist(walletData, swapSparrow, swapWhitelist, print);
     }
   }
 

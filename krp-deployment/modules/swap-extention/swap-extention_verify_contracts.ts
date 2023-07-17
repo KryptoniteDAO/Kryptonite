@@ -23,12 +23,12 @@ async function main(): Promise<void> {
   // // for more accurate tests we must use integration-tests repo
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  const swapExtention = networkSwap?.swapExtention;
-  if (!swapExtention?.address) {
+  const swapSparrow = networkSwap?.swapSparrow;
+  if (!swapSparrow?.address) {
     throw new Error(`\n  ********* no deploy`);
   }
-  const swapExtentionClient = new swapExtentionContracts.SwapExtention.SwapExtentionClient(walletData.signingCosmWasmClient, walletData.address, swapExtention.address);
-  const swapExtentionQueryClient = new swapExtentionContracts.SwapExtention.SwapExtentionQueryClient(walletData.signingCosmWasmClient, swapExtention.address);
+  const swapSparrowClient = new swapExtentionContracts.SwapSparrow.SwapSparrowClient(walletData.signingCosmWasmClient, walletData.address, swapSparrow.address);
+  const swapSparrowQueryClient = new swapExtentionContracts.SwapSparrow.SwapSparrowQueryClient(walletData.signingCosmWasmClient, swapSparrow.address);
 
   const swapWhitelistList: {
     name: string;
@@ -53,7 +53,7 @@ async function main(): Promise<void> {
   }
   if (swapWhitelistList.length > 0) {
     for (const swapWhitelist of swapWhitelistList) {
-      const isSwapWhitelistRes = await swapExtentionQueryClient.queryIsSwapWhitelist({ caller: swapWhitelist?.caller });
+      const isSwapWhitelistRes = await swapSparrowQueryClient.queryIsSwapWhitelist({ caller: swapWhitelist?.caller });
       console.log(`is_swap_whitelist: ${swapWhitelist?.name} / ${swapWhitelist?.caller} / ${isSwapWhitelistRes}`);
     }
   }
@@ -61,7 +61,7 @@ async function main(): Promise<void> {
   const chainIdSwapPairConfigList = swapExtentionConfigs?.swapPairConfigList;
   if (chainIdSwapPairConfigList && chainIdSwapPairConfigList.length > 0) {
     for (let pairConfig of chainIdSwapPairConfigList) {
-      const configRes = await swapExtentionQueryClient.queryPairConfig({ assetInfos: pairConfig.assetInfos });
+      const configRes = await swapSparrowQueryClient.queryPairConfig({ assetInfos: pairConfig.assetInfos });
       console.log(`pair config info: pairAddress: ${pairConfig.pairAddress} \n  ${JSON.stringify(configRes)}`);
     }
   }

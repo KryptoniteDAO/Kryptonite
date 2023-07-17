@@ -21,7 +21,7 @@ export interface BorrowLimitResponse {
 }
 export type Decimal256 = string;
 export interface ConfigResponse {
-  anc_purchase_factor: Decimal256;
+  kpt_purchase_factor: Decimal256;
   buffer_distribution_factor: Decimal256;
   collector_contract: string;
   dyn_rate_epoch: number;
@@ -55,7 +55,7 @@ export interface EpochState {
 }
 export type ExecuteMsg = {
   update_config: {
-    anc_purchase_factor?: Decimal256 | null;
+    kpt_purchase_factor?: Decimal256 | null;
     buffer_distribution_factor?: Decimal256 | null;
     dyn_rate_epoch?: number | null;
     dyn_rate_max?: Decimal256 | null;
@@ -126,7 +126,7 @@ export type ExecuteMsg = {
 export type OfBlocksPerEachDynamicRateChangePeriod = number;
 export type OfBlocksPerEpochPeriod = number;
 export interface InstantiateMsg {
-  anc_purchase_factor: Decimal256;
+  kpt_purchase_factor: Decimal256;
   buffer_distribution_factor: Decimal256;
   collector_contract: string;
   dyn_rate_epoch: OfBlocksPerEachDynamicRateChangePeriod;

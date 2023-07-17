@@ -124,8 +124,8 @@ export async function deployMarket(walletData: WalletData, networkMarket: Market
       marketConfigs.aToken.deploy = true;
       marketConfigs.market.deploy = true;
     }
-    console.log(`aToken: `, JSON.stringify(networkMarket?.aToken));
-    console.log(`market: `, JSON.stringify(networkMarket?.market));
+    console.log(`  aToken: `, JSON.stringify(networkMarket?.aToken));
+    console.log(`  market: `, JSON.stringify(networkMarket?.market));
   }
 }
 
@@ -169,6 +169,7 @@ export async function deployOverseer(walletData: WalletData, networkMarket: Mark
   const market: ContractDeployed | undefined = networkMarket?.market;
   const liquidationQueue: ContractDeployed | undefined = networkMarket?.liquidationQueue;
   if (!market?.address || !oraclePyth?.address) {
+    console.error(`\n  ********* deploy error: missing info`);
     return;
   }
 
@@ -194,6 +195,7 @@ export async function deployOverseer(walletData: WalletData, networkMarket: Mark
 export async function deployLiquidationQueue(walletData: WalletData, networkMarket: MarketContractsDeployed, oraclePyth: ContractDeployed): Promise<void> {
   const overseer: ContractDeployed | undefined = networkMarket?.overseer;
   if (!oraclePyth?.address) {
+    console.error(`\n  ********* deploy error: missing info`);
     return;
   }
   const contractName: keyof Required<MarketContractsDeployed> = "liquidationQueue";
@@ -214,12 +216,13 @@ export async function deployLiquidationQueue(walletData: WalletData, networkMark
   await deployContract(walletData, contractName, networkMarket, undefined, config, { defaultInitMsg, writeFunc });
 }
 
-export async function deployCustodyBSei(walletData: WalletData, networkMarket: MarketContractsDeployed, oraclePyth: ContractDeployed, reward: ContractDeployed, bSeiToken: ContractDeployed, swapExtention: ContractDeployed): Promise<void> {
+export async function deployCustodyBSei(walletData: WalletData, networkMarket: MarketContractsDeployed, oraclePyth: ContractDeployed, reward: ContractDeployed, bSeiToken: ContractDeployed, swapSparrow: ContractDeployed): Promise<void> {
   const market: ContractDeployed | undefined = networkMarket?.market;
   // const oraclePyth: ContractDeployed | undefined = networkMarket?.oraclePyth;
   const overseer: ContractDeployed | undefined = networkMarket?.overseer;
   const liquidationQueue: ContractDeployed | undefined = networkMarket?.liquidationQueue;
-  if (!market?.address || !oraclePyth?.address || !liquidationQueue?.address || !overseer?.address || !liquidationQueue?.address || !reward?.address || !bSeiToken?.address || !swapExtention?.address) {
+  if (!market?.address || !oraclePyth?.address || !liquidationQueue?.address || !overseer?.address || !liquidationQueue?.address || !reward?.address || !bSeiToken?.address || !swapSparrow?.address) {
+    console.error(`\n  ********* deploy error: missing info`);
     return;
   }
   const contractName: keyof Required<MarketContractsDeployed> = "custodyBSei";
@@ -232,7 +235,7 @@ export async function deployCustodyBSei(walletData: WalletData, networkMarket: M
       overseer_contract: overseer?.address,
       reward_contract: reward?.address,
       stable_denom: walletData.stable_coin_denom,
-      swap_contract: swapExtention?.address,
+      swap_contract: swapSparrow?.address,
       swap_denoms: [walletData.nativeCurrency.coinMinimalDenom],
       oracle_contract: oraclePyth?.address
     },
@@ -247,12 +250,13 @@ export async function deployCustodyBSei(walletData: WalletData, networkMarket: M
 }
 
 export async function doMarketConfig(walletData: WalletData, networkMarket: MarketContractsDeployed, marketInitFlag: boolean, marketConfigRes: any, bSeiToken: ContractDeployed, rewardsDispatcher: ContractDeployed, oraclePyth: ContractDeployed): Promise<void> {
-  console.warn(`\n  Do market's register_contracts enter.`);
+  console.warn(`\n  Do market.market update_config enter.`);
   const market: ContractDeployed | undefined = networkMarket?.market;
   const interestModel: ContractDeployed | undefined = networkMarket?.interestModel;
   const distributionModel: ContractDeployed | undefined = networkMarket?.distributionModel;
   const overseer: ContractDeployed | undefined = networkMarket?.overseer;
   if (!market?.address || !interestModel?.address || !distributionModel?.address || !overseer?.address || !bSeiToken?.address || !rewardsDispatcher?.address || !oraclePyth?.address) {
+    console.error(`\n  ********* missing info`);
     return;
   }
   const liquidationQueueAddress = networkMarket?.liquidationQueue?.address;
@@ -275,14 +279,15 @@ export async function doMarketConfig(walletData: WalletData, networkMarket: Mark
         liquidation_contract: liquidationQueueAddress
       }
     });
-    console.log("Do market's register_contracts ok. \n", marketRegisterContractsRes?.transactionHash);
+    console.log(`  Do market.market update_config ok. \n  ${marketRegisterContractsRes?.transactionHash}`);
     await queryContractConfig(walletData, market, true);
   }
 }
 
 export async function doOverseerConfig(walletData: WalletData, overseerConfigRes: any, overseer: ContractDeployed, liquidationQueue: ContractDeployed): Promise<void> {
-  console.warn(`\n  Do overseer's config enter`);
+  console.warn(`\n  Do market.overseer config enter`);
   if (!overseer?.address || !liquidationQueue?.address) {
+    console.error(`\n  ********* missing info`);
     return;
   }
   // {"owner_addr":"","oracle_contract":"","market_contract":"","liquidation_contract":"","collector_contract":"","threshold_deposit_rate":"","target_deposit_rate":"","buffer_distribution_factor":"","anc_purchase_factor":"","stable_denom":"","epoch_period":0,"price_timeframe":0,"dyn_rate_epoch":0,"dyn_rate_maxchange":"","dyn_rate_yr_increase_expectation":"","dyn_rate_min":"","dyn_rate_max":""}
@@ -294,14 +299,15 @@ export async function doOverseerConfig(walletData: WalletData, overseerConfigRes
         // epoch_period: marketConfigs?.overseer?.initMsg.epoch_period,
       }
     });
-    console.log("Do overseer's config ok. \n", overseerUpdateConfigRes?.transactionHash);
+    console.log(`  Do market.overseer config ok. \n  ${overseerUpdateConfigRes?.transactionHash}`);
     await queryContractConfig(walletData, overseer);
   }
 }
 
 export async function doCustodyBSeiConfig(walletData: WalletData, custodyBSeiConfigRes: any, custodyBSei: ContractDeployed, liquidationQueue: ContractDeployed): Promise<void> {
-  console.warn(`\n  Do custodyBSei's config enter.`, custodyBSeiConfigRes, liquidationQueue?.address);
+  console.warn(`\n  Do market.custodyBSei config enter.`, custodyBSeiConfigRes, liquidationQueue?.address);
   if (!custodyBSei?.address || !liquidationQueue?.address) {
+    console.error(`\n  ********* missing info`);
     return;
   }
 
@@ -314,14 +320,15 @@ export async function doCustodyBSeiConfig(walletData: WalletData, custodyBSeiCon
         liquidation_contract: liquidationQueue.address
       }
     });
-    console.log(`  Do custodyBSei's config ok. \n`, custodyBSeiUpdateConfigRes?.transactionHash);
+    console.log(`  Do market.custodyBSei config ok. \n  ${custodyBSeiUpdateConfigRes?.transactionHash}`);
     await queryContractConfig(walletData, custodyBSei);
   }
 }
 
 export async function doLiquidationQueueConfig(walletData: WalletData, liquidationQueueConfigRes: any, liquidationQueue: ContractDeployed, oraclePyth: ContractDeployed, overseer: ContractDeployed): Promise<void> {
-  console.warn(`\n  Do liquidationQueue's config enter`);
+  console.warn(`\n  Do market.liquidationQueue config enter`);
   if (!liquidationQueue?.address || !oraclePyth?.address || !overseer?.address) {
+    console.error(`\n  ********* missing info`);
     return;
   }
   // {"owner":"","oracle_contract":"","stable_denom":"","safe_ratio":"","bid_fee":"","liquidator_fee":"","liquidation_threshold":"","price_timeframe": “”,"waiting_period":“”,"overseer":""}
@@ -340,7 +347,7 @@ export async function doLiquidationQueueConfig(walletData: WalletData, liquidati
         // waiting_period: 600,
       }
     });
-    console.log("Do liquidationQueue's config ok. \n", liquidationQueueUpdateConfigRes?.transactionHash);
+    console.log(`Do market.liquidationQueue config ok. \n  ${liquidationQueueUpdateConfigRes?.transactionHash}`);
     await queryContractConfig(walletData, liquidationQueue);
   }
 }
@@ -356,8 +363,9 @@ export async function doOverseerWhitelist(
     max_ltv: string;
   }
 ): Promise<void> {
-  console.warn(`\n  Do overseer's add whitelist enter. collateral_token: ${collateral}`);
+  console.warn(`\n  Do market.overseer add whitelist enter. collateral_token: ${collateral}`);
   if (!overseer?.address || !custody?.address || !collateral) {
+    console.error(`\n  ********* missing info`);
     return;
   }
   // {"elems":[{"name":"","symbol":"","max_ltv":"","custody_contract":"","collateral_token":""}]}
@@ -381,7 +389,7 @@ export async function doOverseerWhitelist(
         max_ltv: updateMsg?.max_ltv || "0"
       }
     });
-    console.log(`Do overseer's add whitelist ok. \n  ${doRes?.transactionHash}`);
+    console.log(`  Do market.overseer add whitelist ok. \n  ${doRes?.transactionHash}`);
     await queryOverseerWhitelist(walletData, overseer);
   }
 }
@@ -398,6 +406,7 @@ export async function doLiquidationQueueWhitelistCollateral(
 ): Promise<void> {
   console.warn(`\n  Do market.liquidationQueue whitelist_collateral enter. collateral: ${collateral}`);
   if (!liquidationQueue?.address || !collateral) {
+    console.error(`\n  ********* missing info`);
     return;
   }
   // overseerWhitelistFlag must be true
@@ -418,7 +427,7 @@ export async function doLiquidationQueueWhitelistCollateral(
         premium_rate_per_slot: updateMsg?.premium_rate_per_slot
       }
     });
-    console.log(`Do market.liquidationQueue whitelist_collateral ok. \n  ${doRes?.transactionHash}`);
+    console.log(`  Do market.liquidationQueue whitelist_collateral ok. \n  ${doRes?.transactionHash}`);
   }
 }
 
@@ -427,11 +436,12 @@ export async function doLiquidationQueueWhitelistCollateral(
  */
 export async function queryOverseerWhitelist(walletData: WalletData, overseer: ContractDeployed, print: boolean = true): Promise<any> {
   if (!overseer || !overseer.address) {
+    console.error(`\n  ********* missing info`);
     return;
   }
   print && console.log(`\n  Query overseer.address whitelist enter`);
   const overseerWhitelistRes = await queryWasmContractByWalletData(walletData, overseer.address, { whitelist: {} });
-  print && console.log(`overseer.whitelist: \n  ${JSON.stringify(overseerWhitelistRes)}`);
+  print && console.log(`  overseer.whitelist: \n  ${JSON.stringify(overseerWhitelistRes)}`);
   return overseerWhitelistRes;
 }
 

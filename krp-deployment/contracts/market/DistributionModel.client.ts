@@ -10,7 +10,7 @@ import { Decimal256, AncEmissionRateResponse, ConfigResponse, ExecuteMsg, Instan
 export interface DistributionModelReadOnlyInterface {
   contractAddress: string;
   config: () => Promise<ConfigResponse>;
-  ancEmissionRate: ({
+  kptEmissionRate: ({
     currentEmissionRate,
     depositRate,
     targetDepositRate,
@@ -30,7 +30,7 @@ export class DistributionModelQueryClient implements DistributionModelReadOnlyIn
     this.client = client;
     this.contractAddress = contractAddress;
     this.config = this.config.bind(this);
-    this.ancEmissionRate = this.ancEmissionRate.bind(this);
+    this.kptEmissionRate = this.kptEmissionRate.bind(this);
   }
 
   config = async (): Promise<ConfigResponse> => {
@@ -38,7 +38,7 @@ export class DistributionModelQueryClient implements DistributionModelReadOnlyIn
       config: {}
     });
   };
-  ancEmissionRate = async ({
+  kptEmissionRate = async ({
     currentEmissionRate,
     depositRate,
     targetDepositRate,
@@ -50,7 +50,7 @@ export class DistributionModelQueryClient implements DistributionModelReadOnlyIn
     thresholdDepositRate: Decimal256;
   }): Promise<AncEmissionRateResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
-      anc_emission_rate: {
+      kpt_emission_rate: {
         current_emission_rate: currentEmissionRate,
         deposit_rate: depositRate,
         target_deposit_rate: targetDepositRate,

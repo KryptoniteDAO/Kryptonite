@@ -4,10 +4,15 @@
 * and run the @cosmwasm/ts-codegen generate command to regenerate this file.
 */
 
-import * as _34 from "./SwapExtention.types";
-import * as _35 from "./SwapExtention.client";
+import * as _0 from "./MockSwapPair.types";
+import * as _1 from "./MockSwapPair.client";
+import * as _2 from "./SwapSparrow.types";
+import * as _3 from "./SwapSparrow.client";
 export namespace swapExtentionContracts {
-  export const SwapExtention = { ..._34,
-    ..._35
+  export const MockSwapPair = { ..._0,
+    ..._1
+  };
+  export const SwapSparrow = { ..._2,
+    ..._3
   };
 }
