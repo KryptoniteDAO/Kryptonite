@@ -186,6 +186,7 @@
       "stakingRewards": {
         "admin": null,
         "initMsg": {
+          "reward_controller_addr": null,
           "duration": "2592000"
         },
         "label": "stakingRewards",
@@ -200,6 +201,7 @@
       "stakingRewards": {
         "admin": null,
         "initMsg": {
+          "reward_controller_addr": null,
           "duration": "2592000"
         },
         "label": "stakingRewards",
