@@ -54,6 +54,15 @@ async function main(): Promise<void> {
         const stateResponse = await custodyQueryClient.state();
         console.log(`\n  Query cdp.stakingRewards queryStakingState ok. collateral: ${cdpCollateralPair?.name} / ${cdpCollateralPair?.collateral} \n  ${JSON.stringify(stateResponse)}`);
       }
+
+      if (cdpCollateralPair?.rewardBook?.address) {
+        const rewardBookClient = new cdpContracts.RewardBook.RewardBookClient(walletData.signingCosmWasmClient, walletData.address, cdpCollateralPair?.rewardBook?.address);
+        const rewardBookQueryClient = new cdpContracts.RewardBook.RewardBookQueryClient(walletData.signingCosmWasmClient, cdpCollateralPair?.rewardBook?.address);
+        const configRes = await rewardBookQueryClient.config();
+        console.log(`\n  Query cdp.RewardBook config ok. collateral: ${cdpCollateralPair?.name} / ${cdpCollateralPair?.collateral} \n  ${JSON.stringify(configRes)}`);
+        const stateResponse = await rewardBookQueryClient.state();
+        console.log(`\n  Query cdp.RewardBook queryStakingState ok. collateral: ${cdpCollateralPair?.name} / ${cdpCollateralPair?.collateral} \n  ${JSON.stringify(stateResponse)}`);
+      }
     }
   }
 

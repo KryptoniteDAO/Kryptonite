@@ -24,7 +24,9 @@ import {
   doOverseerWhitelist,
   marketReadArtifact,
   printDeployedMarketContracts,
-  queryOverseerWhitelist, writeDeployed
+  queryOverseerWhitelist,
+  writeDeployed,
+  checkAndGetStableCoinDemon
 } from "@/modules";
 
 main().catch(console.error);
@@ -48,6 +50,10 @@ async function main(): Promise<void> {
   const oraclePyth: ContractDeployed | undefined = networkOracle.oraclePyth;
 
   console.log(`\n  --- --- market contracts storeCode & instantiateContract enter --- ---`);
+
+  if (!await checkAndGetStableCoinDemon(walletData, "1000000")) {
+    throw new Error(`\n  --- --- deploy market contracts error, stable coin demon is insufficient balance --- ---`);
+  }
 
   await deployMarket(walletData, networkMarket);
   await deployInterestModel(walletData, networkMarket);

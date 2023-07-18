@@ -702,3 +702,10 @@ export const sendIbcTokensMsgEncodeObject = (
     }
   ];
 };
+
+export function getStableCoinDenom(cdpStablePoolAddress: string): string {
+  if (!cdpStablePoolAddress) {
+    return "";
+  }
+  return `factory/${cdpStablePoolAddress}/kUSD`;
+}

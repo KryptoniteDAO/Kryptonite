@@ -9,11 +9,8 @@ import { GetClaimAbleKptResponse, GetClaimAbleKusdResponse, GetReservedKptForVes
 import { MinterResponse, VoteConfigResponse } from "@/contracts/kpt/VeKpt.types";
 import { GetBoostConfigResponse } from "@/contracts/kpt/VeKptBoost.types";
 import { BalanceOfResponse, StakingConfigResponse, StakingStateResponse } from "@/contracts/kpt/StakingRewards.types";
-import { BlindBoxConfigLevelResponse, BlindBoxConfigResponse, ReferralRewardConfigResponse } from "@/contracts/kpt/BlindBox.types";
-import { AllConfigAndStateResponse } from "@/contracts/kpt/BlindBoxReward.types";
 import { BalanceResponse, KptConfigResponse, TokenInfoResponse } from "@/contracts/kpt/Kpt.types";
 import { GetMinerConfigResponse, GetMinerStateResponse } from "@/contracts/kpt/VeKptMiner.types";
-import { ConfigAndStateResponse } from "@/contracts/kpt/BlindBoxInviterReward.types";
 import { QueryConfigResponse } from "@/contracts/kpt/KptDistribute.types";
 
 main().catch(console.error);
@@ -32,10 +29,7 @@ async function main(): Promise<void> {
   const kptFund: ContractDeployed = networkKpt?.kptFund;
   const veKptBoost: ContractDeployed = networkKpt?.veKptBoost;
   const veKptMiner: ContractDeployed = networkKpt?.veKptMiner;
-  const blindBox: ContractDeployed = networkKpt?.blindBox;
   const kptDistribute: ContractDeployed = networkKpt?.kptDistribute;
-  const blindBoxReward: ContractDeployed = networkKpt?.blindBoxReward;
-  const blindBoxInviterReward: ContractDeployed = networkKpt?.blindBoxInviterReward;
   const stakingRewardsPairs: StakingRewardsPairsContractsDeployed[] = networkKpt?.stakingRewardsPairs;
   const doFunc: boolean = true;
 
@@ -87,32 +81,10 @@ async function main(): Promise<void> {
     console.log(`\n  Query kpt.veKptMiner getMinerState ok. \n   ${JSON.stringify(minerStateResponse)}`);
   }
 
-  if (blindBox?.address) {
-    const blindBoxQueryClient = new kptContracts.BlindBox.BlindBoxQueryClient(walletData.signingCosmWasmClient, blindBox.address);
-    const configRes: BlindBoxConfigResponse = await blindBoxQueryClient.queryBlindBoxConfig();
-    console.log(`\n  Query kpt.blindBox config ok. \n   ${JSON.stringify(configRes)}`);
-    const referralRewardConfigResponse: ReferralRewardConfigResponse = await blindBoxQueryClient.queryAllReferralRewardConfig();
-    console.log(`\n  Query kpt.blindBox AllReferralRewardConfig ok. \n   ${JSON.stringify(referralRewardConfigResponse)}`);
-    const configLevelRes: BlindBoxConfigLevelResponse = await blindBoxQueryClient.queryBlindBoxConfigLevel({ index: 0 });
-    console.log(`\n  Query kpt.blindBox queryBlindBoxConfigLevel ok. \n   ${JSON.stringify(configLevelRes)}`);
-  }
-
   if (kptDistribute?.address) {
     const kptDistributeQueryClient = new kptContracts.KptDistribute.KptDistributeQueryClient(walletData.signingCosmWasmClient, kptDistribute.address);
     const configRes: QueryConfigResponse = await kptDistributeQueryClient.queryConfig();
     console.log(`\n  Query kpt.kptDistribute config ok. \n   ${JSON.stringify(configRes)}`);
-  }
-
-  if (blindBoxReward?.address) {
-    const blindBoxRewardQueryClient = new kptContracts.BlindBoxReward.BlindBoxRewardQueryClient(walletData.signingCosmWasmClient, blindBoxReward.address);
-    const configRes: AllConfigAndStateResponse = await blindBoxRewardQueryClient.queryAllConfigAndState();
-    console.log(`\n  Query kpt.blindBoxReward config ok. \n   ${JSON.stringify(configRes)}`);
-  }
-
-  if (blindBoxInviterReward?.address) {
-    const blindBoxInviterRewardQueryClient = new kptContracts.BlindBoxInviterReward.BlindBoxInviterRewardQueryClient(walletData.signingCosmWasmClient, blindBoxInviterReward.address);
-    const configRes: ConfigAndStateResponse = await blindBoxInviterRewardQueryClient.queryAllConfigAndState();
-    console.log(`\n  Query kpt.blindBoxInviterReward queryAllConfigAndState ok. \n   ${JSON.stringify(configRes)}`);
   }
 
   if (stakingRewardsPairs && stakingRewardsPairs.length >= 0) {

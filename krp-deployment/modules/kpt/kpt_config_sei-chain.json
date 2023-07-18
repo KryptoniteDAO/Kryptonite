@@ -8,7 +8,7 @@
         "name": "kryptonite  token",
         "symbol": "KPT",
         "decimals": 6,
-        "initial_balances": [{ "address": "", "amount": "10000000000000" }]
+        "initial_balances": []
       },
       "max_supply": "1000000000000000"
     },

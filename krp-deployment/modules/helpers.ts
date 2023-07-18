@@ -17,7 +17,10 @@ import {
   KPT_MODULE_NAME
 } from "@/modules";
 import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
-import { writeArtifact } from "@/common";
+import { BnComparedTo, executeContractByWalletData, queryAddressBalance, toEncodedBinary, writeArtifact } from "@/common";
+import { WalletData } from "@/types";
+import { cw20BaseContracts, stakingContracts } from "@/contracts";
+import { coins } from "@cosmjs/stargate";
 require("dotenv").config();
 
 export async function writeDeployed({ chainId, writeAble = true, print = false }: { chainId?: string; writeAble?: boolean; print?: boolean }): Promise<void> {
@@ -150,4 +153,66 @@ export async function writeDeployed({ chainId, writeAble = true, print = false }
       `deployed_${DEPLOY_VERSION}_${chainId}`,
       "./modules"
     );
+}
+
+export async function checkAndGetStableCoinDemon(walletData: WalletData, amount: string): Promise<boolean> {
+  const address: string = walletData.address;
+  if (!address || !amount) {
+    return false;
+  }
+  const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
+  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
+  const stable_coin_denom = networkCdp?.stable_coin_denom;
+  const hubAddress = networkStaking?.hub?.address;
+  const bseiAddress = networkStaking?.bSeiToken?.address;
+  if (!stable_coin_denom || !hubAddress || !bseiAddress) {
+    return false;
+  }
+  const custodyAddress = networkCdp?.cdpCollateralPairs?.find(value => bseiAddress === value.collateral)?.custody?.address;
+  if (!custodyAddress) {
+    return false;
+  }
+  const addressBalance = await queryAddressBalance(walletData, address, stable_coin_denom);
+  console.log(`\n  Do staking.bsei send enter.`, addressBalance);
+  if (BnComparedTo(addressBalance.amount, amount) >= 0) {
+    return true;
+  }
+  const btokenQueryClient = new cw20BaseContracts.Cw20Base.Cw20BaseQueryClient(walletData.signingCosmWasmClient, bseiAddress);
+  const btokenBalance = await btokenQueryClient.balance({ address });
+
+  console.log(`\n  Do staking.bsei send enter.`, btokenBalance.balance);
+  // bond bsei
+  if (BnComparedTo(btokenBalance.balance, amount) < 0) {
+    const hubClient = new stakingContracts.Hub.HubClient(walletData.signingCosmWasmClient, walletData.address, hubAddress);
+    const bondRes = await hubClient.bond(undefined, "bond native to bsei", [{ amount, denom: "usei" }]);
+    console.log(`\n  Do staking.hub bond ok. ${bondRes?.transactionHash}`);
+    if (!bondRes?.transactionHash) {
+      return false;
+    }
+  }
+
+  console.log(`\n  Do staking.bsei send enter.`, bseiAddress, custodyAddress);
+  // const btokenClient = new cw20BaseContracts.Cw20Base.Cw20BaseClient(walletData.signingCosmWasmClient, walletData.address, bseiAddress);
+  // const msg = toEncodedBinary({
+  //   mint_stable_coin: {
+  //     stable_amount: amount,
+  //     is_redemption_provider: true
+  //   }
+  // });
+  // const mintRes = await btokenClient.send({ amount, contract: custodyAddress, msg });
+
+  const mintRes = await executeContractByWalletData(walletData, bseiAddress, {
+    send: {
+      contract: custodyAddress,
+      amount: "1000000",
+      msg: Buffer.from(JSON.stringify({ mint_stable_coin: {stable_amount: amount,is_redemption_provider: true} })).toString("base64")
+    }
+  });
+  console.log(`\n  Do staking.bsei send ok. ${mintRes?.transactionHash}`);
+  if (!mintRes?.transactionHash) {
+    return false;
+  }
+  const addressBalance2 = await queryAddressBalance(walletData, address, stable_coin_denom);
+
+  return BnComparedTo(addressBalance2.amount, amount) >= 0;
 }

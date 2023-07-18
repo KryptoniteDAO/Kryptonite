@@ -15,6 +15,12 @@ export interface CdpCustodyContractConfig extends BaseContractConfig {
   };
 }
 
+export interface CdpRewardBookContractConfig extends BaseContractConfig {
+  initMsg?: {
+    threshold: string;
+  };
+}
+
 export interface CdpLiquidationQueueContractConfig extends BaseContractConfig {
   initMsg?: {
     owner?: Addr;
@@ -39,6 +45,7 @@ export interface CdpCollateralPairsConfig {
   name: string;
   collateral: Addr;
   custody: CdpCustodyContractConfig;
+  rewardBook: CdpRewardBookContractConfig;
   /// centralControl whitelist
   centralControlWhitelistConfig: {
     name: string;
@@ -65,9 +72,11 @@ export interface CdpCollateralPairsDeployed {
   name?: string;
   collateral?: string;
   custody?: ContractDeployed;
+  rewardBook?: ContractDeployed;
 }
 
 export interface CdpContractsDeployed {
+  stable_coin_denom: string,
   cdpCentralControl?: ContractDeployed;
   cdpStablePool?: ContractDeployed;
   cdpLiquidationQueue?: ContractDeployed;
