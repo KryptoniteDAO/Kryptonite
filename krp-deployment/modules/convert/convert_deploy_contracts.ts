@@ -21,7 +21,7 @@ import {
   oracleConfigs,
   oracleReadArtifact,
   OracleContractsDeployed,
-  writeDeployed
+  writeDeployed, cdpReadArtifact, CdpContractsDeployed
 } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
 
@@ -34,6 +34,8 @@ async function main(): Promise<void> {
 
   const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
   const networkOracle = oracleReadArtifact(walletData.chainId) as OracleContractsDeployed;
+  const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
+  const stable_coin_denom: string | undefined = networkCdp?.stable_coin_denom;
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
   const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
   const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;
@@ -56,7 +58,7 @@ async function main(): Promise<void> {
     for (const convertPair of convertConfigs.convertPairs) {
       await deployConverter(walletData, networkConvert, convertPair.native_denom);
       await deployBtoken(walletData, networkConvert, convertPair.native_denom);
-      await deployCustody(walletData, networkConvert, convertPair.native_denom, reward, market, overseer, liquidationQueue, swapSparrow);
+      await deployCustody(walletData, networkConvert, convertPair.native_denom, reward, market, overseer, liquidationQueue, swapSparrow, stable_coin_denom);
     }
   }
   await writeDeployed({});

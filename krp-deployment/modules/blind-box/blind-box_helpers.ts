@@ -23,7 +23,7 @@ export function blindBoxWriteArtifact(networkBlindBox: BlindBoxContractsDeployed
   writeArtifact(networkBlindBox, getBlindBoxDeployFileName(chainId), BLIND_BOX_ARTIFACTS_PATH);
 }
 
-export async function deployBlindBox(walletData: WalletData, networkBlindBox: BlindBoxContractsDeployed, networkKpt: KptContractsDeployed): Promise<void> {
+export async function deployBlindBox(walletData: WalletData, networkBlindBox: BlindBoxContractsDeployed, networkKpt: KptContractsDeployed, stable_coin_denom: string | undefined): Promise<void> {
   const kpt: ContractDeployed | undefined = networkKpt?.kpt;
   const veKpt: ContractDeployed | undefined = networkKpt?.veKpt;
   if (!kpt?.address || !veKpt?.address) {
@@ -35,11 +35,11 @@ export async function deployBlindBox(walletData: WalletData, networkBlindBox: Bl
   // for (const rewardTokenConfigKey in rewardTokenConfig) {
   //   let tokenConfig: BlindBoxRewardTokenConfig | undefined = rewardTokenConfig[rewardTokenConfigKey];
   //   if (tokenConfig?.reward_token) {
-  //     tokenConfig.reward_token = tokenConfig.reward_token.replaceAll("%kpt_address%", kpt.address).replaceAll("%ve_kpt_address%", veKpt.address).replaceAll("%kusd_address%", kptConfigs.kusd_denom);
+  //     tokenConfig.reward_token = tokenConfig.reward_token.replaceAll("%kpt_address%", kpt.address).replaceAll("%ve_kpt_address%", veKpt.address).replaceAll("%kusd_address%", stable_coin_denom);
   //   }
   // }
 
-  const defaultInitMsg = Object.assign({}, config?.initMsg ?? {}, { price_token: config?.initMsg?.price_token ?? kptConfigs.kusd_denom });
+  const defaultInitMsg = Object.assign({}, config?.initMsg ?? {}, { price_token: config?.initMsg?.price_token ?? stable_coin_denom });
   const writeFunc = blindBoxWriteArtifact;
   // const storeCoreGasLimit = 4_000_000;
   // const instantiateGasLimit = 500_000;
@@ -79,7 +79,7 @@ export async function deployBlindBoxReward(walletData: WalletData, networkBlindB
   await deployContract(walletData, contractName, networkBlindBox, undefined, config, { defaultInitMsg, writeFunc });
 }
 
-export async function deployBlindBoxInviterReward(walletData: WalletData, networkBlindBox: BlindBoxContractsDeployed, networkKpt: KptContractsDeployed): Promise<void> {
+export async function deployBlindBoxInviterReward(walletData: WalletData, networkBlindBox: BlindBoxContractsDeployed, networkKpt: KptContractsDeployed, stable_coin_denom: string | undefined): Promise<void> {
   const blindBox: ContractDeployed | undefined = networkBlindBox?.blindBox;
   const kpt: ContractDeployed | undefined = networkKpt?.kpt;
   const veKpt: ContractDeployed | undefined = networkKpt?.veKpt;
@@ -96,7 +96,7 @@ export async function deployBlindBoxInviterReward(walletData: WalletData, networ
     },
     config?.initMsg ?? {},
     {
-      reward_native_token: config?.initMsg?.reward_native_token ?? kptConfigs.kusd_denom
+      reward_native_token: config?.initMsg?.reward_native_token ?? stable_coin_denom
     }
   );
 

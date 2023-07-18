@@ -6,7 +6,7 @@
       "pyth_contract": "sei1977nnu5jqatteqgve8tx7nzu9y7eh6cvq0e4g6xjx8tf5wm4nkmsfljunh"
     },
     "label": "oracle pyth contract",
-    "filePath": "../krp-market-contracts/artifacts/moneymarket_oracle_pyth.wasm",
+    "filePath": "../krp-oracle/artifacts/oracle_pyth.wasm",
     "deploy": false
   },
   "baseFeedInfoConfig": {

@@ -104,13 +104,23 @@ export async function deployBtoken(walletData: WalletData, networkConvert: Conve
   }
 }
 
-export async function deployCustody(walletData: WalletData, networkConvert: ConvertContractsDeployed, nativeDenom: string, reward: ContractDeployed, market: ContractDeployed, overseer: ContractDeployed, liquidationQueue: ContractDeployed, swapSparrow: ContractDeployed): Promise<void> {
+export async function deployCustody(
+  walletData: WalletData,
+  networkConvert: ConvertContractsDeployed,
+  nativeDenom: string,
+  reward: ContractDeployed,
+  market: ContractDeployed,
+  overseer: ContractDeployed,
+  liquidationQueue: ContractDeployed,
+  swapSparrow: ContractDeployed,
+  stable_coin_denom: string
+): Promise<void> {
   const convertPairsConfig: ConvertPairsConfig = convertConfigs?.convertPairs?.find((v: ConvertPairsConfig) => nativeDenom === v.native_denom);
   if (!convertPairsConfig) {
     console.error(`\n  ********* unknown configuration of `, nativeDenom);
     return;
   }
-  if (!reward?.address || !market?.address || !overseer?.address || !liquidationQueue?.address || !swapSparrow?.address) {
+  if (!reward?.address || !market?.address || !overseer?.address || !liquidationQueue?.address || !swapSparrow?.address || !stable_coin_denom) {
     console.error(`\n  ********* deploy error: missing info`);
     return;
   }
@@ -147,7 +157,7 @@ export async function deployCustody(walletData: WalletData, networkConvert: Conv
           market_contract: market.address,
           overseer_contract: overseer.address,
           reward_contract: reward.address,
-          stable_denom: walletData.stable_coin_denom,
+          stable_denom: stable_coin_denom,
           swap_contract: swapSparrow?.address,
           swap_denoms: [walletData.nativeCurrency.coinMinimalDenom]
         },

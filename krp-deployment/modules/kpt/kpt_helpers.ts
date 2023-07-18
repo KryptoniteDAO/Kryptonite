@@ -53,7 +53,7 @@ export async function deployKpt(walletData: WalletData, networkKpt: KptContracts
   await deployContract(walletData, contractName, networkKpt, undefined, config, { defaultInitMsg, writeFunc });
 }
 
-export async function deployKptFund(walletData: WalletData, networkKpt: KptContractsDeployed): Promise<void> {
+export async function deployKptFund(walletData: WalletData, networkKpt: KptContractsDeployed, stable_coin_denom: string | undefined): Promise<void> {
   const kpt: ContractDeployed | undefined = networkKpt?.kpt;
   const veKpt: ContractDeployed | undefined = networkKpt?.veKpt;
   if (!kpt?.address || !veKpt?.address) {
@@ -69,7 +69,7 @@ export async function deployKptFund(walletData: WalletData, networkKpt: KptContr
     },
     config?.initMsg ?? {},
     {
-      kusd_denom: config?.initMsg?.kusd_denom ?? kptConfigs.kusd_denom,
+      kusd_denom: config?.initMsg?.kusd_denom ?? stable_coin_denom,
       kusd_reward_addr: config?.initMsg?.kusd_reward_addr ?? kptConfigs.kusd_reward_controller
     }
   );
@@ -201,7 +201,7 @@ export async function deployKptDistribute(walletData: WalletData, networkKpt: Kp
   await deployContract(walletData, contractName, networkKpt, undefined, config, { defaultInitMsg, writeFunc });
 }
 
-export async function deployKeeper(walletData: WalletData, networkKpt: KptContractsDeployed): Promise<void> {
+export async function deployKeeper(walletData: WalletData, networkKpt: KptContractsDeployed, stable_coin_denom: string): Promise<void> {
   const kptFund: ContractDeployed | undefined = networkKpt?.kptFund;
   if (!kptFund?.address) {
     return;
@@ -212,7 +212,7 @@ export async function deployKeeper(walletData: WalletData, networkKpt: KptContra
   const defaultInitMsg = Object.assign(
     {
       rewards_contract: kptFund?.address,
-      rewards_denom: walletData?.stable_coin_denom
+      rewards_denom: stable_coin_denom
     },
     config?.initMsg ?? {},
     {

@@ -1,6 +1,6 @@
 import { coins } from "@cosmjs/stargate";
 import { loadingWalletData } from "@/env_data";
-import { swapExtentionReadArtifact, stakingReadArtifact, marketReadArtifact, convertReadArtifact, loadingStakingData, loadingMarketData } from "@/modules";
+import { swapExtentionReadArtifact, stakingReadArtifact, marketReadArtifact, convertReadArtifact, loadingStakingData, loadingMarketData, cdpReadArtifact, CdpContractsDeployed } from "@/modules";
 import { executeContract, executeContractByWalletData, queryWasmContractByWalletData, getClientData2ByWalletData, printChangeBalancesByWalletData } from "@/common";
 import { marketContracts } from "@/contracts";
 import type { WalletData } from "@/types";
@@ -14,6 +14,8 @@ async function main(): Promise<void> {
   const walletData: WalletData = await loadingWalletData();
 
   const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
+  const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
+  const stable_coin_denom: string | undefined = networkCdp?.stable_coin_denom;
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
   const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
   const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;
@@ -41,20 +43,20 @@ async function main(): Promise<void> {
   /// 2.1. deposit stable to money market
   // console.log();
   // console.warn("Do market.address deposit_stable enter");
-  // const marketDepositStableRes = await executeContractByWalletData(walletData, market.address, { deposit_stable: {} }, "", coins(10_000_000_000, walletData.stable_coin_denom));
+  // const marketDepositStableRes = await executeContractByWalletData(walletData, market.address, { deposit_stable: {} }, "", coins(10_000_000_000, stable_coin_denom));
   // console.log("Do market.address deposit_stable ok. \n", marketDepositStableRes?.transactionHash);
 
   ///  Send stable coin to other address
   const senderAddress = walletData.address;
   const receiverAddress = walletData.address2;
   let senderUseiBalance = walletData.addressesBalances.find(v => senderAddress === v?.address && walletData.nativeCurrency.coinMinimalDenom === v?.balance?.denom)?.balance?.amount;
-  let senderStableCoinBalance = walletData.addressesBalances.find(v => senderAddress === v?.address && walletData.stable_coin_denom === v?.balance?.denom)?.balance?.amount;
+  let senderStableCoinBalance = walletData.addressesBalances.find(v => senderAddress === v?.address && stable_coin_denom === v?.balance?.denom)?.balance?.amount;
   let receiverUseiBalance = walletData.addressesBalances.find(v => receiverAddress === v?.address && walletData.nativeCurrency.coinMinimalDenom === v?.balance?.denom)?.balance?.amount;
-  let receiverStableCoinBalance = walletData.addressesBalances.find(v => receiverAddress === v?.address && walletData.stable_coin_denom === v?.balance?.denom)?.balance?.amount;
+  let receiverStableCoinBalance = walletData.addressesBalances.find(v => receiverAddress === v?.address && stable_coin_denom === v?.balance?.denom)?.balance?.amount;
   const sendUseiAmount = "10";
   const sendStableCoinAmount = "1000";
   // await sendCoinToOtherAddress(walletData, receiverAddress, walletData.nativeCurrency.coinMinimalDenom, sendUseiAmount, senderUseiBalance, receiverUseiBalance);
-  // await sendCoinToOtherAddress(walletData, receiverAddress, walletData.stable_coin_denom, sendStableCoinAmount, senderStableCoinBalance, receiverStableCoinBalance);
+  // await sendCoinToOtherAddress(walletData, receiverAddress, stable_coin_denom, sendStableCoinAmount, senderStableCoinBalance, receiverStableCoinBalance);
 
   /// 3. CustodyBSei deposits collateral.
   /// Issued when a user sends bAsset tokens to the Custody contract.
@@ -151,7 +153,7 @@ async function main(): Promise<void> {
       }
     },
     "",
-    coins(100000000, walletData.stable_coin_denom)
+    coins(100000000, stable_coin_denom)
   );
   console.log("Do liquidationQueue.address submit_bid  ok. \n", liquidationQueueSubmitBidRes?.transactionHash);
 

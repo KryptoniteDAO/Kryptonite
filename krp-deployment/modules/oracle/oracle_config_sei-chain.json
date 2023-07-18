@@ -6,7 +6,15 @@
       "pyth_contract": "sei142c4zd0v44yfwxxk9khak7dvn369dttc99ryj2dgpdz95q25jf2q3904d2"
     },
     "label": "oracle pyth contract",
-    "filePath": "../krp-market-contracts/artifacts/moneymarket_oracle_pyth.wasm",
+    "filePath": "../krp-oracle/artifacts/oracle_pyth.wasm",
+    "deploy": false
+  },
+  "mockOracle": {
+    "admin": null,
+    "initMsg": {
+    },
+    "label": "mockOracle",
+    "filePath": "../krp-oracle/artifacts/mock_oracle.wasm",
     "deploy": false
   },
   "baseFeedInfoConfig": {

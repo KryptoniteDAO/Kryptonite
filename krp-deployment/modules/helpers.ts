@@ -173,25 +173,25 @@ export async function checkAndGetStableCoinDemon(walletData: WalletData, amount:
     return false;
   }
   const addressBalance = await queryAddressBalance(walletData, address, stable_coin_denom);
-  console.log(`\n  Do staking.bsei send enter.`, addressBalance);
+  console.log(`\n  Query address balance ok.`, addressBalance);
   if (BnComparedTo(addressBalance.amount, amount) >= 0) {
     return true;
   }
   const btokenQueryClient = new cw20BaseContracts.Cw20Base.Cw20BaseQueryClient(walletData.signingCosmWasmClient, bseiAddress);
   const btokenBalance = await btokenQueryClient.balance({ address });
 
-  console.log(`\n  Do staking.bsei send enter.`, btokenBalance.balance);
+  console.log(`\n  Query address bseiToken balance ok.`, btokenBalance.balance);
   // bond bsei
   if (BnComparedTo(btokenBalance.balance, amount) < 0) {
     const hubClient = new stakingContracts.Hub.HubClient(walletData.signingCosmWasmClient, walletData.address, hubAddress);
     const bondRes = await hubClient.bond(undefined, "bond native to bsei", [{ amount, denom: "usei" }]);
-    console.log(`\n  Do staking.hub bond ok. ${bondRes?.transactionHash}`);
+    console.log(`\n  Do staking.hub bond ok. \n  ${bondRes?.transactionHash}`);
     if (!bondRes?.transactionHash) {
       return false;
     }
   }
 
-  console.log(`\n  Do staking.bsei send enter.`, bseiAddress, custodyAddress);
+  // console.log(`\n  Do staking.bsei send enter.`, bseiAddress, custodyAddress);
   // const btokenClient = new cw20BaseContracts.Cw20Base.Cw20BaseClient(walletData.signingCosmWasmClient, walletData.address, bseiAddress);
   // const msg = toEncodedBinary({
   //   mint_stable_coin: {
@@ -204,8 +204,8 @@ export async function checkAndGetStableCoinDemon(walletData: WalletData, amount:
   const mintRes = await executeContractByWalletData(walletData, bseiAddress, {
     send: {
       contract: custodyAddress,
-      amount: "1000000",
-      msg: Buffer.from(JSON.stringify({ mint_stable_coin: {stable_amount: amount,is_redemption_provider: true} })).toString("base64")
+      amount: amount,
+      msg: Buffer.from(JSON.stringify({ mint_stable_coin: { stable_amount: amount, is_redemption_provider: true } })).toString("base64")
     }
   });
   console.log(`\n  Do staking.bsei send ok. ${mintRes?.transactionHash}`);

@@ -44,7 +44,7 @@ async function loadingEnvData() {
   };
 }
 
-export async function loadingWalletData(loadBalances: boolean = true): Promise<WalletData> {
+export async function loadingWalletData(loadBalances: boolean = true, denomList: string[] = []): Promise<WalletData> {
   const { LCD_ENDPOINT, RPC_ENDPOINT, mnemonic, privateKey, mnemonic2, privateKey2, chainId, gasPriceValue } = await loadingEnvData();
 
   if (!LCD_ENDPOINT) {
@@ -67,13 +67,13 @@ export async function loadingWalletData(loadBalances: boolean = true): Promise<W
   }
 
   const validator = chainConfigs.validator;
-  const stable_coin_denom = chainConfigs.stable_coin_denom;
+  // const stable_coin_denom = chainConfigs.stable_coin_denom;
   if (!validator) {
     throw new Error("\n  Set the validator in configuration file variable to the validator address of the node");
   }
-  if (!stable_coin_denom) {
-    throw new Error("\n  Set the stable_coin_denom in configuration file variable to the stable coin denom");
-  }
+  // if (!stable_coin_denom) {
+  //   throw new Error("\n  Set the stable_coin_denom in configuration file variable to the stable coin denom");
+  // }
   const gasPrice: GasPrice = GasPrice.fromString(gasPriceValue);
 
   const wallet = privateKey ? await DirectSecp256k1Wallet.fromKey(toBeArray(privateKey), prefix) : await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, { prefix });
@@ -108,7 +108,8 @@ export async function loadingWalletData(loadBalances: boolean = true): Promise<W
   console.log(`\n  current chainId: ${chainId} / deploy version: ${DEPLOY_VERSION} \n  address1: ${address} / address2: ${address2}`);
 
   const addressList = [address, address2];
-  const denomList = [nativeCurrency.coinMinimalDenom, stable_coin_denom];
+  denomList.push(nativeCurrency.coinMinimalDenom);
+  // const denomList = [nativeCurrency.coinMinimalDenom];
   let addressesBalances = [];
   if (loadBalances) {
     addressesBalances = await loadAddressesBalances({ signingStargateClient, signingCosmWasmClient } as WalletData, addressList, denomList);
@@ -141,7 +142,6 @@ export async function loadingWalletData(loadBalances: boolean = true): Promise<W
     signingStargateClient2Amino,
 
     validator,
-    stable_coin_denom,
 
     addressList,
     denomList,

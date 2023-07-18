@@ -66,7 +66,6 @@ export interface WalletData {
   signingStargateClient2Amino: SigningStargateClient;
 
   validator: Addr;
-  stable_coin_denom: Addr;
 
   addressList: Addr[];
   denomList: Addr[];
@@ -106,5 +105,5 @@ export interface BaseContractConfig {
 
 export interface Config {
   readonly validator: Addr;
-  readonly stable_coin_denom: Addr;
+  // readonly stable_coin_denom: Addr;
 }

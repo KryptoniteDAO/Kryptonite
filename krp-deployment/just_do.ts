@@ -1,6 +1,6 @@
 import type { WalletData } from "./types";
-import type { CdpContractsDeployed, ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, KptContractsDeployed, SwapExtentionContractsDeployed, OracleContractsDeployed } from "./modules";
-import { stakingReadArtifact, marketReadArtifact, swapExtentionReadArtifact, convertReadArtifact, kptReadArtifact, cdpReadArtifact, oracleReadArtifact } from "./modules";
+import type { CdpContractsDeployed, ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, KptContractsDeployed, SwapExtentionContractsDeployed, OracleContractsDeployed, BlindBoxContractsDeployed } from "./modules";
+import { stakingReadArtifact, marketReadArtifact, swapExtentionReadArtifact, convertReadArtifact, kptReadArtifact, cdpReadArtifact, oracleReadArtifact, blindBoxReadArtifact } from "./modules";
 import { BnAdd, BnComparedTo, BnDiv, BnMul, BnPow, BnSub, checkAddress, executeContractByWalletData, printChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance, queryWasmContractByWalletData, sendCoinToOtherAddress, sendTokensByWalletData } from "./common";
 import { loadingWalletData } from "./env_data";
 
@@ -18,12 +18,13 @@ async function main(): Promise<void> {
 
   const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
   const networkOracle = oracleReadArtifact(walletData.chainId) as OracleContractsDeployed;
+  const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
+  const stable_coin_denom: string | undefined = networkCdp?.stable_coin_denom;
+  const networkKpt = kptReadArtifact(walletData.chainId) as KptContractsDeployed;
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
   const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
   const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;
-  const networkKpt = kptReadArtifact(walletData.chainId) as KptContractsDeployed;
-  const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
-
+  const networkBlindBox = blindBoxReadArtifact(walletData.chainId) as BlindBoxContractsDeployed;
   // console.log(checkAddress("factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/usdt", "sei"));
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,7 +37,7 @@ async function main(): Promise<void> {
   if (networkMarket?.market?.address) {
     // const marketClient = new marketContracts.Market.MarketClient(walletData.signingCosmWasmClient, walletData.address, networkMarket?.market?.address);
     // const marketQueryClient = new marketContracts.Market.MarketQueryClient(walletData.signingCosmWasmClient, networkMarket?.market?.address);
-    // let res = await marketClient.depositStable(undefined, undefined, coins(1000000, walletData.stable_coin_denom));
+    // let res = await marketClient.depositStable(undefined, undefined, coins(1000000, stable_coin_denom));
     // console.log(res);
 
     const atokenClient = new Cw20Base.Cw20BaseClient(walletData.signingCosmWasmClient, walletData.address, networkMarket?.aToken?.address);
@@ -60,7 +61,7 @@ async function main(): Promise<void> {
   }
 
   // const oraclePythQueryClient = new marketContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, networkMarket?.oraclePyth?.address);
-  // // const queryRes = oraclePythQueryClient.queryPrice({asset: walletData.stable_coin_denom})
+  // // const queryRes = oraclePythQueryClient.queryPrice({asset: stable_coin_denom})
   // // const queryRes = oraclePythQueryClient.queryPrice({ asset: networkStaking.bSeiToken.address });
   // // console.log(queryRes);
   // const overseerQueryClient = new OverseerQueryClient(walletData.signingCosmWasmClient, networkMarket?.overseer?.address);

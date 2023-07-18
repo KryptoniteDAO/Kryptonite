@@ -15,7 +15,10 @@ import {
   kptReadArtifact,
   printDeployedKptContracts,
   deployKptDistribute,
-  deployKeeper, writeDeployed
+  deployKeeper,
+  writeDeployed,
+  cdpReadArtifact,
+  CdpContractsDeployed
 } from "@/modules";
 
 main().catch(console.error);
@@ -25,8 +28,13 @@ async function main(): Promise<void> {
 
   const walletData: WalletData = await loadingWalletData();
 
+  const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
+  const stable_coin_denom: string | undefined = networkCdp?.stable_coin_denom;
   const networkKpt = kptReadArtifact(walletData.chainId) as KptContractsDeployed;
-  if (!kptConfigs?.kusd_denom || !kptConfigs?.kusd_reward_controller) {
+  if (!stable_coin_denom) {
+    throw new Error(`\n  --- --- deploy kpt contracts error, Please deploy cpd contracts first --- ---`);
+  }
+  if (!kptConfigs?.kusd_reward_controller) {
     throw new Error(`\n  --- --- deploy kpt contracts error, Please set the kusd info in configuration file variable --- ---`);
   }
 
@@ -34,13 +42,13 @@ async function main(): Promise<void> {
 
   await deployKpt(walletData, networkKpt);
   await deployVeKpt(walletData, networkKpt);
-  await deployKptFund(walletData, networkKpt);
+  await deployKptFund(walletData, networkKpt, stable_coin_denom);
   await deployVeKptBoost(walletData, networkKpt);
   /// no need
   // await deployVeKptMiner(walletData, networkKpt);
   // await deployBlindBox(walletData, networkKpt);
   await deployKptDistribute(walletData, networkKpt);
-  await deployKeeper(walletData, networkKpt);
+  await deployKeeper(walletData, networkKpt, stable_coin_denom);
   // await deployBlindBoxReward(walletData, networkKpt);
   // await deployBlindBoxInviterReward(walletData, networkKpt);
 

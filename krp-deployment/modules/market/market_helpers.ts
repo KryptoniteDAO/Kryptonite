@@ -82,7 +82,11 @@ export async function loadingMarketData(networkMarket: MarketContractsDeployed |
   };
 }
 
-export async function deployMarket(walletData: WalletData, networkMarket: MarketContractsDeployed): Promise<void> {
+export async function deployMarket(walletData: WalletData, networkMarket: MarketContractsDeployed, stable_coin_denom: string): Promise<void> {
+  if (!stable_coin_denom) {
+    console.error(`\n  ********* deploy error: missing info`);
+    return;
+  }
   if (!networkMarket?.aToken?.address || !networkMarket?.market?.address) {
     if (!networkMarket?.aToken) {
       networkMarket.aToken = {};
@@ -107,7 +111,7 @@ export async function deployMarket(walletData: WalletData, networkMarket: Market
       const initMsg = Object.assign(
         {
           atoken_code_id: networkMarket.aToken.codeId,
-          stable_denom: walletData.stable_coin_denom,
+          stable_denom: stable_coin_denom,
           stable_name: "USDT"
         },
         marketConfigs?.market?.initMsg,
@@ -115,11 +119,11 @@ export async function deployMarket(walletData: WalletData, networkMarket: Market
           owner_addr: marketConfigs?.market?.initMsg?.owner_addr || walletData.address
         }
       );
-      const initCoins = marketConfigs?.market?.initCoins?.map(q => Object.assign({}, q, { denom: q?.denom || walletData.stable_coin_denom }));
+      const initCoins = marketConfigs?.market?.initCoins?.map(q => Object.assign({}, q, { denom: q?.denom || stable_coin_denom }));
       const [contract1, contract2] = await instantiateContract2ByWalletData(walletData, admin, networkMarket.market.codeId, initMsg, label, initCoins);
       networkMarket.aToken.address = contract2;
       networkMarket.market.address = contract1;
-      networkMarket.market_stable_denom = walletData.stable_coin_denom;
+      networkMarket.market_stable_denom = stable_coin_denom;
       marketWriteArtifact(networkMarket, walletData.chainId);
       marketConfigs.aToken.deploy = true;
       marketConfigs.market.deploy = true;
@@ -157,7 +161,7 @@ export async function deployDistributionModel(walletData: WalletData, networkMar
 //   const contractName: keyof Required<MarketContractsDeployed> = "oracle";
 //   const config: OracleContractConfig | undefined = marketConfigs?.[contractName];
 //
-//   const defaultInitMsg: object | undefined = Object.assign({ base_asset: walletData.stable_coin_denom }, config?.initMsg ?? {}, {
+//   const defaultInitMsg: object | undefined = Object.assign({ base_asset: stable_coin_denom }, config?.initMsg ?? {}, {
 //     owner: config?.initMsg?.owner || walletData.address
 //   });
 //   const writeFunc = marketWriteArtifact;
@@ -165,10 +169,10 @@ export async function deployDistributionModel(walletData: WalletData, networkMar
 //   await deployContract(walletData, contractName, networkMarket, undefined, config, { defaultInitMsg, writeFunc });
 // }
 
-export async function deployOverseer(walletData: WalletData, networkMarket: MarketContractsDeployed, oraclePyth: ContractDeployed): Promise<void> {
+export async function deployOverseer(walletData: WalletData, networkMarket: MarketContractsDeployed, oraclePyth: ContractDeployed, stable_coin_denom: string): Promise<void> {
   const market: ContractDeployed | undefined = networkMarket?.market;
   const liquidationQueue: ContractDeployed | undefined = networkMarket?.liquidationQueue;
-  if (!market?.address || !oraclePyth?.address) {
+  if (!market?.address || !oraclePyth?.address || !stable_coin_denom) {
     console.error(`\n  ********* deploy error: missing info`);
     return;
   }
@@ -180,7 +184,7 @@ export async function deployOverseer(walletData: WalletData, networkMarket: Mark
       market_contract: market?.address,
       oracle_contract: oraclePyth?.address,
       liquidation_contract: liquidationQueue?.address || walletData.address,
-      stable_denom: walletData.stable_coin_denom
+      stable_denom: stable_coin_denom
     },
     config?.initMsg ?? {},
     {
@@ -192,9 +196,9 @@ export async function deployOverseer(walletData: WalletData, networkMarket: Mark
   await deployContract(walletData, contractName, networkMarket, undefined, config, { defaultInitMsg, writeFunc });
 }
 
-export async function deployLiquidationQueue(walletData: WalletData, networkMarket: MarketContractsDeployed, oraclePyth: ContractDeployed): Promise<void> {
+export async function deployLiquidationQueue(walletData: WalletData, networkMarket: MarketContractsDeployed, oraclePyth: ContractDeployed, stable_coin_denom: string): Promise<void> {
   const overseer: ContractDeployed | undefined = networkMarket?.overseer;
-  if (!oraclePyth?.address) {
+  if (!oraclePyth?.address || !stable_coin_denom) {
     console.error(`\n  ********* deploy error: missing info`);
     return;
   }
@@ -204,7 +208,7 @@ export async function deployLiquidationQueue(walletData: WalletData, networkMark
     {
       oracle_contract: oraclePyth?.address,
       overseer: overseer?.address || walletData.address,
-      stable_denom: walletData.stable_coin_denom
+      stable_denom: stable_coin_denom
     },
     config?.initMsg ?? {},
     {
@@ -216,12 +220,12 @@ export async function deployLiquidationQueue(walletData: WalletData, networkMark
   await deployContract(walletData, contractName, networkMarket, undefined, config, { defaultInitMsg, writeFunc });
 }
 
-export async function deployCustodyBSei(walletData: WalletData, networkMarket: MarketContractsDeployed, oraclePyth: ContractDeployed, reward: ContractDeployed, bSeiToken: ContractDeployed, swapSparrow: ContractDeployed): Promise<void> {
+export async function deployCustodyBSei(walletData: WalletData, networkMarket: MarketContractsDeployed, oraclePyth: ContractDeployed, reward: ContractDeployed, bSeiToken: ContractDeployed, swapSparrow: ContractDeployed, stable_coin_denom: string): Promise<void> {
   const market: ContractDeployed | undefined = networkMarket?.market;
   // const oraclePyth: ContractDeployed | undefined = networkMarket?.oraclePyth;
   const overseer: ContractDeployed | undefined = networkMarket?.overseer;
   const liquidationQueue: ContractDeployed | undefined = networkMarket?.liquidationQueue;
-  if (!market?.address || !oraclePyth?.address || !liquidationQueue?.address || !overseer?.address || !liquidationQueue?.address || !reward?.address || !bSeiToken?.address || !swapSparrow?.address) {
+  if (!market?.address || !oraclePyth?.address || !liquidationQueue?.address || !overseer?.address || !liquidationQueue?.address || !reward?.address || !bSeiToken?.address || !swapSparrow?.address || !stable_coin_denom) {
     console.error(`\n  ********* deploy error: missing info`);
     return;
   }
@@ -234,7 +238,7 @@ export async function deployCustodyBSei(walletData: WalletData, networkMarket: M
       market_contract: market?.address,
       overseer_contract: overseer?.address,
       reward_contract: reward?.address,
-      stable_denom: walletData.stable_coin_denom,
+      stable_denom: stable_coin_denom,
       swap_contract: swapSparrow?.address,
       swap_denoms: [walletData.nativeCurrency.coinMinimalDenom],
       oracle_contract: oraclePyth?.address

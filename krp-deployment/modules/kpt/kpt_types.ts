@@ -102,7 +102,6 @@ export interface KeeperContractConfig extends BaseContractConfig {
 }
 
 export interface KptContractsConfig {
-  kusd_denom: Addr;
   kusd_reward_controller: Addr;
   kpt?: KptContractConfig;
   kptFund?: KptFundContractConfig;

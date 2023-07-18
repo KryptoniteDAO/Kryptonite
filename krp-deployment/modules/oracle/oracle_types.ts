@@ -9,12 +9,14 @@ export interface OraclePythContractConfig extends BaseContractConfig {
 
 export interface OracleContractsConfig {
   oraclePyth: OraclePythContractConfig;
+  mockOracle: BaseContractConfig;
   baseFeedInfoConfig: BaseFeedInfo;
   feedInfoConfigList: FeedInfo[];
 }
 
 export interface OracleContractsDeployed {
   oraclePyth?: ContractDeployed;
+  mockOracle?: ContractDeployed;
 }
 
 export interface BaseFeedInfo {

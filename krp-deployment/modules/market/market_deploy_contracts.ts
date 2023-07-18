@@ -1,5 +1,5 @@
 import type { ContractDeployed, WalletData } from "@/types";
-import type { MarketContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed, OracleContractsDeployed, CollateralPairsConfig } from "@/modules";
+import type { KptContractsDeployed, CdpContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed, OracleContractsDeployed, CollateralPairsConfig } from "@/modules";
 import { printChangeBalancesByWalletData, queryContractConfig } from "@/common";
 import { loadingWalletData } from "@/env_data";
 import {
@@ -26,7 +26,9 @@ import {
   printDeployedMarketContracts,
   queryOverseerWhitelist,
   writeDeployed,
-  checkAndGetStableCoinDemon
+  checkAndGetStableCoinDemon,
+  cdpReadArtifact,
+  kptReadArtifact
 } from "@/modules";
 
 main().catch(console.error);
@@ -38,6 +40,9 @@ async function main(): Promise<void> {
 
   const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
   const networkOracle = oracleReadArtifact(walletData.chainId) as OracleContractsDeployed;
+  const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
+  const stable_coin_denom: string | undefined = networkCdp?.stable_coin_denom;
+  const networkKpt = kptReadArtifact(walletData.chainId) as KptContractsDeployed;
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
   const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
 
@@ -51,16 +56,16 @@ async function main(): Promise<void> {
 
   console.log(`\n  --- --- market contracts storeCode & instantiateContract enter --- ---`);
 
-  if (!await checkAndGetStableCoinDemon(walletData, "1000000")) {
+  if (!(await checkAndGetStableCoinDemon(walletData, "1000000"))) {
     throw new Error(`\n  --- --- deploy market contracts error, stable coin demon is insufficient balance --- ---`);
   }
 
-  await deployMarket(walletData, networkMarket);
+  await deployMarket(walletData, networkMarket, stable_coin_denom);
   await deployInterestModel(walletData, networkMarket);
   await deployDistributionModel(walletData, networkMarket);
-  await deployOverseer(walletData, networkMarket, oraclePyth);
-  await deployLiquidationQueue(walletData, networkMarket, oraclePyth);
-  await deployCustodyBSei(walletData, networkMarket, oraclePyth, reward, bSeiToken, swapSparrow);
+  await deployOverseer(walletData, networkMarket, oraclePyth, stable_coin_denom);
+  await deployLiquidationQueue(walletData, networkMarket, oraclePyth, stable_coin_denom);
+  await deployCustodyBSei(walletData, networkMarket, oraclePyth, reward, bSeiToken, swapSparrow, stable_coin_denom);
   await writeDeployed({});
 
   console.log(`\n  --- --- market contracts storeCode & instantiateContract end --- ---`);

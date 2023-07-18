@@ -4,7 +4,7 @@ import type { ContractDeployed, WalletData } from "@/types";
 import type { ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed } from "@/modules";
 import { queryStakingDelegations, queryAddressBalance, queryStaking, queryStakingParameters, queryWasmContractByWalletData, executeContractByWalletData, printChangeBalancesByWalletData, queryAddressTokenBalance } from "../../common";
 import { loadingWalletData } from "@/env_data";
-import { swapExtentionReadArtifact, stakingReadArtifact, marketReadArtifact, convertReadArtifact, loadingStakingData } from "@/modules";
+import { swapExtentionReadArtifact, stakingReadArtifact, marketReadArtifact, convertReadArtifact, loadingStakingData, cdpReadArtifact, CdpContractsDeployed } from "@/modules";
 
 main().catch(console.error);
 
@@ -14,6 +14,8 @@ async function main(): Promise<void> {
   const walletData = await loadingWalletData();
 
   const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
+  const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
+  const stable_coin_denom: string | undefined = networkCdp?.stable_coin_denom;
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
   const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
   const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;
@@ -44,8 +46,8 @@ async function main(): Promise<void> {
   await doHubUnbondBseiToNative(walletData, walletData.nativeCurrency.coinMinimalDenom, bSeiToken, hub, "100000");
   await doHubWithdrawUnbondedToNative(walletData, walletData.nativeCurrency.coinMinimalDenom, hub);
 
-  await doHubUpdateRewards(walletData, walletData.nativeCurrency.coinMinimalDenom, hub, walletData.stable_coin_denom, "100000000");
-  await doClaimRewards(walletData, walletData.nativeCurrency.coinMinimalDenom, reward, walletData.stable_coin_denom);
+  await doHubUpdateRewards(walletData, walletData.nativeCurrency.coinMinimalDenom, hub, stable_coin_denom, "100000000");
+  await doClaimRewards(walletData, walletData.nativeCurrency.coinMinimalDenom, reward, stable_coin_denom);
 
   await printMoreInfo(walletData, walletData.nativeCurrency.coinMinimalDenom, hub);
 

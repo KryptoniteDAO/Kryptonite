@@ -22,7 +22,9 @@ import {
   doOraclePythConfigFeedInfo,
   oracleConfigs,
   kptReadArtifact,
-  writeDeployed
+  writeDeployed,
+  cdpReadArtifact,
+  CdpContractsDeployed
 } from "@/modules";
 
 main().catch(console.error);
@@ -34,6 +36,8 @@ async function main(): Promise<void> {
 
   const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
   const networkOracle = oracleReadArtifact(walletData.chainId) as OracleContractsDeployed;
+  const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
+  const stable_coin_denom: string | undefined = networkCdp?.stable_coin_denom;
   const networkKpt = kptReadArtifact(walletData.chainId) as KptContractsDeployed;
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
 
@@ -45,15 +49,16 @@ async function main(): Promise<void> {
   if (!oraclePyth?.address) {
     throw new Error(`\n  --- --- deploy staking contracts error, Please deploy oracle contracts first --- ---`);
   }
+  if (!stable_coin_denom) {
+    throw new Error(`\n  --- --- deploy staking contracts error, Please deploy cpd contracts first --- ---`);
+  }
 
   console.log(`\n  --- --- staking contracts storeCode & instantiateContract enter --- ---`);
 
-  await deployOraclePyth(walletData, networkOracle);
-
-  await deployHub(walletData, networkStaking, swapSparrow);
-  await deployReward(walletData, networkStaking, swapSparrow);
+  await deployHub(walletData, networkStaking, swapSparrow, stable_coin_denom);
+  await deployReward(walletData, networkStaking, swapSparrow, stable_coin_denom);
   await deployBSeiToken(walletData, networkStaking);
-  await deployRewardsDispatcher(walletData, networkStaking, swapSparrow, oraclePyth, networkKpt?.keeper?.address);
+  await deployRewardsDispatcher(walletData, networkStaking, swapSparrow, oraclePyth, networkKpt?.keeper?.address, stable_coin_denom);
   await deployValidatorsRegistry(walletData, networkStaking);
   await deployStSeiToken(walletData, networkStaking);
   await writeDeployed({});

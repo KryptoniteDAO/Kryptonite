@@ -1,4 +1,4 @@
-import type { ContractDeployed, WalletData } from "@/types";
+import type { BaseContractConfig, ContractDeployed, WalletData } from "@/types";
 import type { OracleContractsConfig, OracleContractsDeployed, OraclePythContractConfig } from "@/modules";
 import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
 import { deployContract, readArtifact, writeArtifact } from "@/common";
@@ -22,6 +22,16 @@ export function oracleWriteArtifact(networkOracle: OracleContractsDeployed, chai
   writeArtifact(networkOracle, getOracleDeployFileName(chainId), ORACLE_ARTIFACTS_PATH);
 }
 
+export async function deployMockOracle(walletData: WalletData, networkOracle: OracleContractsDeployed): Promise<void> {
+  const contractName: keyof Required<OracleContractsDeployed> = "mockOracle";
+  const config: BaseContractConfig | undefined = oracleConfigs?.[contractName];
+
+  const defaultInitMsg: object | undefined = Object.assign({}, config?.initMsg ?? {});
+  const writeFunc = oracleWriteArtifact;
+
+  await deployContract(walletData, contractName, networkOracle, undefined, config, { defaultInitMsg, writeFunc });
+}
+
 export async function deployOraclePyth(walletData: WalletData, networkOracle: OracleContractsDeployed): Promise<void> {
   const contractName: keyof Required<OracleContractsDeployed> = "oraclePyth";
   const config: OraclePythContractConfig | undefined = oracleConfigs?.[contractName];
@@ -29,6 +39,9 @@ export async function deployOraclePyth(walletData: WalletData, networkOracle: Or
   const defaultInitMsg: object | undefined = Object.assign({}, config?.initMsg ?? {}, {
     owner: config?.initMsg?.owner || walletData.address
   });
+  if ("sei-chain" === walletData.chainId) {
+    Object.assign(defaultInitMsg, { pyth_contract: networkOracle?.mockOracle?.address });
+  }
   const writeFunc = oracleWriteArtifact;
 
   await deployContract(walletData, contractName, networkOracle, undefined, config, { defaultInitMsg, writeFunc });
