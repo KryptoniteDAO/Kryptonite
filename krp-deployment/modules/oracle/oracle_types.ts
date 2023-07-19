@@ -25,6 +25,7 @@ export interface BaseFeedInfo {
   priceFeedDecimal: number;
   priceFeedId: string;
   priceFeedSymbol: string;
+  mockPrice?: number;
 }
 
 export interface FeedInfo extends Partial<BaseFeedInfo> {

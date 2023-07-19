@@ -2,7 +2,7 @@ import type { BaseContractConfig, ContractDeployed, WalletData } from "@/types";
 import type { OracleContractsConfig, OracleContractsDeployed, OraclePythContractConfig } from "@/modules";
 import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
 import { deployContract, readArtifact, writeArtifact } from "@/common";
-import { marketContracts } from "@/contracts";
+import { oracleContracts } from "@/contracts";
 import { PythFeederConfigResponse } from "@/contracts/oracle/OraclePyth.types";
 
 export const ORACLE_ARTIFACTS_PATH = "../krp-oracle/artifacts";
@@ -66,15 +66,21 @@ export async function printDeployedOracleContracts(networkOracle: OracleContract
   console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
 }
 
-export async function doOraclePythConfigFeedInfo(walletData: WalletData, oraclePyth: ContractDeployed, configFeedInfoParams: { asset: string; checkFeedAge: boolean; priceFeedAge: number; priceFeedDecimal: number; priceFeedId: string; priceFeedSymbol: string }, print: boolean = true): Promise<void> {
+export async function doOraclePythConfigFeedInfo(
+  walletData: WalletData,
+  networkOracle: OracleContractsDeployed,
+  configFeedInfoParams: { asset: string; checkFeedAge: boolean; priceFeedAge: number; priceFeedDecimal: number; priceFeedId: string; priceFeedSymbol: string; mockPrice?: number },
+  print: boolean = true
+): Promise<void> {
   print && console.warn(`\n  Do oracle.oraclePyth ConfigFeedInfo enter. asset: ${configFeedInfoParams.asset}`);
+  const oraclePyth: ContractDeployed = networkOracle?.oraclePyth;
   if (!oraclePyth?.address || !configFeedInfoParams?.asset || !configFeedInfoParams?.priceFeedId) {
     console.error(`\n  ********* missing info!`);
     return;
   }
 
-  const oraclePythClient = new marketContracts.OraclePyth.OraclePythClient(walletData.signingCosmWasmClient, walletData.address, oraclePyth.address);
-  const oraclePythQueryClient = new marketContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, oraclePyth.address);
+  const oraclePythClient = new oracleContracts.OraclePyth.OraclePythClient(walletData.signingCosmWasmClient, walletData.address, oraclePyth.address);
+  const oraclePythQueryClient = new oracleContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, oraclePyth.address);
 
   let configRes: PythFeederConfigResponse = null;
   let initFlag = true;
@@ -89,16 +95,22 @@ export async function doOraclePythConfigFeedInfo(walletData: WalletData, oracleP
     }
   }
 
-  if (initFlag) {
+  if (initFlag && configFeedInfoParams.priceFeedId === configRes?.price_feed_id) {
     console.warn(`\n  ######### oracle.oraclePyth FeederInfo is already done. \n  ${JSON.stringify(configRes)}`);
     return;
   }
 
   const doRes = await oraclePythClient.configFeedInfo(configFeedInfoParams);
 
-  print && console.log(`\n  Do Validator[] ConfigFeedInfo ok. \n  ${doRes?.transactionHash}`);
+  print && console.log(`\n  Do oracle.oraclePyth ConfigFeedInfo ok. \n  ${doRes?.transactionHash}`);
   let afterRes = await oraclePythQueryClient.queryPythFeederConfig({ asset: configFeedInfoParams.asset });
   print && console.log(`\n  after oracle.oraclePyth ConfigFeedInfo. \n  ${JSON.stringify(afterRes)}`);
+
+  if (networkOracle?.mockOracle?.address) {
+    const mockOracleClient = new oracleContracts.MockOracle.MockOracleClient(walletData.signingCosmWasmClient, walletData.address, networkOracle?.mockOracle?.address);
+    const doMockRes = await mockOracleClient.updatePriceFeed({ id: configFeedInfoParams.priceFeedId, price: configFeedInfoParams?.mockPrice ?? 1 });
+    print && console.log(`\n  Do oracle.MockOracle updatePriceFeed ok. \n  ${doMockRes?.transactionHash}`);
+  }
 }
 
 export async function queryOraclePythFeederConfig(walletData: WalletData, oraclePyth: ContractDeployed, assetAddress: string, print: boolean = true): Promise<PythFeederConfigResponse | boolean> {
@@ -108,7 +120,7 @@ export async function queryOraclePythFeederConfig(walletData: WalletData, oracle
     return;
   }
 
-  const oraclePythQueryClient = new marketContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, oraclePyth.address);
+  const oraclePythQueryClient = new oracleContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, oraclePyth.address);
 
   let configRes = null;
   let initFlag = true;

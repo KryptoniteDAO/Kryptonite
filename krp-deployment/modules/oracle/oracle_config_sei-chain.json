@@ -11,28 +11,29 @@
   },
   "mockOracle": {
     "admin": null,
-    "initMsg": {
-    },
+    "initMsg": {},
     "label": "mockOracle",
     "filePath": "../krp-oracle/artifacts/mock_oracle.wasm",
     "deploy": false
   },
   "baseFeedInfoConfig": {
     "checkFeedAge": true,
-    "priceFeedId": "ff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace",
+    "priceFeedId": "ff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0acd",
     "priceFeedSymbol": "Crypto.ETH/USD",
     "priceFeedDecimal": 8,
-    "priceFeedAge": 60
+    "priceFeedAge": 60,
+    "mockPrice": 10000000000
   },
   "feedInfoConfigList": [
     {
       "asset": "%stable_coin_denom%",
       "checkFeedAge": true,
-      "priceFeedId": "5bc91f13e412c07599167bae86f07543f076a638962b8d6017ec19dab4a82814",
+      "priceFeedId": "5bc91f13e412c07599167bae86f07543f076a638962b8d6017ec19dab4a82816",
       "priceFeedSymbol": "Crypto.USDT/USD",
       "priceFeedDecimal": 8,
-      "priceFeedAge": 60
+      "priceFeedAge": 60,
+      "mockPrice": 100000000
     },
-    { "asset": "usei" }
+    { "asset": "usei", "mockPrice": 20000000000 }
   ]
 }

@@ -1,8 +1,8 @@
-import type { ContractDeployed, WalletData } from "@/types";
-import type { BaseFeedInfo, OracleContractsDeployed } from "@/modules";
+import type { WalletData } from "@/types";
+import type { BaseFeedInfo, OracleContractsDeployed, FeedInfo } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
-import { oracleReadArtifact, printDeployedOracleContracts, deployOraclePyth, oracleConfigs, FeedInfo, doOraclePythConfigFeedInfo, writeDeployed, deployMockOracle } from "@/modules";
+import { oracleReadArtifact, printDeployedOracleContracts, deployOraclePyth, oracleConfigs, doOraclePythConfigFeedInfo, writeDeployed, deployMockOracle } from "@/modules";
 
 main().catch(console.error);
 
@@ -29,7 +29,6 @@ async function main(): Promise<void> {
 
   console.log(`\n  --- --- oracle contracts configure enter --- ---`);
   const print: boolean = true;
-  const oraclePyth: ContractDeployed | undefined = networkOracle?.oraclePyth;
 
   const baseFeedInfoConfig: BaseFeedInfo | undefined = oracleConfigs?.baseFeedInfoConfig;
   const feedInfoConfigList: FeedInfo[] | undefined = oracleConfigs?.feedInfoConfigList;
@@ -40,7 +39,7 @@ async function main(): Promise<void> {
       if (feedInfo.asset.startsWith("%")) {
         continue;
       }
-      await doOraclePythConfigFeedInfo(walletData, oraclePyth, feedInfo, print);
+      await doOraclePythConfigFeedInfo(walletData, networkOracle, feedInfo, print);
     }
   }
 

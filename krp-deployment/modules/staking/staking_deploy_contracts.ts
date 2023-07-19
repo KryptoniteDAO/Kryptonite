@@ -80,7 +80,7 @@ async function main(): Promise<void> {
   /// add bseiToken feed price
   if (bSeiToken?.address) {
     const feedInfo = Object.assign({ asset: bSeiToken?.address }, oracleConfigs.baseFeedInfoConfig);
-    await doOraclePythConfigFeedInfo(walletData, oraclePyth, feedInfo, print);
+    await doOraclePythConfigFeedInfo(walletData, networkOracle, feedInfo, print);
   }
 
   /// add staking.reward & staking.rewardsDispatcher to swap whitelist

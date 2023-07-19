@@ -1,5 +1,5 @@
 import type { WalletData } from "@/types";
-import type { SwapExtentionContractsDeployed, StakingContractsDeployed, MarketContractsDeployed, ConvertContractsDeployed } from "@/modules";
+import type { OracleContractsDeployed, CdpContractsDeployed, SwapExtentionContractsDeployed, StakingContractsDeployed, MarketContractsDeployed, ConvertContractsDeployed } from "@/modules";
 import { loadingWalletData } from "@/env_data";
 import {
   swapExtentionReadArtifact,
@@ -20,8 +20,8 @@ import {
   convertConfigs,
   oracleConfigs,
   oracleReadArtifact,
-  OracleContractsDeployed,
-  writeDeployed, cdpReadArtifact, CdpContractsDeployed
+  writeDeployed,
+  cdpReadArtifact
 } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
 
@@ -96,7 +96,7 @@ async function main(): Promise<void> {
       /// add bToken feed price
       if (btokenNetwork?.address) {
         const feedInfo = Object.assign({ asset: btokenNetwork?.address }, oracleConfigs.baseFeedInfoConfig);
-        await doOraclePythConfigFeedInfo(walletData, oraclePyth, feedInfo, print);
+        await doOraclePythConfigFeedInfo(walletData, networkOracle, feedInfo, print);
       }
 
       /// add custody to swap whitelist
