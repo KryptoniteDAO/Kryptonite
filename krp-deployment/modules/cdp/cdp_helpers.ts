@@ -321,10 +321,10 @@ export async function doCdpLiquidationQueueConfig(walletData: WalletData, networ
   print && console.log(`\n  cdpLiquidationQueue.address config info: \n  ${JSON.stringify(afterRes)}`);
 }
 
-export async function doCdpCentralControlSetWhitelistCollateral(walletData: WalletData, networkCdp: CdpContractsDeployed, collateralPairConfig: CdpCollateralPairsConfig, custody: ContractDeployed, print: boolean = true): Promise<any> {
+export async function doCdpCentralControlSetWhitelistCollateral(walletData: WalletData, networkCdp: CdpContractsDeployed, collateralPairConfig: CdpCollateralPairsConfig, custody: ContractDeployed, rewardBook: ContractDeployed, print: boolean = true): Promise<any> {
   print && console.log(`\n  Do cdp.cdpCentralControl WhitelistCollateral enter. collateral: ${collateralPairConfig?.collateral}`);
   const cdpCentralControl: ContractDeployed = networkCdp?.cdpCentralControl;
-  if (!cdpCentralControl?.address || !collateralPairConfig?.collateral || !custody?.address) {
+  if (!cdpCentralControl?.address || !collateralPairConfig?.collateral || !custody?.address || !rewardBook?.address) {
     console.error("\n  ********* missing info!");
     return;
   }
@@ -345,14 +345,14 @@ export async function doCdpCentralControlSetWhitelistCollateral(walletData: Wall
     }
   }
 
-  if (initFlag && !!beforeRes?.elems?.find(value => collateralPairConfig?.collateral === value.collateral_contract && custody?.address === value.custody_contract)) {
+  if (initFlag && !!beforeRes?.elems?.find(value => collateralPairConfig?.collateral === value.collateral_contract && custody?.address === value.custody_contract && rewardBook?.address === value.reward_book_contract)) {
     console.warn(`\n  ######### cdp.cdpCentralControl whitelist is already done.`);
     return;
   }
 
   const doRes = await centralControlClient.whitelistCollateral({
     custodyContract: custody?.address,
-    rewardBookContract: walletData?.address,
+    rewardBookContract: rewardBook?.address,
     collateralContract: collateralPairConfig?.collateral,
     name: collateralPairConfig?.centralControlWhitelistConfig?.name,
     symbol: collateralPairConfig?.centralControlWhitelistConfig?.symbol,

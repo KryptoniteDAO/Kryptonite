@@ -40,7 +40,6 @@ async function main(): Promise<void> {
   // const networkKpt = kptReadArtifact(walletData.chainId) as KptDeployContracts;
   const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
 
-
   console.log(`\n  --- --- cdp contracts storeCode & instantiateContract enter --- ---`);
 
   const cdpCollateralPairsConfig: CdpCollateralPairsConfig[] | undefined = cdpConfigs?.cdpCollateralPairs;
@@ -87,7 +86,8 @@ async function main(): Promise<void> {
       }
       const cdpCollateralPairNetwork = networkCdp?.cdpCollateralPairs?.find(v => cdpCollateralPairConfig?.collateral === v.collateral);
       const custody: ContractDeployed = cdpCollateralPairNetwork?.custody;
-      if (!custody?.address) {
+      const rewardBook: ContractDeployed = cdpCollateralPairNetwork?.rewardBook;
+      if (!custody?.address || !rewardBook?.address) {
         continue;
       }
 
@@ -96,7 +96,7 @@ async function main(): Promise<void> {
       await doCdpRewardBookUpdateConfig(walletData, networkCdp, cdpCollateralPairDeployed, networkStaking?.reward, print);
       await doCdpCustodyUpdateConfig(walletData, networkCdp, cdpCollateralPairDeployed, print);
 
-      await doCdpCentralControlSetWhitelistCollateral(walletData, networkCdp, cdpCollateralPairConfig, custody, print);
+      await doCdpCentralControlSetWhitelistCollateral(walletData, networkCdp, cdpCollateralPairConfig, custody, rewardBook, print);
       await doCdpLiquidationQueueSetWhitelistCollateral(walletData, networkCdp, cdpCollateralPairConfig, print);
     }
   }
