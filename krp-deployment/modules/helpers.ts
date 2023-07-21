@@ -17,9 +17,9 @@ import {
   KPT_MODULE_NAME
 } from "@/modules";
 import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
-import { BnComparedTo, executeContractByWalletData, queryAddressBalance, toEncodedBinary, writeArtifact } from "@/common";
-import { WalletData } from "@/types";
-import { cw20BaseContracts, stakingContracts } from "@/contracts";
+import { BnComparedTo, BnDiv, BnFormat, BnMul, executeContractByWalletData, queryAddressBalance, toEncodedBinary, writeArtifact } from "@/common";
+import { ContractDeployed, WalletData } from "@/types";
+import { cdpContracts, cw20BaseContracts, oracleContracts, stakingContracts } from "@/contracts";
 import { coins } from "@cosmjs/stargate";
 require("dotenv").config();
 
@@ -155,9 +155,9 @@ export async function writeDeployed({ chainId, writeAble = true, print = false }
     );
 }
 
-export async function checkAndGetStableCoinDemon(walletData: WalletData, amount: string): Promise<boolean> {
+export async function checkAndGetStableCoinDemon(walletData: WalletData, oraclePyth: ContractDeployed, cdpCentralControl: ContractDeployed, amount: string): Promise<boolean> {
   const address: string = walletData.address;
-  if (!address || !amount) {
+  if (!address || !amount || !oraclePyth?.address || !cdpCentralControl?.address) {
     return false;
   }
   const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
@@ -172,6 +172,7 @@ export async function checkAndGetStableCoinDemon(walletData: WalletData, amount:
   if (!custodyAddress) {
     return false;
   }
+
   const addressBalance = await queryAddressBalance(walletData, address, stable_coin_denom);
   console.log(`\n  Query address balance ok.`, addressBalance);
   if (BnComparedTo(addressBalance.amount, amount) >= 0) {
@@ -179,12 +180,22 @@ export async function checkAndGetStableCoinDemon(walletData: WalletData, amount:
   }
   const btokenQueryClient = new cw20BaseContracts.Cw20Base.Cw20BaseQueryClient(walletData.signingCosmWasmClient, bseiAddress);
   const btokenBalance = await btokenQueryClient.balance({ address });
-
   console.log(`\n  Query address bseiToken balance ok.`, btokenBalance.balance);
+
+  const centralControlQueryClient = new cdpContracts.CentralControl.CentralControlQueryClient(walletData.signingCosmWasmClient, cdpCentralControl.address);
+  const max_ltv = (await centralControlQueryClient.collateralElem({ collateral: bseiAddress })).max_ltv;
+
+  const oraclePythQueryClient = new oracleContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, oraclePyth?.address);
+  const useiPrice = (await oraclePythQueryClient.queryPrice({ asset: walletData?.nativeCurrency?.coinMinimalDenom }))?.emv_price;
+  const stablePrice = (await oraclePythQueryClient.queryPrice({ asset: stable_coin_denom }))?.emv_price;
+  // more * 1.2
+  const bseiAmount = BnFormat(BnMul(BnDiv(BnMul(amount, stablePrice), BnMul(useiPrice, max_ltv)), 1.2), 0, 1);
+
+  console.log(`------ seiPrice: ${useiPrice} / stablePrice: ${stablePrice} / max_ltv: ${max_ltv} / calc bseiAmount: ${bseiAmount} `);
   // bond bsei
-  if (BnComparedTo(btokenBalance.balance, amount) < 0) {
+  if (BnComparedTo(btokenBalance.balance, bseiAmount) < 0) {
     const hubClient = new stakingContracts.Hub.HubClient(walletData.signingCosmWasmClient, walletData.address, hubAddress);
-    const bondRes = await hubClient.bond(undefined, "bond native to bsei", [{ amount, denom: "usei" }]);
+    const bondRes = await hubClient.bond(undefined, "bond native to bsei", [{ amount: bseiAmount, denom: walletData?.nativeCurrency?.coinMinimalDenom }]);
     console.log(`\n  Do staking.hub bond ok. \n  ${bondRes?.transactionHash}`);
     if (!bondRes?.transactionHash) {
       return false;
@@ -192,22 +203,15 @@ export async function checkAndGetStableCoinDemon(walletData: WalletData, amount:
   }
 
   // console.log(`\n  Do staking.bsei send enter.`, bseiAddress, custodyAddress);
-  // const btokenClient = new cw20BaseContracts.Cw20Base.Cw20BaseClient(walletData.signingCosmWasmClient, walletData.address, bseiAddress);
-  // const msg = toEncodedBinary({
-  //   mint_stable_coin: {
-  //     stable_amount: amount,
-  //     is_redemption_provider: true
-  //   }
-  // });
-  // const mintRes = await btokenClient.send({ amount, contract: custodyAddress, msg });
-
-  const mintRes = await executeContractByWalletData(walletData, bseiAddress, {
-    send: {
-      contract: custodyAddress,
-      amount: amount,
-      msg: Buffer.from(JSON.stringify({ mint_stable_coin: { stable_amount: amount, is_redemption_provider: true } })).toString("base64")
+  const btokenClient = new cw20BaseContracts.Cw20Base.Cw20BaseClient(walletData.signingCosmWasmClient, walletData.address, bseiAddress);
+  const msg = toEncodedBinary({
+    mint_stable_coin: {
+      stable_amount: amount,
+      is_redemption_provider: true
     }
   });
+  const mintRes = await btokenClient.send({ amount: bseiAmount, contract: custodyAddress, msg });
+
   console.log(`\n  Do staking.bsei send ok. ${mintRes?.transactionHash}`);
   if (!mintRes?.transactionHash) {
     return false;

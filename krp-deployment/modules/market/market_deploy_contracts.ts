@@ -56,8 +56,12 @@ async function main(): Promise<void> {
 
   console.log(`\n  --- --- market contracts storeCode & instantiateContract enter --- ---`);
 
-  if (!(await checkAndGetStableCoinDemon(walletData, "1000000"))) {
-    throw new Error(`\n  --- --- deploy market contracts error, stable coin demon is insufficient balance --- ---`);
+  // check stable coin demon amount
+  let stableAmount = marketConfigs?.market?.initCoins?.[0]?.amount;
+  if (!!stableAmount) {
+    if (!(await checkAndGetStableCoinDemon(walletData, oraclePyth, networkCdp?.cdpCentralControl, stableAmount))) {
+      throw new Error(`\n  --- --- deploy market contracts error, stable coin demon is insufficient balance --- ---`);
+    }
   }
 
   await deployMarket(walletData, networkMarket, stable_coin_denom);

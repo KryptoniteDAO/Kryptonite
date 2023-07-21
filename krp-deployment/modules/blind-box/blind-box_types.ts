@@ -34,7 +34,7 @@ export interface BlindBoxContractConfig extends BaseContractConfig {
     nft_uri_suffix: string;
     price_token?: Addr;
     token_id_prefix: string;
-    receiver_price_addr: Addr;
+    receiver_price_addr?: Addr;
     start_mint_time?: number | null;
     end_mint_time?: number | null;
     can_transfer_time?: number | null;

@@ -430,6 +430,11 @@ export const checkAddress = (input: string, chainAddressPrefix: string | null) =
   return null;
 };
 
+export const BnFormat = (a: any, n?: any, rounding?: any): string => {
+  if (!a) return "0";
+  return new Decimal(new Decimal(a).toFixed(n, rounding)).toString();
+};
+
 export const BnAdd = (a: any, b: any): string => {
   if (!a && !b) return "0";
   return new Decimal(a || 0).add(b || 0).toString();

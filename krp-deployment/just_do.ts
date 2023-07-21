@@ -1,13 +1,14 @@
 import type { WalletData } from "./types";
 import type { CdpContractsDeployed, ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, KptContractsDeployed, SwapExtentionContractsDeployed, OracleContractsDeployed, BlindBoxContractsDeployed } from "./modules";
-import { stakingReadArtifact, marketReadArtifact, swapExtentionReadArtifact, convertReadArtifact, kptReadArtifact, cdpReadArtifact, oracleReadArtifact, blindBoxReadArtifact } from "./modules";
+import { stakingReadArtifact, marketReadArtifact, swapExtentionReadArtifact, convertReadArtifact, kptReadArtifact, cdpReadArtifact, oracleReadArtifact, blindBoxReadArtifact, checkAndGetStableCoinDemon } from "./modules";
 import { BnAdd, BnComparedTo, BnDiv, BnMul, BnPow, BnSub, checkAddress, executeContractByWalletData, printChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance, queryWasmContractByWalletData, sendCoinToOtherAddress, sendTokensByWalletData } from "./common";
 import { loadingWalletData } from "./env_data";
 
-import { cdpContracts, cw20BaseContracts, kptContracts, marketContracts } from "./contracts";
+import { blindBoxContracts, cdpContracts, cw20BaseContracts, kptContracts, marketContracts, oracleContracts } from "./contracts";
 import Cw20Base = cw20BaseContracts.Cw20Base;
 import { BalanceResponse } from "@/contracts/cw20Base/Cw20Base.types";
 import { coins } from "@cosmjs/stargate";
+import { BlindBoxConfigResponse } from "@/contracts/blind-box/BlindBox.types";
 
 main().catch(console.error);
 
@@ -30,6 +31,13 @@ async function main(): Promise<void> {
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   // // just do what you want
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  // console.log(await checkAndGetStableCoinDemon(walletData, networkOracle?.oraclePyth, networkCdp?.cdpCentralControl, "1000000"));
+  // const blindBoxClient = new blindBoxContracts.BlindBox.BlindBoxClient(walletData.signingCosmWasmClient, walletData.address, networkBlindBox?.blindBox.address);
+  // const doRes = await blindBoxClient.updateConfig({
+  //   receiverPriceAddr: walletData.address
+  // });
+  // console.log(`  Do blindBox.blindBox update_config ok. \n  ${doRes?.transactionHash}`);
 
   // const blocksPerYear = 63_072_000;
   // const blocksPerYear2 = 4656810;
@@ -60,10 +68,10 @@ async function main(): Promise<void> {
     // console.log(doRes);
   }
 
-  // const oraclePythQueryClient = new marketContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, networkMarket?.oraclePyth?.address);
-  // // const queryRes = oraclePythQueryClient.queryPrice({asset: stable_coin_denom})
-  // // const queryRes = oraclePythQueryClient.queryPrice({ asset: networkStaking.bSeiToken.address });
-  // // console.log(queryRes);
+  // const oraclePythQueryClient = new oracleContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, networkOracle?.oraclePyth?.address);
+  // const queryRes = await oraclePythQueryClient.queryPrice({asset: stable_coin_denom})
+  // // // const queryRes = oraclePythQueryClient.queryPrice({ asset: networkStaking.bSeiToken.address });
+  // console.log(queryRes);
   // const overseerQueryClient = new OverseerQueryClient(walletData.signingCosmWasmClient, networkMarket?.overseer?.address);
   // const epochStateRes = await overseerQueryClient.epochState();
   // const epochConfigRes = await overseerQueryClient.config();

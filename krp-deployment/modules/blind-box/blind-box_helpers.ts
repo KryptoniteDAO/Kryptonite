@@ -39,7 +39,10 @@ export async function deployBlindBox(walletData: WalletData, networkBlindBox: Bl
   //   }
   // }
 
-  const defaultInitMsg = Object.assign({}, config?.initMsg ?? {}, { price_token: config?.initMsg?.price_token ?? stable_coin_denom });
+  const defaultInitMsg = Object.assign({}, config?.initMsg ?? {}, {
+    price_token: config?.initMsg?.price_token ?? stable_coin_denom,
+    receiver_price_addr: config?.initMsg?.receiver_price_addr ?? walletData?.address
+  });
   const writeFunc = blindBoxWriteArtifact;
   // const storeCoreGasLimit = 4_000_000;
   // const instantiateGasLimit = 500_000;

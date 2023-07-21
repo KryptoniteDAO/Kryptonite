@@ -23,7 +23,7 @@
         }
       ],
       "start_mint_time": 1687337418,
-      "receiver_price_addr": "sei1sp8a3sjqy5kp87pyjtt0mslyr0y3evkse3yxk6",
+      "receiver_price_addr": null,
       "end_mint_time": 1690355659,
       "can_transfer_time": 1690355659,
       "referral_reward_config": {
