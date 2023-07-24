@@ -66,7 +66,7 @@ export async function loadingStakingData(networkStaking: StakingContractsDeploye
   };
 }
 
-export async function deployHub(walletData: WalletData, networkStaking: StakingContractsDeployed, swapSparrow: ContractDeployed, stable_coin_denom:string): Promise<void> {
+export async function deployHub(walletData: WalletData, networkStaking: StakingContractsDeployed, swapSparrow: ContractDeployed, stable_coin_denom: string): Promise<void> {
   if (!swapSparrow?.address || !stable_coin_denom) {
     console.error(`\n  ********* deploy error: missing info`);
     return;
@@ -87,7 +87,7 @@ export async function deployHub(walletData: WalletData, networkStaking: StakingC
   await deployContract(walletData, contractName, networkStaking, undefined, config, { defaultInitMsg, writeFunc });
 }
 
-export async function deployReward(walletData: WalletData, networkStaking: StakingContractsDeployed, swapSparrow: ContractDeployed, stable_coin_denom:string): Promise<void> {
+export async function deployReward(walletData: WalletData, networkStaking: StakingContractsDeployed, swapSparrow: ContractDeployed, stable_coin_denom: string): Promise<void> {
   const hub: ContractDeployed | undefined = networkStaking?.hub;
   if (!hub?.address || !swapSparrow?.address || !stable_coin_denom) {
     console.error(`\n  ********* deploy error: missing info`);
@@ -135,7 +135,7 @@ export async function deployBSeiToken(walletData: WalletData, networkStaking: St
   await deployContract(walletData, contractName, networkStaking, undefined, config, { defaultInitMsg, writeFunc });
 }
 
-export async function deployRewardsDispatcher(walletData: WalletData, networkStaking: StakingContractsDeployed, swapSparrow: ContractDeployed, oraclePyth: ContractDeployed, keeperAddress: string|undefined, stable_coin_denom:string): Promise<void> {
+export async function deployRewardsDispatcher(walletData: WalletData, networkStaking: StakingContractsDeployed, swapSparrow: ContractDeployed, oraclePyth: ContractDeployed, keeperAddress: string | undefined, stable_coin_denom: string): Promise<void> {
   const hub: ContractDeployed | undefined = networkStaking?.hub;
   const reward: ContractDeployed | undefined = networkStaking?.reward;
   if (!hub?.address || !reward?.address || !swapSparrow?.address || !oraclePyth?.address || !keeperAddress || !stable_coin_denom) {

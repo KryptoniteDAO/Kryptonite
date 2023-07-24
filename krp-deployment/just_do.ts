@@ -32,8 +32,8 @@ async function main(): Promise<void> {
   // // just do what you want
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  console.log(await queryWasmContractByWalletData(walletData, "sei1pqcgdn5vmf3g9ncs98vtxkydc6su0f9rk3uk73s5ku2xhthr6avswrwnrx", {pair:{}}));
-  console.log(await queryWasmContractByWalletData(walletData, "sei1e0d0mfgxlmpypf68w4jq2eclk9hc5mcdw8mwurj8rld4yx3qncxsn0q88f", {pair:{}}));
+  console.log(await queryWasmContractByWalletData(walletData, "sei1pqcgdn5vmf3g9ncs98vtxkydc6su0f9rk3uk73s5ku2xhthr6avswrwnrx", { pair: {} }));
+  console.log(await queryWasmContractByWalletData(walletData, "sei1e0d0mfgxlmpypf68w4jq2eclk9hc5mcdw8mwurj8rld4yx3qncxsn0q88f", { pair: {} }));
   //
   // const stakingRewardsClient = new kptContracts.StakingRewards.StakingRewardsClient(walletData.signingCosmWasmClient, walletData.address, "sei1fgw0ttpxr034xcqc39jnpe4mw39ygdrtcyy7peudfk8n5k249xgs8fdpxr");
   // const dRes = await stakingRewardsClient.notifyRewardAmount({amount: "1000000000"})

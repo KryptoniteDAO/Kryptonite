@@ -96,7 +96,7 @@ async function main(): Promise<void> {
         console.log(`\n  Query kpt.stakingRewards config ok. staking_token: ${stakingRewardsItem?.staking_token} \n   ${JSON.stringify(configRes)}`);
         const stateResponse: StakingStateResponse = await stakingRewardsQueryClient.queryStakingState();
         console.log(`\n  Query kpt.stakingRewards queryStakingState ok. staking_token: ${stakingRewardsItem?.staking_token} \n   ${JSON.stringify(stateResponse)}`);
-        const balanceOfResponse: BalanceOfResponse = await stakingRewardsQueryClient.balanceOf({account: walletData.address});
+        const balanceOfResponse: BalanceOfResponse = await stakingRewardsQueryClient.balanceOf({ account: walletData.address });
         console.log(`\n  Query kpt.stakingRewards balanceOf ok. staking_token: ${stakingRewardsItem?.staking_token} \n   ${JSON.stringify(balanceOfResponse)}`);
       }
     }

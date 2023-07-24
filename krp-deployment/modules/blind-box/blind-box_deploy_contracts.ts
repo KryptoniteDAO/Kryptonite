@@ -2,19 +2,7 @@ import type { WalletData } from "@/types";
 import type { BlindBoxContractsDeployed, KptContractsDeployed } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
-import {
-  kptConfigs,
-  kptReadArtifact,
-  doKptDistributeUpdateRuleConfig,
-  deployBlindBox,
-  deployBlindBoxReward,
-  deployBlindBoxInviterReward,
-  printDeployedBlindBoxContracts,
-  doBlindBoxConfig,
-  blindBoxReadArtifact,
-  writeDeployed,
-  cdpReadArtifact, CdpContractsDeployed
-} from "@/modules";
+import { kptConfigs, kptReadArtifact, doKptDistributeUpdateRuleConfig, deployBlindBox, deployBlindBoxReward, deployBlindBoxInviterReward, printDeployedBlindBoxContracts, doBlindBoxConfig, blindBoxReadArtifact, writeDeployed, cdpReadArtifact, CdpContractsDeployed } from "@/modules";
 
 main().catch(console.error);
 

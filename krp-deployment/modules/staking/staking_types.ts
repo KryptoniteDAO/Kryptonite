@@ -1,7 +1,6 @@
 import type { Addr, BaseContractConfig, ContractDeployed } from "@/types";
 import { InitialBalance } from "@/types";
 
-
 export interface HubContractConfig extends BaseContractConfig {
   initMsg?: {
     epoch_period: number;
@@ -70,4 +69,3 @@ export interface StakingContractsDeployed {
   validatorsRegistry?: ContractDeployed;
   stSeiToken?: ContractDeployed;
 }
-

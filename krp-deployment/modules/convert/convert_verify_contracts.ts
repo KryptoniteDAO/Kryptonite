@@ -6,7 +6,6 @@ import { loadingWalletData } from "@/env_data";
 import { swapExtentionReadArtifact, stakingReadArtifact, convertReadArtifact, marketReadArtifact } from "@/modules";
 import { executeContractByWalletData, printChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance } from "@/common";
 
-
 main().catch(console.error);
 
 async function main(): Promise<void> {

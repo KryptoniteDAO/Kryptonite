@@ -76,7 +76,7 @@ export interface CdpCollateralPairsDeployed {
 }
 
 export interface CdpContractsDeployed {
-  stable_coin_denom: string,
+  stable_coin_denom: string;
   cdpCentralControl?: ContractDeployed;
   cdpStablePool?: ContractDeployed;
   cdpLiquidationQueue?: ContractDeployed;
