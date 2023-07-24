@@ -17,7 +17,7 @@ export interface SwapExtentionContractsDeployed {
 }
 
 export interface SwapPairInfo {
-  assetInfos: AssetInfo[];
+  assetInfos?: AssetInfo[];
   pairAddress: Addr;
   maxSpread?: string;
   to?: Addr;

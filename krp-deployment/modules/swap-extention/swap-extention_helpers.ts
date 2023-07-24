@@ -1,7 +1,7 @@
-import type { ContractDeployed, WalletData } from "@/types";
+import type { AssetInfo, ContractDeployed, WalletData } from "@/types";
 import type { SwapSparrowContractConfig, SwapExtentionContractsConfig, SwapPairInfo, StakingContractsDeployed, SwapExtentionContractsDeployed } from "@/modules";
 import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
-import { deployContract, readArtifact, writeArtifact } from "@/common";
+import { deployContract, queryWasmContractByWalletData, readArtifact, writeArtifact } from "@/common";
 import { swapExtentionContracts } from "@/contracts";
 import { PairConfigResponse } from "@/contracts/swap-extention/SwapSparrow.types";
 
@@ -81,6 +81,16 @@ export async function doSwapSparrowUpdatePairConfig(walletData: WalletData, swap
     console.error(`\n  ********* missing info!`);
     return;
   }
+  if (!pairConfig.assetInfos) {
+    const pairInfo = await queryWasmContractByWalletData(walletData, pairConfig?.pairAddress, { pair: {} });
+    pairConfig.assetInfos = pairInfo?.asset_infos as AssetInfo[];
+    console.log(`pairInfo: `, JSON.stringify(pairInfo));
+  }
+  if (!pairConfig.assetInfos) {
+    console.error(`\n  ********* missing assetInfos!`);
+    return;
+  }
+
   const swapSparrowClient = new swapExtentionContracts.SwapSparrow.SwapSparrowClient(walletData.signingCosmWasmClient, walletData.address, swapExtention.address);
   const swapSparrowQueryClient = new swapExtentionContracts.SwapSparrow.SwapSparrowQueryClient(walletData.signingCosmWasmClient, swapExtention.address);
 
@@ -101,7 +111,12 @@ export async function doSwapSparrowUpdatePairConfig(walletData: WalletData, swap
     console.warn(`\n  ######### The pair_address is already done.`);
     return;
   }
-  const doRes = await swapSparrowClient.updatePairConfig(pairConfig);
+  const doRes = await swapSparrowClient.updatePairConfig({
+    assetInfos: pairConfig.assetInfos,
+    pairAddress: pairConfig.pairAddress,
+    maxSpread: pairConfig.maxSpread,
+    to: pairConfig.to
+  });
   console.log(`   Do swapExtention.swapSparrow update_pair_config ok. \n  ${doRes?.transactionHash}`);
 
   const afterConfigRes = await swapSparrowQueryClient.queryPairConfig({ assetInfos: pairConfig.assetInfos });
@@ -110,11 +125,13 @@ export async function doSwapSparrowUpdatePairConfig(walletData: WalletData, swap
 
 export async function printDeployedSwapContracts(networkSwap: SwapExtentionContractsDeployed): Promise<void> {
   console.log(`\n  --- --- deployed swap:extends contracts info --- ---`);
-  const tableData = [{
-    name: `swapSparrow`,
-    deploy: swapExtentionConfigs?.swapSparrow?.deploy ?? false,
-    codeId: networkSwap?.swapSparrow?.codeId || 0,
-    address: networkSwap?.swapSparrow?.address
-  }];
+  const tableData = [
+    {
+      name: `swapSparrow`,
+      deploy: swapExtentionConfigs?.swapSparrow?.deploy ?? false,
+      codeId: networkSwap?.swapSparrow?.codeId || 0,
+      address: networkSwap?.swapSparrow?.address
+    }
+  ];
   console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
 }

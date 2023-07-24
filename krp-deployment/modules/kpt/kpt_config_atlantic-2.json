@@ -207,6 +207,21 @@
         "filePath": "../krp-token-contracts/artifacts/staking_rewards.wasm",
         "deploy": false
       }
+    },
+    {
+      "name": "SEI/kUSD",
+      "staking_token": "sei1eth6r2mcfhx9h8a7s99vm6jhmznsxrhz3rymkgeyhsm7rk682rdq08yzla",
+      "pool_address": "sei1e0d0mfgxlmpypf68w4jq2eclk9hc5mcdw8mwurj8rld4yx3qncxsn0q88f",
+      "stakingRewards": {
+        "admin": null,
+        "initMsg": {
+          "reward_controller_addr": null,
+          "duration": "2592000"
+        },
+        "label": "stakingRewards",
+        "filePath": "../krp-token-contracts/artifacts/staking_rewards.wasm",
+        "deploy": false
+      }
     }
   ]
 }
