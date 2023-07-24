@@ -24,4 +24,4 @@ test
 dist
 template
 
-./contracts
+contracts
