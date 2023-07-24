@@ -367,7 +367,7 @@ export async function doOverseerWhitelist(
     max_ltv: string;
   }
 ): Promise<void> {
-  console.warn(`\n  Do market.overseer add whitelist enter. collateral_token: ${collateral}`);
+  console.warn(`\n  Do market.overseer add whitelist enter. collateral_token: ${collateral} / custody: ${custody?.address}}`);
   if (!overseer?.address || !custody?.address || !collateral) {
     console.error(`\n  ********* missing info`);
     return;

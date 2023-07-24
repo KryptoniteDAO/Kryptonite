@@ -1,15 +1,13 @@
+import { cw20BaseContracts, marketContracts } from "@/contracts";
+import type { WalletData } from "@/types";
+import type { ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed, CdpContractsDeployed } from "@/modules";
 import { coins } from "@cosmjs/stargate";
 import { loadingWalletData } from "@/env_data";
-import { swapExtentionReadArtifact, stakingReadArtifact, marketReadArtifact, convertReadArtifact, loadingStakingData, loadingMarketData, cdpReadArtifact, CdpContractsDeployed } from "@/modules";
+import { swapExtentionReadArtifact, stakingReadArtifact, marketReadArtifact, convertReadArtifact, loadingStakingData, loadingMarketData, cdpReadArtifact, printDeployedMarketContracts, printDeployedStakingContracts } from "@/modules";
 import { executeContract, executeContractByWalletData, queryWasmContractByWalletData, getClientData2ByWalletData, printChangeBalancesByWalletData } from "@/common";
-import { marketContracts } from "@/contracts";
-import type { WalletData } from "@/types";
-import type { ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed } from "@/modules";
-
-require("dotenv").config();
 
 async function main(): Promise<void> {
-  console.log(`--- --- verify deployed market contracts enter --- ---`);
+  console.log(`\n  --- --- verify deployed market contracts enter --- ---`);
 
   const walletData: WalletData = await loadingWalletData();
 
@@ -22,26 +20,31 @@ async function main(): Promise<void> {
 
   const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(networkStaking);
   if (!hub?.address || !reward?.address || !bSeiToken?.address || !rewardsDispatcher?.address || !validatorsRegistry?.address || !stSeiToken?.address) {
-    console.error(`--- --- verify deployed error, missing some deployed staking address info --- ---`);
+    console.error(`\n  --- --- verify deployed error, missing some deployed staking address info --- ---`);
     process.exit(0);
     return;
   }
 
   const { aToken, market, interestModel, distributionModel, overseer, liquidationQueue, custodyBSei } = await loadingMarketData(networkMarket);
   if (!aToken?.address || !market?.address || !interestModel?.address || !distributionModel?.address || !overseer?.address || !liquidationQueue?.address || !custodyBSei?.address) {
-    console.log(`--- --- verify deployed error, missing some deployed market address info --- ---`);
+    console.log(`\n  --- --- verify deployed error, missing some deployed market address info --- ---`);
     process.exit(0);
     return;
   }
+  await printDeployedStakingContracts(networkStaking);
+  await printDeployedMarketContracts(networkMarket);
+  console.log(`  stable_coin_denom: ${stable_coin_denom}`);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   // // just a few simple tests to make sure the contracts are not failing
   // // for more accurate tests we must use integration-tests repo
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  const doFunc: boolean = false;
+  const print: boolean = true;
+  const printConfig: boolean = true;
 
   /// 2. market deposit_stable test
   /// 2.1. deposit stable to money market
-  // console.log();
   // console.warn("Do market.address deposit_stable enter");
   // const marketDepositStableRes = await executeContractByWalletData(walletData, market.address, { deposit_stable: {} }, "", coins(10_000_000_000, stable_coin_denom));
   // console.log("Do market.address deposit_stable ok. \n", marketDepositStableRes?.transactionHash);
@@ -60,8 +63,28 @@ async function main(): Promise<void> {
 
   /// 3. CustodyBSei deposits collateral.
   /// Issued when a user sends bAsset tokens to the Custody contract.
-  console.log();
-  console.log("Do custodyBSei.address deposit collateral and lock collateral enter");
+  console.log(`\n  Do custodyBSei.address deposit collateral and lock collateral enter`);
+  const marketClient = new marketContracts.Market.MarketClient(walletData.signingCosmWasmClient, walletData.address, market?.address);
+
+  const atokenQueryClient = new cw20BaseContracts.Cw20Base.Cw20BaseQueryClient(walletData.signingCosmWasmClient, aToken?.address);
+  const marketQueryClient = new marketContracts.Market.MarketQueryClient(walletData.signingCosmWasmClient, market?.address);
+  const interestModelQueryClient = new marketContracts.InterestModel.InterestModelQueryClient(walletData.signingCosmWasmClient, interestModel?.address);
+  const distributionModelQueryClient = new marketContracts.DistributionModel.DistributionModelQueryClient(walletData.signingCosmWasmClient, distributionModel?.address);
+  const overseerQueryClient = new marketContracts.Overseer.OverseerQueryClient(walletData.signingCosmWasmClient, overseer?.address);
+  const liquidationQueueQueryClient = new marketContracts.LiquidationQueue.LiquidationQueueQueryClient(walletData.signingCosmWasmClient, liquidationQueue?.address);
+  const custodyBseiQueryClient = new marketContracts.CustodyBsei.CustodyBseiQueryClient(walletData.signingCosmWasmClient, custodyBSei?.address);
+  const bSeiTokenQueryClient = new cw20BaseContracts.Cw20Base.Cw20BaseQueryClient(walletData.signingCosmWasmClient, bSeiToken?.address);
+
+  printConfig && console.log(`\n  market.aToken config \n`, await atokenQueryClient.tokenInfo());
+  printConfig && console.log(`\n  market.Market config \n`, await marketQueryClient.config());
+  printConfig && console.log(`\n  market.InterestModel config \n`, await interestModelQueryClient.config());
+  printConfig && console.log(`\n  market.DistributionModel config \n`, await distributionModelQueryClient.config());
+  printConfig && console.log(`\n  market.Overseer config \n`, await overseerQueryClient.config());
+  printConfig && console.log(`\n  market.LiquidationQueue config \n`, await liquidationQueueQueryClient.config());
+  printConfig && console.log(`\n  market.CustodyBsei config \n`, await custodyBseiQueryClient.config());
+  print && console.log(`\n  market.Overseer whitelist \n`, await overseerQueryClient.whitelist({ collateralToken: bSeiToken.address }));
+  print && console.log(`\n  address btoken.balance \n`, await bSeiTokenQueryClient.balance({ address: walletData.address }));
+
   const custodyBSeiDepositCollateralRes = await executeContractByWalletData(walletData, bSeiToken.address, {
     send: {
       contract: custodyBSei.address,
@@ -72,8 +95,7 @@ async function main(): Promise<void> {
   console.log("Do custodyBSei.address deposit and lock collateral ok. \n", custodyBSeiDepositCollateralRes?.transactionHash);
 
   //step5: unlock collateral and withdraw bSeiToken
-  console.log();
-  console.log("Do custodyBase.address unlock collateral and withdraw collateral enter");
+  console.log(`\n  Do custodyBase.address unlock collateral and withdraw collateral enter`);
   const withdrawBSTSeiCollateralRes = await executeContractByWalletData(
     walletData,
     overseer.address,
@@ -90,8 +112,7 @@ async function main(): Promise<void> {
 
   /// 6. borrow stable
   /// Borrows stable coins from Anchor.
-  console.log();
-  console.log("Do market.address borrow_stable enter");
+  console.log(`\n  Do market.address borrow_stable enter`);
   const marketBorrowStableRes = await executeContractByWalletData(walletData, market.address, {
     borrow_stable: {
       borrow_amount: "10000000",
@@ -101,8 +122,7 @@ async function main(): Promise<void> {
   console.log("Do market.address borrow_stable ok. \n", marketBorrowStableRes?.transactionHash);
 
   /// 7. query borrow stable coin info
-  console.log();
-  console.log("Query market.address borrower_info enter");
+  console.log(`\n  Query market.address borrower_info enter`);
   const marketBorrowerInfoRes = await queryWasmContractByWalletData(walletData, market.address, {
     borrower_info: {
       borrower: walletData.address
@@ -113,21 +133,9 @@ async function main(): Promise<void> {
   ////////////////////test////////////////////////////////////////////////////////////////////////////////
   ///////////////liquidatequeue///////////////////////////////////////////////////////////////////////////////
 
-  /// 14.2 feed Price
-  /// Feeds new price data. Can only be issued by the owner.
-  // console.log();
-  // console.log("Do oracle.address feed_price 2 enter");
-  // let oracleFeedPriceRes2 = await executeContractByWalletData(walletData, oracle.address, {
-  //   feed_price: {
-  //     prices: [[bSeiToken.address, "5"]]
-  //   }
-  // });
-  // console.log("Do oracle.address feed_price 2 ok. \n", oracleFeedPriceRes2?.transactionHash);
-
   /// 15.Liquidate Collateral
   /// 15.2 query collateral borrow limit
-  console.log();
-  console.log("Query overseer.address borrow_limit enter");
+  console.log(`\n  Query overseer.address borrow_limit enter`);
   const currentTimestamp = Date.parse(new Date().toString()) / 1000;
   const overseerBorrowLimitRes = await queryWasmContractByWalletData(walletData, overseer.address, {
     borrow_limit: {
@@ -135,13 +143,12 @@ async function main(): Promise<void> {
       block_time: currentTimestamp
     }
   });
-  console.log("Query overseer.address borrow_limit ok. \n", JSON.stringify(overseerBorrowLimitRes));
+  console.log(`  Query overseer.address borrow_limit ok. \n`, JSON.stringify(overseerBorrowLimitRes));
 
   ///  15.3 liquidate collateral
   /// Submits a new bid for the specified Cw20 collateral with the specified premium rate.
   /// Requires stable coins to be sent beforehand.
-  console.log();
-  console.log("Do liquidationQueue.address submit_bid enter");
+  console.log(`\n  Do liquidationQueue.address submit_bid enter`);
   const clientData2 = getClientData2ByWalletData(walletData);
   const liquidationQueueSubmitBidRes = await executeContract(
     clientData2,
@@ -155,7 +162,7 @@ async function main(): Promise<void> {
     "",
     coins(100000000, stable_coin_denom)
   );
-  console.log("Do liquidationQueue.address submit_bid  ok. \n", liquidationQueueSubmitBidRes?.transactionHash);
+  console.log(`  Do liquidationQueue.address submit_bid  ok. \n`, liquidationQueueSubmitBidRes?.transactionHash);
 
   ///////////////////////////////////////////////////////////////////////////////
   //                                                                           //
@@ -163,39 +170,26 @@ async function main(): Promise<void> {
 
   /// Gets the collateral balance of the specified borrower.
 
-  console.log();
-  console.log(`Query custodyBSei.address borrower enter`);
+  console.log(`\n  Query custodyBSei.address borrower enter`);
   const custodyBSeiBorrowerRes = await queryWasmContractByWalletData(walletData, custodyBSei.address, {
     borrower: {
       address: walletData.address
     }
   });
-  console.log("Query custodyBSei.address borrower ok. \n", JSON.stringify(custodyBSeiBorrowerRes));
-
-  /// Feeds new price data. Can only be issued by the owner.
-  // console.log();
-  // console.log("Do oracle.address feed_price 3 enter");
-  // let oracleFeedPriceRes3 = await executeContractByWalletData(walletData, oracle.address, {
-  //   feed_price: {
-  //     prices: [[bSeiToken.address, "5"]]
-  //   }
-  // });
-  // console.log("Do oracle.address feed_price 3 ok. \n", oracleFeedPriceRes3?.transactionHash);
+  console.log(`  Query custodyBSei.address borrower ok. \n`, JSON.stringify(custodyBSeiBorrowerRes));
 
   /// 12.1 query borrow stable coin info
-  console.log();
-  console.log("Query market.address borrower_info 2 enter");
+  console.log(`\n  Query market.address borrower_info 2 enter`);
   const marketBorrowerInfoRes2 = await queryWasmContractByWalletData(walletData, market.address, {
     borrower_info: {
       borrower: walletData.address,
       block_height: null
     }
   });
-  console.log("Query market.address borrower_info 2 ok. \n", JSON.stringify(marketBorrowerInfoRes2));
+  console.log(`\n  Query market.address borrower_info 2 ok. \n`, JSON.stringify(marketBorrowerInfoRes2));
 
   /// 15.2 query collateral borrow limit
-  console.log();
-  console.log("Query overseer.address borrow_limit enter");
+  console.log(`\n  Query overseer.address borrow_limit enter`);
   const currentTimestamp2 = Date.parse(new Date().toString()) / 1000;
   const overseerBorrowLimitRes2 = await queryWasmContractByWalletData(walletData, overseer.address, {
     borrow_limit: {
@@ -203,10 +197,9 @@ async function main(): Promise<void> {
       block_time: currentTimestamp2
     }
   });
-  console.log("Query overseer.address borrow_limit 2 ok. \n", JSON.stringify(overseerBorrowLimitRes2));
+  console.log(`\n  Query overseer.address borrow_limit 2 ok. \n`, JSON.stringify(overseerBorrowLimitRes2));
 
-  console.log();
-  console.log("Query overseer.address whitelist enter");
+  console.log(`\n  Query overseer.address whitelist enter`);
   const overseerWhitelistRes = await queryWasmContractByWalletData(walletData, overseer.address, {
     whitelist: {
       collateral_token: bSeiToken.address,
@@ -214,13 +207,12 @@ async function main(): Promise<void> {
       limit: null
     }
   });
-  console.log("Query overseer.address whitelist ok. \n", JSON.stringify(overseerWhitelistRes));
+  console.log(`\n  Query overseer.address whitelist ok. \n`, JSON.stringify(overseerWhitelistRes));
 
   /////////////////////////////////////////////////////////////////////
   ////must execute submit bid operation to avoid error ////////////////
 
-  console.log();
-  console.log("Query liquidationQueue.address liquidation_amount enter");
+  console.log(`\n  Query liquidationQueue.address liquidation_amount enter`);
   const liquidationQueueLiquidationAmountRes = await queryWasmContractByWalletData(walletData, liquidationQueue.address, {
     liquidation_amount: {
       borrow_amount: "10000067",
@@ -229,84 +221,72 @@ async function main(): Promise<void> {
       collateral_prices: ["5"]
     }
   });
-  console.log("Query liquidationQueue.address liquidation_amount ok. \n", JSON.stringify(liquidationQueueLiquidationAmountRes));
+  console.log(`  Query liquidationQueue.address liquidation_amount ok. \n`, JSON.stringify(liquidationQueueLiquidationAmountRes));
 
-  console.log();
-  console.log("Query liquidationQueue.address config enter");
+  console.log(`\n  Query liquidationQueue.address config enter`);
   const liquidationQueueConfigRes = await queryWasmContractByWalletData(walletData, liquidationQueue.address, {
     config: {}
   });
-  console.log("Query liquidationQueue.address config ok. \n", JSON.stringify(liquidationQueueConfigRes));
+  console.log(`  Query liquidationQueue.address config ok. \n`, JSON.stringify(liquidationQueueConfigRes));
 
   /// 15.4 liquidate collateral call contract custody bSei =====step4==============
-  console.log();
-  console.log("Do overseer.address liquidate_collateral enter");
+  console.log(`\n  Do overseer.address liquidate_collateral enter`);
   const clientData22 = getClientData2ByWalletData(walletData);
   const overseerLiquidateCollateralRes = await executeContract(clientData22, overseer.address, {
     liquidate_collateral: {
       borrower: walletData.address
     }
   });
-  console.log("Do overseer.address liquidate_collateral ok. \n", overseerLiquidateCollateralRes?.transactionHash);
+  console.log(`  Do overseer.address liquidate_collateral ok. \n`, overseerLiquidateCollateralRes?.transactionHash);
 
   /// 15.5 query liquidationQueue config
-  console.log();
-  console.log("Query liquidationQueue.address config 2 enter");
+  console.log(`\n  Query liquidationQueue.address config 2 enter`);
   const liquidationQueueConfigRes2 = await queryWasmContractByWalletData(walletData, liquidationQueue.address, {
     config: {}
   });
-  console.log("Query liquidationQueue.address config 2 ok. \n", JSON.stringify(liquidationQueueConfigRes2));
+  console.log(`  Query liquidationQueue.address config 2 ok. \n`, JSON.stringify(liquidationQueueConfigRes2));
 
   /// 15.6 query liquidate pool
-  console.log();
-  console.log("Query liquidationQueue.address bid_pool enter");
+  console.log(`\n  Query liquidationQueue.address bid_pool enter`);
   const liquidationQueueBidPoolRes = await queryWasmContractByWalletData(walletData, liquidationQueue.address, {
     bid_pool: {
       collateral_token: bSeiToken.address,
       bid_slot: 10
     }
   });
-  console.log("Query liquidationQueue.address bid_pool ok. \n", JSON.stringify(liquidationQueueBidPoolRes));
+  console.log(`  Query liquidationQueue.address bid_pool ok. \n`, JSON.stringify(liquidationQueueBidPoolRes));
 
-  console.log();
-  console.log("Query reward.address state enter");
+  console.log(`\n  Query reward.address state enter`);
   const rewardStateRes = await queryWasmContractByWalletData(walletData, reward.address, { state: {} });
   console.log("Query reward.address state ok. \n", JSON.stringify(rewardStateRes));
 
-  console.log();
-  console.log("Do hub.address update_global_index enter");
+  console.log(`\n  Do hub.address update_global_index enter`);
   const hubUpdateGlobalIndexRes = await executeContractByWalletData(walletData, hub.address, { update_global_index: {} });
-  console.log("Do hub.address update_global_index ok. \n", hubUpdateGlobalIndexRes?.transactionHash);
+  console.log(`  Do hub.address update_global_index ok. \n`, hubUpdateGlobalIndexRes?.transactionHash);
 
-  console.log();
-  console.log("Query reward.address accrued_rewards enter");
+  console.log(`\n  Query reward.address accrued_rewards enter`);
   const rewardAccruedRewardsRes = await queryWasmContractByWalletData(walletData, reward.address, {
     accrued_rewards: {
       address: walletData.address
     }
   });
-  console.log("Query reward.address accrued_rewards ok. \n", JSON.stringify(rewardAccruedRewardsRes));
+  console.log(`  Query reward.address accrued_rewards ok. \n`, JSON.stringify(rewardAccruedRewardsRes));
 
-  console.log();
-  console.log("Query interestModel.address config enter");
+  console.log(`\n  Query interestModel.address config enter`);
   const interestModelConfigRes = await queryWasmContractByWalletData(walletData, interestModel.address, { config: {} });
-  console.log("Query interestModel.address config ok. \n", JSON.stringify(interestModelConfigRes));
+  console.log(`  Query interestModel.address config ok. \n`, JSON.stringify(interestModelConfigRes));
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  console.log();
-  console.log("Query market.address state enter");
+  console.log(`\n  Query market.address state enter`);
   const marketStateRes = await queryWasmContractByWalletData(walletData, market.address, { state: {} });
-  console.log("Query market.address state ok. \n", JSON.stringify(marketStateRes));
+  console.log(`  Query market.address state ok. \n`, JSON.stringify(marketStateRes));
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  console.log();
-  console.log(`--- --- verify deployed market contracts end --- ---`);
+  console.log(`\n  --- --- verify deployed market contracts end --- ---`);
 
-  console.log();
   await printChangeBalancesByWalletData(walletData);
-  console.log();
 }
 
 main().catch(console.log);

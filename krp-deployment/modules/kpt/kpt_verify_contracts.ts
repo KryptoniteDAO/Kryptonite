@@ -21,8 +21,14 @@ async function main(): Promise<void> {
   const walletData: WalletData = await loadingWalletData();
 
   const networkKpt = kptReadArtifact(walletData.chainId) as KptContractsDeployed;
-
   await printDeployedKptContracts(networkKpt);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // // just a few simple tests to make sure the contracts are not failing
+  // // for more accurate tests we must use integration-tests repo
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  const doFunc: boolean = false;
+  const print: boolean = true;
 
   const kpt: ContractDeployed = networkKpt?.kpt;
   const veKpt: ContractDeployed = networkKpt?.veKpt;
@@ -31,7 +37,6 @@ async function main(): Promise<void> {
   const veKptMiner: ContractDeployed = networkKpt?.veKptMiner;
   const kptDistribute: ContractDeployed = networkKpt?.kptDistribute;
   const stakingRewardsPairs: StakingRewardsPairsContractsDeployed[] = networkKpt?.stakingRewardsPairs;
-  const doFunc: boolean = true;
 
   if (kpt?.address) {
     const kptQueryClient = new kptContracts.Kpt.KptQueryClient(walletData.signingCosmWasmClient, kpt.address);

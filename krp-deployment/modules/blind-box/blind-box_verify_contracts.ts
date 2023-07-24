@@ -16,13 +16,18 @@ async function main(): Promise<void> {
   const walletData: WalletData = await loadingWalletData();
 
   const networkBlindBox = blindBoxReadArtifact(walletData.chainId) as BlindBoxContractsDeployed;
-
   await printDeployedBlindBoxContracts(networkBlindBox);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // // just a few simple tests to make sure the contracts are not failing
+  // // for more accurate tests we must use integration-tests repo
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  const doFunc: boolean = false;
+  const print: boolean = true;
 
   const blindBox: ContractDeployed = networkBlindBox?.blindBox;
   const blindBoxReward: ContractDeployed = networkBlindBox?.blindBoxReward;
   const blindBoxInviterReward: ContractDeployed = networkBlindBox?.blindBoxInviterReward;
-  const doFunc: boolean = true;
 
   if (blindBox?.address) {
     const blindBoxQueryClient = new blindBoxContracts.BlindBox.BlindBoxQueryClient(walletData.signingCosmWasmClient, blindBox.address);

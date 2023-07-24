@@ -4,7 +4,7 @@ import { stakingReadArtifact, marketReadArtifact, swapExtentionReadArtifact, con
 import { BnAdd, BnComparedTo, BnDiv, BnMul, BnPow, BnSub, checkAddress, executeContractByWalletData, printChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance, queryWasmContractByWalletData, sendCoinToOtherAddress, sendTokensByWalletData } from "./common";
 import { loadingWalletData } from "./env_data";
 
-import { blindBoxContracts, cdpContracts, cw20BaseContracts, kptContracts, marketContracts, oracleContracts } from "./contracts";
+import { blindBoxContracts, cdpContracts, cw20BaseContracts, kptContracts, marketContracts, oracleContracts } from "@/contracts";
 import Cw20Base = cw20BaseContracts.Cw20Base;
 import { BalanceResponse } from "@/contracts/cw20Base/Cw20Base.types";
 import { coins } from "@cosmjs/stargate";

@@ -19,20 +19,20 @@ async function main(): Promise<void> {
   const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
   const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;
   const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
-
   await printDeployedOracleContracts(networkOracle);
+
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   // // just a few simple tests to make sure the contracts are not failing
   // // for more accurate tests we must use integration-tests repo
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-  const doFunc: boolean = true;
-  const print: boolean = false;
+  const doFunc: boolean = false;
+  const print: boolean = true;
   const oraclePyth = networkOracle?.oraclePyth;
   const mockOracle = networkOracle?.mockOracle;
+
   if (oraclePyth?.address) {
     const oraclePythClient = new oracleContracts.OraclePyth.OraclePythClient(walletData.signingCosmWasmClient, walletData.address, oraclePyth.address);
     const oraclePythQueryClient = new oracleContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, oraclePyth.address);
-
     // const doRes = await oraclePythClient.configFeedInfo({
     //   asset: "usei",
     //   checkFeedAge: true,
@@ -43,18 +43,20 @@ async function main(): Promise<void> {
     // });
     // console.log(`\n  Query oracle.oraclePyth configFeedInfo ok. \n   ${JSON.stringify(doRes)}`);
 
+    const configRes: ConfigResponse = await oraclePythQueryClient.queryConfig();
+    print && console.log(`\n  Query oracle.oraclePyth config ok. \n   ${JSON.stringify(configRes)}`);
+
     if (mockOracle?.address) {
-      // const mockOracleClient = new oracleContracts.MockOracle.MockOracleClient(walletData.signingCosmWasmClient, walletData.address, mockOracle?.address);
-      // const doMockRes = await mockOracleClient.updatePriceFeed({ id: "5bc91f13e412c07599167bae86f07543f076a638962b8d6017ec19dab4a82815", price: 1 });
-      // console.log(`\n  Do oracle.MockOracle updatePriceFeed ok. \n  ${doMockRes?.transactionHash}`);
+      const mockOracleClient = new oracleContracts.MockOracle.MockOracleClient(walletData.signingCosmWasmClient, walletData.address, mockOracle?.address);
+      if (doFunc) {
+        const doMockRes = await mockOracleClient.updatePriceFeed({ id: "5bc91f13e412c07599167bae86f07543f076a638962b8d6017ec19dab4a82815", price: 1 });
+        console.log(`\n  Do oracle.MockOracle updatePriceFeed ok. \n  ${doMockRes?.transactionHash}`);
+      }
 
       const mockOracleQueryClient = new oracleContracts.MockOracle.MockOracleQueryClient(walletData.signingCosmWasmClient, mockOracle.address);
       const priceFeedRes = await mockOracleQueryClient.priceFeed({ id: "5bc91f13e412c07599167bae86f07543f076a638962b8d6017ec19dab4a82815" });
       print && console.log(`\n  Query oracle.oraclePyth configFeedInfo ok. \n   ${JSON.stringify(priceFeedRes)}`);
     }
-
-    const configRes: ConfigResponse = await oraclePythQueryClient.queryConfig();
-    print && console.log(`\n  Query oracle.oraclePyth config ok. \n   ${JSON.stringify(configRes)}`);
 
     if (walletData?.nativeCurrency?.coinMinimalDenom) {
       const feederConfig = await oraclePythQueryClient.queryPythFeederConfig({ asset: walletData?.nativeCurrency?.coinMinimalDenom });

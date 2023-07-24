@@ -4,12 +4,12 @@ import type { ContractDeployed, WalletData } from "@/types";
 import type { ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed } from "@/modules";
 import { queryStakingDelegations, queryAddressBalance, queryStaking, queryStakingParameters, queryWasmContractByWalletData, executeContractByWalletData, printChangeBalancesByWalletData, queryAddressTokenBalance } from "../../common";
 import { loadingWalletData } from "@/env_data";
-import { swapExtentionReadArtifact, stakingReadArtifact, marketReadArtifact, convertReadArtifact, loadingStakingData, cdpReadArtifact, CdpContractsDeployed } from "@/modules";
+import { swapExtentionReadArtifact, stakingReadArtifact, marketReadArtifact, convertReadArtifact, loadingStakingData, cdpReadArtifact, CdpContractsDeployed, printDeployedStakingContracts } from "@/modules";
 
 main().catch(console.error);
 
 async function main(): Promise<void> {
-  console.log(`--- --- verify deployed staking contracts enter --- ---`);
+  console.log(`\n  --- --- verify deployed staking contracts enter --- ---`);
 
   const walletData = await loadingWalletData();
 
@@ -22,13 +22,19 @@ async function main(): Promise<void> {
 
   const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(networkStaking);
   if (!hub?.address || !reward?.address || !bSeiToken?.address || !rewardsDispatcher?.address || !validatorsRegistry?.address || !stSeiToken?.address) {
-    console.error(`--- --- verify deployed error, missing some deployed address info --- ---`);
+    console.error(`\n  --- --- verify deployed error, missing some deployed address info --- ---`);
     process.exit(0);
     return;
   }
+  await printDeployedStakingContracts(networkStaking);
+  console.log(`  stable_coin_denom: ${stable_coin_denom}`)
 
-  // //just a few simple tests to make sure the contracts are not failing
-  // //for more accurate tests we must use integration-tests repo
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // // just a few simple tests to make sure the contracts are not failing
+  // // for more accurate tests we must use integration-tests repo
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  const doFunc: boolean = false;
+  const print: boolean = true;
 
   await queryHubConfig(walletData, hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken);
 
@@ -36,7 +42,7 @@ async function main(): Promise<void> {
   let address1UseiBalance = walletData.addressesBalances.find(v => walletData.address === v?.address && walletData.nativeCurrency.coinMinimalDenom === v?.balance?.denom)?.balance?.amount;
 
   if (Number(address1UseiBalance) < 4000000) {
-    console.error("********** ********** wallet native balance insufficient 4_000_000. balance: " + address1UseiBalance);
+    console.error("********* ********* wallet native balance insufficient 4_000_000. balance: " + address1UseiBalance);
     process.exit(0);
     return;
   }
@@ -53,12 +59,9 @@ async function main(): Promise<void> {
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  console.log();
-  console.log(`--- --- verify deployed staking contracts end --- ---`);
+  console.log(`\n  --- --- verify deployed staking contracts end --- ---`);
 
-  console.log();
   await printChangeBalancesByWalletData(walletData);
-  console.log();
 }
 
 async function queryHubConfig(walletData: WalletData, hub: ContractDeployed, reward: ContractDeployed, bSeiToken: ContractDeployed, rewardsDispatcher: ContractDeployed, validatorsRegistry: ContractDeployed, stSeiToken: ContractDeployed): Promise<any> {
@@ -67,8 +70,7 @@ async function queryHubConfig(walletData: WalletData, hub: ContractDeployed, rew
     return;
   }
 
-  console.log();
-  console.log("Query hub.address config enter");
+  console.log(`\n  Query hub.address config enter`);
   const hubConfigRes = await queryWasmContractByWalletData(walletData, hub.address, { config: {} });
   console.log(`Query hub.address config ok.: \n  ${JSON.stringify(hubConfigRes)}`);
   console.log(
@@ -84,16 +86,13 @@ async function doHubBondForStsei(walletData: WalletData, nativeDenom: string, hu
     return;
   }
   if (!amount || new Decimal(amount).comparedTo(0) < 0) {
-    console.log();
-    console.error(`The amount is missing.`);
+    console.error(`\n  ********* The amount is missing.`);
     return;
   }
-  console.log();
-  console.warn(`Do hub.address bond_for_st_sei enter. nativeDenom: ${nativeDenom} / amount: ${amount}`);
+  console.warn(`\n  Do hub.address bond_for_st_sei enter. nativeDenom: ${nativeDenom} / amount: ${amount}`);
   const beforeNativeBalanceRes = await queryAddressBalance(walletData, walletData.address, nativeDenom);
   if (new Decimal(beforeNativeBalanceRes?.amount ?? 0).comparedTo(new Decimal(amount)) < 0) {
-    console.log();
-    console.error(`********* The nativeDenom balance is insufficient. ${amount} but ${beforeNativeBalanceRes?.amount ?? 0}`);
+    console.error(`\n  ********* The nativeDenom balance is insufficient. ${amount} but ${beforeNativeBalanceRes?.amount ?? 0}`);
     return;
   }
   const beforeTokenBalanceRes = await queryAddressTokenBalance(walletData.signingCosmWasmClient, walletData.address, stsei.address);
@@ -113,16 +112,13 @@ async function doHubBondForBsei(walletData: WalletData, nativeDenom: string, hub
     return;
   }
   if (!amount || new Decimal(amount).comparedTo(0) < 0) {
-    console.log();
-    console.error(`The amount is missing.`);
+    console.error(`\n  ********* The amount is missing.`);
     return;
   }
-  console.log();
-  console.log(`Do hub.address bond native coin to bsei enter. nativeDenom: ${nativeDenom} / amount: ${amount}`);
+  console.log(`\n  Do hub.address bond native coin to bsei enter. nativeDenom: ${nativeDenom} / amount: ${amount}`);
   const beforeNativeBalanceRes = await queryAddressBalance(walletData, walletData.address, nativeDenom);
   if (new Decimal(beforeNativeBalanceRes?.amount ?? 0).comparedTo(new Decimal(amount)) < 0) {
-    console.log();
-    console.error(`********* The nativeDenom balance is insufficient. ${amount} but ${beforeNativeBalanceRes?.amount ?? 0}`);
+    console.error(`\n  ********* The nativeDenom balance is insufficient. ${amount} but ${beforeNativeBalanceRes?.amount ?? 0}`);
     return;
   }
 
@@ -142,16 +138,13 @@ async function doHubUnbondBseiToNative(walletData: WalletData, nativeDenom: stri
     return;
   }
   if (!amount || new Decimal(amount).comparedTo(0) < 0) {
-    console.log();
-    console.error(`The amount is missing.`);
+    console.error(`\n  ********* The amount is missing.`);
     return;
   }
-  console.log();
-  console.log(`Do hub.address unbond bsei to native coin enter. nativeDenom: ${nativeDenom} / amount: ${amount}`);
+  console.log(`\n  Do hub.address unbond bsei to native coin enter. nativeDenom: ${nativeDenom} / amount: ${amount}`);
   const beforeTokenBalanceRes = await queryAddressTokenBalance(walletData.signingCosmWasmClient, walletData.address, btoken.address);
   if (new Decimal(beforeTokenBalanceRes?.balance ?? 0).comparedTo(new Decimal(amount)) < 0) {
-    console.log();
-    console.error(`********* The nativeDenom balance is insufficient. ${amount} but ${beforeTokenBalanceRes?.balance ?? 0}`);
+    console.error(`\n  ********* The nativeDenom balance is insufficient. ${amount} but ${beforeTokenBalanceRes?.balance ?? 0}`);
     return;
   }
   const beforeUnbondRequestRes = await queryWasmContractByWalletData(walletData, hub.address, { unbond_requests: { address: walletData.address } });
@@ -180,14 +173,12 @@ async function doHubWithdrawUnbondedToNative(walletData: WalletData, nativeDenom
   if (!hub?.address) {
     return;
   }
-  console.log();
-  console.log("Do hub.address withdraw unbonded enter");
+  console.log(`\n  Do hub.address withdraw unbonded enter`);
 
   const beforeWithdrawAbleRes = await queryWasmContractByWalletData(walletData, hub.address, { withdrawable_unbonded: { address: walletData.address } });
   console.log(`Query hub.address withdrawable_unbonded ok. address: ${walletData.address} \n  ${JSON.stringify(beforeWithdrawAbleRes)}`);
   if (!beforeWithdrawAbleRes?.["withdrawable"] || new Decimal(beforeWithdrawAbleRes?.["withdrawable"]).comparedTo(0) <= 0) {
-    console.log();
-    console.error(`********* unable to withdraw`);
+    console.error(`\n  ********* unable to withdraw`, beforeWithdrawAbleRes?.["withdrawable"]);
     return;
   }
   const beforeNativeBalanceRes = await queryAddressBalance(walletData, walletData.address, nativeDenom);
@@ -206,17 +197,14 @@ async function doHubUpdateRewards(walletData: WalletData, nativeDenom: string, h
     return;
   }
   if (!amount || new Decimal(amount).comparedTo(0) < 0) {
-    console.log();
-    console.error(`The amount is missing.`);
+    console.error(`\n  ********* The amount is missing.`);
     return;
   }
-  console.log();
-  console.log(`Do hub.address update_global_index enter. nativeDenom: ${nativeDenom} / amount: ${amount}`);
+  console.log(`\n  Do hub.address update_global_index enter. nativeDenom: ${nativeDenom} / amount: ${amount}`);
 
   const beforeRewardsDemonBalanceRes = await queryAddressBalance(walletData, walletData.address, rewardDemon);
   if (new Decimal(beforeRewardsDemonBalanceRes?.amount ?? 0).comparedTo(new Decimal(amount)) < 0) {
-    console.log();
-    console.error(`********* The rewardDemon balance is insufficient. ${amount} but ${beforeRewardsDemonBalanceRes?.amount ?? 0}`);
+    console.error(`\n  ********* The rewardDemon balance is insufficient. ${amount} but ${beforeRewardsDemonBalanceRes?.amount ?? 0}`);
     return;
   }
 
@@ -241,14 +229,12 @@ async function doClaimRewards(walletData: WalletData, nativeDenom: string, rewar
     return;
   }
 
-  console.log();
-  console.log(`Do reward.address claim rewards enter. rewardDemon: ${rewardDemon}`);
+  console.log(`\n  Do reward.address claim rewards enter. rewardDemon: ${rewardDemon}`);
 
   const beforeAccruedRewardsRes = await queryWasmContractByWalletData(walletData, reward.address, { accrued_rewards: { address: walletData.address } });
   console.log(`Query reward.address accrued_rewards ok. address: ${walletData.address} \n  ${JSON.stringify(beforeAccruedRewardsRes)}`);
   if (!beforeAccruedRewardsRes?.["rewards"] || new Decimal(beforeAccruedRewardsRes?.["rewards"]).comparedTo(0) <= 0) {
-    console.log();
-    console.error(`********* unable to claim`);
+    console.error(`\n  ********* unable to claim`, beforeAccruedRewardsRes?.["rewards"]);
     return;
   }
 
@@ -273,23 +259,19 @@ async function doClaimRewards(walletData: WalletData, nativeDenom: string, rewar
 }
 
 async function printMoreInfo(walletData: WalletData, nativeDenom: string, hub: ContractDeployed) {
-  console.log();
-  console.log(`Query staking pool enter`);
+  console.log(`\n  Query staking pool enter`);
   const stakingPoolRes = await queryStaking(walletData.LCD_ENDPOINT);
   console.log(`Query staking pool ok. \n  ${JSON.stringify(stakingPoolRes)}`);
 
-  console.log();
-  console.log(`Query hub.address unbond_requests enter`);
+  console.log(`\n  Query hub.address unbond_requests enter`);
   const hubUnbondRequestRes = await queryWasmContractByWalletData(walletData, hub.address, { unbond_requests: { address: walletData.address } });
   console.log(`Query hub.address unbond_requests ok. \n  ${JSON.stringify(hubUnbondRequestRes)}`);
 
-  console.log();
-  console.log(`Query staking parameter enter`);
+  console.log(`\n  Query staking parameter enter`);
   const stakingParametersRes = await queryStakingParameters(walletData.LCD_ENDPOINT);
   console.log(`Query staking parameter ok. \n  ${JSON.stringify(stakingParametersRes)}`);
 
-  console.log();
-  console.log(`Query hub.address staking delegations enter`);
+  console.log(`\n  Query hub.address staking delegations enter`);
   const stakingDelegationsRes = await queryStakingDelegations(walletData.LCD_ENDPOINT, hub.address, walletData.validator + "/");
   console.log(`Query hub.address staking delegations ok. \n  ${JSON.stringify(stakingDelegationsRes)}`);
 }

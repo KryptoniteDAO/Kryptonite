@@ -3,7 +3,7 @@ import type { ConvertContractsDeployed, MarketContractsDeployed, StakingContract
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
 import { swapExtentionConfigs, swapExtentionReadArtifact } from "./index";
-import { stakingReadArtifact, marketReadArtifact, convertReadArtifact } from "@/modules";
+import {stakingReadArtifact, marketReadArtifact, convertReadArtifact, printDeployedSwapContracts} from "@/modules";
 import { swapExtentionContracts } from "@/contracts";
 
 main().catch(console.error);
@@ -17,11 +17,14 @@ async function main(): Promise<void> {
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
   const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
   const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;
+  await printDeployedSwapContracts(networkSwap);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   // // just a few simple tests to make sure the contracts are not failing
   // // for more accurate tests we must use integration-tests repo
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  const doFunc: boolean = false;
+  const print: boolean = true;
 
   const swapSparrow = networkSwap?.swapSparrow;
   if (!swapSparrow?.address) {
@@ -54,7 +57,7 @@ async function main(): Promise<void> {
   if (swapWhitelistList.length > 0) {
     for (const swapWhitelist of swapWhitelistList) {
       const isSwapWhitelistRes = await swapSparrowQueryClient.queryIsSwapWhitelist({ caller: swapWhitelist?.caller });
-      console.log(`is_swap_whitelist: ${swapWhitelist?.name} / ${swapWhitelist?.caller} / ${isSwapWhitelistRes}`);
+      print && console.log(`is_swap_whitelist: ${swapWhitelist?.name} / ${swapWhitelist?.caller} / ${isSwapWhitelistRes}`);
     }
   }
 
@@ -62,7 +65,7 @@ async function main(): Promise<void> {
   if (chainIdSwapPairConfigList && chainIdSwapPairConfigList.length > 0) {
     for (let pairConfig of chainIdSwapPairConfigList) {
       const configRes = await swapSparrowQueryClient.queryPairConfig({ assetInfos: pairConfig.assetInfos });
-      console.log(`pair config info: pairAddress: ${pairConfig.pairAddress} \n  ${JSON.stringify(configRes)}`);
+      print && console.log(`pair config info: pairAddress: ${pairConfig.pairAddress} \n  ${JSON.stringify(configRes)}`);
     }
   }
 

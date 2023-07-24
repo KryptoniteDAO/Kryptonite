@@ -111,7 +111,7 @@ async function main(): Promise<void> {
           custody = custodyBSei;
         }
         collateralPairConfig.collateral = collateralPairConfig.collateral.replaceAll("%bsei_address%", bSeiToken.address);
-        if (collateralPairConfig.collateral || !collateralPairConfig.collateral.startsWith(walletData.prefix)) {
+        if (!collateralPairConfig.collateral || !collateralPairConfig.collateral.startsWith(walletData.prefix)) {
           continue;
         }
       }

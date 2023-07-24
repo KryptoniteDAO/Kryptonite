@@ -14,14 +14,19 @@ async function main(): Promise<void> {
 
   // const networkKpt = kptReadArtifact(walletData.chainId) as KptContractsDeployed;
   const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
-
   await printDeployedCdpContracts(networkCdp);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // // just a few simple tests to make sure the contracts are not failing
+  // // for more accurate tests we must use integration-tests repo
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  const doFunc: boolean = false;
+  const print: boolean = true;
 
   const cdpCentralControl: ContractDeployed = networkCdp?.cdpCentralControl;
   const cdpStablePool: ContractDeployed = networkCdp?.cdpStablePool;
   const cdpLiquidationQueue: ContractDeployed = networkCdp?.cdpLiquidationQueue;
   const cdpCollateralPairs: CdpCollateralPairsDeployed[] = networkCdp?.cdpCollateralPairs;
-  const doFunc: boolean = true;
 
   if (cdpCentralControl?.address) {
     const centralControlClient = new cdpContracts.CentralControl.CentralControlClient(walletData.signingCosmWasmClient, walletData.address, cdpCentralControl.address);

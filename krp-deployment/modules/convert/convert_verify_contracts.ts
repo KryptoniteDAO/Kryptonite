@@ -3,13 +3,13 @@ import { coins } from "@cosmjs/stargate";
 import type { ContractDeployed, WalletData } from "@/types";
 import type { SwapExtentionContractsDeployed, StakingContractsDeployed, MarketContractsDeployed, ConvertContractsDeployed } from "@/modules";
 import { loadingWalletData } from "@/env_data";
-import { swapExtentionReadArtifact, stakingReadArtifact, convertReadArtifact, marketReadArtifact } from "@/modules";
+import { swapExtentionReadArtifact, stakingReadArtifact, convertReadArtifact, marketReadArtifact, printDeployedConvertContracts } from "@/modules";
 import { executeContractByWalletData, printChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance } from "@/common";
 
 main().catch(console.error);
 
 async function main(): Promise<void> {
-  console.log(`--- --- verify deployed convert contracts enter --- ---`);
+  console.log(`\n  --- --- verify deployed convert contracts enter --- ---`);
 
   const walletData: WalletData = await loadingWalletData();
 
@@ -17,11 +17,14 @@ async function main(): Promise<void> {
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
   const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
   const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;
+  await printDeployedConvertContracts(networkConvert);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   // // just a few simple tests to make sure the contracts are not failing
   // // for more accurate tests we must use integration-tests repo
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  const doFunc: boolean = false;
+  const print: boolean = true;
 
   if (networkConvert?.convertPairs && networkConvert.convertPairs.length > 0) {
     for (let convertPairsNetwork of networkConvert.convertPairs) {
@@ -38,12 +41,9 @@ async function main(): Promise<void> {
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  console.log();
-  console.log(`--- --- verify deployed convert contracts end --- ---`);
+  console.log(`\n  --- --- verify deployed convert contracts end --- ---`);
 
-  console.log();
   await printChangeBalancesByWalletData(walletData);
-  console.log();
 }
 
 /// convert native coin to cw20 token
@@ -52,16 +52,13 @@ async function doConvertNativeToBasset(walletData: WalletData, nativeDenom: stri
     return;
   }
   if (!amount || new Decimal(amount).comparedTo(0) < 0) {
-    console.log();
-    console.error(`The amount is missing.`);
+    console.error(`\n  ********* The amount is missing.`);
     return;
   }
-  console.log();
-  console.log(`Do convert native coin to cw20 token enter. nativeDenom: ${nativeDenom} / amount: ${amount}`);
+  console.log(`\n  Do convert native coin to cw20 token enter. nativeDenom: ${nativeDenom} / amount: ${amount}`);
   const beforeNativeBalanceRes = await queryAddressBalance(walletData, walletData.address, nativeDenom);
   if (new Decimal(beforeNativeBalanceRes?.amount ?? 0).comparedTo(new Decimal(amount)) < 0) {
-    console.log();
-    console.error(`********* The nativeDenom balance is insufficient. ${amount} but ${beforeNativeBalanceRes?.amount ?? 0}`);
+    console.error(`\n  ********* The nativeDenom balance is insufficient. ${amount} but ${beforeNativeBalanceRes?.amount ?? 0}`);
     return;
   }
   const beforeTokenBalanceRes = await queryAddressTokenBalance(walletData.signingCosmWasmClient, walletData.address, btoken.address);
@@ -83,16 +80,13 @@ async function doConvertBassetToNative(walletData: WalletData, nativeDenom: stri
     return;
   }
   if (!amount || new Decimal(amount).comparedTo(0) < 0) {
-    console.log();
-    console.error(`The amount is missing.`);
+    console.error(`\n  ********* The amount is missing.`);
     return;
   }
-  console.log();
-  console.log(`Do convert cw20 token to native coin enter. nativeDenom: ${nativeDenom} / amount: ${amount}`);
+  console.log(`\n  Do convert cw20 token to native coin enter. nativeDenom: ${nativeDenom} / amount: ${amount}`);
   const beforeTokenBalanceRes = await queryAddressTokenBalance(walletData.signingCosmWasmClient, walletData.address, btoken.address);
   if (new Decimal(beforeTokenBalanceRes?.balance ?? 0).comparedTo(new Decimal(amount)) < 0) {
-    console.log();
-    console.error(`********* The nativeDenom balance is insufficient. ${amount} but ${beforeTokenBalanceRes?.balance ?? 0}`);
+    console.error(`\n  ********* The nativeDenom balance is insufficient. ${amount} but ${beforeTokenBalanceRes?.balance ?? 0}`);
     return;
   }
   const beforeNativeBalanceRes = await queryAddressBalance(walletData, walletData.address, nativeDenom);
