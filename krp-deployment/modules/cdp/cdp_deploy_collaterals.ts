@@ -1,16 +1,11 @@
 import type { ContractDeployed, WalletData } from "@/types";
-import type { CdpContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, CdpCollateralPairsConfig, OracleContractsDeployed } from "@/modules";
-import { getStableCoinDenom, printChangeBalancesByWalletData } from "@/common";
+import type { CdpCollateralPairsDeployed, CdpContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, CdpCollateralPairsConfig, OracleContractsDeployed } from "@/modules";
+import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
 import {
   cdpReadArtifact,
-  deployCdpCentralControl,
   deployCdpCustody,
-  deployCdpLiquidationQueue,
-  deployCdpStablePool,
   doCdpCentralControlSetWhitelistCollateral,
-  doCdpCentralControlUpdateConfig,
-  doCdpLiquidationQueueConfig,
   doCdpLiquidationQueueSetWhitelistCollateral,
   printDeployedCdpContracts,
   marketReadArtifact,
@@ -18,10 +13,8 @@ import {
   cdpConfigs,
   oracleReadArtifact,
   writeDeployed,
-  cdpWriteArtifact,
   deployCdpRewardBook,
   doCdpRewardBookUpdateConfig,
-  CdpCollateralPairsDeployed,
   doCdpCustodyUpdateConfig
 } from "@/modules";
 

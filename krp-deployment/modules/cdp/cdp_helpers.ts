@@ -68,7 +68,7 @@ export async function deployCdpStablePool(walletData: WalletData, networkCdp: Cd
   await deployContract(walletData, contractName, networkCdp, undefined, config, { defaultInitMsg, defaultFunds, writeFunc });
 
   if (networkCdp?.cdpStablePool?.address) {
-    networkCdp.stable_coin_denom = getStableCoinDenom(networkCdp?.cdpStablePool?.address);
+    networkCdp.stable_coin_denom = getStableCoinDenom(networkCdp?.cdpStablePool?.address, "kUSD");
     cdpWriteArtifact(networkCdp, walletData.chainId);
   }
 }

@@ -708,9 +708,9 @@ export const sendIbcTokensMsgEncodeObject = (
   ];
 };
 
-export function getStableCoinDenom(cdpStablePoolAddress: string): string {
-  if (!cdpStablePoolAddress) {
+export function getStableCoinDenom(CREATOR_ADDRESS: string, SUBDENOM: string): string {
+  if (!CREATOR_ADDRESS) {
     return "";
   }
-  return `factory/${cdpStablePoolAddress}/kUSD`;
+  return `factory/${CREATOR_ADDRESS}/${SUBDENOM}`;
 }

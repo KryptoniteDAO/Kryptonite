@@ -1,25 +1,8 @@
 import type { WalletData } from "@/types";
-import type { KptContractsDeployed, StakingRewardsPairsContractsDeployed } from "@/modules";
+import type { KptContractsDeployed, StakingRewardsPairsContractsDeployed, CdpContractsDeployed } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
-import {
-  deployStakingRewards,
-  doVeKptSetMinters,
-  kptConfigs,
-  deployKpt,
-  deployKptFund,
-  deployVeKpt,
-  deployVeKptBoost,
-  doKptUpdateConfig,
-  doVeKptUpdateConfig,
-  kptReadArtifact,
-  printDeployedKptContracts,
-  deployKptDistribute,
-  deployKeeper,
-  writeDeployed,
-  cdpReadArtifact,
-  CdpContractsDeployed
-} from "@/modules";
+import { deployStakingRewards, doVeKptSetMinters, kptConfigs, deployKpt, deployKptFund, deployVeKpt, deployVeKptBoost, doKptUpdateConfig, doVeKptUpdateConfig, kptReadArtifact, printDeployedKptContracts, deployKptDistribute, deployKeeper, writeDeployed, cdpReadArtifact } from "@/modules";
 
 main().catch(console.error);
 

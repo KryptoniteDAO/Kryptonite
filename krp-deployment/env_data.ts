@@ -92,8 +92,8 @@ export async function loadingWalletData(loadBalances: boolean = true, denomList:
   const signingCosmWasmClientAmino = await getSigningCosmWasmClient(RPC_ENDPOINT, walletAmino, { gasPrice: gasPrice });
   const signingStargateClientAmino = await getSigningClient(RPC_ENDPOINT, walletAmino, { gasPrice: gasPrice });
 
-  // const wallet2 = privateKey2 ? await DirectSecp256k1Wallet.fromKey(toBeArray(privateKey2), prefix) : await DirectSecp256k1HdWallet.fromMnemonic(mnemonic2, { prefix });
-  const wallet2 = privateKey2 ? await Secp256k1Wallet.fromKey(toBeArray(privateKey2), prefix) : await Secp256k1HdWallet.fromMnemonic(mnemonic2, { prefix });
+  const wallet2 = privateKey2 ? await DirectSecp256k1Wallet.fromKey(toBeArray(privateKey2), prefix) : await DirectSecp256k1HdWallet.fromMnemonic(mnemonic2, { prefix });
+  // const wallet2 = privateKey2 ? await Secp256k1Wallet.fromKey(toBeArray(privateKey2), prefix) : await Secp256k1HdWallet.fromMnemonic(mnemonic2, { prefix });
   const [account2] = await wallet2.getAccounts();
   if (!account2?.address) {
     throw new Error("\n  No account2 found in wallet");

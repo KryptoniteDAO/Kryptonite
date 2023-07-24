@@ -15,7 +15,8 @@ yarn install
 ### Deploy on `testnet`
 
 - Set `validator` address in corresponding config or create new one in configs, see [doc](https://docs.seinetwork.io/develop/get-started#3.-run-a-chain-locally) or [resources](https://docs.sei.io/develop/resources)
-- Set `stable coin denom` in corresponding config or create new one in configs, see [doc](https://docs.seinetwork.io/advanced/tokenfactory)
+
+[//]: # (- Set `stable coin denom` in corresponding config or create new one in configs, see [doc]&#40;https://docs.seinetwork.io/advanced/tokenfactory&#41;)
 
 ##### copy environment variables
 

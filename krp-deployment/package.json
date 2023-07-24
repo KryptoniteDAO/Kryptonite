@@ -36,21 +36,18 @@
     "@cosmjs/stargate": "0.29.5",
     "@cosmjs/tendermint-rpc": "0.29.5",
     "@cosmjs/utils": "0.29.5",
-    "@sei-js/core": "^1.4.0",
-    "@types/bech32": "^1.1.4",
-    "@types/bip32": "^2.0.0",
-    "@types/bip39": "^3.0.0",
+    "@sei-js/core": "^1.4.1",
     "cosmjs-types": "^0.5.2",
     "decimal.js": "^10.4.3",
     "dotenv": "^16.3.1",
-    "ethers": "^6.6.2",
-    "pako": "^2.0.2"
+    "ethers": "^6.6.5",
+    "pako": "^2.1.0"
   },
   "devDependencies": {
-    "@cosmwasm/ts-codegen": "^0.30.1",
+    "@cosmwasm/ts-codegen": "^0.33.0",
     "@types/pako": "^2.0.0",
     "@types/secp256k1": "^4.0.3",
-    "prettier": "^2.8.8",
+    "prettier": "^3.0.0",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.1.6"
