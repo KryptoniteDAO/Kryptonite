@@ -180,8 +180,8 @@
   "stakingRewardsPairs": [
     {
       "name": "SEI/KPT",
-      "staking_token": "sei1gx9fvy0p6uls9n0hmu22yx9u2slg7403dep0492g0dymdqlhnjrsp9fs8l",
-      "pool_address": "sei1dgs47p8fe384pepp4q09fqwxu0xpr99j69d7avhqkfs5vsyzvl2sajz57m",
+      "staking_token": "sei1eth6r2mcfhx9h8a7s99vm6jhmznsxrhz3rymkgeyhsm7rk682rdq08yzla",
+      "pool_address": "sei1e0d0mfgxlmpypf68w4jq2eclk9hc5mcdw8mwurj8rld4yx3qncxsn0q88f",
       "stakingRewards": {
         "admin": null,
         "initMsg": {
@@ -195,23 +195,8 @@
     },
     {
       "name": "USDC/KUSD",
-      "staking_token": "sei10snsks4hpdlm30ylfkgadvdsw8tvwgduwmkvfxaq2e6naf0yl48qyzrhzy",
-      "pool_address": "sei1fqy9cclcs2sl6d47f6zyjayzg9hqn3lmyc9mhsuwsn6m6ezfvdeqm9pe8e",
-      "stakingRewards": {
-        "admin": null,
-        "initMsg": {
-          "reward_controller_addr": null,
-          "duration": "2592000"
-        },
-        "label": "stakingRewards",
-        "filePath": "../krp-token-contracts/artifacts/staking_rewards.wasm",
-        "deploy": false
-      }
-    },
-    {
-      "name": "SEI/kUSD",
-      "staking_token": "sei1eth6r2mcfhx9h8a7s99vm6jhmznsxrhz3rymkgeyhsm7rk682rdq08yzla",
-      "pool_address": "sei1e0d0mfgxlmpypf68w4jq2eclk9hc5mcdw8mwurj8rld4yx3qncxsn0q88f",
+      "staking_token": "sei19ltvsqy0ksyxqtv5e7ft5aej6qqldfekw65e9yrtmhmkpvjj64aqaccdv9",
+      "pool_address": "sei14ey0dw3saseas26v0mr3rskq8f9tqjam7nxjxs2wupmp9qpdtxcqm7ar40",
       "stakingRewards": {
         "admin": null,
         "initMsg": {

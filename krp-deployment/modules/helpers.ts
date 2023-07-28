@@ -1,4 +1,4 @@
-import type { CdpContractsDeployed, StakingRewardsPairsContractsDeployed, ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, KptContractsDeployed, SwapExtentionContractsDeployed, OracleContractsDeployed } from "@/modules";
+import type { CdpContractsDeployed, StakingRewardsPairsContractsDeployed, ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, KptContractsDeployed, SwapExtentionContractsDeployed, OracleContractsDeployed, BlindBoxContractsDeployed } from "@/modules";
 import {
   stakingReadArtifact,
   marketReadArtifact,
@@ -14,13 +14,14 @@ import {
   STAKING_MODULE_NAME,
   MARKET_MODULE_NAME,
   CONVERT_MODULE_NAME,
-  KPT_MODULE_NAME
+  KPT_MODULE_NAME,
+  blindBoxReadArtifact, BLIND_BOX_MODULE_NAME
 } from "@/modules";
 import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
-import { BnComparedTo, BnDiv, BnFormat, BnMul, executeContractByWalletData, queryAddressBalance, toEncodedBinary, writeArtifact } from "@/common";
+import { BnComparedTo, BnDiv, BnFormat, BnMul, queryAddressBalance, toEncodedBinary, writeArtifact } from "@/common";
 import { ContractDeployed, WalletData } from "@/types";
 import { cdpContracts, cw20BaseContracts, oracleContracts, stakingContracts } from "@/contracts";
-import { coins } from "@cosmjs/stargate";
+
 require("dotenv").config();
 
 export async function writeDeployed({ chainId, writeAble = true, print = false }: { chainId?: string; writeAble?: boolean; print?: boolean }): Promise<void> {
@@ -29,11 +30,13 @@ export async function writeDeployed({ chainId, writeAble = true, print = false }
 
   const networkSwap = swapExtentionReadArtifact(chainId) as SwapExtentionContractsDeployed;
   const networkOracle = oracleReadArtifact(chainId) as OracleContractsDeployed;
+  const networkCdp = cdpReadArtifact(chainId) as CdpContractsDeployed;
+  const stable_coin_denom: string | undefined = networkCdp?.stable_coin_denom;
+  const networkKpt = kptReadArtifact(chainId) as KptContractsDeployed;
   const networkStaking = stakingReadArtifact(chainId) as StakingContractsDeployed;
   const networkMarket = marketReadArtifact(chainId) as MarketContractsDeployed;
   const networkConvert = convertReadArtifact(chainId) as ConvertContractsDeployed;
-  const networkKpt = kptReadArtifact(chainId) as KptContractsDeployed;
-  const networkCdp = cdpReadArtifact(chainId) as CdpContractsDeployed;
+  const networkBlindBox = blindBoxReadArtifact(chainId) as BlindBoxContractsDeployed;
 
   print && console.log();
   print && console.log(`hubContractAddress: "${networkStaking?.hub?.address}",`);
@@ -140,11 +143,12 @@ export async function writeDeployed({ chainId, writeAble = true, print = false }
       {
         [SWAP_EXTENSION_MODULE_NAME]: networkSwap,
         [ORACLE_MODULE_NAME]: networkOracle,
+        [CDP_MODULE_NAME]: networkCdp,
+        [KPT_MODULE_NAME]: networkKpt,
         [STAKING_MODULE_NAME]: networkStaking,
         [MARKET_MODULE_NAME]: networkMarket,
         [CONVERT_MODULE_NAME]: networkConvert,
-        [KPT_MODULE_NAME]: networkKpt,
-        [CDP_MODULE_NAME]: networkCdp,
+        [BLIND_BOX_MODULE_NAME]: networkBlindBox,
         btokens: bassets,
         earnCoins: earnCoins,
         earnLps: earnLps,

@@ -1,0 +1,278 @@
+{
+  "swap-extention": {
+    "swapSparrow": {
+      "codeId": 1918,
+      "address": "sei1s8l6rpmmwr0gec72eclc892t4xlh37hax43ygkdkcv6v4k9zp87s87zx5y"
+    }
+  },
+  "oracle": {
+    "oraclePyth": {
+      "codeId": 1919,
+      "address": "sei12tqxm7djmhs8h70rwkawr9pwcewwfqrf9923xrzmy9z3yhfg8nts9ns8yc"
+    }
+  },
+  "cdp": {
+    "cdpCentralControl": {
+      "codeId": 1961,
+      "address": "sei13hdl0x5rgtu9j9hdnhlh3cwn4mzsudsh83zw5k8yyznr4g5myxgs8wds3f"
+    },
+    "cdpStablePool": {
+      "codeId": 1962,
+      "address": "sei1kmrnnc7230e6ha2hcl5h6guwwcch298p057rw85vkfhuk6wjwe5sv4hqx6"
+    },
+    "stable_coin_denom": "factory/sei1kmrnnc7230e6ha2hcl5h6guwwcch298p057rw85vkfhuk6wjwe5sv4hqx6/kUSD",
+    "cdpLiquidationQueue": {
+      "codeId": 1963,
+      "address": "sei1907nep6zf04k0ghpjmszx6uzljh0c4w86u4mzygpl3t9lf3c34yqxsey6t"
+    },
+    "cdpCollateralPairs": [
+      {
+        "name": "bSEI",
+        "collateral": "sei1ujeldpl0gfgaz5y0ktepdmprrwq5ny5mzp5uaxg7dqur6r5ym9nq6j4gnt",
+        "rewardBook": {
+          "codeId": 1990,
+          "address": "sei1d70uk0y33e9dfrnkfr8a2egt0ugvgaxrcd2p0nax6dwyzd0sl8jqfzzyv4"
+        },
+        "custody": {
+          "codeId": 1991,
+          "address": "sei13j825hglqt4fzd4jrss7q9ljcfkjwkm86t34vd8qt8enp26jpfzqxelm2d"
+        }
+      },
+      {
+        "name": "stSEI",
+        "collateral": "sei1yc0z2v4gxm59yswty5935qw0t7mgju594xkg4lysnzcrz3c6qkxs928hn2",
+        "rewardBook": {
+          "codeId": 1992,
+          "address": "sei1zh47cpvz29ylszw6tmhj2mxupynha9qyxanp6mt6jne558p84wwswphcwh"
+        },
+        "custody": {
+          "codeId": 1993,
+          "address": "sei1nc6uh924czljhkfyu3l2gaul4jjg66d7743ky7avenzlnhevck7smngy48"
+        }
+      }
+    ]
+  },
+  "kpt": {
+    "kpt": {
+      "address": "sei1chjhkfkkzhmdu3q3vrurmdm6qalyduvnn0tqkmduy3vqpw7chfcsw4ennj"
+    },
+    "kptDistribute": {
+      "address": "sei1hv323zzsxprczf8um7uqmhfwgu9nvwfx2zum0uesajw8d6526kpsnmzckp"
+    },
+    "veKpt": {
+      "codeId": 1978,
+      "address": "sei1xxdplg4pm9rap77txpghve6lt38j9mx9lln3xfky5ljqd2qkcwqs4g4fy0"
+    },
+    "kptFund": {
+      "codeId": 1979,
+      "address": "sei1a9jvgvswl2gnty7ujxjsk33ekkldwt6dj3lne9qzrl9v94t9vqtsknspq8"
+    },
+    "veKptBoost": {
+      "codeId": 1980,
+      "address": "sei15jtksvzfwpz5u7nuyhr3fjdjh2rz3v8savr573eseec8merkllnq7rcrv9"
+    },
+    "keeper": {
+      "codeId": 1981,
+      "address": "sei1703qfra9xqext69qjyl20lup9ecprnaxjvucw2u3ruy29qayc99sa5uj3y"
+    },
+    "stakingRewardsPairs": [
+      {
+        "name": "SEI/KPT",
+        "staking_token": "sei1eth6r2mcfhx9h8a7s99vm6jhmznsxrhz3rymkgeyhsm7rk682rdq08yzla",
+        "pool_address": "sei1e0d0mfgxlmpypf68w4jq2eclk9hc5mcdw8mwurj8rld4yx3qncxsn0q88f",
+        "stakingRewards": {
+          "codeId": 2067,
+          "address": "sei1fgw0ttpxr034xcqc39jnpe4mw39ygdrtcyy7peudfk8n5k249xgs8fdpxr"
+        }
+      },
+      {
+        "name": "USDC/KUSD",
+        "staking_token": "sei19ltvsqy0ksyxqtv5e7ft5aej6qqldfekw65e9yrtmhmkpvjj64aqaccdv9",
+        "pool_address": "sei14ey0dw3saseas26v0mr3rskq8f9tqjam7nxjxs2wupmp9qpdtxcqm7ar40",
+        "stakingRewards": {
+          "codeId": 2112,
+          "address": "sei1m9puu7z5gnk33m6aee8624c32r2jm85r62zlxju337djautfsfqsk8j29z"
+        }
+      }
+    ]
+  },
+  "staking": {
+    "hub": {
+      "codeId": 1984,
+      "address": "sei1cps7gkulsg4xz7xss4krjjyp68dcw7rcvg6g0kdce67ysvvs7f6sg4rmdh"
+    },
+    "reward": {
+      "codeId": 1985,
+      "address": "sei1q5xr0934k0jk7a8mysd4rmca3j7a5w2p5vnx8jttlwvu40c9xcrqadlwzj"
+    },
+    "bSeiToken": {
+      "codeId": 1986,
+      "address": "sei1ujeldpl0gfgaz5y0ktepdmprrwq5ny5mzp5uaxg7dqur6r5ym9nq6j4gnt"
+    },
+    "rewardsDispatcher": {
+      "codeId": 1987,
+      "address": "sei1c4snp6kekytrda07myft2cd2ua3kurqyguj56sc6hy82xpa27e7qn4r9ml"
+    },
+    "validatorsRegistry": {
+      "codeId": 1988,
+      "address": "sei1yvjfmrf0zht2f7yhkjz2xyfucxcmdhm7eevfk8wut5r6djwnacmsjg0r68"
+    },
+    "stSeiToken": {
+      "codeId": 1989,
+      "address": "sei1yc0z2v4gxm59yswty5935qw0t7mgju594xkg4lysnzcrz3c6qkxs928hn2"
+    }
+  },
+  "market": {
+    "aToken": {
+      "codeId": 2025,
+      "address": "sei1cuwgwa478scfckwma0xdmkssecdad8sw4qvj9ep6zykl68kkagqq49gj27"
+    },
+    "market": {
+      "codeId": 2026,
+      "address": "sei15pktpqq08g47memaj3ppy34luz6ewarpq0l3rf9vq2q9xwcw42xqkqrtvq"
+    },
+    "market_stable_denom": "factory/sei1kmrnnc7230e6ha2hcl5h6guwwcch298p057rw85vkfhuk6wjwe5sv4hqx6/kUSD",
+    "interestModel": {
+      "codeId": 2027,
+      "address": "sei1fsm8pw78hf3ghfk3kajykvh5ash3ae7vz28fqj4s9gp96ctsst8s6kg5j7"
+    },
+    "distributionModel": {
+      "codeId": 2028,
+      "address": "sei1s9d9ewf27kl9hmgure7u6c360qqlj3l3zez3jllz5pxny306uw2qz3rlsn"
+    },
+    "overseer": {
+      "codeId": 2029,
+      "address": "sei1zhx2u7fls44m6pf78fjd8rehnru07s2hhu2t56ktnndwmv8qtzcq0vz2vn"
+    },
+    "liquidationQueue": {
+      "codeId": 2030,
+      "address": "sei18ymtvuegtjfmd38u5yt0u7kam8revwdcsq8kks7q3g2uqce4wdqsxzhx4x"
+    },
+    "custodyBSei": {
+      "codeId": 2031,
+      "address": "sei1td8xfzqw7r88lheaj2706gfxsp26ln2w07qm9h9y7r3uet5hh8cs0hvuwh"
+    }
+  },
+  "convert": {
+    "convertPairs": [
+      {
+        "native_denom": "ibc/326D2E9FFBF7AE39CC404A58DED81054E23F107BC8D926D5D981C0231F1ECD2D",
+        "converter": {
+          "codeId": 2032,
+          "address": "sei1fevhe37tnhffcp7eutfpy8cy3ez6vlczlm64kyka7vjws4ldu4zsmggahm"
+        },
+        "btoken": {
+          "codeId": 2033,
+          "address": "sei1esk5farrhdter90g68peesej93zchleyqdc4l8tdswhx4879dccss6dsls"
+        },
+        "custody": {
+          "codeId": 2034,
+          "address": "sei1ez2492pdresxaakq9nnd9sk70us6gnt0ff3te0nrf7379edf6cusf8vd40"
+        }
+      },
+      {
+        "native_denom": "ibc/53B6183707AF4C744EE26815613D9C4D0DE40E2C18083EA5B384FAF4F6BB0C06",
+        "converter": {
+          "codeId": 2035,
+          "address": "sei1kzajjw2pcw4gm4frsf4u8lsdlhw7m3z6j6y9xk74y5nyx43r7qqslx5llx"
+        },
+        "btoken": {
+          "codeId": 2036,
+          "address": "sei1jfgv4m7vnzvgegklw560cll8gem4427kztyrjryanv5n9rdm9pesgfck7w"
+        },
+        "custody": {
+          "codeId": 2037,
+          "address": "sei14d4403gn7hyjax69zapaenrjfzayqkaw8saz7s8c23q2v43q0kysqhtryn"
+        }
+      }
+    ]
+  },
+  "blind-box": {
+    "blindBox": {
+      "codeId": 2051,
+      "address": "sei1tagp84eeyplspjveyz5yly035gju8t9sathz86ffyjzqk8kkexqsr9t50u"
+    },
+    "blindBoxReward": {
+      "codeId": 2052,
+      "address": "sei1xlql98gc7n9fgf3dqmq6nytrre53ev8d2j3czgthwqpxh60knx0qjltn3s"
+    },
+    "blindBoxInviterReward": {
+      "codeId": 2053,
+      "address": "sei1kqmyfany5expu302gmkkng50k7r00eknx262ren8k00465p6yu5qmwzsay"
+    }
+  },
+  "btokens": [
+    {
+      "name": "SEI/bSEI",
+      "native": "usei",
+      "btoken": "sei1ujeldpl0gfgaz5y0ktepdmprrwq5ny5mzp5uaxg7dqur6r5ym9nq6j4gnt",
+      "convertAddress": "sei1cps7gkulsg4xz7xss4krjjyp68dcw7rcvg6g0kdce67ysvvs7f6sg4rmdh",
+      "custodyAddress": "sei1td8xfzqw7r88lheaj2706gfxsp26ln2w07qm9h9y7r3uet5hh8cs0hvuwh",
+      "class": ""
+    },
+    {
+      "name": "STSEI/bSTSEI",
+      "native": "ibc/326D2E9FFBF7AE39CC404A58DED81054E23F107BC8D926D5D981C0231F1ECD2D",
+      "btoken": "sei1esk5farrhdter90g68peesej93zchleyqdc4l8tdswhx4879dccss6dsls",
+      "convertAddress": "sei1fevhe37tnhffcp7eutfpy8cy3ez6vlczlm64kyka7vjws4ldu4zsmggahm",
+      "custodyAddress": "sei1ez2492pdresxaakq9nnd9sk70us6gnt0ff3te0nrf7379edf6cusf8vd40",
+      "class": "purple"
+    },
+    {
+      "name": "SLSTI/bSLSTI",
+      "native": "ibc/53B6183707AF4C744EE26815613D9C4D0DE40E2C18083EA5B384FAF4F6BB0C06",
+      "btoken": "sei1jfgv4m7vnzvgegklw560cll8gem4427kztyrjryanv5n9rdm9pesgfck7w",
+      "convertAddress": "sei1kzajjw2pcw4gm4frsf4u8lsdlhw7m3z6j6y9xk74y5nyx43r7qqslx5llx",
+      "custodyAddress": "sei14d4403gn7hyjax69zapaenrjfzayqkaw8saz7s8c23q2v43q0kysqhtryn",
+      "class": "pink"
+    }
+  ],
+  "earnCoins": [
+    {
+      "name": "factory/sei1kmrnnc7230e6ha2hcl5h6guwwcch298p057rw85vkfhuk6wjwe5sv4hqx6/kUSD",
+      "native": "factory/sei1kmrnnc7230e6ha2hcl5h6guwwcch298p057rw85vkfhuk6wjwe5sv4hqx6/kUSD",
+      "marketAddress": "sei15pktpqq08g47memaj3ppy34luz6ewarpq0l3rf9vq2q9xwcw42xqkqrtvq",
+      "atokenAddress": "sei1cuwgwa478scfckwma0xdmkssecdad8sw4qvj9ep6zykl68kkagqq49gj27"
+    }
+  ],
+  "earnLps": [
+    {
+      "name": "SEI/KPT",
+      "lp_token": "sei1eth6r2mcfhx9h8a7s99vm6jhmznsxrhz3rymkgeyhsm7rk682rdq08yzla",
+      "staking_contract": "sei1fgw0ttpxr034xcqc39jnpe4mw39ygdrtcyy7peudfk8n5k249xgs8fdpxr",
+      "pair_contract": "sei1e0d0mfgxlmpypf68w4jq2eclk9hc5mcdw8mwurj8rld4yx3qncxsn0q88f"
+    },
+    {
+      "name": "USDC/KUSD",
+      "lp_token": "sei19ltvsqy0ksyxqtv5e7ft5aej6qqldfekw65e9yrtmhmkpvjj64aqaccdv9",
+      "staking_contract": "sei1m9puu7z5gnk33m6aee8624c32r2jm85r62zlxju337djautfsfqsk8j29z",
+      "pair_contract": "sei14ey0dw3saseas26v0mr3rskq8f9tqjam7nxjxs2wupmp9qpdtxcqm7ar40"
+    }
+  ],
+  "tokenCurrencies": [
+    {
+      "coinType": 1,
+      "coinDenom": "bSEI",
+      "coinMinimalDenom": "sei1ujeldpl0gfgaz5y0ktepdmprrwq5ny5mzp5uaxg7dqur6r5ym9nq6j4gnt",
+      "coinDecimals": 6,
+      "icon": "new URL(\"@/assets/img/luna_min.svg\", import.meta.url).href",
+      "custodyAddress": "sei1td8xfzqw7r88lheaj2706gfxsp26ln2w07qm9h9y7r3uet5hh8cs0hvuwh"
+    },
+    {
+      "coinType": 1,
+      "coinDenom": "bSTSEI",
+      "coinMinimalDenom": "sei1esk5farrhdter90g68peesej93zchleyqdc4l8tdswhx4879dccss6dsls",
+      "coinDecimals": 6,
+      "icon": "new URL(\"@/assets/img/bstsei_normal.svg\", import.meta.url).href",
+      "custodyAddress": "sei1ez2492pdresxaakq9nnd9sk70us6gnt0ff3te0nrf7379edf6cusf8vd40"
+    },
+    {
+      "coinType": 1,
+      "coinDenom": "bSLSTI",
+      "coinMinimalDenom": "sei1jfgv4m7vnzvgegklw560cll8gem4427kztyrjryanv5n9rdm9pesgfck7w",
+      "coinDecimals": 6,
+      "icon": "new URL(\"@/assets/img/slsdi_min.png\", import.meta.url).href",
+      "custodyAddress": "sei14d4403gn7hyjax69zapaenrjfzayqkaw8saz7s8c23q2v43q0kysqhtryn"
+    }
+  ]
+}
