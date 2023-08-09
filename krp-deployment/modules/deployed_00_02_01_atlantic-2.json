@@ -52,22 +52,24 @@
       }
     ]
   },
-  "kpt": {
-    "kpt": {
+  "token": {
+    "seilor": {
+      "codeId": 2191,
       "address": "sei1chjhkfkkzhmdu3q3vrurmdm6qalyduvnn0tqkmduy3vqpw7chfcsw4ennj"
     },
-    "kptDistribute": {
+    "distribute": {
+      "codeId": 1901,
       "address": "sei1hv323zzsxprczf8um7uqmhfwgu9nvwfx2zum0uesajw8d6526kpsnmzckp"
     },
-    "veKpt": {
+    "veSeilor": {
       "codeId": 1978,
       "address": "sei1xxdplg4pm9rap77txpghve6lt38j9mx9lln3xfky5ljqd2qkcwqs4g4fy0"
     },
-    "kptFund": {
+    "fund": {
       "codeId": 1979,
       "address": "sei1a9jvgvswl2gnty7ujxjsk33ekkldwt6dj3lne9qzrl9v94t9vqtsknspq8"
     },
-    "veKptBoost": {
+    "boost": {
       "codeId": 1980,
       "address": "sei15jtksvzfwpz5u7nuyhr3fjdjh2rz3v8savr573eseec8merkllnq7rcrv9"
     },
@@ -75,12 +77,12 @@
       "codeId": 1981,
       "address": "sei1703qfra9xqext69qjyl20lup9ecprnaxjvucw2u3ruy29qayc99sa5uj3y"
     },
-    "stakingRewardsPairs": [
+    "stakingPairs": [
       {
         "name": "SEI/KPT",
         "staking_token": "sei1eth6r2mcfhx9h8a7s99vm6jhmznsxrhz3rymkgeyhsm7rk682rdq08yzla",
         "pool_address": "sei1e0d0mfgxlmpypf68w4jq2eclk9hc5mcdw8mwurj8rld4yx3qncxsn0q88f",
-        "stakingRewards": {
+        "staking": {
           "codeId": 2067,
           "address": "sei1fgw0ttpxr034xcqc39jnpe4mw39ygdrtcyy7peudfk8n5k249xgs8fdpxr"
         }
@@ -89,12 +91,20 @@
         "name": "USDC/KUSD",
         "staking_token": "sei19ltvsqy0ksyxqtv5e7ft5aej6qqldfekw65e9yrtmhmkpvjj64aqaccdv9",
         "pool_address": "sei14ey0dw3saseas26v0mr3rskq8f9tqjam7nxjxs2wupmp9qpdtxcqm7ar40",
-        "stakingRewards": {
+        "staking": {
           "codeId": 2112,
           "address": "sei1m9puu7z5gnk33m6aee8624c32r2jm85r62zlxju337djautfsfqsk8j29z"
         }
       }
-    ]
+    ],
+    "dispatcher": {
+      "codeId": 2285,
+      "address": "sei1uxvuagzcd37zumeq4sx2rchny5ad5l0hrv66wupmwtl2u9h8w2wsps5fpv"
+    },
+    "treasure": {
+      "codeId": 2286,
+      "address": "sei1zqwkh6kjfgv2px3974klvywc3t9vqpx8aupd9ckvg08m3z2xmgks3jlsv6"
+    }
   },
   "staking": {
     "hub": {
@@ -186,20 +196,6 @@
         }
       }
     ]
-  },
-  "blind-box": {
-    "blindBox": {
-      "codeId": 2051,
-      "address": "sei1tagp84eeyplspjveyz5yly035gju8t9sathz86ffyjzqk8kkexqsr9t50u"
-    },
-    "blindBoxReward": {
-      "codeId": 2052,
-      "address": "sei1xlql98gc7n9fgf3dqmq6nytrre53ev8d2j3czgthwqpxh60knx0qjltn3s"
-    },
-    "blindBoxInviterReward": {
-      "codeId": 2053,
-      "address": "sei1kqmyfany5expu302gmkkng50k7r00eknx262ren8k00465p6yu5qmwzsay"
-    }
   },
   "btokens": [
     {
