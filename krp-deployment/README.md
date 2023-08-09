@@ -32,23 +32,21 @@ contracts modules:
 - staking
 - market
 - convert
-- kpt
+- seilor
 - cdp
-- blindBox
 
-**Deployment contracts modules order: `swap` -> `oracle` -> `cdp` -> `kpt` -> `staking` -> `cdp:collaterals` -> `market` -> `convert` -> `blindBox`**
+**Deployment contracts modules order: `swap` -> `oracle` -> `cdp` -> `seilor` -> `staking` -> `cdp:collaterals` -> `market` -> `convert`**
 
 ```sh
 # npm run deploy:[contracts modules]
 npm run deploy:swap
 npm run deploy:oracle
 npm run deploy:cdp
-npm run deploy:kpt
+npm run deploy:seilor
 npm run deploy:staking
 npm run deploy:cdp:collaterals
 npm run deploy:market
 npm run deploy:convert
-npm run deploy:blindBox
 ...
 
 ```
@@ -62,11 +60,10 @@ just a few simple tests to make sure the contracts are not failing
 npm run verify:swap
 npm run verify:oracle
 npm run verify:cdp
-npm run verify:kpt
+npm run verify:seilor
 npm run verify:staking
 npm run verify:market
 npm run verify:convert
-npm run verify:blindBox
 ...
 
 ```
