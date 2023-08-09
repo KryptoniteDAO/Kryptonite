@@ -56,9 +56,9 @@ async function main(): Promise<void> {
 
   if (convertConfigs?.convertPairs && convertConfigs.convertPairs.length > 0) {
     for (const convertPair of convertConfigs.convertPairs) {
-      await deployConverter(walletData, networkConvert, convertPair.native_denom);
-      await deployBtoken(walletData, networkConvert, convertPair.native_denom);
-      await deployCustody(walletData, networkConvert, convertPair.native_denom, reward, market, overseer, liquidationQueue, swapSparrow, stable_coin_denom);
+      await deployConverter(walletData, networkConvert, convertPair.native_denom, convertPair?.name);
+      await deployBtoken(walletData, networkConvert, convertPair.native_denom, convertPair?.name);
+      await deployCustody(walletData, networkConvert, convertPair.native_denom, convertPair?.name, reward, market, overseer, liquidationQueue, swapSparrow, stable_coin_denom);
     }
   }
   await writeDeployed({});

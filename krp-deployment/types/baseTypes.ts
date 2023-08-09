@@ -4,6 +4,8 @@ import type { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 import type { Secp256k1Wallet, Secp256k1HdWallet } from "@cosmjs/amino";
 
 export type Addr = string;
+export type Uint128 = string;
+export type Binary = string;
 export type TokenAssetInfo = {
   token: {
     contract_addr: Addr;
@@ -15,10 +17,11 @@ export type NativeAssetInfo = {
   };
 };
 export type AssetInfo = TokenAssetInfo | NativeAssetInfo;
-export type Uint128 = string;
+
 export interface Coin {
   amount: Uint128;
   denom: string;
+
   [k: string]: unknown;
 }
 
@@ -100,6 +103,7 @@ export interface BaseContractConfig {
   address?: Addr;
   filePath?: string;
   deploy?: boolean;
+
   [key: string]: any;
 }
 
@@ -107,3 +111,44 @@ export interface Config {
   readonly validator: Addr;
   // readonly stable_coin_denom: Addr;
 }
+
+export interface Cw20InstantiateMsg {
+  name: string;
+  symbol: string;
+  decimals: number;
+  initial_balances: Cw20Coin[];
+  marketing?: Cw20InstantiateMarketingInfo | null;
+  mint?: Cw20MinterResponse | null;
+}
+
+export interface Cw20Coin {
+  address: Addr;
+  amount: Uint128;
+}
+
+export interface Cw20InstantiateMarketingInfo {
+  description?: string | null;
+  logo?: Cw20Logo | null;
+  marketing?: string | null;
+  project?: string | null;
+}
+
+export interface Cw20MinterResponse {
+  cap?: Uint128 | null;
+  minter: string;
+}
+
+export type Cw20Logo =
+  | {
+      url: string;
+    }
+  | {
+      embedded: Cw20EmbeddedLogo;
+    };
+export type Cw20EmbeddedLogo =
+  | {
+      svg: Binary;
+    }
+  | {
+      png: Binary;
+    };

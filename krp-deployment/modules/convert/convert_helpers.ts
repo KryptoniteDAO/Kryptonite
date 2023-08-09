@@ -20,7 +20,7 @@ export function convertWriteArtifact(networkMarket: ConvertContractsDeployed, ch
   writeArtifact(networkMarket, getConvertDeployFileName(chainId), CONVERT_ARTIFACTS_PATH);
 }
 
-export async function deployConverter(walletData: WalletData, networkConvert: ConvertContractsDeployed, nativeDenom: string): Promise<void> {
+export async function deployConverter(walletData: WalletData, networkConvert: ConvertContractsDeployed, nativeDenom: string, convertPairName: string): Promise<void> {
   const convertPairsConfig: ConvertPairsConfig = convertConfigs?.convertPairs?.find((v: ConvertPairsConfig) => nativeDenom === v.native_denom);
   if (!convertPairsConfig) {
     console.error(`unknown configuration of `, nativeDenom);
@@ -31,7 +31,7 @@ export async function deployConverter(walletData: WalletData, networkConvert: Co
     networkConvert.convertPairs = [];
   }
   if (!convertPairsNetwork) {
-    convertPairsNetwork = { native_denom: nativeDenom };
+    convertPairsNetwork = { name: convertPairName, native_denom: nativeDenom };
     networkConvert.convertPairs.push(convertPairsNetwork);
   }
   if (!convertPairsNetwork?.converter?.address) {
@@ -58,7 +58,7 @@ export async function deployConverter(walletData: WalletData, networkConvert: Co
   }
 }
 
-export async function deployBtoken(walletData: WalletData, networkConvert: ConvertContractsDeployed, nativeDenom: string): Promise<void> {
+export async function deployBtoken(walletData: WalletData, networkConvert: ConvertContractsDeployed, nativeDenom: string, convertPairName: string): Promise<void> {
   const convertPairsConfig: ConvertPairsConfig = convertConfigs?.convertPairs?.find((v: ConvertPairsConfig) => nativeDenom === v.native_denom);
   if (!convertPairsConfig) {
     console.error(`unknown configuration of `, nativeDenom);
@@ -69,7 +69,7 @@ export async function deployBtoken(walletData: WalletData, networkConvert: Conve
     networkConvert.convertPairs = [];
   }
   if (!convertPairsNetwork) {
-    convertPairsNetwork = { native_denom: nativeDenom };
+    convertPairsNetwork = { name: convertPairName, native_denom: nativeDenom };
     networkConvert.convertPairs.push(convertPairsNetwork);
   }
   const converter = convertPairsNetwork?.converter;
@@ -108,6 +108,7 @@ export async function deployCustody(
   walletData: WalletData,
   networkConvert: ConvertContractsDeployed,
   nativeDenom: string,
+  convertPairName: string,
   reward: ContractDeployed,
   market: ContractDeployed,
   overseer: ContractDeployed,
@@ -129,7 +130,7 @@ export async function deployCustody(
     networkConvert.convertPairs = [];
   }
   if (!convertPairsNetwork) {
-    convertPairsNetwork = { native_denom: nativeDenom };
+    convertPairsNetwork = { name: convertPairName, native_denom: nativeDenom };
     networkConvert.convertPairs.push(convertPairsNetwork);
   }
   const btoken = convertPairsNetwork?.btoken;

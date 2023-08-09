@@ -18,13 +18,21 @@ async function main() {
   const walletData: WalletData = await loadingWalletData();
 
   const configs: MigrateConfig[] = [
+
     {
-      codeId: 0,
-      contractAddress: "sei1krnfww9ekuuutq7c6xksdcmhwzvw6cqa7x3a667p4660zlsd04kqwz5vev",
-      filePath: "../krp-staking-contracts/artifacts/basset_sei_token_bsei.wasm",
+      codeId: 2189,
+      contractAddress: "sei1chjhkfkkzhmdu3q3vrurmdm6qalyduvnn0tqkmduy3vqpw7chfcsw4ennj",
+      filePath: "../krp-token-contracts/artifacts/kpt.wasm",
       message: {},
       memo: undefined
     }
+    // {
+    //   codeId: 0,
+    //   contractAddress: "sei1krnfww9ekuuutq7c6xksdcmhwzvw6cqa7x3a667p4660zlsd04kqwz5vev",
+    //   filePath: "../krp-staking-contracts/artifacts/basset_sei_token_bsei.wasm",
+    //   message: {},
+    //   memo: undefined
+    // }
   ];
 
   for (const config of configs) {

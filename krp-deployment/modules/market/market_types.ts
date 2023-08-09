@@ -99,11 +99,9 @@ export interface MarketContractsConfig {
   market: MarketContractConfig;
   interestModel: InterestModelContractConfig;
   distributionModel: DistributionModelContractConfig;
-  // oracle: OracleContractConfig;
   overseer: OverseerContractConfig;
   liquidationQueue: LiquidationQueueContractConfig;
   custodyBSei: CustodyBSeiContractConfig;
-  // oraclePyth: OraclePythContractConfig;
   collateralPairs: CollateralPairsConfig[];
 }
 
@@ -113,9 +111,7 @@ export interface MarketContractsDeployed {
   market_stable_denom?: string;
   interestModel?: ContractDeployed;
   distributionModel?: ContractDeployed;
-  // oracle?: ContractDeployed;
   overseer?: ContractDeployed;
   liquidationQueue?: ContractDeployed;
   custodyBSei?: ContractDeployed;
-  // oraclePyth?: ContractDeployed;
 }

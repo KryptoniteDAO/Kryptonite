@@ -45,6 +45,7 @@ export interface ConvertContractsConfig {
 }
 
 export interface ConvertPairsContractsDeployed {
+  name?: string;
   native_denom?: string;
   converter?: ContractDeployed;
   btoken?: ContractDeployed;

@@ -64,7 +64,6 @@ export interface CdpContractsConfig {
   cdpCentralControl: CdpCentralControlContractConfig;
   cdpStablePool: CdpStablePoolContractConfig;
   cdpLiquidationQueue: CdpLiquidationQueueContractConfig;
-  // cdpCustody: CdpCustodyContractConfig;
   cdpCollateralPairs: CdpCollateralPairsConfig[];
 }
 
@@ -80,6 +79,5 @@ export interface CdpContractsDeployed {
   cdpCentralControl?: ContractDeployed;
   cdpStablePool?: ContractDeployed;
   cdpLiquidationQueue?: ContractDeployed;
-  // cdpCustody?: ContractDeployed;
   cdpCollateralPairs: CdpCollateralPairsDeployed[];
 }
