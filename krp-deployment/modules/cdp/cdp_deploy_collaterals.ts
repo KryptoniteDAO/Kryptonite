@@ -30,7 +30,7 @@ async function main(): Promise<void> {
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
   const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
   // const networkConvert = convertReadArtifact(walletData.chainId) as ConvertDeployContracts;
-  // const networkKpt = kptReadArtifact(walletData.chainId) as KptDeployContracts;
+  // const networkToken = kptReadArtifact(walletData.chainId) as KptDeployContracts;
   const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
 
   console.log(`\n  --- --- cdp contracts storeCode & instantiateContract enter --- ---`);

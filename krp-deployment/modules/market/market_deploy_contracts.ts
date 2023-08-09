@@ -1,5 +1,5 @@
 import type { ContractDeployed, WalletData } from "@/types";
-import type { KptContractsDeployed, CdpContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed, OracleContractsDeployed, CollateralPairsConfig } from "@/modules";
+import type { TokenContractsDeployed, CdpContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed, OracleContractsDeployed, CollateralPairsConfig } from "@/modules";
 import { printChangeBalancesByWalletData, queryContractConfig } from "@/common";
 import { loadingWalletData } from "@/env_data";
 import {
@@ -28,7 +28,7 @@ import {
   writeDeployed,
   checkAndGetStableCoinDemon,
   cdpReadArtifact,
-  kptReadArtifact
+  tokenReadArtifact
 } from "@/modules";
 
 main().catch(console.error);
@@ -41,8 +41,8 @@ async function main(): Promise<void> {
   const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
   const networkOracle = oracleReadArtifact(walletData.chainId) as OracleContractsDeployed;
   const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
-  const stable_coin_denom: string | undefined = networkCdp?.stable_coin_denom;
-  const networkKpt = kptReadArtifact(walletData.chainId) as KptContractsDeployed;
+  const { stable_coin_denom } = networkCdp;
+  const networkToken = tokenReadArtifact(walletData.chainId) as TokenContractsDeployed;
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
   const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
 

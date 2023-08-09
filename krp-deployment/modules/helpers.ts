@@ -1,10 +1,10 @@
-import type { CdpContractsDeployed, StakingRewardsPairsContractsDeployed, ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, KptContractsDeployed, SwapExtentionContractsDeployed, OracleContractsDeployed, BlindBoxContractsDeployed } from "@/modules";
+import type { CdpContractsDeployed, TokenStakingPairsContractsDeployed, ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, TokenContractsDeployed, SwapExtentionContractsDeployed, OracleContractsDeployed } from "@/modules";
 import {
   stakingReadArtifact,
   marketReadArtifact,
   swapExtentionReadArtifact,
   convertReadArtifact,
-  kptReadArtifact,
+  tokenReadArtifact,
   cdpReadArtifact,
   oracleReadArtifact,
   convertConfigs,
@@ -14,8 +14,7 @@ import {
   STAKING_MODULE_NAME,
   MARKET_MODULE_NAME,
   CONVERT_MODULE_NAME,
-  KPT_MODULE_NAME,
-  blindBoxReadArtifact, BLIND_BOX_MODULE_NAME
+  TOKEN_MODULE_NAME
 } from "@/modules";
 import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
 import { BnComparedTo, BnDiv, BnFormat, BnMul, queryAddressBalance, toEncodedBinary, writeArtifact } from "@/common";
@@ -31,12 +30,11 @@ export async function writeDeployed({ chainId, writeAble = true, print = false }
   const networkSwap = swapExtentionReadArtifact(chainId) as SwapExtentionContractsDeployed;
   const networkOracle = oracleReadArtifact(chainId) as OracleContractsDeployed;
   const networkCdp = cdpReadArtifact(chainId) as CdpContractsDeployed;
-  const stable_coin_denom: string | undefined = networkCdp?.stable_coin_denom;
-  const networkKpt = kptReadArtifact(chainId) as KptContractsDeployed;
+  const { stable_coin_denom } = networkCdp;
+  const networkToken = tokenReadArtifact(chainId) as TokenContractsDeployed;
   const networkStaking = stakingReadArtifact(chainId) as StakingContractsDeployed;
   const networkMarket = marketReadArtifact(chainId) as MarketContractsDeployed;
   const networkConvert = convertReadArtifact(chainId) as ConvertContractsDeployed;
-  const networkBlindBox = blindBoxReadArtifact(chainId) as BlindBoxContractsDeployed;
 
   print && console.log();
   print && console.log(`hubContractAddress: "${networkStaking?.hub?.address}",`);
@@ -118,13 +116,13 @@ export async function writeDeployed({ chainId, writeAble = true, print = false }
   }
 
   const earnLps = [];
-  const stakingRewardsPairsNetwork: StakingRewardsPairsContractsDeployed[] | undefined = networkKpt?.stakingRewardsPairs;
+  const stakingRewardsPairsNetwork: TokenStakingPairsContractsDeployed[] | undefined = networkToken?.stakingPairs;
   if (stakingRewardsPairsNetwork) {
     for (const stakingRewardsPairNetwork of stakingRewardsPairsNetwork) {
       const earnLpPairs = {
         name: stakingRewardsPairNetwork?.name,
         lp_token: stakingRewardsPairNetwork?.staking_token,
-        staking_contract: stakingRewardsPairNetwork?.stakingRewards?.address,
+        staking_contract: stakingRewardsPairNetwork?.staking?.address,
         pair_contract: stakingRewardsPairNetwork?.pool_address,
         pair_token: undefined
       };
@@ -144,11 +142,10 @@ export async function writeDeployed({ chainId, writeAble = true, print = false }
         [SWAP_EXTENSION_MODULE_NAME]: networkSwap,
         [ORACLE_MODULE_NAME]: networkOracle,
         [CDP_MODULE_NAME]: networkCdp,
-        [KPT_MODULE_NAME]: networkKpt,
+        [TOKEN_MODULE_NAME]: networkToken,
         [STAKING_MODULE_NAME]: networkStaking,
         [MARKET_MODULE_NAME]: networkMarket,
         [CONVERT_MODULE_NAME]: networkConvert,
-        [BLIND_BOX_MODULE_NAME]: networkBlindBox,
         btokens: bassets,
         earnCoins: earnCoins,
         earnLps: earnLps,

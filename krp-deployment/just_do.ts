@@ -1,14 +1,13 @@
 import type { WalletData } from "./types";
-import type { CdpContractsDeployed, ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, KptContractsDeployed, SwapExtentionContractsDeployed, OracleContractsDeployed, BlindBoxContractsDeployed } from "./modules";
-import { stakingReadArtifact, marketReadArtifact, swapExtentionReadArtifact, convertReadArtifact, kptReadArtifact, cdpReadArtifact, oracleReadArtifact, blindBoxReadArtifact, checkAndGetStableCoinDemon } from "./modules";
+import type { CdpContractsDeployed, ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, TokenContractsDeployed, SwapExtentionContractsDeployed, OracleContractsDeployed } from "./modules";
+import { stakingReadArtifact, marketReadArtifact, swapExtentionReadArtifact, convertReadArtifact, tokenReadArtifact, cdpReadArtifact, oracleReadArtifact, checkAndGetStableCoinDemon } from "./modules";
 import { BnAdd, BnComparedTo, BnDiv, BnMul, BnPow, BnSub, checkAddress, executeContractByWalletData, printChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance, queryWasmContractByWalletData, sendCoinToOtherAddress, sendTokensByWalletData } from "./common";
 import { loadingWalletData } from "./env_data";
 
-import { blindBoxContracts, cdpContracts, cw20BaseContracts, kptContracts, marketContracts, oracleContracts } from "@/contracts";
+import { cdpContracts, cw20BaseContracts, tokenContracts, marketContracts, oracleContracts } from "@/contracts";
 import Cw20Base = cw20BaseContracts.Cw20Base;
 import { BalanceResponse } from "@/contracts/cw20Base/Cw20Base.types";
 import { coins } from "@cosmjs/stargate";
-import { BlindBoxConfigResponse } from "@/contracts/blind-box/BlindBox.types";
 
 main().catch(console.error);
 
@@ -20,12 +19,11 @@ async function main(): Promise<void> {
   const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
   const networkOracle = oracleReadArtifact(walletData.chainId) as OracleContractsDeployed;
   const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
-  const stable_coin_denom: string | undefined = networkCdp?.stable_coin_denom;
-  const networkKpt = kptReadArtifact(walletData.chainId) as KptContractsDeployed;
+  const { stable_coin_denom } = networkCdp;
+  const networkToken = tokenReadArtifact(walletData.chainId) as TokenContractsDeployed;
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
   const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
   const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;
-  const networkBlindBox = blindBoxReadArtifact(walletData.chainId) as BlindBoxContractsDeployed;
   // console.log(checkAddress("factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/usdt", "sei"));
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,18 +58,12 @@ async function main(): Promise<void> {
     const balanceResponse: BalanceResponse = await atokenQueryClient.balance({ address: walletData.address });
     console.log(balanceResponse);
   }
-  if (networkKpt?.kpt?.address) {
-    const kptClient = new Cw20Base.Cw20BaseClient(walletData.signingCosmWasmClient, walletData.address, networkKpt?.kpt?.address);
-    const kptQueryClient = new Cw20Base.Cw20BaseQueryClient(walletData.signingCosmWasmClient, networkKpt?.kpt?.address);
-    const balanceResponse: BalanceResponse = await kptQueryClient.balance({ address: walletData.address });
+  if (networkToken?.seilor?.address) {
+    const seilorClient = new Cw20Base.Cw20BaseClient(walletData.signingCosmWasmClient, walletData.address, networkToken?.seilor?.address);
+    const seilorQueryClient = new Cw20Base.Cw20BaseQueryClient(walletData.signingCosmWasmClient, networkToken?.seilor?.address);
+    const balanceResponse: BalanceResponse = await seilorQueryClient.balance({ address: walletData.address });
     console.log(balanceResponse);
-    // const doRes = await executeContractByWalletData(walletData, networkKpt?.kpt?.address, {
-    //   transfer: {
-    //     amount: "1000000000000",
-    //     recipient: ""
-    //   }
-    // });
-    // const doRes = await kptClient.transfer({ amount: "1000000", recipient: "sei17cylnnnxa92pd6w40y6af78zk3yslr3n8st588" });
+    // const doRes = await seilorClient.transfer({ amount: "1000000", recipient: "sei17cylnnnxa92pd6w40y6af78zk3yslr3n8st588" });
     // console.log(doRes);
   }
 

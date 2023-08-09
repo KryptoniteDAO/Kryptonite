@@ -1,8 +1,8 @@
 import type { ContractDeployed, WalletData } from "@/types";
-import type { CdpCollateralPairsDeployed, CdpContractsDeployed, KptContractsDeployed } from "@/modules";
+import type { CdpCollateralPairsDeployed, CdpContractsDeployed, TokenContractsDeployed } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
-import { kptReadArtifact, cdpReadArtifact, printDeployedCdpContracts } from "@/modules";
+import { tokenReadArtifact, cdpReadArtifact, printDeployedCdpContracts } from "@/modules";
 import { cdpContracts } from "@/contracts";
 
 main().catch(console.error);
@@ -12,7 +12,7 @@ async function main(): Promise<void> {
 
   const walletData: WalletData = await loadingWalletData();
 
-  // const networkKpt = kptReadArtifact(walletData.chainId) as KptContractsDeployed;
+  // const networkToken = kptReadArtifact(walletData.chainId) as KptContractsDeployed;
   const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
   await printDeployedCdpContracts(networkCdp);
 

@@ -1,5 +1,5 @@
 import type { WalletData } from "@/types";
-import type { KptContractsDeployed, OracleContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed } from "@/modules";
+import type { TokenContractsDeployed, OracleContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed } from "@/modules";
 import type { ContractDeployed } from "@/types";
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
@@ -21,7 +21,7 @@ import {
   oracleReadArtifact,
   doOraclePythConfigFeedInfo,
   oracleConfigs,
-  kptReadArtifact,
+  tokenReadArtifact,
   writeDeployed,
   cdpReadArtifact,
   CdpContractsDeployed
@@ -37,8 +37,8 @@ async function main(): Promise<void> {
   const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
   const networkOracle = oracleReadArtifact(walletData.chainId) as OracleContractsDeployed;
   const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
-  const stable_coin_denom: string | undefined = networkCdp?.stable_coin_denom;
-  const networkKpt = kptReadArtifact(walletData.chainId) as KptContractsDeployed;
+  const { stable_coin_denom } = networkCdp;
+  const networkToken = tokenReadArtifact(walletData.chainId) as TokenContractsDeployed;
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
 
   const swapSparrow: ContractDeployed | undefined = networkSwap?.swapSparrow;
@@ -58,7 +58,7 @@ async function main(): Promise<void> {
   await deployHub(walletData, networkStaking, swapSparrow, stable_coin_denom);
   await deployReward(walletData, networkStaking, swapSparrow, stable_coin_denom);
   await deployBSeiToken(walletData, networkStaking);
-  await deployRewardsDispatcher(walletData, networkStaking, swapSparrow, oraclePyth, networkKpt?.keeper?.address, stable_coin_denom);
+  await deployRewardsDispatcher(walletData, networkStaking, swapSparrow, oraclePyth, networkToken?.keeper?.address, stable_coin_denom);
   await deployValidatorsRegistry(walletData, networkStaking);
   await deployStSeiToken(walletData, networkStaking);
   await writeDeployed({});

@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 import {
   CONVERT_MODULE_NAME,
-  KPT_MODULE_NAME,
+  TOKEN_MODULE_NAME,
   MARKET_MODULE_NAME,
   STAKING_MODULE_NAME,
   SWAP_EXTENSION_MODULE_NAME,
@@ -12,10 +12,8 @@ import {
   MARKET_CONTRACTS_PATH,
   CONVERT_CONTRACTS_PATH,
   SWAP_EXTENSION_CONTRACTS_PATH,
-  KPT_CONTRACTS_PATH,
+  TOKEN_CONTRACTS_PATH,
   CDP_CONTRACTS_PATH,
-  BLIND_BOX_CONTRACTS_PATH,
-  BLIND_BOX_MODULE_NAME,
   ORACLE_CONTRACTS_PATH,
   ORACLE_MODULE_NAME
 } from "@/modules";
@@ -53,9 +51,9 @@ async function main(): Promise<void> {
   // modulesMap.set(STAKING_MODULE_NAME, getContractConfigByPath(STAKING_CONTRACTS_PATH));
   // modulesMap.set(MARKET_MODULE_NAME, getContractConfigByPath(MARKET_CONTRACTS_PATH));
   // modulesMap.set(CONVERT_MODULE_NAME, getContractConfigByPath(CONVERT_CONTRACTS_PATH));
-  // modulesMap.set(KPT_MODULE_NAME, getContractConfigByPath(KPT_CONTRACTS_PATH));
+  modulesMap.set(TOKEN_MODULE_NAME, getContractConfigByPath(TOKEN_CONTRACTS_PATH));
   // modulesMap.set(BLIND_BOX_MODULE_NAME, getContractConfigByPath(BLIND_BOX_CONTRACTS_PATH));
-  modulesMap.set(CDP_MODULE_NAME, getContractConfigByPath(CDP_CONTRACTS_PATH));
+  // modulesMap.set(CDP_MODULE_NAME, getContractConfigByPath(CDP_CONTRACTS_PATH));
   /// custom modules - end
 
   if (modulesMap.size <= 0) {

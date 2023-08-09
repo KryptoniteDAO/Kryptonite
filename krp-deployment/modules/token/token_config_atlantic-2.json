@@ -1,37 +1,37 @@
 {
   "kusd_reward_controller": "sei1f53twx2n6p9t379kkv6gmcnhxn03xpppuum8j0",
-  "kpt": {
+  "seilor": {
     "admin": null,
     "initMsg": {
       "cw20_init_msg": {
-        "name": "kryptonite  token",
-        "symbol": "KPT",
+        "name": "kryptonite token",
+        "symbol": "SEILOR",
         "decimals": 6,
         "initial_balances": []
       },
       "max_supply": "1000000000000000"
     },
-    "label": "kpt",
-    "filePath": "../krp-token-contracts/artifacts/kpt.wasm",
+    "label": "seilor",
+    "filePath": "../krp-token-contracts/artifacts/seilor.wasm",
     "deploy": false
   },
-  "veKpt": {
+  "veSeilor": {
     "admin": null,
     "initMsg": {
       "cw20_init_msg": {
         "name": "vest kryptonite token",
-        "symbol": "veKPT",
+        "symbol": "veSEILOR",
         "decimals": 6,
         "initial_balances": []
       },
       "max_supply": "1000000000000000",
       "max_minted": "1000000000000000"
     },
-    "label": "veKpt",
-    "filePath": "../krp-token-contracts/artifacts/ve_kpt.wasm",
+    "label": "veSeilor",
+    "filePath": "../krp-token-contracts/artifacts/ve_seilor.wasm",
     "deploy": false
   },
-  "kptFund": {
+  "fund": {
     "admin": null,
     "initMsg": {
       "kusd_denom": null,
@@ -39,36 +39,72 @@
       "exit_cycle": "2592000",
       "claim_able_time": "1688005462"
     },
-    "label": "kptFund",
-    "filePath": "../krp-token-contracts/artifacts/kpt_fund.wasm",
+    "label": "fund",
+    "filePath": "../krp-token-contracts/artifacts/fund.wasm",
     "deploy": false
   },
-  "veKptBoost": {
+  "boost": {
     "admin": null,
     "initMsg": {
-      "ve_kpt_lock_settings": [
-        { "duration": "2592000", "mining_boost": "20000000" },
-        { "duration": "7776000", "mining_boost": "30000000" },
-        { "duration": "15552000", "mining_boost": "50000000" },
-        { "duration": "31536000", "mining_boost": "100000000" }
+      "ve_seilor_lock_settings": [
+        {
+          "duration": "2592000",
+          "mining_boost": "20000000"
+        },
+        {
+          "duration": "7776000",
+          "mining_boost": "30000000"
+        },
+        {
+          "duration": "15552000",
+          "mining_boost": "50000000"
+        },
+        {
+          "duration": "31536000",
+          "mining_boost": "100000000"
+        }
       ]
     },
-    "label": "veKptBoost",
-    "filePath": "../krp-token-contracts/artifacts/ve_kpt_boost.wasm",
+    "label": "boost",
+    "filePath": "../krp-token-contracts/artifacts/boost.wasm",
     "deploy": false
   },
-  "veKptMiner": {
+  "treasure": {
     "admin": null,
     "initMsg": {
-      "duration": "2592000",
-      "lockdown_period": "43200",
-      "extra_rate": "50000000"
+      "lock_token": null,
+      "punish_receiver": null,
+      "start_time": 1688128677,
+      "end_time": 1690720710,
+      "integral_reward_coefficient": "10",
+      "lock_duration": 2592000,
+      "punish_coefficient": "300000",
+      "mint_nft_cost_integral": "10000000000",
+      "winning_num": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 31, 32, 33, 38, 35, 36, 77, 78, 79, 90, 91, 92, 93, 96],
+      "mod_num": 100
     },
-    "label": "veKptMiner",
-    "filePath": "../krp-token-contracts/artifacts/ve_kpt_miner.wasm",
+    "label": "treasure",
+    "filePath": "../krp-token-contracts/artifacts/treasure.wasm",
     "deploy": false
   },
-  "kptDistribute": {
+  "dispatcher": {
+    "admin": null,
+    "initMsg": {
+      "claim_token": null,
+      "regret_token_receiver": null,
+      "start_time": 1688128677,
+      "end_regret_time": 1690720710,
+      "total_lock_amount": "80000000000000",
+      "total_unlock_amount": "20000000000000",
+      "start_lock_period_time": 1688828677,
+      "duration_per_period": 2592000,
+      "periods": 25
+    },
+    "label": "dispatcher",
+    "filePath": "../krp-token-contracts/artifacts/dispatcher.wasm",
+    "deploy": false
+  },
+  "distribute": {
     "admin": null,
     "initMsg": {
       "total_amount": "1000000000000000",
@@ -163,8 +199,8 @@
         }
       }
     },
-    "label": "kptDistribute",
-    "filePath": "../krp-token-contracts/artifacts/kpt_distribute.wasm",
+    "label": "distribute",
+    "filePath": "../krp-token-contracts/artifacts/distribute.wasm",
     "deploy": false
   },
   "keeper": {
@@ -177,19 +213,19 @@
     "filePath": "../krp-token-contracts/artifacts/keeper.wasm",
     "deploy": false
   },
-  "stakingRewardsPairs": [
+  "stakingPairs": [
     {
-      "name": "SEI/KPT",
+      "name": "SEI/SEILOR",
       "staking_token": "sei1eth6r2mcfhx9h8a7s99vm6jhmznsxrhz3rymkgeyhsm7rk682rdq08yzla",
       "pool_address": "sei1e0d0mfgxlmpypf68w4jq2eclk9hc5mcdw8mwurj8rld4yx3qncxsn0q88f",
-      "stakingRewards": {
+      "staking": {
         "admin": null,
         "initMsg": {
           "reward_controller_addr": null,
           "duration": "2592000"
         },
         "label": "stakingRewards",
-        "filePath": "../krp-token-contracts/artifacts/staking_rewards.wasm",
+        "filePath": "../krp-token-contracts/artifacts/staking.wasm",
         "deploy": false
       }
     },
@@ -197,14 +233,14 @@
       "name": "USDC/KUSD",
       "staking_token": "sei19ltvsqy0ksyxqtv5e7ft5aej6qqldfekw65e9yrtmhmkpvjj64aqaccdv9",
       "pool_address": "sei14ey0dw3saseas26v0mr3rskq8f9tqjam7nxjxs2wupmp9qpdtxcqm7ar40",
-      "stakingRewards": {
+      "staking": {
         "admin": null,
         "initMsg": {
           "reward_controller_addr": null,
           "duration": "2592000"
         },
         "label": "stakingRewards",
-        "filePath": "../krp-token-contracts/artifacts/staking_rewards.wasm",
+        "filePath": "../krp-token-contracts/artifacts/staking.wasm",
         "deploy": false
       }
     }

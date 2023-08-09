@@ -35,7 +35,7 @@ async function main(): Promise<void> {
   const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
   const networkOracle = oracleReadArtifact(walletData.chainId) as OracleContractsDeployed;
   const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
-  const stable_coin_denom: string | undefined = networkCdp?.stable_coin_denom;
+  const { stable_coin_denom } = networkCdp;
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
   const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
   const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;

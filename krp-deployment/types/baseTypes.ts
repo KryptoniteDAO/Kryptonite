@@ -4,7 +4,9 @@ import type { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 import type { Secp256k1Wallet, Secp256k1HdWallet } from "@cosmjs/amino";
 
 export type Addr = string;
+export type Uint64 = string;
 export type Uint128 = string;
+export type Uint256 = string;
 export type Binary = string;
 export type TokenAssetInfo = {
   token: {
