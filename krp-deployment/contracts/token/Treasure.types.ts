@@ -4,20 +4,22 @@
 * and run the @cosmwasm/ts-codegen generate command to regenerate this file.
 */
 
-export type Addr = string;
 export type Uint128 = string;
+export type Addr = string;
 export interface InstantiateMsg {
-  end_time: number;
+  dust_reward_per_second: Uint128;
+  end_lock_time: number;
   gov?: Addr | null;
-  integral_reward_coefficient: Uint128;
-  lock_duration: number;
   lock_token: Addr;
-  mint_nft_cost_integral: Uint128;
+  mint_nft_cost_dust: Uint128;
   mod_num: number;
-  punish_coefficient: Uint128;
+  nft_end_pre_mint_time: number;
+  nft_start_pre_mint_time: number;
+  no_delay_punish_coefficient: Uint128;
   punish_receiver: Addr;
-  start_time: number;
+  start_lock_time: number;
   winning_num: number[];
+  withdraw_delay_duration: number;
 }
 export type ExecuteMsg = {
   receive: Cw20ReceiveMsg;
@@ -25,6 +27,10 @@ export type ExecuteMsg = {
   update_config: TreasureConfigMsg;
 } | {
   user_withdraw: {
+    amount: Uint128;
+  };
+} | {
+  user_unlock: {
     amount: Uint128;
   };
 } | {
@@ -39,106 +45,75 @@ export interface Cw20ReceiveMsg {
   sender: string;
 }
 export interface TreasureConfigMsg {
-  end_time?: number | null;
+  dust_reward_per_second?: Uint128 | null;
+  end_lock_time?: number | null;
   gov?: Addr | null;
-  integral_reward_coefficient?: Uint128 | null;
-  lock_duration?: number | null;
   lock_token?: Addr | null;
-  mint_nft_cost_integral?: Uint128 | null;
+  mint_nft_cost_dust?: Uint128 | null;
   mod_num?: number | null;
-  punish_coefficient?: Uint128 | null;
+  nft_end_pre_mint_time?: number | null;
+  nft_start_pre_mint_time?: number | null;
+  no_delay_punish_coefficient?: Uint128 | null;
   punish_receiver?: Addr | null;
-  start_time?: number | null;
+  start_lock_time?: number | null;
   winning_num?: number[] | null;
+  withdraw_delay_duration?: number | null;
 }
 export type QueryMsg = {
   query_config_infos: {};
 } | {
   query_user_infos: {
-    msg: QueryUserInfosMsg;
+    user: Addr;
   };
 };
-export interface QueryUserInfosMsg {
-  limit?: number | null;
-  query_lock_records: boolean;
-  query_mint_nft_records: boolean;
-  query_user_state: boolean;
-  query_withdraw_records: boolean;
-  start_after?: string | null;
-  user_addr: Addr;
-}
 export interface ConfigInfosResponse {
   config: TreasureConfig;
   state: TreasureState;
 }
 export interface TreasureConfig {
-  end_time: number;
+  dust_reward_per_second: Uint128;
+  end_lock_time: number;
   gov: Addr;
-  integral_reward_coefficient: Uint128;
-  lock_duration: number;
   lock_token: Addr;
-  mint_nft_cost_integral: Uint128;
+  mint_nft_cost_dust: Uint128;
   mod_num: number;
-  punish_coefficient: Uint128;
+  nft_end_pre_mint_time: number;
+  nft_start_pre_mint_time: number;
+  no_delay_punish_coefficient: Uint128;
   punish_receiver: Addr;
-  start_time: number;
+  start_lock_time: number;
   winning_num: number[];
+  withdraw_delay_duration: number;
   [k: string]: unknown;
 }
 export interface TreasureState {
-  current_integral_amount: Uint128;
   current_locked_amount: Uint128;
+  current_unlock_amount: Uint128;
+  total_cost_dust_amount: Uint128;
   total_locked_amount: Uint128;
   total_lose_nft_num: number;
   total_punish_amount: Uint128;
+  total_unlock_amount: Uint128;
   total_win_nft_num: number;
   total_withdraw_amount: Uint128;
   [k: string]: unknown;
 }
 export interface UserInfosResponse {
-  lock_records?: UserLockRecord[] | null;
-  mint_nft_records?: UserMintNftRecord[] | null;
-  user_state?: TreasureUserState | null;
-  withdraw_records?: UserWithdrawRecord[] | null;
-}
-export interface UserLockRecord {
-  end_lock_time: number;
-  integral_reward_coefficient: Uint128;
-  lock_amount: Uint128;
-  lock_duration: number;
-  record_id: number;
-  start_lock_time: number;
-  user_addr: Addr;
-  [k: string]: unknown;
-}
-export interface UserMintNftRecord {
-  mint_nft_cost_integral_amount: Uint128;
-  mint_nft_num: number;
-  mint_time: number;
-  record_id: number;
-  user_addr: Addr;
-  win_nft_num: number;
-  [k: string]: unknown;
+  user_state: TreasureUserState;
 }
 export interface TreasureUserState {
-  current_integral_amount: Uint128;
+  current_dust_amount: Uint128;
   current_locked_amount: Uint128;
-  end_lock_time: number;
+  current_unlock_amount: Uint128;
+  last_lock_time: number;
+  last_unlock_time: number;
   lose_nft_num: number;
-  start_lock_time: number;
-  total_cost_integral_amount: Uint128;
+  total_cost_dust_amount: Uint128;
   total_locked_amount: Uint128;
   total_punish_amount: Uint128;
+  total_unlock_amount: Uint128;
   total_withdraw_amount: Uint128;
   win_nft_num: number;
-  [k: string]: unknown;
-}
-export interface UserWithdrawRecord {
-  punish_amount: Uint128;
-  record_id: number;
-  user_addr: Addr;
-  withdraw_amount: Uint128;
-  withdraw_time: number;
   [k: string]: unknown;
 }
 export type TreasureExecuteMsg = ExecuteMsg;

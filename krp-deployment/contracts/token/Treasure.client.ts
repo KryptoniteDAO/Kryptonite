@@ -6,14 +6,14 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Addr, Uint128, InstantiateMsg, ExecuteMsg, Binary, Cw20ReceiveMsg, TreasureConfigMsg, QueryMsg, QueryUserInfosMsg, ConfigInfosResponse, TreasureConfig, TreasureState, UserInfosResponse, UserLockRecord, UserMintNftRecord, TreasureUserState, UserWithdrawRecord } from "./Treasure.types";
+import { Uint128, Addr, InstantiateMsg, ExecuteMsg, Binary, Cw20ReceiveMsg, TreasureConfigMsg, QueryMsg, ConfigInfosResponse, TreasureConfig, TreasureState, UserInfosResponse, TreasureUserState } from "./Treasure.types";
 export interface TreasureReadOnlyInterface {
   contractAddress: string;
   queryConfigInfos: () => Promise<ConfigInfosResponse>;
   queryUserInfos: ({
-    msg
+    user
   }: {
-    msg: QueryUserInfosMsg;
+    user: Addr;
   }) => Promise<UserInfosResponse>;
 }
 export class TreasureQueryClient implements TreasureReadOnlyInterface {
@@ -33,13 +33,13 @@ export class TreasureQueryClient implements TreasureReadOnlyInterface {
     });
   };
   queryUserInfos = async ({
-    msg
+    user
   }: {
-    msg: QueryUserInfosMsg;
+    user: Addr;
   }): Promise<UserInfosResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       query_user_infos: {
-        msg
+        user
       }
     });
   };
@@ -57,31 +57,40 @@ export interface TreasureInterface {
     sender: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   updateConfig: ({
-    endTime,
+    dustRewardPerSecond,
+    endLockTime,
     gov,
-    integralRewardCoefficient,
-    lockDuration,
     lockToken,
-    mintNftCostIntegral,
+    mintNftCostDust,
     modNum,
-    punishCoefficient,
+    nftEndPreMintTime,
+    nftStartPreMintTime,
+    noDelayPunishCoefficient,
     punishReceiver,
-    startTime,
-    winningNum
+    startLockTime,
+    winningNum,
+    withdrawDelayDuration
   }: {
-    endTime?: number;
+    dustRewardPerSecond?: Uint128;
+    endLockTime?: number;
     gov?: Addr;
-    integralRewardCoefficient?: Uint128;
-    lockDuration?: number;
     lockToken?: Addr;
-    mintNftCostIntegral?: Uint128;
+    mintNftCostDust?: Uint128;
     modNum?: number;
-    punishCoefficient?: Uint128;
+    nftEndPreMintTime?: number;
+    nftStartPreMintTime?: number;
+    noDelayPunishCoefficient?: Uint128;
     punishReceiver?: Addr;
-    startTime?: number;
+    startLockTime?: number;
     winningNum?: number[];
+    withdrawDelayDuration?: number;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   userWithdraw: ({
+    amount
+  }: {
+    amount: Uint128;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  userUnlock: ({
     amount
   }: {
     amount: Uint128;
@@ -104,6 +113,7 @@ export class TreasureClient implements TreasureInterface {
     this.receive = this.receive.bind(this);
     this.updateConfig = this.updateConfig.bind(this);
     this.userWithdraw = this.userWithdraw.bind(this);
+    this.userUnlock = this.userUnlock.bind(this);
     this.preMintNft = this.preMintNft.bind(this);
   }
 
@@ -125,43 +135,49 @@ export class TreasureClient implements TreasureInterface {
     }, fee, memo, _funds);
   };
   updateConfig = async ({
-    endTime,
+    dustRewardPerSecond,
+    endLockTime,
     gov,
-    integralRewardCoefficient,
-    lockDuration,
     lockToken,
-    mintNftCostIntegral,
+    mintNftCostDust,
     modNum,
-    punishCoefficient,
+    nftEndPreMintTime,
+    nftStartPreMintTime,
+    noDelayPunishCoefficient,
     punishReceiver,
-    startTime,
-    winningNum
+    startLockTime,
+    winningNum,
+    withdrawDelayDuration
   }: {
-    endTime?: number;
+    dustRewardPerSecond?: Uint128;
+    endLockTime?: number;
     gov?: Addr;
-    integralRewardCoefficient?: Uint128;
-    lockDuration?: number;
     lockToken?: Addr;
-    mintNftCostIntegral?: Uint128;
+    mintNftCostDust?: Uint128;
     modNum?: number;
-    punishCoefficient?: Uint128;
+    nftEndPreMintTime?: number;
+    nftStartPreMintTime?: number;
+    noDelayPunishCoefficient?: Uint128;
     punishReceiver?: Addr;
-    startTime?: number;
+    startLockTime?: number;
     winningNum?: number[];
+    withdrawDelayDuration?: number;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
-        end_time: endTime,
+        dust_reward_per_second: dustRewardPerSecond,
+        end_lock_time: endLockTime,
         gov,
-        integral_reward_coefficient: integralRewardCoefficient,
-        lock_duration: lockDuration,
         lock_token: lockToken,
-        mint_nft_cost_integral: mintNftCostIntegral,
+        mint_nft_cost_dust: mintNftCostDust,
         mod_num: modNum,
-        punish_coefficient: punishCoefficient,
+        nft_end_pre_mint_time: nftEndPreMintTime,
+        nft_start_pre_mint_time: nftStartPreMintTime,
+        no_delay_punish_coefficient: noDelayPunishCoefficient,
         punish_receiver: punishReceiver,
-        start_time: startTime,
-        winning_num: winningNum
+        start_lock_time: startLockTime,
+        winning_num: winningNum,
+        withdraw_delay_duration: withdrawDelayDuration
       }
     }, fee, memo, _funds);
   };
@@ -172,6 +188,17 @@ export class TreasureClient implements TreasureInterface {
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       user_withdraw: {
+        amount
+      }
+    }, fee, memo, _funds);
+  };
+  userUnlock = async ({
+    amount
+  }: {
+    amount: Uint128;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      user_unlock: {
         amount
       }
     }, fee, memo, _funds);
