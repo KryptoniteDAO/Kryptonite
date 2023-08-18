@@ -32,8 +32,8 @@ import {
 
   await deployTokenSeilor(walletData, networkToken);
   await deployTokenDistribute(walletData, networkToken);
-  await deployTokenDispatcher(walletData, networkToken);
-  await deployTokenTreasure(walletData, networkToken);
+  // await deployTokenDispatcher(walletData, networkToken);
+  // await deployTokenTreasure(walletData, networkToken);
 
   // await deployTokenVeSeilor(walletData, networkToken);
   // await deployTokenFund(walletData, networkToken, stable_coin_denom);

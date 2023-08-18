@@ -1,7 +1,7 @@
 import type { WalletData } from "./types";
 import type { CdpContractsDeployed, ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, TokenContractsDeployed, SwapExtentionContractsDeployed, OracleContractsDeployed } from "./modules";
-import { stakingReadArtifact, marketReadArtifact, swapExtentionReadArtifact, convertReadArtifact, tokenReadArtifact, cdpReadArtifact, oracleReadArtifact, checkAndGetStableCoinDemon } from "./modules";
-import { BnAdd, BnComparedTo, BnDiv, BnMul, BnPow, BnSub, checkAddress, executeContractByWalletData, printChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance, queryWasmContractByWalletData, sendCoinToOtherAddress, sendTokensByWalletData } from "./common";
+import { stakingReadArtifact, marketReadArtifact, swapExtentionReadArtifact, convertReadArtifact, tokenReadArtifact, cdpReadArtifact, oracleReadArtifact, checkAndGetStableCoinDemon, TokenFundContractConfig, tokenConfigs, tokenWriteArtifact } from "./modules";
+import { BnAdd, BnComparedTo, BnDiv, BnMul, BnPow, BnSub, checkAddress, deployContract, executeContractByWalletData, printChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance, queryWasmContractByWalletData, sendCoinToOtherAddress, sendTokensByWalletData } from "./common";
 import { loadingWalletData } from "./env_data";
 
 import { cdpContracts, cw20BaseContracts, tokenContracts, marketContracts, oracleContracts } from "@/contracts";
@@ -29,9 +29,10 @@ async function main(): Promise<void> {
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   // // just do what you want
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // await deployCustom(walletData);
 
-  console.log((await walletData.signingCosmWasmClient.getContract("sei1chjhkfkkzhmdu3q3vrurmdm6qalyduvnn0tqkmduy3vqpw7chfcsw4ennj"))?.codeId);
-  console.log((await walletData.signingCosmWasmClient.getContract("sei1hv323zzsxprczf8um7uqmhfwgu9nvwfx2zum0uesajw8d6526kpsnmzckp"))?.codeId);
+  // console.log((await walletData.signingCosmWasmClient.getContract("sei1chjhkfkkzhmdu3q3vrurmdm6qalyduvnn0tqkmduy3vqpw7chfcsw4ennj"))?.codeId);
+  // console.log((await walletData.signingCosmWasmClient.getContract("sei1hv323zzsxprczf8um7uqmhfwgu9nvwfx2zum0uesajw8d6526kpsnmzckp"))?.codeId);
   // console.log(await queryWasmContractByWalletData(walletData, "sei1pqcgdn5vmf3g9ncs98vtxkydc6su0f9rk3uk73s5ku2xhthr6avswrwnrx", { pair: {} }));
   // console.log(await queryWasmContractByWalletData(walletData, "sei1e0d0mfgxlmpypf68w4jq2eclk9hc5mcdw8mwurj8rld4yx3qncxsn0q88f", { pair: {} }));
   //
@@ -49,6 +50,11 @@ async function main(): Promise<void> {
   // const blocksPerYear = 63_072_000;
   // const blocksPerYear2 = 4656810;
   //
+
+  // const seilorClient = new Cw20Base.Cw20BaseClient(walletData.signingCosmWasmClient, walletData.address, networkToken?.seilor?.address);
+  // const res = await seilorClient.transfer({ amount: "1000000000", recipient: "sei1vjv4wg7lllt32rng08r4r9lhmtu6gyrhvpn4ce556an4htl3klnq5c6gkj" });
+  // console.log(res);
+
   if (networkMarket?.market?.address) {
     // const marketClient = new marketContracts.Market.MarketClient(walletData.signingCosmWasmClient, walletData.address, networkMarket?.market?.address);
     // const marketQueryClient = new marketContracts.Market.MarketQueryClient(walletData.signingCosmWasmClient, networkMarket?.market?.address);
@@ -92,6 +98,20 @@ async function main(): Promise<void> {
 
   await printChangeBalancesByWalletData(walletData);
 }
+
+const deployCustom = async walletData => {
+  const contractName: string = "crossDistribution";
+  const defaultInitMsg = {
+    cross_rule: "sei1mlwyp04y5g95klqzq92tun0xsz7t5sef4h88a3",
+    cross_token: "sei1chjhkfkkzhmdu3q3vrurmdm6qalyduvnn0tqkmduy3vqpw7chfcsw4ennj",
+    fee_receiver: "sei1mlwyp04y5g95klqzq92tun0xsz7t5sef4h88a3",
+    max_cross_amount: "10000000000"
+  };
+  const writeAble = false;
+  const defaultFilePath = "..\\..\\sei-bridge\\artifacts\\cross_distribution.wasm";
+
+  await deployContract(walletData, contractName, {}, { codeId: 2371 }, {}, { defaultFilePath, defaultInitMsg, writeAble });
+};
 
 export type Addr = string;
 export type AssetInfo =
