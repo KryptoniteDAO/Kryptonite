@@ -4,7 +4,7 @@ Kryptonite is a protocol within the Sei ecosystem that encompasses Staking, Stab
 ![image](https://github.com/KryptoniteDAO/Kryptonite/blob/master/res/kpt_architecture_diagram.jpg)
 
 ## krp-staking-contracts
-This module supports SEI bonding as bSEI or stSEI. SEI is used for voting for super nodes within the Seinetwork, generating around 10% APR. The Staking module periodically triggers reward distribution of SEI obtained from the network to users holding bSEI or stSEI. The distinction between bSEI and stSEI lies in the form of rewards. Users holding bSEI receive rewards in the form of stablecoin kUSD, while stSEI holders receive SEI rewards that are compounded by reinvesting in super nodes.
+This module supports SEI bonding as bSEI or stSEI. SEI is used for voting for super nodes within the Sei network, generating around 10% APR. The Staking module periodically triggers reward distribution of SEI obtained from the network to users holding bSEI or stSEI. The distinction between bSEI and stSEI lies in the form of rewards. Users holding bSEI receive rewards in the form of stablecoin kUSD, while stSEI holders receive SEI rewards that are compounded by reinvesting in super nodes.
 
 
 ## krp-market-contracts
