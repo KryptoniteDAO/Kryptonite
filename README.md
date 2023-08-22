@@ -32,6 +32,7 @@ These contracts define the implementation of the Kryptonite platform's token SEI
 ### Seilor Address on Sei Network:
 sei123gd6c6je3nmtjuvesuwhxphtuxgtuu6gu5ck3h5zcn6qqzzmgaqe85df2
 
-
+### Seilor bridge BSC to Sei Network:
+0xa8Ea7FF6443f6D08a690Fa51Ebe76319af1bA23d
 ## swap-extension
-This module abstracts interactions with swaps. Currently, it supports trading pairs from SparrowSwap. In the reward distribution of the Staking module, users holding bSEI will receive kUSD rewards. This module's encapsulated interfaces enable SEI to kUSD conversions within the staking module.
+This module abstracts interactions with swaps. Currently, it supports trading pairs from astroport. In the reward distribution of the Staking module, users holding bSEI will receive kUSD rewards. This module's encapsulated interfaces enable SEI to kUSD conversions within the staking module.
