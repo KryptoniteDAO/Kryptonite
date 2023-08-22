@@ -42,7 +42,7 @@ This module abstracts interactions with swaps. Currently, it supports trading pa
 
 ## What is SEILOR?
 SEILOR is the native token of the Kryptonite Protocol.
-The Kryptonite Protocol is managed by people worldwide who hold its native governance token, SEILOR. veSEILOR holders participate in governance and voting while sharing the protocol's revenue.
+The Kryptonite Protocol is managed by people worldwide who hold its native governance token, SEILOR. veSEILOR holders participate in governance and voting while sharing the protocol's revenue, 1 veSEILOR equals 1 vote
 Where does Kryptonite Protocol's revenue come from?
 Minting and repaying kUSD is free of charge.
 Kryptonite Protocol charges an annual service fee of 1.8% on the total amount of kUSD in circulation. (The service fee accrues every second based on the current actual kUSD circulation.)
