@@ -185,13 +185,13 @@
       "name": "SEI/SEILOR",
       "staking_token": "sei1973hq2vajasc2uvxhdn3kfq27w3cvksyysspnrwq3swyu7t37caq2eana6",
       "pool_address": "",
-      "stakingRewards": {
+      "staking": {
         "admin": null,
         "initMsg": {
           "reward_controller_addr": null,
           "duration": "2592000"
         },
-        "label": "stakingRewards",
+        "label": "staking",
         "filePath": "../krp-token-contracts/artifacts/staking.wasm",
         "deploy": false
       }
@@ -200,13 +200,13 @@
       "name": "kUSD/USDC",
       "staking_token": "sei1e9ac92wc2ahh36ew8mdfvrlgntk8nqtcycc3d7qr4xrn3xuk8h8skngqtt",
       "pool_address": "",
-      "stakingRewards": {
+      "staking": {
         "admin": null,
         "initMsg": {
           "reward_controller_addr": null,
           "duration": "2592000"
         },
-        "label": "stakingRewards",
+        "label": "staking",
         "filePath": "../krp-token-contracts/artifacts/staking.wasm",
         "deploy": false
       }

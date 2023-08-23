@@ -94,7 +94,7 @@ async function main(): Promise<void> {
   if (stakingPairs && stakingPairs.length >= 0) {
     for (let stakingRewardsItem of stakingPairs) {
       if (stakingRewardsItem?.staking?.address) {
-        console.log(`\n  stakingRewards: ${stakingRewardsItem?.staking?.address}`);
+        console.log(`\n  staking: ${stakingRewardsItem?.staking?.address}`);
         const stakingQueryClient = new tokenContracts.Staking.StakingQueryClient(walletData.signingCosmWasmClient, stakingRewardsItem?.staking?.address);
         const configRes: StakingConfigResponse = await stakingQueryClient.queryStakingConfig();
         console.log(`\n  Query ${TOKEN_MODULE_NAME}.staking config ok. staking_token: ${stakingRewardsItem?.staking_token} \n   ${JSON.stringify(configRes)}`);
