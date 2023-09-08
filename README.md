@@ -81,3 +81,7 @@ Rate_{borrow} = Ration_{utilization} * Multipier_{interest} + Rate_{base}
 ```
 The borrow rate equation incentivizes markets to have sufficient liquidity at their equilibrium. An increase in borrow demand is met with higher borrow rates, incentivizing repayments, and restoring market liquidity.
 
+# Bridge
+Our bridge allows Seilor holder to bridge from bep20 to Sei to participate in the Sei ecosystem as well as Kryptonite’s ecosystem. 
+It functions as the following; when users bridge their bep20 Seilor to Sei. It burns the token on BSC, and they receive Seilor on Sei. It’s a one way bridge. 
+Right now Sei’s official canonical bridge is wormhole and official supported assets are very limited.
