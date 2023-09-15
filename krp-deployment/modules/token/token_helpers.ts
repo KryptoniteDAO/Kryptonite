@@ -318,7 +318,7 @@ export async function doTokenVeSeilorUpdateConfig(walletData: WalletData, networ
 }
 
 export async function doVeSeilorSetMinters(walletData: WalletData, veSeilor: ContractDeployed, staking: ContractDeployed, isMinter: boolean, print: boolean = true): Promise<any> {
-  print && console.log(`\n  Do ${TOKEN_MODULE_NAME}.veSeilor setMinters enter. stakingRewards: ${staking?.address}`);
+  print && console.log(`\n  Do ${TOKEN_MODULE_NAME}.veSeilor setMinters enter. staking: ${staking?.address}`);
   if (!veSeilor?.address || !staking?.address) {
     console.error(`\n  ********* missing info!`);
     return;

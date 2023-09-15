@@ -57,7 +57,7 @@ async function main(): Promise<void> {
         const configRes = await custodyQueryClient.config();
         console.log(`\n  Query cdp.custody config ok. collateral: ${cdpCollateralPair?.name} / ${cdpCollateralPair?.collateral} \n  ${JSON.stringify(configRes)}`);
         const stateResponse = await custodyQueryClient.state();
-        console.log(`\n  Query cdp.stakingRewards queryStakingState ok. collateral: ${cdpCollateralPair?.name} / ${cdpCollateralPair?.collateral} \n  ${JSON.stringify(stateResponse)}`);
+        console.log(`\n  Query cdp.custody queryStakingState ok. collateral: ${cdpCollateralPair?.name} / ${cdpCollateralPair?.collateral} \n  ${JSON.stringify(stateResponse)}`);
       }
 
       if (cdpCollateralPair?.rewardBook?.address) {

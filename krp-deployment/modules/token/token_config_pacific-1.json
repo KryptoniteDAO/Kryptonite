@@ -191,7 +191,7 @@
           "reward_controller_addr": null,
           "duration": "2592000"
         },
-        "label": "stakingRewards",
+        "label": "staking",
         "filePath": "../krp-token-contracts/artifacts/staking.wasm",
         "deploy": false
       }
@@ -206,7 +206,7 @@
           "reward_controller_addr": null,
           "duration": "2592000"
         },
-        "label": "stakingRewards",
+        "label": "staking",
         "filePath": "../krp-token-contracts/artifacts/staking.wasm",
         "deploy": false
       }
