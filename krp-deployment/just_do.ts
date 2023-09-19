@@ -1,10 +1,30 @@
+import { getQueryClient } from "@sei-js/core";
+import Decimal from "decimal.js";
+import {ContractDeployed} from "./types";
 import type { WalletData } from "./types";
 import type { CdpContractsDeployed, ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, TokenContractsDeployed, SwapExtentionContractsDeployed, OracleContractsDeployed } from "./modules";
 import { stakingReadArtifact, marketReadArtifact, swapExtentionReadArtifact, convertReadArtifact, tokenReadArtifact, cdpReadArtifact, oracleReadArtifact, checkAndGetStableCoinDemon, TokenFundContractConfig, tokenConfigs, tokenWriteArtifact } from "./modules";
-import { BnAdd, BnComparedTo, BnDiv, BnMul, BnPow, BnSub, checkAddress, deployContract, executeContractByWalletData, printChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance, queryWasmContractByWalletData, sendCoinToOtherAddress, sendTokensByWalletData } from "./common";
+import {
+  BnAdd,
+  BnComparedTo,
+  BnDiv,
+  BnMul,
+  BnPow,
+  BnSub,
+  checkAddress,
+  deployContract,
+  executeContractByWalletData,
+  printChangeBalancesByWalletData,
+  queryAddressBalance,
+  queryAddressTokenBalance,
+  queryWasmContractByWalletData,
+  sendCoinToOtherAddress,
+  sendTokensByWalletData,
+  sleep
+} from "./common";
 import { loadingWalletData } from "./env_data";
 
-import { cdpContracts, cw20BaseContracts, tokenContracts, marketContracts, oracleContracts } from "@/contracts";
+import { cdpContracts, cw20BaseContracts, tokenContracts, marketContracts, oracleContracts, stakingContracts } from "@/contracts";
 import Cw20Base = cw20BaseContracts.Cw20Base;
 import { BalanceResponse } from "@/contracts/cw20Base/Cw20Base.types";
 import { coins } from "@cosmjs/stargate";
@@ -54,6 +74,27 @@ async function main(): Promise<void> {
   // const seilorClient = new Cw20Base.Cw20BaseClient(walletData.signingCosmWasmClient, walletData.address, networkToken?.seilor?.address);
   // const res = await seilorClient.transfer({ amount: "1000000000", recipient: "sei1vjv4wg7lllt32rng08r4r9lhmtu6gyrhvpn4ce556an4htl3klnq5c6gkj" });
   // console.log(res);
+
+  if (networkStaking?.hub?.address) {
+    const hubClient = new stakingContracts.Hub.HubClient(walletData.signingCosmWasmClient, walletData.address, networkStaking?.hub?.address);
+    const hubClient2 = new stakingContracts.Hub.HubClient(walletData.signingCosmWasmClient2, walletData.address2, networkStaking?.hub?.address);
+    const hubQueryClient = new stakingContracts.Hub.HubQueryClient(walletData.signingCosmWasmClient, networkStaking?.hub?.address);
+    console.log(await (await getQueryClient(walletData.LCD_ENDPOINT)).cosmos.staking.v1beta1.params());
+    // console.log(await (await getQueryClient(walletData.LCD_ENDPOINT)).cosmos.staking.v1beta1.historicalInfo({ height: Long.fromInt(10000) }));
+    // console.log(await (await getQueryClient(walletData.LCD_ENDPOINT)).cosmos.staking.v1beta1.historicalInfo({ height: Long.fromInt(10000) }));
+    console.log(await hubQueryClient.parameters());
+    console.log(await hubQueryClient.config());
+
+    // console.log(`bond ------ `, await hubClient2.updateParams({ epochPeriod: 3, unbondingPeriod: 180 }));
+    // console.log(`bond ------ `, await hubClient.bond(1.3, undefined, coins("100000", "usei") as unknown as any));
+    // console.log(`bond ------ `, await hubClient.withdrawUnbonded());
+    // const len:number = 10;
+    // for (let i = 0; i < 10; i++) {
+    //   console.log(`---------------- ${i}`)
+    //   await doHubUnbondBseiToNative(walletData, walletData.nativeCurrency.coinMinimalDenom, networkStaking?.bSeiToken, networkStaking?.hub, "1000");
+    //   await sleep(26000);
+    // }
+  }
 
   if (networkMarket?.market?.address) {
     // const marketClient = new marketContracts.Market.MarketClient(walletData.signingCosmWasmClient, walletData.address, networkMarket?.market?.address);
@@ -247,4 +288,40 @@ function computeApy(depositRate: string, blocksPerYear: number, epochPeriod: num
 
 function computeApr(depositRate: string, blocksPerYear: number): string {
   return BnMul(depositRate ?? "0", blocksPerYear);
+}
+
+async function doHubUnbondBseiToNative(walletData: WalletData, nativeDenom: string, btoken: ContractDeployed, hub: ContractDeployed, amount: string): Promise<void> {
+  if (!btoken?.address || !hub?.address) {
+    return;
+  }
+  if (!amount || new Decimal(amount).comparedTo(0) < 0) {
+    console.error(`\n  ********* The amount is missing.`);
+    return;
+  }
+  console.log(`\n  Do hub.address unbond bsei to native coin enter. nativeDenom: ${nativeDenom} / amount: ${amount}`);
+  const beforeTokenBalanceRes = await queryAddressTokenBalance(walletData.signingCosmWasmClient, walletData.address, btoken.address);
+  if (new Decimal(beforeTokenBalanceRes?.balance ?? 0).comparedTo(new Decimal(amount)) < 0) {
+    console.error(`\n  ********* The nativeDenom balance is insufficient. ${amount} but ${beforeTokenBalanceRes?.balance ?? 0}`);
+    return;
+  }
+  const beforeUnbondRequestRes = await queryWasmContractByWalletData(walletData, hub.address, { unbond_requests: { address: walletData.address } });
+  console.log(`before unbond_requests ok. \n  ${JSON.stringify(beforeUnbondRequestRes)}`);
+  console.log(`before token balance: ${beforeTokenBalanceRes.balance} ${btoken.address}`);
+  const doRes = await executeContractByWalletData(
+    walletData,
+    btoken.address,
+    {
+      send: {
+        contract: hub.address,
+        amount: amount,
+        msg: Buffer.from(JSON.stringify({ unbond: {} })).toString("base64")
+      }
+    },
+    "unbond bsei to native"
+  );
+  console.log(`Do hub.address unbond bsei to native coin ok. \n  ${doRes?.transactionHash}`);
+  const afterTokenBalanceRes = await queryAddressTokenBalance(walletData.signingCosmWasmClient, walletData.address, btoken.address);
+  console.log(`after token balance: ${afterTokenBalanceRes.balance} ${btoken.address}`);
+  const afterUnbondRequestRes = await queryWasmContractByWalletData(walletData, hub.address, { unbond_requests: { address: walletData.address } });
+  console.log(`after unbond_requests ok. \n  ${JSON.stringify(afterUnbondRequestRes)}`);
 }

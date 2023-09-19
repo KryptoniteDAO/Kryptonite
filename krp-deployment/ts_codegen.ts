@@ -138,7 +138,7 @@ export const doCodegen = async (modulesName: string, contracts: ContractConfig[]
       messageComposer: {
         enabled: false
       },
-      msgBuilder: {
+      messageBuilder: {
         enabled: false
       }
     }

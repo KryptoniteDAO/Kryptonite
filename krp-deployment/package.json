@@ -35,20 +35,20 @@
     "@cosmjs/stargate": "0.29.5",
     "@cosmjs/tendermint-rpc": "0.29.5",
     "@cosmjs/utils": "0.29.5",
-    "@sei-js/core": "^1.4.1",
+    "@sei-js/core": "3.0.4",
     "cosmjs-types": "^0.5.2",
     "decimal.js": "^10.4.3",
     "dotenv": "^16.3.1",
-    "ethers": "^6.6.5",
+    "ethers": "^6.7.1",
     "pako": "^2.1.0"
   },
   "devDependencies": {
-    "@cosmwasm/ts-codegen": "^0.33.0",
+    "@cosmwasm/ts-codegen": "^0.35.3",
     "@types/pako": "^2.0.0",
     "@types/secp256k1": "^4.0.3",
-    "prettier": "^3.0.0",
+    "prettier": "^3.0.3",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.1.6"
+    "typescript": "^5.2.2"
   }
 }
