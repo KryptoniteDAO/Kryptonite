@@ -66,7 +66,7 @@ export async function deployTokenFund(walletData: WalletData, networkToken: Toke
     seilor_addr: config?.initMsg?.seilor_addr || seilor.address,
     ve_seilor_addr: config?.initMsg?.ve_seilor_addr || veSeilor.address,
     kusd_denom: config?.initMsg?.kusd_denom || stable_coin_denom,
-    kusd_reward_addr: config?.initMsg?.kusd_reward_addr || tokenConfigs.kusd_reward_controller
+    kusd_reward_addr: config?.initMsg?.kusd_reward_addr || tokenConfigs.kusd_reward_controller || walletData.address
   });
   const writeFunc = tokenWriteArtifact;
 
@@ -187,8 +187,8 @@ export async function deployTokenDispatcher(walletData: WalletData, networkToken
   const config: TokenDispatcherContractConfig | undefined = tokenConfigs?.[contractName];
 
   const defaultInitMsg = Object.assign({}, config?.initMsg ?? {}, {
-    claim_token: config?.initMsg?.claim_token || seilor?.address,
-    regret_token_receiver: config?.initMsg?.regret_token_receiver || tokenConfigs?.kusd_reward_controller || walletData.address
+    claim_token: config?.initMsg?.claim_token || seilor?.address
+    // regret_token_receiver: config?.initMsg?.regret_token_receiver || tokenConfigs?.kusd_reward_controller || walletData.address
   });
   const writeFunc = tokenWriteArtifact;
   // const storeCoreGasLimit = 4_000_000;

@@ -43,17 +43,19 @@ export interface TokenBoostContractConfig extends BaseContractConfig {
 
 export interface TokenTreasureContractConfig extends BaseContractConfig {
   initMsg?: {
-    end_time: number;
+    dust_reward_per_second: Uint128;
+    end_lock_time: number;
     gov?: Addr | null;
-    integral_reward_coefficient: Uint128;
-    lock_duration: number;
-    lock_token: Addr;
-    mint_nft_cost_integral: Uint128;
+    lock_token: Addr | null;
+    mint_nft_cost_dust: Uint128;
     mod_num: number;
-    punish_coefficient: Uint128;
-    punish_receiver: Addr;
-    start_time: number;
+    nft_end_pre_mint_time: number;
+    nft_start_pre_mint_time: number;
+    no_delay_punish_coefficient: Uint128;
+    punish_receiver: Addr | null;
+    start_lock_time: number;
     winning_num: number[];
+    withdraw_delay_duration: number;
   };
 }
 
@@ -101,14 +103,10 @@ export interface TokenDispatcherContractConfig extends BaseContractConfig {
   initMsg?: {
     claim_token: Addr;
     duration_per_period: number;
-    end_regret_time: number;
     gov?: Addr | null;
     periods: number;
-    regret_token_receiver: Addr;
     start_lock_period_time: number;
-    start_time: number;
     total_lock_amount: Uint256;
-    total_unlock_amount: Uint256;
   };
 }
 

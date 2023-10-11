@@ -306,13 +306,13 @@ export async function printDeployedStakingContracts(networkStaking: StakingContr
   console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
 }
 
-export async function addValidator(walletData: WalletData, validatorRegister: ContractDeployed, print: boolean = true): Promise<any> {
+export async function addValidator(walletData: WalletData, validatorRegister: ContractDeployed, validator: string, print: boolean = true): Promise<any> {
   print && console.warn(`\n  Do staking.validatorRegister addValidator enter`);
   if (!validatorRegister?.address) {
     return;
   }
   const validatorsRegistryClient = new stakingContracts.ValidatorsRegistry.ValidatorsRegistryClient(walletData.signingCosmWasmClient, walletData.address, validatorRegister.address);
-  const doRes = await validatorsRegistryClient.addValidator({ validator: { address: walletData.validator } });
+  const doRes = await validatorsRegistryClient.addValidator({ validator: { address: validator } });
 
   print && console.warn(`\n  Do staking.validatorRegister addValidator  ok. \n  ${doRes?.transactionHash}`);
 }
@@ -323,7 +323,7 @@ export async function removeValidator(walletData: WalletData, validatorRegister:
     return;
   }
   const validatorsRegistryClient = new stakingContracts.ValidatorsRegistry.ValidatorsRegistryClient(walletData.signingCosmWasmClient, walletData.address, validatorRegister.address);
-  const doRes = await validatorsRegistryClient.removeValidator({ address: walletData.validator });
+  const doRes = await validatorsRegistryClient.removeValidator({ address: validator });
 
   print && console.warn(`\n  Do staking.validatorRegister removeValidator  ok. \n  ${doRes?.transactionHash}`);
 }
