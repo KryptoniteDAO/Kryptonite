@@ -1,6 +1,6 @@
 import { getQueryClient } from "@sei-js/core";
 import Decimal from "decimal.js";
-import {ContractDeployed} from "./types";
+import { ContractDeployed } from "./types";
 import type { WalletData } from "./types";
 import type { CdpContractsDeployed, ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, TokenContractsDeployed, SwapExtentionContractsDeployed, OracleContractsDeployed } from "./modules";
 import { stakingReadArtifact, marketReadArtifact, swapExtentionReadArtifact, convertReadArtifact, tokenReadArtifact, cdpReadArtifact, oracleReadArtifact, checkAndGetStableCoinDemon, TokenFundContractConfig, tokenConfigs, tokenWriteArtifact } from "./modules";
@@ -14,6 +14,7 @@ import {
   checkAddress,
   deployContract,
   executeContractByWalletData,
+  getClientData2ByWalletData,
   printChangeBalancesByWalletData,
   queryAddressBalance,
   queryAddressTokenBalance,
@@ -51,19 +52,19 @@ async function main(): Promise<void> {
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   // await deployCustom(walletData);
 
-  // console.log((await walletData.signingCosmWasmClient.getContract("sei1chjhkfkkzhmdu3q3vrurmdm6qalyduvnn0tqkmduy3vqpw7chfcsw4ennj"))?.codeId);
-  // console.log((await walletData.signingCosmWasmClient.getContract("sei1hv323zzsxprczf8um7uqmhfwgu9nvwfx2zum0uesajw8d6526kpsnmzckp"))?.codeId);
+  // console.log((await walletData?.activeWallet?.signingCosmWasmClient.getContract("sei1chjhkfkkzhmdu3q3vrurmdm6qalyduvnn0tqkmduy3vqpw7chfcsw4ennj"))?.codeId);
+  // console.log((await walletData?.activeWallet?.signingCosmWasmClient.getContract("sei1hv323zzsxprczf8um7uqmhfwgu9nvwfx2zum0uesajw8d6526kpsnmzckp"))?.codeId);
   // console.log(await queryWasmContractByWalletData(walletData, "sei1pqcgdn5vmf3g9ncs98vtxkydc6su0f9rk3uk73s5ku2xhthr6avswrwnrx", { pair: {} }));
   // console.log(await queryWasmContractByWalletData(walletData, "sei1e0d0mfgxlmpypf68w4jq2eclk9hc5mcdw8mwurj8rld4yx3qncxsn0q88f", { pair: {} }));
   //
-  // const stakingRewardsClient = new kptContracts.StakingRewards.StakingRewardsClient(walletData.signingCosmWasmClient, walletData.address, "sei1fgw0ttpxr034xcqc39jnpe4mw39ygdrtcyy7peudfk8n5k249xgs8fdpxr");
+  // const stakingRewardsClient = new kptContracts.StakingRewards.StakingRewardsClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, "sei1fgw0ttpxr034xcqc39jnpe4mw39ygdrtcyy7peudfk8n5k249xgs8fdpxr");
   // const dRes = await stakingRewardsClient.notifyRewardAmount({amount: "1000000000"})
   // console.log(dRes)
 
   // console.log(await checkAndGetStableCoinDemon(walletData, networkOracle?.oraclePyth, networkCdp?.cdpCentralControl, "1000000"));
-  // const blindBoxClient = new blindBoxContracts.BlindBox.BlindBoxClient(walletData.signingCosmWasmClient, walletData.address, networkBlindBox?.blindBox.address);
+  // const blindBoxClient = new blindBoxContracts.BlindBox.BlindBoxClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, networkBlindBox?.blindBox.address);
   // const doRes = await blindBoxClient.updateConfig({
-  //   receiverPriceAddr: walletData.address
+  //   receiverPriceAddr: walletData?.activeWallet?.address
   // });
   // console.log(`  Do blindBox.blindBox update_config ok. \n  ${doRes?.transactionHash}`);
 
@@ -71,14 +72,15 @@ async function main(): Promise<void> {
   // const blocksPerYear2 = 4656810;
   //
 
-  // const seilorClient = new Cw20Base.Cw20BaseClient(walletData.signingCosmWasmClient, walletData.address, networkToken?.seilor?.address);
+  // const seilorClient = new Cw20Base.Cw20BaseClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, networkToken?.seilor?.address);
   // const res = await seilorClient.transfer({ amount: "1000000000", recipient: "sei1vjv4wg7lllt32rng08r4r9lhmtu6gyrhvpn4ce556an4htl3klnq5c6gkj" });
   // console.log(res);
 
   if (networkStaking?.hub?.address) {
-    const hubClient = new stakingContracts.Hub.HubClient(walletData.signingCosmWasmClient, walletData.address, networkStaking?.hub?.address);
-    const hubClient2 = new stakingContracts.Hub.HubClient(walletData.signingCosmWasmClient2, walletData.address2, networkStaking?.hub?.address);
-    const hubQueryClient = new stakingContracts.Hub.HubQueryClient(walletData.signingCosmWasmClient, networkStaking?.hub?.address);
+    const hubClient = new stakingContracts.Hub.HubClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, networkStaking?.hub?.address);
+    const clientData2 = getClientData2ByWalletData(walletData, 0);
+    const hubClient2 = new stakingContracts.Hub.HubClient(clientData2?.signingCosmWasmClient, clientData2?.senderAddress, networkStaking?.hub?.address);
+    const hubQueryClient = new stakingContracts.Hub.HubQueryClient(walletData?.activeWallet?.signingCosmWasmClient, networkStaking?.hub?.address);
     console.log(await (await getQueryClient(walletData.LCD_ENDPOINT)).cosmos.staking.v1beta1.params());
     // console.log(await (await getQueryClient(walletData.LCD_ENDPOINT)).cosmos.staking.v1beta1.historicalInfo({ height: Long.fromInt(10000) }));
     // console.log(await (await getQueryClient(walletData.LCD_ENDPOINT)).cosmos.staking.v1beta1.historicalInfo({ height: Long.fromInt(10000) }));
@@ -91,36 +93,36 @@ async function main(): Promise<void> {
     // const len:number = 10;
     // for (let i = 0; i < 10; i++) {
     //   console.log(`---------------- ${i}`)
-    //   await doHubUnbondBseiToNative(walletData, walletData.nativeCurrency.coinMinimalDenom, networkStaking?.bSeiToken, networkStaking?.hub, "1000");
+    //   await doHubUnbondBseiToNative(walletData, walletData?.nativeCurrency?.coinMinimalDenom, networkStaking?.bSeiToken, networkStaking?.hub, "1000");
     //   await sleep(26000);
     // }
   }
 
   if (networkMarket?.market?.address) {
-    // const marketClient = new marketContracts.Market.MarketClient(walletData.signingCosmWasmClient, walletData.address, networkMarket?.market?.address);
-    // const marketQueryClient = new marketContracts.Market.MarketQueryClient(walletData.signingCosmWasmClient, networkMarket?.market?.address);
+    // const marketClient = new marketContracts.Market.MarketClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, networkMarket?.market?.address);
+    // const marketQueryClient = new marketContracts.Market.MarketQueryClient(walletData?.activeWallet?.signingCosmWasmClient, networkMarket?.market?.address);
     // let res = await marketClient.depositStable(undefined, undefined, coins(1000000, stable_coin_denom));
     // console.log(res);
 
-    const atokenClient = new Cw20Base.Cw20BaseClient(walletData.signingCosmWasmClient, walletData.address, networkMarket?.aToken?.address);
-    const atokenQueryClient = new Cw20Base.Cw20BaseQueryClient(walletData.signingCosmWasmClient, networkMarket?.aToken?.address);
-    const balanceResponse: BalanceResponse = await atokenQueryClient.balance({ address: walletData.address });
+    const atokenClient = new Cw20Base.Cw20BaseClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, networkMarket?.aToken?.address);
+    const atokenQueryClient = new Cw20Base.Cw20BaseQueryClient(walletData?.activeWallet?.signingCosmWasmClient, networkMarket?.aToken?.address);
+    const balanceResponse: BalanceResponse = await atokenQueryClient.balance({ address: walletData?.activeWallet?.address });
     console.log(balanceResponse);
   }
   if (networkToken?.seilor?.address) {
-    const seilorClient = new Cw20Base.Cw20BaseClient(walletData.signingCosmWasmClient, walletData.address, networkToken?.seilor?.address);
-    const seilorQueryClient = new Cw20Base.Cw20BaseQueryClient(walletData.signingCosmWasmClient, networkToken?.seilor?.address);
-    const balanceResponse: BalanceResponse = await seilorQueryClient.balance({ address: walletData.address });
+    const seilorClient = new Cw20Base.Cw20BaseClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, networkToken?.seilor?.address);
+    const seilorQueryClient = new Cw20Base.Cw20BaseQueryClient(walletData?.activeWallet?.signingCosmWasmClient, networkToken?.seilor?.address);
+    const balanceResponse: BalanceResponse = await seilorQueryClient.balance({ address: walletData?.activeWallet?.address });
     console.log(balanceResponse);
     // const doRes = await seilorClient.transfer({ amount: "1000000", recipient: "sei17cylnnnxa92pd6w40y6af78zk3yslr3n8st588" });
     // console.log(doRes);
   }
 
-  // const oraclePythQueryClient = new oracleContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, networkOracle?.oraclePyth?.address);
+  // const oraclePythQueryClient = new oracleContracts.OraclePyth.OraclePythQueryClient(walletData?.activeWallet?.signingCosmWasmClient, networkOracle?.oraclePyth?.address);
   // const queryRes = await oraclePythQueryClient.queryPrice({asset: stable_coin_denom})
   // // // const queryRes = oraclePythQueryClient.queryPrice({ asset: networkStaking.bSeiToken.address });
   // console.log(queryRes);
-  // const overseerQueryClient = new OverseerQueryClient(walletData.signingCosmWasmClient, networkMarket?.overseer?.address);
+  // const overseerQueryClient = new OverseerQueryClient(walletData?.activeWallet?.signingCosmWasmClient, networkMarket?.overseer?.address);
   // const epochStateRes = await overseerQueryClient.epochState();
   // const epochConfigRes = await overseerQueryClient.config();
   // const dynrateStateRes = await overseerQueryClient.dynrateState();
@@ -221,7 +223,7 @@ const getPairPrice = async (walletData: WalletData, pairToken: string): Promise<
       pairTotalValue = BnAdd(pairTotalValue, asset_value);
       assetDataInfoList.push({ asset_info: assetInfo, price, asset_balance: { balanceRaw, balance }, asset_value });
     } else if (!!assetInfo?.["token"]) {
-      const balanceRaw = (await queryAddressTokenBalance(walletData.signingCosmWasmClient, pairToken, assetInfo?.["token"].contract_addr))?.amount ?? "0";
+      const balanceRaw = (await queryAddressTokenBalance(walletData?.activeWallet?.signingCosmWasmClient, pairToken, assetInfo?.["token"].contract_addr))?.amount ?? "0";
       const balance = BnDiv(balanceRaw, BnPow(10, 6));
       const price = await getAssetPrice(walletData, pairToken, assetInfo);
       const asset_value = BnMul(balance, price);
@@ -235,7 +237,7 @@ const getPairPrice = async (walletData: WalletData, pairToken: string): Promise<
 
 const getAssetPrice = async (walletData: WalletData, pairToken: string, assetInfo: AssetInfo): Promise<string> => {
   const asset: string = assetInfo?.["native_token"].denom ?? assetInfo?.["token"].contract_addr;
-  const oraclePythQueryClient = new marketContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, "sei1astmpzef62a0anfqqwkau9prtcd58njvpjcmskemzhzas009xpgs2u3dgp");
+  const oraclePythQueryClient = new marketContracts.OraclePyth.OraclePythQueryClient(walletData?.activeWallet?.signingCosmWasmClient, "sei1astmpzef62a0anfqqwkau9prtcd58njvpjcmskemzhzas009xpgs2u3dgp");
 
   let configRes = null;
   let initFlag = true;
@@ -299,12 +301,12 @@ async function doHubUnbondBseiToNative(walletData: WalletData, nativeDenom: stri
     return;
   }
   console.log(`\n  Do hub.address unbond bsei to native coin enter. nativeDenom: ${nativeDenom} / amount: ${amount}`);
-  const beforeTokenBalanceRes = await queryAddressTokenBalance(walletData.signingCosmWasmClient, walletData.address, btoken.address);
+  const beforeTokenBalanceRes = await queryAddressTokenBalance(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, btoken.address);
   if (new Decimal(beforeTokenBalanceRes?.balance ?? 0).comparedTo(new Decimal(amount)) < 0) {
     console.error(`\n  ********* The nativeDenom balance is insufficient. ${amount} but ${beforeTokenBalanceRes?.balance ?? 0}`);
     return;
   }
-  const beforeUnbondRequestRes = await queryWasmContractByWalletData(walletData, hub.address, { unbond_requests: { address: walletData.address } });
+  const beforeUnbondRequestRes = await queryWasmContractByWalletData(walletData, hub.address, { unbond_requests: { address: walletData?.activeWallet?.address } });
   console.log(`before unbond_requests ok. \n  ${JSON.stringify(beforeUnbondRequestRes)}`);
   console.log(`before token balance: ${beforeTokenBalanceRes.balance} ${btoken.address}`);
   const doRes = await executeContractByWalletData(
@@ -320,8 +322,8 @@ async function doHubUnbondBseiToNative(walletData: WalletData, nativeDenom: stri
     "unbond bsei to native"
   );
   console.log(`Do hub.address unbond bsei to native coin ok. \n  ${doRes?.transactionHash}`);
-  const afterTokenBalanceRes = await queryAddressTokenBalance(walletData.signingCosmWasmClient, walletData.address, btoken.address);
+  const afterTokenBalanceRes = await queryAddressTokenBalance(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, btoken.address);
   console.log(`after token balance: ${afterTokenBalanceRes.balance} ${btoken.address}`);
-  const afterUnbondRequestRes = await queryWasmContractByWalletData(walletData, hub.address, { unbond_requests: { address: walletData.address } });
+  const afterUnbondRequestRes = await queryWasmContractByWalletData(walletData, hub.address, { unbond_requests: { address: walletData?.activeWallet?.address } });
   console.log(`after unbond_requests ok. \n  ${JSON.stringify(afterUnbondRequestRes)}`);
 }

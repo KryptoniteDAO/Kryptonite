@@ -76,8 +76,7 @@ export async function deployHub(walletData: WalletData, networkStaking: StakingC
   const defaultInitMsg: object | undefined = Object.assign(
     {
       reward_denom: stable_coin_denom,
-      underlying_coin_denom: walletData.nativeCurrency.coinMinimalDenom,
-      validator: walletData.validator,
+      underlying_coin_denom: walletData?.nativeCurrency?.coinMinimalDenom,
       swap_contract: swapSparrow?.address
     },
     config?.initMsg ?? {}
@@ -101,11 +100,11 @@ export async function deployReward(walletData: WalletData, networkStaking: Staki
       hub_contract: hub?.address,
       reward_denom: stable_coin_denom,
       swap_contract: swapSparrow?.address,
-      swap_denoms: [walletData.nativeCurrency.coinMinimalDenom]
+      swap_denoms: [walletData?.nativeCurrency?.coinMinimalDenom]
     },
     config?.initMsg ?? {},
     {
-      owner: config?.initMsg?.owner || walletData.address
+      owner: config?.initMsg?.owner || walletData?.activeWallet?.address
     }
   );
 
@@ -149,15 +148,15 @@ export async function deployRewardsDispatcher(walletData: WalletData, networkSta
     {
       hub_contract: hub?.address,
       bsei_reward_contract: reward?.address,
-      stsei_reward_denom: walletData.nativeCurrency.coinMinimalDenom,
+      stsei_reward_denom: walletData?.nativeCurrency?.coinMinimalDenom,
       bsei_reward_denom: stable_coin_denom,
       swap_contract: swapSparrow?.address,
-      swap_denoms: [walletData.nativeCurrency.coinMinimalDenom],
+      swap_denoms: [walletData?.nativeCurrency?.coinMinimalDenom],
       oracle_contract: oraclePyth?.address
     },
     config?.initMsg ?? {},
     {
-      krp_keeper_address: config?.initMsg?.krp_keeper_address || keeperAddress || walletData.address
+      krp_keeper_address: config?.initMsg?.krp_keeper_address || keeperAddress || walletData?.activeWallet?.address
     }
   );
   const writeFunc = stakingWriteArtifact;
@@ -174,7 +173,7 @@ export async function deployValidatorsRegistry(walletData: WalletData, networkSt
 
   const contractName: keyof Required<StakingContractsDeployed> = "validatorsRegistry";
   const config: ValidatorsRegistryContractConfig | undefined = stakingConfigs?.[contractName];
-  const registry = config?.initMsg?.registry?.map(q => Object.assign({}, q, { address: walletData.validator }));
+  const registry = config?.initMsg?.registry?.map(q => Object.assign({}, q, { address: stakingConfigs.validator }));
   const defaultInitMsg: object = Object.assign({ hub_contract: hub?.address }, { registry });
   const writeFunc = stakingWriteArtifact;
 
@@ -215,8 +214,8 @@ export async function doHubConfig(walletData: WalletData, networkStaking: Stakin
     return;
   }
 
-  const hubClient = new stakingContracts.Hub.HubClient(walletData.signingCosmWasmClient, walletData.address, hub.address);
-  const hubQueryClient = new stakingContracts.Hub.HubQueryClient(walletData.signingCosmWasmClient, hub.address);
+  const hubClient = new stakingContracts.Hub.HubClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, hub.address);
+  const hubQueryClient = new stakingContracts.Hub.HubQueryClient(walletData?.activeWallet?.signingCosmWasmClient, hub.address);
 
   const beforeRes = await hubQueryClient.config();
   // {"owner":"","reward_dispatcher_contract":"","validators_registry_contract":"","bsei_token_contract":"","stsei_token_contract":"","airdrop_registry_contract":null,"token_contract":""}
@@ -252,8 +251,8 @@ export async function doRewardsDispatcherConfig(walletData: WalletData, networkS
     return;
   }
 
-  const rewardsDispatcherClient = new stakingContracts.RewardsDispatcher.RewardsDispatcherClient(walletData.signingCosmWasmClient, walletData.address, rewardsDispatcher.address);
-  const rewardsDispatcherQueryClient = new stakingContracts.RewardsDispatcher.RewardsDispatcherQueryClient(walletData.signingCosmWasmClient, rewardsDispatcher.address);
+  const rewardsDispatcherClient = new stakingContracts.RewardsDispatcher.RewardsDispatcherClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, rewardsDispatcher.address);
+  const rewardsDispatcherQueryClient = new stakingContracts.RewardsDispatcher.RewardsDispatcherQueryClient(walletData?.activeWallet?.signingCosmWasmClient, rewardsDispatcher.address);
 
   const beforeRes: Config = await rewardsDispatcherQueryClient.config();
   // {"owner":"","reward_dispatcher_contract":"","validators_registry_contract":"","bsei_token_contract":"","stsei_token_contract":"","airdrop_registry_contract":null,"token_contract":""}
@@ -287,7 +286,7 @@ export async function queryHubParameters(walletData: WalletData, hub: ContractDe
     return;
   }
   print && console.log(`\n  Query staking.hub parameters enter.`);
-  const hubQueryClient = new stakingContracts.Hub.HubQueryClient(walletData.signingCosmWasmClient, hub.address);
+  const hubQueryClient = new stakingContracts.Hub.HubQueryClient(walletData?.activeWallet?.signingCosmWasmClient, hub.address);
   const hubParametersRes = await hubQueryClient.parameters();
   print && console.log(`\n  staking.hub parameters: \n  ${JSON.stringify(hubParametersRes)}`);
   return hubParametersRes;
@@ -311,7 +310,7 @@ export async function addValidator(walletData: WalletData, validatorRegister: Co
   if (!validatorRegister?.address) {
     return;
   }
-  const validatorsRegistryClient = new stakingContracts.ValidatorsRegistry.ValidatorsRegistryClient(walletData.signingCosmWasmClient, walletData.address, validatorRegister.address);
+  const validatorsRegistryClient = new stakingContracts.ValidatorsRegistry.ValidatorsRegistryClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, validatorRegister.address);
   const doRes = await validatorsRegistryClient.addValidator({ validator: { address: validator } });
 
   print && console.warn(`\n  Do staking.validatorRegister addValidator  ok. \n  ${doRes?.transactionHash}`);
@@ -322,7 +321,7 @@ export async function removeValidator(walletData: WalletData, validatorRegister:
   if (!validatorRegister?.address) {
     return;
   }
-  const validatorsRegistryClient = new stakingContracts.ValidatorsRegistry.ValidatorsRegistryClient(walletData.signingCosmWasmClient, walletData.address, validatorRegister.address);
+  const validatorsRegistryClient = new stakingContracts.ValidatorsRegistry.ValidatorsRegistryClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, validatorRegister.address);
   const doRes = await validatorsRegistryClient.removeValidator({ address: validator });
 
   print && console.warn(`\n  Do staking.validatorRegister removeValidator  ok. \n  ${doRes?.transactionHash}`);

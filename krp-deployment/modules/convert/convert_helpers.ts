@@ -45,10 +45,10 @@ export async function deployConverter(walletData: WalletData, networkConvert: Co
       convertWriteArtifact(networkConvert, walletData.chainId);
     }
     if (convertPairsNetwork?.converter?.codeId > 0) {
-      const admin = convertPairsConfig?.converter?.admin || walletData.address;
+      const admin = convertPairsConfig?.converter?.admin || walletData?.activeWallet?.address;
       const label = convertPairsConfig?.converter?.label;
       const initMsg = Object.assign({}, convertPairsConfig?.converter?.initMsg, {
-        owner: convertPairsConfig?.converter?.initMsg?.owner || walletData.address
+        owner: convertPairsConfig?.converter?.initMsg?.owner || walletData?.activeWallet?.address
       });
       convertPairsNetwork.converter.address = await instantiateContractByWalletData(walletData, admin, convertPairsNetwork.converter.codeId, initMsg, label);
       convertWriteArtifact(networkConvert, walletData.chainId);
@@ -88,7 +88,7 @@ export async function deployBtoken(walletData: WalletData, networkConvert: Conve
       convertWriteArtifact(networkConvert, walletData.chainId);
     }
     if (convertPairsNetwork?.btoken?.codeId > 0) {
-      const admin = convertPairsConfig?.btoken?.admin || walletData.address;
+      const admin = convertPairsConfig?.btoken?.admin || walletData?.activeWallet?.address;
       const label = convertPairsConfig?.btoken?.label;
       const initMsg = Object.assign(
         {
@@ -149,7 +149,7 @@ export async function deployCustody(
       convertWriteArtifact(networkConvert, walletData.chainId);
     }
     if (convertPairsNetwork?.custody?.codeId > 0) {
-      const admin = convertPairsConfig?.custody?.admin || walletData.address;
+      const admin = convertPairsConfig?.custody?.admin || walletData?.activeWallet?.address;
       const label = convertPairsConfig?.custody?.label;
       const initMsg = Object.assign(
         {
@@ -160,11 +160,11 @@ export async function deployCustody(
           reward_contract: reward.address,
           stable_denom: stable_coin_denom,
           swap_contract: swapSparrow?.address,
-          swap_denoms: [walletData.nativeCurrency.coinMinimalDenom]
+          swap_denoms: [walletData?.nativeCurrency?.coinMinimalDenom]
         },
         convertPairsConfig?.custody?.initMsg,
         {
-          owner: convertPairsConfig?.custody?.initMsg?.owner || walletData.address
+          owner: convertPairsConfig?.custody?.initMsg?.owner || walletData?.activeWallet?.address
         }
       );
       convertPairsNetwork.custody.address = await instantiateContractByWalletData(walletData, admin, convertPairsNetwork.custody.codeId, initMsg, label);

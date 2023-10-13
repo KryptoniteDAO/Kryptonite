@@ -3,7 +3,7 @@ import type { ConvertContractsDeployed, MarketContractsDeployed, StakingContract
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
 import { swapExtentionConfigs, swapExtentionReadArtifact } from "./index";
-import {stakingReadArtifact, marketReadArtifact, convertReadArtifact, printDeployedSwapContracts} from "@/modules";
+import { stakingReadArtifact, marketReadArtifact, convertReadArtifact, printDeployedSwapContracts } from "@/modules";
 import { swapExtentionContracts } from "@/contracts";
 
 main().catch(console.error);
@@ -30,8 +30,8 @@ async function main(): Promise<void> {
   if (!swapSparrow?.address) {
     throw new Error(`\n  ********* no deploy`);
   }
-  const swapSparrowClient = new swapExtentionContracts.SwapSparrow.SwapSparrowClient(walletData.signingCosmWasmClient, walletData.address, swapSparrow.address);
-  const swapSparrowQueryClient = new swapExtentionContracts.SwapSparrow.SwapSparrowQueryClient(walletData.signingCosmWasmClient, swapSparrow.address);
+  const swapSparrowClient = new swapExtentionContracts.SwapSparrow.SwapSparrowClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, swapSparrow.address);
+  const swapSparrowQueryClient = new swapExtentionContracts.SwapSparrow.SwapSparrowQueryClient(walletData?.activeWallet?.signingCosmWasmClient, swapSparrow.address);
 
   const swapWhitelistList: {
     name: string;

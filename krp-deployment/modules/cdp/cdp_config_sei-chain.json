@@ -20,7 +20,7 @@
     },
     "initCoins": [
       {
-        "denom": "usei",
+        "denom": null,
         "amount": "10000000"
       }
     ],

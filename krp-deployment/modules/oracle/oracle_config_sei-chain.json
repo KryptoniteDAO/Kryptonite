@@ -34,6 +34,6 @@
       "priceFeedAge": 60,
       "mockPrice": 100000000
     },
-    { "asset": "usei", "mockPrice": 20000000000 }
+    { "asset": "%native_coin_minimal_denom%", "mockPrice": 20000000000 }
   ]
 }

@@ -106,7 +106,7 @@ export async function deployMarket(walletData: WalletData, networkMarket: Market
       marketWriteArtifact(networkMarket, walletData.chainId);
     }
     if (networkMarket?.market?.codeId > 0 && networkMarket?.aToken?.codeId > 0) {
-      const admin = marketConfigs?.market?.admin || walletData.address;
+      const admin = marketConfigs?.market?.admin || walletData?.activeWallet?.address;
       const label = marketConfigs?.market?.label;
       const initMsg = Object.assign(
         {
@@ -116,7 +116,7 @@ export async function deployMarket(walletData: WalletData, networkMarket: Market
         },
         marketConfigs?.market?.initMsg,
         {
-          owner_addr: marketConfigs?.market?.initMsg?.owner_addr || walletData.address
+          owner_addr: marketConfigs?.market?.initMsg?.owner_addr || walletData?.activeWallet?.address
         }
       );
       const initCoins = marketConfigs?.market?.initCoins?.map(q => Object.assign({}, q, { denom: q?.denom || stable_coin_denom }));
@@ -138,7 +138,7 @@ export async function deployInterestModel(walletData: WalletData, networkMarket:
   const config: InterestModelContractConfig | undefined = marketConfigs?.[contractName];
 
   const defaultInitMsg: object | undefined = Object.assign({}, config?.initMsg ?? {}, {
-    owner: config?.initMsg?.owner || walletData.address
+    owner: config?.initMsg?.owner || walletData?.activeWallet?.address
   });
   const writeFunc = marketWriteArtifact;
 
@@ -150,7 +150,7 @@ export async function deployDistributionModel(walletData: WalletData, networkMar
   const config: DistributionModelContractConfig | undefined = marketConfigs?.[contractName];
 
   const defaultInitMsg: object | undefined = Object.assign({}, config?.initMsg ?? {}, {
-    owner: config?.initMsg?.owner || walletData.address
+    owner: config?.initMsg?.owner || walletData?.activeWallet?.address
   });
   const writeFunc = marketWriteArtifact;
 
@@ -162,7 +162,7 @@ export async function deployDistributionModel(walletData: WalletData, networkMar
 //   const config: OracleContractConfig | undefined = marketConfigs?.[contractName];
 //
 //   const defaultInitMsg: object | undefined = Object.assign({ base_asset: stable_coin_denom }, config?.initMsg ?? {}, {
-//     owner: config?.initMsg?.owner || walletData.address
+//     owner: config?.initMsg?.owner || walletData?.activeWallet?.address
 //   });
 //   const writeFunc = marketWriteArtifact;
 //
@@ -183,12 +183,12 @@ export async function deployOverseer(walletData: WalletData, networkMarket: Mark
     {
       market_contract: market?.address,
       oracle_contract: oraclePyth?.address,
-      liquidation_contract: liquidationQueue?.address || walletData.address,
+      liquidation_contract: liquidationQueue?.address || walletData?.activeWallet?.address,
       stable_denom: stable_coin_denom
     },
     config?.initMsg ?? {},
     {
-      owner_addr: config?.initMsg?.owner_addr || walletData.address
+      owner_addr: config?.initMsg?.owner_addr || walletData?.activeWallet?.address
     }
   );
   const writeFunc = marketWriteArtifact;
@@ -207,12 +207,12 @@ export async function deployLiquidationQueue(walletData: WalletData, networkMark
   const defaultInitMsg: object | undefined = Object.assign(
     {
       oracle_contract: oraclePyth?.address,
-      overseer: overseer?.address || walletData.address,
+      overseer: overseer?.address || walletData?.activeWallet?.address,
       stable_denom: stable_coin_denom
     },
     config?.initMsg ?? {},
     {
-      owner: config?.initMsg?.owner || walletData.address
+      owner: config?.initMsg?.owner || walletData?.activeWallet?.address
     }
   );
   const writeFunc = marketWriteArtifact;
@@ -240,12 +240,12 @@ export async function deployCustodyBSei(walletData: WalletData, networkMarket: M
       reward_contract: reward?.address,
       stable_denom: stable_coin_denom,
       swap_contract: swapSparrow?.address,
-      swap_denoms: [walletData.nativeCurrency.coinMinimalDenom],
+      swap_denoms: [walletData?.nativeCurrency?.coinMinimalDenom],
       oracle_contract: oraclePyth?.address
     },
     config?.initMsg ?? {},
     {
-      owner: config?.initMsg?.owner || walletData.address
+      owner: config?.initMsg?.owner || walletData?.activeWallet?.address
     }
   );
   const writeFunc = marketWriteArtifact;
@@ -320,7 +320,7 @@ export async function doCustodyBSeiConfig(walletData: WalletData, custodyBSeiCon
   if (!custodyBSeiConfigFlag) {
     let custodyBSeiUpdateConfigRes = await executeContractByWalletData(walletData, custodyBSei.address, {
       update_config: {
-        // owner: marketConfigs?.custodyBSei?.initMsg?.owner || walletData.address,
+        // owner: marketConfigs?.custodyBSei?.initMsg?.owner || walletData?.activeWallet?.address,
         liquidation_contract: liquidationQueue.address
       }
     });
@@ -342,7 +342,7 @@ export async function doLiquidationQueueConfig(walletData: WalletData, liquidati
       update_config: {
         oracle_contract: oraclePyth.address,
         overseer: overseer.address
-        // owner: marketConfigs?.liquidationQueue?.initMsg?.owner || walletData.address,
+        // owner: marketConfigs?.liquidationQueue?.initMsg?.owner || walletData?.activeWallet?.address,
         // safe_ratio: "0.8",
         // bid_fee: "0.01",
         // liquidator_fee: "0.01",

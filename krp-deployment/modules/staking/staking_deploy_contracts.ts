@@ -24,7 +24,8 @@ import {
   tokenReadArtifact,
   writeDeployed,
   cdpReadArtifact,
-  CdpContractsDeployed
+  CdpContractsDeployed,
+  stakingConfigs
 } from "@/modules";
 
 main().catch(console.error);
@@ -41,6 +42,10 @@ async function main(): Promise<void> {
   const networkToken = tokenReadArtifact(walletData.chainId) as TokenContractsDeployed;
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
 
+  const validator = stakingConfigs.validator;
+  if (!validator) {
+    throw new Error("\n  Set the validator in configuration file variable to the validator address of the node");
+  }
   const swapSparrow: ContractDeployed | undefined = networkSwap?.swapSparrow;
   if (!swapSparrow?.address) {
     throw new Error(`\n  --- --- deploy staking contracts error, Please deploy swapExtention contracts first --- ---`);

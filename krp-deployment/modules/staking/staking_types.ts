@@ -53,6 +53,7 @@ export interface StSeiTokenContractConfig extends BaseContractConfig {
 }
 
 export interface StakingContractsConfig {
+  readonly validator: Addr;
   hub: HubContractConfig;
   reward: RewardContractConfig;
   bSeiToken: BSeiTokenContractConfig;

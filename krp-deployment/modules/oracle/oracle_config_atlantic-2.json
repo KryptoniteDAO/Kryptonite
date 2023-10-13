@@ -25,6 +25,6 @@
       "priceFeedDecimal": 8,
       "priceFeedAge": 720000000
     },
-    { "asset": "usei" }
+    { "asset": "%native_coin_minimal_denom%" }
   ]
 }

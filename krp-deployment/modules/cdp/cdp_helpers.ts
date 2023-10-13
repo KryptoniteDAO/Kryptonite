@@ -30,13 +30,13 @@ export async function deployCdpCentralControl(walletData: WalletData, networkCdp
   const config: CdpCentralControlContractConfig | undefined = cdpConfigs?.[contractName];
   const defaultInitMsg: object | undefined = Object.assign(
     {
-      oracle_contract: oraclePyth?.address || walletData.address,
-      pool_contract: walletData.address,
-      liquidation_contract: walletData.address
+      oracle_contract: oraclePyth?.address || walletData?.activeWallet?.address,
+      pool_contract: walletData?.activeWallet?.address,
+      liquidation_contract: walletData?.activeWallet?.address
     },
     config?.initMsg ?? {},
     {
-      owner_addr: config?.initMsg?.owner_addr || walletData.address
+      owner_addr: config?.initMsg?.owner_addr || walletData?.activeWallet?.address
     }
   );
   const writeFunc = cdpWriteArtifact;
@@ -59,10 +59,10 @@ export async function deployCdpStablePool(walletData: WalletData, networkCdp: Cd
     },
     config?.initMsg ?? {},
     {
-      owner_addr: config?.initMsg?.owner_addr || walletData.address
+      owner_addr: config?.initMsg?.owner_addr || walletData?.activeWallet?.address
     }
   );
-  const defaultFunds = config?.initCoins?.map(q => Object.assign({}, q, { denom: q?.denom || walletData.nativeCurrency.coinMinimalDenom }));
+  const defaultFunds = config?.initCoins?.map(q => Object.assign({}, q, { denom: q?.denom || walletData?.nativeCurrency?.coinMinimalDenom }));
   const writeFunc = cdpWriteArtifact;
 
   await deployContract(walletData, contractName, networkCdp, undefined, config, { defaultInitMsg, defaultFunds, writeFunc });
@@ -86,12 +86,12 @@ export async function deployCdpLiquidationQueue(walletData: WalletData, networkC
   const defaultInitMsg: object | undefined = Object.assign(
     {
       control_contract: cdpCentralControl?.address,
-      oracle_contract: oraclePyth?.address || walletData.address,
+      oracle_contract: oraclePyth?.address || walletData?.activeWallet?.address,
       stable_denom: stable_coin_denom
     },
     config?.initMsg ?? {},
     {
-      owner: config?.initMsg?.owner || walletData.address
+      owner: config?.initMsg?.owner || walletData?.activeWallet?.address
     }
   );
   const writeFunc = cdpWriteArtifact;
@@ -135,8 +135,8 @@ export async function deployCdpRewardBook(walletData: WalletData, networkCdp: Cd
   const defaultInitMsg: object | undefined = Object.assign(
     {
       control_contract: cdpCentralControl?.address,
-      reward_contract: stakingReward?.address || walletData?.address,
-      custody_contract: cdpCollateralPairDeployed?.custody?.address || walletData?.address,
+      reward_contract: stakingReward?.address || walletData?.activeWallet?.address,
+      custody_contract: cdpCollateralPairDeployed?.custody?.address || walletData?.activeWallet?.address,
       reward_denom: stable_coin_denom
     },
     config?.initMsg ?? {}
@@ -183,11 +183,11 @@ export async function deployCdpCustody(walletData: WalletData, networkCdp: CdpCo
       control_contract: cdpCentralControl?.address,
       pool_contract: cdpStablePool?.address,
       liquidation_contract: cdpLiquidationQueue?.address,
-      reward_book_contract: cdpCollateralPairDeployed?.rewardBook?.address || walletData.address
+      reward_book_contract: cdpCollateralPairDeployed?.rewardBook?.address || walletData?.activeWallet?.address
     },
     config?.initMsg ?? {},
     {
-      owner_addr: config?.initMsg?.owner_addr || walletData.address
+      owner_addr: config?.initMsg?.owner_addr || walletData?.activeWallet?.address
     }
   );
   const writeFunc = cdpWriteArtifact;
@@ -250,8 +250,8 @@ export async function doCdpCentralControlUpdateConfig(walletData: WalletData, ne
     return;
   }
 
-  const centralControlClient = new cdpContracts.CentralControl.CentralControlClient(walletData.signingCosmWasmClient, walletData.address, cdpCentralControl.address);
-  const centralControlQueryClient = new cdpContracts.CentralControl.CentralControlQueryClient(walletData.signingCosmWasmClient, cdpCentralControl.address);
+  const centralControlClient = new cdpContracts.CentralControl.CentralControlClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, cdpCentralControl.address);
+  const centralControlQueryClient = new cdpContracts.CentralControl.CentralControlQueryClient(walletData?.activeWallet?.signingCosmWasmClient, cdpCentralControl.address);
 
   let beforeRes: CentralControlConfigResponse = null;
   let initFlag = true;
@@ -291,8 +291,8 @@ export async function doCdpLiquidationQueueConfig(walletData: WalletData, networ
     return;
   }
 
-  const liquidationQueueClient = new cdpContracts.LiquidationQueue.LiquidationQueueClient(walletData.signingCosmWasmClient, walletData.address, cdpLiquidationQueue.address);
-  const liquidationQueueQueryClient = new cdpContracts.LiquidationQueue.LiquidationQueueQueryClient(walletData.signingCosmWasmClient, cdpLiquidationQueue.address);
+  const liquidationQueueClient = new cdpContracts.LiquidationQueue.LiquidationQueueClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, cdpLiquidationQueue.address);
+  const liquidationQueueQueryClient = new cdpContracts.LiquidationQueue.LiquidationQueueQueryClient(walletData?.activeWallet?.signingCosmWasmClient, cdpLiquidationQueue.address);
 
   let beforeRes: LiquidationQueueConfigResponse = null;
   let initFlag = true;
@@ -329,8 +329,8 @@ export async function doCdpCentralControlSetWhitelistCollateral(walletData: Wall
     return;
   }
 
-  const centralControlClient = new cdpContracts.CentralControl.CentralControlClient(walletData.signingCosmWasmClient, walletData.address, cdpCentralControl.address);
-  const centralControlQueryClient = new cdpContracts.CentralControl.CentralControlQueryClient(walletData.signingCosmWasmClient, cdpCentralControl.address);
+  const centralControlClient = new cdpContracts.CentralControl.CentralControlClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, cdpCentralControl.address);
+  const centralControlQueryClient = new cdpContracts.CentralControl.CentralControlQueryClient(walletData?.activeWallet?.signingCosmWasmClient, cdpCentralControl.address);
 
   let beforeRes: WhitelistResponse = null;
   let initFlag = true;
@@ -373,8 +373,8 @@ export async function doCdpLiquidationQueueSetWhitelistCollateral(walletData: Wa
     return;
   }
 
-  const liquidationQueueClient = new cdpContracts.LiquidationQueue.LiquidationQueueClient(walletData.signingCosmWasmClient, walletData.address, cdpLiquidationQueue.address);
-  const liquidationQueueQueryClient = new cdpContracts.LiquidationQueue.LiquidationQueueQueryClient(walletData.signingCosmWasmClient, cdpLiquidationQueue.address);
+  const liquidationQueueClient = new cdpContracts.LiquidationQueue.LiquidationQueueClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, cdpLiquidationQueue.address);
+  const liquidationQueueQueryClient = new cdpContracts.LiquidationQueue.LiquidationQueueQueryClient(walletData?.activeWallet?.signingCosmWasmClient, cdpLiquidationQueue.address);
 
   let beforeRes: CollateralInfoResponse = null;
   let initFlag = true;
@@ -418,8 +418,8 @@ export async function doCdpCustodyUpdateConfig(walletData: WalletData, networkCd
     return;
   }
 
-  const custodyClient = new cdpContracts.Custody.CustodyClient(walletData.signingCosmWasmClient, walletData.address, custody.address);
-  const custodyQueryClient = new cdpContracts.Custody.CustodyQueryClient(walletData.signingCosmWasmClient, custody.address);
+  const custodyClient = new cdpContracts.Custody.CustodyClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, custody.address);
+  const custodyQueryClient = new cdpContracts.Custody.CustodyQueryClient(walletData?.activeWallet?.signingCosmWasmClient, custody.address);
 
   let beforeRes: CustodyConfigResponse = null;
   let initFlag = true;
@@ -463,8 +463,8 @@ export async function doCdpRewardBookUpdateConfig(walletData: WalletData, networ
     return;
   }
 
-  const rewardBookClient = new cdpContracts.RewardBook.RewardBookClient(walletData.signingCosmWasmClient, walletData.address, rewardBook.address);
-  const rewardBookQueryClient = new cdpContracts.RewardBook.RewardBookQueryClient(walletData.signingCosmWasmClient, rewardBook.address);
+  const rewardBookClient = new cdpContracts.RewardBook.RewardBookClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, rewardBook.address);
+  const rewardBookQueryClient = new cdpContracts.RewardBook.RewardBookQueryClient(walletData?.activeWallet?.signingCosmWasmClient, rewardBook.address);
 
   let beforeRes: RewardBookConfigResponse = null;
   let initFlag = true;

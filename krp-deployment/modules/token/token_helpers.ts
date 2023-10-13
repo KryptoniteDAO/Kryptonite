@@ -45,7 +45,7 @@ export async function deployTokenSeilor(walletData: WalletData, networkToken: To
   const initialBalances: InitialBalance[] | undefined = config?.initMsg?.cw20_init_msg?.initial_balances;
   initialBalances?.map(value => {
     if (!value.address) {
-      value.address = walletData.address;
+      value.address = walletData?.activeWallet?.address;
     }
   });
   const defaultInitMsg = Object.assign({}, config?.initMsg ?? {});
@@ -66,7 +66,7 @@ export async function deployTokenFund(walletData: WalletData, networkToken: Toke
     seilor_addr: config?.initMsg?.seilor_addr || seilor.address,
     ve_seilor_addr: config?.initMsg?.ve_seilor_addr || veSeilor.address,
     kusd_denom: config?.initMsg?.kusd_denom || stable_coin_denom,
-    kusd_reward_addr: config?.initMsg?.kusd_reward_addr || tokenConfigs.kusd_reward_controller || walletData.address
+    kusd_reward_addr: config?.initMsg?.kusd_reward_addr || tokenConfigs.kusd_reward_controller || walletData?.activeWallet?.address
   });
   const writeFunc = tokenWriteArtifact;
 
@@ -102,7 +102,7 @@ export async function deploySeilorStaking(walletData: WalletData, networkToken: 
     boost: stakingRewardsPairsConfig?.staking?.initMsg?.boost || boost.address,
     fund: stakingRewardsPairsConfig?.staking?.initMsg?.fund || fund.address,
     staking_token: stakingRewardsPairsConfig.staking_token,
-    reward_controller_addr: stakingRewardsPairsConfig?.staking?.initMsg?.reward_controller_addr || tokenConfigs?.kusd_reward_controller || walletData.address
+    reward_controller_addr: stakingRewardsPairsConfig?.staking?.initMsg?.reward_controller_addr || tokenConfigs?.kusd_reward_controller || walletData?.activeWallet?.address
   });
   const writeFunc = tokenWriteArtifact;
 
@@ -115,7 +115,7 @@ export async function deployTokenVeSeilor(walletData: WalletData, networkToken: 
   const initialBalances: InitialBalance[] | undefined = config?.initMsg?.cw20_init_msg?.initial_balances;
   initialBalances?.map(value => {
     if (!value.address) {
-      value.address = walletData.address;
+      value.address = walletData?.activeWallet?.address;
     }
   });
   const defaultInitMsg = Object.assign({}, config?.initMsg ?? {});
@@ -144,7 +144,7 @@ export async function deployTokenTreasure(walletData: WalletData, networkToken: 
   const config: TokenTreasureContractConfig | undefined = tokenConfigs?.[contractName];
   const defaultInitMsg = Object.assign({}, config?.initMsg ?? {}, {
     lock_token: config?.initMsg?.lock_token || seilor.address,
-    punish_receiver: config?.initMsg?.punish_receiver || tokenConfigs?.kusd_reward_controller || walletData.address
+    punish_receiver: config?.initMsg?.punish_receiver || tokenConfigs?.kusd_reward_controller || walletData?.activeWallet?.address
   });
   const writeFunc = tokenWriteArtifact;
 
@@ -163,7 +163,7 @@ export async function deployTokenDistribute(walletData: WalletData, networkToken
   for (let ruleConfigKey in ruleConfigs) {
     let ruleConfig: TokenDistributeRuleConfig | undefined = ruleConfigs[ruleConfigKey];
     if (!ruleConfig?.rule_owner) {
-      ruleConfig.rule_owner = walletData.address;
+      ruleConfig.rule_owner = walletData?.activeWallet?.address;
     }
   }
 
@@ -188,7 +188,7 @@ export async function deployTokenDispatcher(walletData: WalletData, networkToken
 
   const defaultInitMsg = Object.assign({}, config?.initMsg ?? {}, {
     claim_token: config?.initMsg?.claim_token || seilor?.address
-    // regret_token_receiver: config?.initMsg?.regret_token_receiver || tokenConfigs?.kusd_reward_controller || walletData.address
+    // regret_token_receiver: config?.initMsg?.regret_token_receiver || tokenConfigs?.kusd_reward_controller || walletData?.activeWallet?.address
   });
   const writeFunc = tokenWriteArtifact;
   // const storeCoreGasLimit = 4_000_000;
@@ -206,7 +206,7 @@ export async function deployTokenKeeper(walletData: WalletData, networkToken: To
   const contractName: keyof Required<TokenContractsDeployed> = "keeper";
   const config: TokenKeeperContractConfig | undefined = tokenConfigs?.[contractName];
   const defaultInitMsg = Object.assign({}, config?.initMsg ?? {}, {
-    owner: config?.initMsg?.owner || walletData.address,
+    owner: config?.initMsg?.owner || walletData?.activeWallet?.address,
     rewards_contract: config?.initMsg?.rewards_contract || fund?.address,
     rewards_denom: config?.initMsg?.rewards_denom || stable_coin_denom
   });
@@ -222,8 +222,8 @@ export async function doTokenSeilorUpdateConfig0(walletData: WalletData, network
     console.error(`\n  ********* missing info!`);
     return;
   }
-  const seilorClient = new tokenContracts.Seilor.SeilorClient(walletData.signingCosmWasmClient, walletData.address, seilor.address);
-  const seilorQueryClient = new tokenContracts.Seilor.SeilorQueryClient(walletData.signingCosmWasmClient, seilor.address);
+  const seilorClient = new tokenContracts.Seilor.SeilorClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, seilor.address);
+  const seilorQueryClient = new tokenContracts.Seilor.SeilorQueryClient(walletData?.activeWallet?.signingCosmWasmClient, seilor.address);
 
   let beforeConfigRes: SeilorConfigResponse = null;
   let initFlag: boolean = true;
@@ -256,8 +256,8 @@ export async function doTokenSeilorUpdateConfig(walletData: WalletData, networkT
     console.error(`\n  ********* missing info!`);
     return;
   }
-  const seilorClient = new tokenContracts.Seilor.SeilorClient(walletData.signingCosmWasmClient, walletData.address, seilor.address);
-  const seilorQueryClient = new tokenContracts.Seilor.SeilorQueryClient(walletData.signingCosmWasmClient, seilor.address);
+  const seilorClient = new tokenContracts.Seilor.SeilorClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, seilor.address);
+  const seilorQueryClient = new tokenContracts.Seilor.SeilorQueryClient(walletData?.activeWallet?.signingCosmWasmClient, seilor.address);
 
   let beforeConfigRes: SeilorConfigResponse = null;
   let initFlag = true;
@@ -290,8 +290,8 @@ export async function doTokenVeSeilorUpdateConfig(walletData: WalletData, networ
     console.error(`\n  ********* missing info!`);
     return;
   }
-  const veSeilorClient = new tokenContracts.VeSeilor.VeSeilorClient(walletData.signingCosmWasmClient, walletData.address, veSeilor.address);
-  const veSeilorQueryClient = new tokenContracts.VeSeilor.VeSeilorQueryClient(walletData.signingCosmWasmClient, veSeilor.address);
+  const veSeilorClient = new tokenContracts.VeSeilor.VeSeilorClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, veSeilor.address);
+  const veSeilorQueryClient = new tokenContracts.VeSeilor.VeSeilorQueryClient(walletData?.activeWallet?.signingCosmWasmClient, veSeilor.address);
 
   let beforeConfigRes: VoteConfigResponse = null;
   let initFlag = true;
@@ -323,8 +323,8 @@ export async function doVeSeilorSetMinters(walletData: WalletData, veSeilor: Con
     console.error(`\n  ********* missing info!`);
     return;
   }
-  const veSeilorClient = new tokenContracts.VeSeilor.VeSeilorClient(walletData.signingCosmWasmClient, walletData.address, veSeilor.address);
-  const veSeilorQueryClient = new tokenContracts.VeSeilor.VeSeilorQueryClient(walletData.signingCosmWasmClient, veSeilor.address);
+  const veSeilorClient = new tokenContracts.VeSeilor.VeSeilorClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, veSeilor.address);
+  const veSeilorQueryClient = new tokenContracts.VeSeilor.VeSeilorQueryClient(walletData?.activeWallet?.signingCosmWasmClient, veSeilor.address);
 
   let beforeRes: IsMinterResponse = null;
   let initFlag = true;
@@ -368,8 +368,8 @@ export async function doSeilorDistributeUpdateRuleConfig(
     console.error(`\n  ********* missing info!`);
     return;
   }
-  const distributeClient = new tokenContracts.Distribute.DistributeClient(walletData.signingCosmWasmClient, walletData.address, distribute.address);
-  const distributeQueryClient = new tokenContracts.Distribute.DistributeQueryClient(walletData.signingCosmWasmClient, distribute.address);
+  const distributeClient = new tokenContracts.Distribute.DistributeClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, distribute.address);
+  const distributeQueryClient = new tokenContracts.Distribute.DistributeQueryClient(walletData?.activeWallet?.signingCosmWasmClient, distribute.address);
 
   let beforeRes: QueryRuleInfoResponse = null;
   let initFlag = true;

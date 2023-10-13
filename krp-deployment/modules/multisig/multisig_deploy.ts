@@ -31,8 +31,8 @@ async function main(): Promise<void> {
   }
 
   // return
-  const cw20BaseClient = new cw20BaseContracts.Cw20Base.Cw20BaseClient(walletData.signingCosmWasmClient, walletData.address, cw20Address);
-  const cw20BaseQueryClient = new cw20BaseContracts.Cw20Base.Cw20BaseQueryClient(walletData.signingCosmWasmClient, cw20Address);
+  const cw20BaseClient = new cw20BaseContracts.Cw20Base.Cw20BaseClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, cw20Address);
+  const cw20BaseQueryClient = new cw20BaseContracts.Cw20Base.Cw20BaseQueryClient(walletData?.activeWallet?.signingCosmWasmClient, cw20Address);
 
   const mutilPubkeyN: MultisigThresholdPubkey = createMultisigThresholdPubkey([encodeSecp256k1Pubkey(walletData.account.pubkey), encodeSecp256k1Pubkey(walletData.account2.pubkey)], 2);
   console.log(`\n  mutilPubkeyN: `, JSON.stringify(mutilPubkeyN), pubkeyToAddress(mutilPubkeyN, walletData.prefix));
@@ -40,7 +40,7 @@ async function main(): Promise<void> {
 
   // multiSig
   const senderAddress = pubkeyToAddress(mutilPubkeyN, walletData.prefix);
-  const senderAccount: Account | null = await walletData.signingCosmWasmClient.getAccount(senderAddress);
+  const senderAccount: Account | null = await walletData?.activeWallet?.signingCosmWasmClient.getAccount(senderAddress);
   console.log(`unknown address ${senderAddress}`, senderAccount);
   if (!senderAccount?.pubkey) {
     // return;
@@ -65,8 +65,8 @@ async function main(): Promise<void> {
     chainId: walletData.chainId
   };
   const signMap: Map<string, TxRaw> = new Map<string, TxRaw>();
-  signMap.set(walletData.address, (await walletData.signingCosmWasmClient.sign(walletData.address, messages, fee, memo, explicitSignerData)) as unknown as TxRaw);
-  signMap.set(walletData.address2, (await walletData.signingCosmWasmClient2.sign(walletData.address2, messages, fee, memo, explicitSignerData)) as unknown as TxRaw);
+  signMap.set(walletData?.activeWallet?.address, (await walletData?.activeWallet?.signingCosmWasmClient.sign(walletData?.activeWallet?.address, messages, fee, memo, explicitSignerData)) as unknown as TxRaw);
+  signMap.set(walletData.address2, (await walletData?.activeWallet?.signingCosmWasmClient2.sign(walletData.address2, messages, fee, memo, explicitSignerData)) as unknown as TxRaw);
   const signatures: Map<string, Uint8Array> = new Map<string, Uint8Array>();
   signMap.forEach((value, key) => {
     signatures.set(key, value.signatures[0]);
@@ -76,6 +76,6 @@ async function main(): Promise<void> {
   const signedTxBytes = makeMultisignedTxBytes(multisigPubkey, explicitSignerData.sequence, fee, bodyBytes, signatures);
   console.log(`check_tx ------ `, RPC_ENDPOINT + "/check_tx?tx=" + encodeURI(toBase64(signedTxBytes)));
   console.log(`check_tx ------ `, RPC_ENDPOINT + "/check_tx?tx=" + encodeURIComponent(toBase64(signedTxBytes)));
-  const res = await walletData.signingCosmWasmClient.broadcastTx(signedTxBytes);
+  const res = await walletData?.activeWallet?.signingCosmWasmClient.broadcastTx(signedTxBytes);
   console.log(`res:`, res);
 }

@@ -1,6 +1,6 @@
 import type { BaseContractConfig, ContractDeployed, WalletData } from "@/types";
 import type { OracleContractsConfig, OracleContractsDeployed, OraclePythContractConfig } from "@/modules";
-import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
+import { ChainId, DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
 import { deployContract, readArtifact, writeArtifact } from "@/common";
 import { oracleContracts } from "@/contracts";
 import { PythFeederConfigResponse } from "@/contracts/oracle/OraclePyth.types";
@@ -37,9 +37,9 @@ export async function deployOraclePyth(walletData: WalletData, networkOracle: Or
   const config: OraclePythContractConfig | undefined = oracleConfigs?.[contractName];
 
   const defaultInitMsg: object | undefined = Object.assign({}, config?.initMsg ?? {}, {
-    owner: config?.initMsg?.owner || walletData.address
+    owner: config?.initMsg?.owner || walletData?.activeWallet?.address
   });
-  if ("sei-chain" === walletData.chainId) {
+  if (ChainId.ATLANTIC_2 !== walletData.chainId) {
     Object.assign(defaultInitMsg, { pyth_contract: networkOracle?.mockOracle?.address });
   }
   const writeFunc = oracleWriteArtifact;
@@ -79,8 +79,8 @@ export async function doOraclePythConfigFeedInfo(
     return;
   }
 
-  const oraclePythClient = new oracleContracts.OraclePyth.OraclePythClient(walletData.signingCosmWasmClient, walletData.address, oraclePyth.address);
-  const oraclePythQueryClient = new oracleContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, oraclePyth.address);
+  const oraclePythClient = new oracleContracts.OraclePyth.OraclePythClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, oraclePyth.address);
+  const oraclePythQueryClient = new oracleContracts.OraclePyth.OraclePythQueryClient(walletData?.activeWallet?.signingCosmWasmClient, oraclePyth.address);
 
   let configRes: PythFeederConfigResponse = null;
   let initFlag = true;
@@ -107,7 +107,7 @@ export async function doOraclePythConfigFeedInfo(
   print && console.log(`\n  after oracle.oraclePyth ConfigFeedInfo. \n  ${JSON.stringify(afterRes)}`);
 
   if (networkOracle?.mockOracle?.address) {
-    const mockOracleClient = new oracleContracts.MockOracle.MockOracleClient(walletData.signingCosmWasmClient, walletData.address, networkOracle?.mockOracle?.address);
+    const mockOracleClient = new oracleContracts.MockOracle.MockOracleClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, networkOracle?.mockOracle?.address);
     const doMockRes = await mockOracleClient.updatePriceFeed({ id: configFeedInfoParams.priceFeedId, price: configFeedInfoParams?.mockPrice ?? 1 });
     print && console.log(`\n  Do oracle.MockOracle updatePriceFeed ok. \n  ${doMockRes?.transactionHash}`);
   }
@@ -120,7 +120,7 @@ export async function queryOraclePythFeederConfig(walletData: WalletData, oracle
     return;
   }
 
-  const oraclePythQueryClient = new oracleContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, oraclePyth.address);
+  const oraclePythQueryClient = new oracleContracts.OraclePyth.OraclePythQueryClient(walletData?.activeWallet?.signingCosmWasmClient, oraclePyth.address);
 
   let configRes = null;
   let initFlag = true;
@@ -157,13 +157,13 @@ export async function queryOraclePythFeederConfig(walletData: WalletData, oracle
 //     }
 //   }
 //   // const feederRes = await queryWasmContractByWalletData(walletData, oracle.address, { feeder: { asset: btoken.address } });
-//   const doneFlag: boolean = initFlag && walletData.address === feederRes?.feeder && btoken.address === feederRes?.asset;
+//   const doneFlag: boolean = initFlag && walletData?.activeWallet?.address === feederRes?.feeder && btoken.address === feederRes?.asset;
 //   if (!doneFlag) {
 //     console.warn(`\n  ######### Do oracle's register_feeder enter. collateral ` + btoken.address);
 //     const doRes = await executeContractByWalletData(walletData, oracle.address, {
 //       register_feeder: {
 //         asset: btoken.address,
-//         feeder: walletData.address
+//         feeder: walletData?.activeWallet?.address
 //       }
 //     });
 //     console.log("Do oracle's register_feeder ok. \n", btoken.address, doRes?.transactionHash);

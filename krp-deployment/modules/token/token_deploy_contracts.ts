@@ -2,20 +2,7 @@ import type { WalletData } from "@/types";
 import type { TokenContractsDeployed, CdpContractsDeployed } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
-import {
-  tokenConfigs,
-  TOKEN_MODULE_NAME,
-  deployTokenSeilor,
-  doTokenSeilorUpdateConfig,
-  tokenReadArtifact,
-  deployTokenDistribute,
-  writeDeployed,
-  cdpReadArtifact,
-  printDeployedTokenContracts,
-  deployTokenTreasure,
-  deployTokenDispatcher,
-  doTokenSeilorUpdateConfig0
-} from "@/modules";
+import { tokenConfigs, TOKEN_MODULE_NAME, deployTokenSeilor, doTokenSeilorUpdateConfig, tokenReadArtifact, deployTokenDistribute, writeDeployed, cdpReadArtifact, printDeployedTokenContracts, deployTokenTreasure, deployTokenDispatcher, doTokenSeilorUpdateConfig0 } from "@/modules";
 
 (async (): Promise<void> => {
   const MODULE_NAME: string = TOKEN_MODULE_NAME;

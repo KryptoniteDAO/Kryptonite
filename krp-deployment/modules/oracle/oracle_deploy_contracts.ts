@@ -1,7 +1,7 @@
 import type { WalletData } from "@/types";
 import type { BaseFeedInfo, OracleContractsDeployed, FeedInfo } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
-import { loadingWalletData } from "@/env_data";
+import { ChainId, loadingWalletData } from "@/env_data";
 import { oracleReadArtifact, printDeployedOracleContracts, deployOraclePyth, oracleConfigs, doOraclePythConfigFeedInfo, writeDeployed, deployMockOracle } from "@/modules";
 
 main().catch(console.error);
@@ -15,7 +15,7 @@ async function main(): Promise<void> {
 
   console.log(`\n  --- --- oracle contracts storeCode & instantiateContract enter --- ---`);
 
-  if ("sei-chain" === walletData.chainId) {
+  if (ChainId.ATLANTIC_2 !== walletData.chainId) {
     await deployMockOracle(walletData, networkOracle);
   }
   await deployOraclePyth(walletData, networkOracle);
@@ -36,7 +36,9 @@ async function main(): Promise<void> {
     for (const feedInfoConfig of feedInfoConfigList) {
       const feedInfo = Object.assign({}, baseFeedInfoConfig, feedInfoConfig);
       // feedInfo.asset = feedInfo.asset.replace("%stable_coin_denom%", stable_coin_denom);
-      if (feedInfo.asset.startsWith("%")) {
+      // if (feedInfo.asset.startsWith("%")) {
+      feedInfo.asset = feedInfo.asset.replace("%native_coin_minimal_denom%", walletData.nativeCurrency?.coinMinimalDenom).replaceAll(/%.*%/g, "");
+      if (!feedInfo.asset) {
         continue;
       }
       await doOraclePythConfigFeedInfo(walletData, networkOracle, feedInfo, print);

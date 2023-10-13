@@ -157,7 +157,7 @@ export async function writeDeployed({ chainId, writeAble = true, print = false }
 }
 
 export async function checkAndGetStableCoinDemon(walletData: WalletData, oraclePyth: ContractDeployed, cdpCentralControl: ContractDeployed, amount: string): Promise<boolean> {
-  const address: string = walletData.address;
+  const address: string = walletData?.activeWallet?.address;
   if (!address || !amount || !oraclePyth?.address || !cdpCentralControl?.address) {
     return false;
   }
@@ -179,14 +179,14 @@ export async function checkAndGetStableCoinDemon(walletData: WalletData, oracleP
   if (BnComparedTo(addressBalance.amount, amount) >= 0) {
     return true;
   }
-  const btokenQueryClient = new cw20BaseContracts.Cw20Base.Cw20BaseQueryClient(walletData.signingCosmWasmClient, bseiAddress);
+  const btokenQueryClient = new cw20BaseContracts.Cw20Base.Cw20BaseQueryClient(walletData?.activeWallet?.signingCosmWasmClient, bseiAddress);
   const btokenBalance = await btokenQueryClient.balance({ address });
   console.log(`\n  Query address bseiToken balance ok.`, btokenBalance.balance);
 
-  const centralControlQueryClient = new cdpContracts.CentralControl.CentralControlQueryClient(walletData.signingCosmWasmClient, cdpCentralControl.address);
+  const centralControlQueryClient = new cdpContracts.CentralControl.CentralControlQueryClient(walletData?.activeWallet?.signingCosmWasmClient, cdpCentralControl.address);
   const max_ltv = (await centralControlQueryClient.collateralElem({ collateral: bseiAddress })).max_ltv;
 
-  const oraclePythQueryClient = new oracleContracts.OraclePyth.OraclePythQueryClient(walletData.signingCosmWasmClient, oraclePyth?.address);
+  const oraclePythQueryClient = new oracleContracts.OraclePyth.OraclePythQueryClient(walletData?.activeWallet?.signingCosmWasmClient, oraclePyth?.address);
   const useiPrice = (await oraclePythQueryClient.queryPrice({ asset: walletData?.nativeCurrency?.coinMinimalDenom }))?.emv_price;
   const stablePrice = (await oraclePythQueryClient.queryPrice({ asset: stable_coin_denom }))?.emv_price;
   // more * 1.2
@@ -195,7 +195,7 @@ export async function checkAndGetStableCoinDemon(walletData: WalletData, oracleP
   console.log(`------ seiPrice: ${useiPrice} / stablePrice: ${stablePrice} / max_ltv: ${max_ltv} / calc bseiAmount: ${bseiAmount} `);
   // bond bsei
   if (BnComparedTo(btokenBalance.balance, bseiAmount) < 0) {
-    const hubClient = new stakingContracts.Hub.HubClient(walletData.signingCosmWasmClient, walletData.address, hubAddress);
+    const hubClient = new stakingContracts.Hub.HubClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, hubAddress);
     const bondRes = await hubClient.bond(undefined, "bond native to bsei", [{ amount: bseiAmount, denom: walletData?.nativeCurrency?.coinMinimalDenom }]);
     console.log(`\n  Do staking.hub bond ok. \n  ${bondRes?.transactionHash}`);
     if (!bondRes?.transactionHash) {
@@ -204,7 +204,7 @@ export async function checkAndGetStableCoinDemon(walletData: WalletData, oracleP
   }
 
   // console.log(`\n  Do staking.bsei send enter.`, bseiAddress, custodyAddress);
-  const btokenClient = new cw20BaseContracts.Cw20Base.Cw20BaseClient(walletData.signingCosmWasmClient, walletData.address, bseiAddress);
+  const btokenClient = new cw20BaseContracts.Cw20Base.Cw20BaseClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, bseiAddress);
   const msg = toEncodedBinary({
     mint_stable_coin: {
       stable_amount: amount,

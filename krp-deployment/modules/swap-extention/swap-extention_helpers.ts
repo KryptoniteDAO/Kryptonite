@@ -26,7 +26,7 @@ export async function deploySwapSparrow(walletData: WalletData, networkSwap: Swa
   const contractName: keyof Required<SwapExtentionContractsDeployed> = "swapSparrow";
   const config: SwapSparrowContractConfig | undefined = swapExtentionConfigs?.[contractName];
   const defaultInitMsg: object | undefined = Object.assign({}, config?.initMsg ?? {}, {
-    owner: config?.initMsg?.owner || walletData.address
+    owner: config?.initMsg?.owner || walletData?.activeWallet?.address
   });
   const writeFunc = swapExtentionWriteArtifact;
 
@@ -47,8 +47,8 @@ export async function doSwapSparrowSetWhitelist(
     console.error(`\n  ********* Not deploy swapExtention contract`);
     return;
   }
-  const swapSparrowClient = new swapExtentionContracts.SwapSparrow.SwapSparrowClient(walletData.signingCosmWasmClient, walletData.address, swapSparrow.address);
-  const swapSparrowQueryClient = new swapExtentionContracts.SwapSparrow.SwapSparrowQueryClient(walletData.signingCosmWasmClient, swapSparrow.address);
+  const swapSparrowClient = new swapExtentionContracts.SwapSparrow.SwapSparrowClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, swapSparrow.address);
+  const swapSparrowQueryClient = new swapExtentionContracts.SwapSparrow.SwapSparrowQueryClient(walletData?.activeWallet?.signingCosmWasmClient, swapSparrow.address);
 
   let beforeIsSwapWhitelistRes = null;
   let initFlag = true;
@@ -91,8 +91,8 @@ export async function doSwapSparrowUpdatePairConfig(walletData: WalletData, swap
     return;
   }
 
-  const swapSparrowClient = new swapExtentionContracts.SwapSparrow.SwapSparrowClient(walletData.signingCosmWasmClient, walletData.address, swapExtention.address);
-  const swapSparrowQueryClient = new swapExtentionContracts.SwapSparrow.SwapSparrowQueryClient(walletData.signingCosmWasmClient, swapExtention.address);
+  const swapSparrowClient = new swapExtentionContracts.SwapSparrow.SwapSparrowClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, swapExtention.address);
+  const swapSparrowQueryClient = new swapExtentionContracts.SwapSparrow.SwapSparrowQueryClient(walletData?.activeWallet?.signingCosmWasmClient, swapExtention.address);
 
   let beforeConfigRes: PairConfigResponse = null;
   let initFlag = true;
