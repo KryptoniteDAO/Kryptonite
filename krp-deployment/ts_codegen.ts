@@ -35,7 +35,7 @@ export type ContractConfig = {
  * 2. RewardsDispatcher.client.ts: `ConfigResponse` => `Config`
  * 3. ValidatorsRegistry.client.ts: `ConfigResponse` => `Config`, `GetValidatorsForDelegationResponse` => `Validator[]`
  * module: kpt
- * 1.KptFund.client.ts: `UserTime2fullRedemptionResponse` => `UserTime2FullRedemptionResponse`,
+ * 1.Fund.client.ts: `UserTime2fullRedemptionResponse` => `UserTime2FullRedemptionResponse`,
  * module: blind-box
  * 1.BlindBox.client.ts: `NullableEmpty` => `Nullable_Empty`,
  */
@@ -51,8 +51,7 @@ async function main(): Promise<void> {
   // modulesMap.set(STAKING_MODULE_NAME, getContractConfigByPath(STAKING_CONTRACTS_PATH));
   // modulesMap.set(MARKET_MODULE_NAME, getContractConfigByPath(MARKET_CONTRACTS_PATH));
   // modulesMap.set(CONVERT_MODULE_NAME, getContractConfigByPath(CONVERT_CONTRACTS_PATH));
-  modulesMap.set(TOKEN_MODULE_NAME, getContractConfigByPath(TOKEN_CONTRACTS_PATH));
-  // modulesMap.set(BLIND_BOX_MODULE_NAME, getContractConfigByPath(BLIND_BOX_CONTRACTS_PATH));
+  // modulesMap.set(TOKEN_MODULE_NAME, getContractConfigByPath(TOKEN_CONTRACTS_PATH));
   // modulesMap.set(CDP_MODULE_NAME, getContractConfigByPath(CDP_CONTRACTS_PATH));
   /// custom modules - end
 
