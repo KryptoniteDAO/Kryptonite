@@ -2,7 +2,7 @@
   "scripts": {
     "deploy:all": "npm run deploy:swap && npm run deploy:oracle && npm run deploy:cdp && npm run deploy:token && npm run deploy:token2 && npm run deploy:staking && npm run deploy:cdp:collaterals && npm run deploy:market && npm run deploy:convert",
     "deploy:multi": "npm run deploy:swap && npm run deploy:oracle && npm run deploy:cdp && npm run deploy:token && npm run deploy:token2 && npm run deploy:staking && npm run deploy:cdp:collaterals && npm run deploy:market && npm run deploy:convert",
-    "deploy:swap": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/swap-extention/swap-extention_deploy_contracts.ts --require ./suppress-experimental.cjs",
+    "deploy:swap": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/swap-extension/swap-extension_deploy_contracts.ts --require ./suppress-experimental.cjs",
     "deploy:oracle": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/oracle/oracle_deploy_contracts.ts --require ./suppress-experimental.cjs",
     "deploy:staking": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/staking/staking_deploy_contracts.ts --require ./suppress-experimental.cjs",
     "deploy:market": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/market/market_deploy_contracts.ts --require ./suppress-experimental.cjs",
@@ -11,7 +11,7 @@
     "deploy:token2": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/token/token_deploy_contracts_2.ts --require ./suppress-experimental.cjs",
     "deploy:cdp": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register ./modules/cdp/cdp_deploy_contracts.ts --require ./suppress-experimental.cjs",
     "deploy:cdp:collaterals": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register ./modules/cdp/cdp_deploy_collaterals.ts --require ./suppress-experimental.cjs",
-    "verify:swap": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/swap-extention/swap-extention_verify_contracts.ts --require ./suppress-experimental.cjs",
+    "verify:swap": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/swap-extension/swap-extension_verify_contracts.ts --require ./suppress-experimental.cjs",
     "verify:oracle": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/oracle/oracle_verify_contracts.ts --require ./suppress-experimental.cjs",
     "verify:staking": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/staking/staking_verify_contracts.ts --require ./suppress-experimental.cjs",
     "verify:market": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/market/market_verify_contracts.ts --require ./suppress-experimental.cjs",

@@ -1,8 +1,8 @@
 import type { ContractDeployed, WalletData } from "@/types";
-import type { SwapExtentionContractsDeployed } from "@/modules";
+import type { SwapExtensionContractsDeployed } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
-import { deploySwapSparrow, doSwapSparrowUpdatePairConfig, printDeployedSwapContracts, swapExtentionReadArtifact, swapExtentionConfigs, writeDeployed } from "@/modules";
+import { deploySwapSparrow, doSwapSparrowUpdatePairConfig, printDeployedSwapContracts, swapExtensionReadArtifact, swapExtensionConfigs, writeDeployed } from "@/modules";
 
 main().catch(console.error);
 
@@ -11,7 +11,7 @@ async function main(): Promise<void> {
 
   const walletData: WalletData = await loadingWalletData();
 
-  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
+  const networkSwap = swapExtensionReadArtifact(walletData.chainId) as SwapExtensionContractsDeployed;
 
   console.log(`\n  --- --- swap:extends contracts storeCode & instantiateContract enter --- ---`);
 
@@ -27,7 +27,7 @@ async function main(): Promise<void> {
   console.log(`\n  --- --- swap:extends contracts configure enter --- ---`);
   const print: boolean = true;
 
-  const swapExtention: ContractDeployed = networkSwap?.swapSparrow;
+  const swapExtension: ContractDeployed = networkSwap?.swapSparrow;
 
   /// add staking.reward & staking.rewardsDispatcher & market.custodyBSei & multi convert.custody to whitelist
   // const swapWhitelistList: {
@@ -52,15 +52,15 @@ async function main(): Promise<void> {
   // }
   // if (swapWhitelistList.length > 0) {
   //   for (let swapWhitelist of swapWhitelistList) {
-  //     await doSwapExtentionSetWhitelist(walletData, swapExtention, swapWhitelist, print);
+  //     await doSwapExtensionSetWhitelist(walletData, swapExtension, swapWhitelist, print);
   //   }
   // }
 
   /// config swap pair
-  const chainIdSwapPairConfigList = swapExtentionConfigs?.swapPairConfigList;
+  const chainIdSwapPairConfigList = swapExtensionConfigs?.swapPairConfigList;
   if (!!chainIdSwapPairConfigList && chainIdSwapPairConfigList.length > 0) {
     for (let pairConfig of chainIdSwapPairConfigList) {
-      await doSwapSparrowUpdatePairConfig(walletData, swapExtention, pairConfig, print);
+      await doSwapSparrowUpdatePairConfig(walletData, swapExtension, pairConfig, print);
     }
   }
 

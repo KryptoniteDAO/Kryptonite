@@ -27,7 +27,7 @@ cp .env.example .env
 ##### Deploy contracts
 
 contracts modules:
-- swap-extention as swap
+- swap-extension as swap
 - oracle
 - staking
 - market

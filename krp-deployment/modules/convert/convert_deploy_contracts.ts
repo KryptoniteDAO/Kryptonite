@@ -1,8 +1,8 @@
 import type { WalletData } from "@/types";
-import type { OracleContractsDeployed, CdpContractsDeployed, SwapExtentionContractsDeployed, StakingContractsDeployed, MarketContractsDeployed, ConvertContractsDeployed } from "@/modules";
+import type { OracleContractsDeployed, CdpContractsDeployed, SwapExtensionContractsDeployed, StakingContractsDeployed, MarketContractsDeployed, ConvertContractsDeployed } from "@/modules";
 import { loadingWalletData } from "@/env_data";
 import {
-  swapExtentionReadArtifact,
+  swapExtensionReadArtifact,
   stakingReadArtifact,
   convertReadArtifact,
   marketReadArtifact,
@@ -32,7 +32,7 @@ async function main(): Promise<void> {
 
   const walletData: WalletData = await loadingWalletData();
 
-  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
+  const networkSwap = swapExtensionReadArtifact(walletData.chainId) as SwapExtensionContractsDeployed;
   const networkOracle = oracleReadArtifact(walletData.chainId) as OracleContractsDeployed;
   const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
   const { stable_coin_denom } = networkCdp;

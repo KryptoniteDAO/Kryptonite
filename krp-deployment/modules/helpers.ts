@@ -1,8 +1,8 @@
-import type { CdpContractsDeployed, TokenStakingPairsContractsDeployed, ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, TokenContractsDeployed, SwapExtentionContractsDeployed, OracleContractsDeployed } from "@/modules";
+import type { CdpContractsDeployed, TokenStakingPairsContractsDeployed, ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, TokenContractsDeployed, SwapExtensionContractsDeployed, OracleContractsDeployed } from "@/modules";
 import {
   stakingReadArtifact,
   marketReadArtifact,
-  swapExtentionReadArtifact,
+  swapExtensionReadArtifact,
   convertReadArtifact,
   tokenReadArtifact,
   cdpReadArtifact,
@@ -27,7 +27,7 @@ export async function writeDeployed({ chainId, writeAble = true, print = false }
   chainId = chainId || DEPLOY_CHAIN_ID;
   print && console.log(`\n  writeDeployed enter chainId: ${chainId} / version: ${DEPLOY_VERSION}`);
 
-  const networkSwap = swapExtentionReadArtifact(chainId) as SwapExtentionContractsDeployed;
+  const networkSwap = swapExtensionReadArtifact(chainId) as SwapExtensionContractsDeployed;
   const networkOracle = oracleReadArtifact(chainId) as OracleContractsDeployed;
   const networkCdp = cdpReadArtifact(chainId) as CdpContractsDeployed;
   const { stable_coin_denom } = networkCdp;

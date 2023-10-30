@@ -2,8 +2,8 @@ import { getQueryClient } from "@sei-js/core";
 import Decimal from "decimal.js";
 import { ContractDeployed } from "./types";
 import type { WalletData } from "./types";
-import type { CdpContractsDeployed, ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, TokenContractsDeployed, SwapExtentionContractsDeployed, OracleContractsDeployed } from "./modules";
-import { stakingReadArtifact, marketReadArtifact, swapExtentionReadArtifact, convertReadArtifact, tokenReadArtifact, cdpReadArtifact, oracleReadArtifact, checkAndGetStableCoinDemon, TokenFundContractConfig, tokenConfigs, tokenWriteArtifact } from "./modules";
+import type { CdpContractsDeployed, ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, TokenContractsDeployed, SwapExtensionContractsDeployed, OracleContractsDeployed } from "./modules";
+import { stakingReadArtifact, marketReadArtifact, swapExtensionReadArtifact, convertReadArtifact, tokenReadArtifact, cdpReadArtifact, oracleReadArtifact, checkAndGetStableCoinDemon, TokenFundContractConfig, tokenConfigs, tokenWriteArtifact } from "./modules";
 import {
   BnAdd,
   BnComparedTo,
@@ -37,7 +37,7 @@ async function main(): Promise<void> {
 
   const walletData: WalletData = await loadingWalletData();
 
-  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
+  const networkSwap = swapExtensionReadArtifact(walletData.chainId) as SwapExtensionContractsDeployed;
   const networkOracle = oracleReadArtifact(walletData.chainId) as OracleContractsDeployed;
   const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
   const { stable_coin_denom } = networkCdp;

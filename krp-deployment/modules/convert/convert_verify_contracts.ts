@@ -1,9 +1,9 @@
 import Decimal from "decimal.js";
 import { coins } from "@cosmjs/stargate";
 import type { ContractDeployed, WalletData } from "@/types";
-import type { SwapExtentionContractsDeployed, StakingContractsDeployed, MarketContractsDeployed, ConvertContractsDeployed } from "@/modules";
+import type { SwapExtensionContractsDeployed, StakingContractsDeployed, MarketContractsDeployed, ConvertContractsDeployed } from "@/modules";
 import { loadingWalletData } from "@/env_data";
-import { swapExtentionReadArtifact, stakingReadArtifact, convertReadArtifact, marketReadArtifact, printDeployedConvertContracts } from "@/modules";
+import { swapExtensionReadArtifact, stakingReadArtifact, convertReadArtifact, marketReadArtifact, printDeployedConvertContracts } from "@/modules";
 import { executeContractByWalletData, printChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance } from "@/common";
 
 main().catch(console.error);
@@ -13,7 +13,7 @@ async function main(): Promise<void> {
 
   const walletData: WalletData = await loadingWalletData();
 
-  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
+  const networkSwap = swapExtensionReadArtifact(walletData.chainId) as SwapExtensionContractsDeployed;
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
   const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
   const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;

@@ -1,9 +1,9 @@
 import { cw20BaseContracts, marketContracts } from "@/contracts";
 import type { WalletData } from "@/types";
-import type { ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed, CdpContractsDeployed } from "@/modules";
+import type { ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, SwapExtensionContractsDeployed, CdpContractsDeployed } from "@/modules";
 import { coins } from "@cosmjs/stargate";
 import { loadingWalletData } from "@/env_data";
-import { swapExtentionReadArtifact, stakingReadArtifact, marketReadArtifact, convertReadArtifact, loadingStakingData, loadingMarketData, cdpReadArtifact, printDeployedMarketContracts, printDeployedStakingContracts } from "@/modules";
+import { swapExtensionReadArtifact, stakingReadArtifact, marketReadArtifact, convertReadArtifact, loadingStakingData, loadingMarketData, cdpReadArtifact, printDeployedMarketContracts, printDeployedStakingContracts } from "@/modules";
 import { executeContract, executeContractByWalletData, queryWasmContractByWalletData, getClientData2ByWalletData, printChangeBalancesByWalletData } from "@/common";
 
 async function main(): Promise<void> {
@@ -11,7 +11,7 @@ async function main(): Promise<void> {
 
   const walletData: WalletData = await loadingWalletData();
 
-  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
+  const networkSwap = swapExtensionReadArtifact(walletData.chainId) as SwapExtensionContractsDeployed;
   const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
   const { stable_coin_denom } = networkCdp;
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;

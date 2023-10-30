@@ -5,7 +5,7 @@
       "owner": null
     },
     "label": "swapSparrow",
-    "filePath": "../swap-extention/artifacts/swap_sparrow.wasm",
+    "filePath": "../swap-extension/artifacts/swap_sparrow.wasm",
     "deploy": false
   },
   "swapPairConfigList": []

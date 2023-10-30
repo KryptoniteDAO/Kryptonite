@@ -1,11 +1,11 @@
 import type { WalletData } from "@/types";
-import type { TokenContractsDeployed, OracleContractsDeployed, StakingContractsDeployed, SwapExtentionContractsDeployed } from "@/modules";
+import type { TokenContractsDeployed, OracleContractsDeployed, StakingContractsDeployed, SwapExtensionContractsDeployed } from "@/modules";
 import type { ContractDeployed } from "@/types";
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
 import {
   doSwapSparrowSetWhitelist,
-  swapExtentionReadArtifact,
+  swapExtensionReadArtifact,
   deployOraclePyth,
   loadingStakingData,
   deployBSeiToken,
@@ -35,7 +35,7 @@ async function main(): Promise<void> {
 
   const walletData: WalletData = await loadingWalletData();
 
-  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
+  const networkSwap = swapExtensionReadArtifact(walletData.chainId) as SwapExtensionContractsDeployed;
   const networkOracle = oracleReadArtifact(walletData.chainId) as OracleContractsDeployed;
   const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
   const { stable_coin_denom } = networkCdp;
@@ -48,7 +48,7 @@ async function main(): Promise<void> {
   }
   const swapSparrow: ContractDeployed | undefined = networkSwap?.swapSparrow;
   if (!swapSparrow?.address) {
-    throw new Error(`\n  --- --- deploy staking contracts error, Please deploy swapExtention contracts first --- ---`);
+    throw new Error(`\n  --- --- deploy staking contracts error, Please deploy swapExtension contracts first --- ---`);
   }
   const oraclePyth: ContractDeployed | undefined = networkOracle.oraclePyth;
   if (!oraclePyth?.address) {

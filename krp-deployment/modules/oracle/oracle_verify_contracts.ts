@@ -1,8 +1,8 @@
 import type { WalletData } from "@/types";
-import type { OracleContractsDeployed, SwapExtentionContractsDeployed, StakingContractsDeployed, MarketContractsDeployed, ConvertContractsDeployed, CdpContractsDeployed } from "@/modules";
+import type { OracleContractsDeployed, SwapExtensionContractsDeployed, StakingContractsDeployed, MarketContractsDeployed, ConvertContractsDeployed, CdpContractsDeployed } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
-import { oracleReadArtifact, printDeployedOracleContracts, swapExtentionReadArtifact, stakingReadArtifact, marketReadArtifact, convertReadArtifact, cdpReadArtifact } from "@/modules";
+import { oracleReadArtifact, printDeployedOracleContracts, swapExtensionReadArtifact, stakingReadArtifact, marketReadArtifact, convertReadArtifact, cdpReadArtifact } from "@/modules";
 import { oracleContracts } from "@/contracts";
 import { ConfigResponse } from "@/contracts/oracle/OraclePyth.types";
 
@@ -13,7 +13,7 @@ async function main(): Promise<void> {
 
   const walletData: WalletData = await loadingWalletData();
 
-  const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapExtentionContractsDeployed;
+  const networkSwap = swapExtensionReadArtifact(walletData.chainId) as SwapExtensionContractsDeployed;
   const networkOracle = oracleReadArtifact(walletData.chainId) as OracleContractsDeployed;
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
   const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;

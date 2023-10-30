@@ -1,6 +1,6 @@
-[submodule "swap-extention"]
-	path = swap-extention
-	url = git@github.com:KryptoniteDAO/swap-extention.git
+[submodule "swap-extension"]
+	path = swap-extension
+	url = git@github.com:KryptoniteDAO/swap-extension.git
 [submodule "krp-oracle"]
 	path = krp-oracle
 	url = git@github.com:KryptoniteDAO/krp-oracle.git

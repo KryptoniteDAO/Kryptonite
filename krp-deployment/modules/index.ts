@@ -4,5 +4,5 @@ export * from "./market";
 export * from "./oracle";
 export * from "./token";
 export * from "./staking";
-export * from "./swap-extention";
+export * from "./swap-extension";
 export * from "./helpers";

@@ -25,7 +25,7 @@ async function main(): Promise<void> {
 
   const walletData: WalletData = await loadingWalletData();
 
-  // const networkSwap = swapExtentionReadArtifact(walletData.chainId) as SwapDeployContracts;
+  // const networkSwap = swapExtensionReadArtifact(walletData.chainId) as SwapDeployContracts;
   const networkOracle = oracleReadArtifact(walletData.chainId) as OracleContractsDeployed;
   const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
   const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;

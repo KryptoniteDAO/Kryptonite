@@ -8,7 +8,7 @@ import * as _0 from "./MockSwapPair.types";
 import * as _1 from "./MockSwapPair.client";
 import * as _2 from "./SwapSparrow.types";
 import * as _3 from "./SwapSparrow.client";
-export namespace swapExtentionContracts {
+export namespace swapExtensionContracts {
   export const MockSwapPair = { ..._0,
     ..._1
   };

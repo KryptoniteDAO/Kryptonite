@@ -6,13 +6,13 @@ export interface SwapSparrowContractConfig extends BaseContractConfig {
   };
 }
 
-export interface SwapExtentionContractsConfig {
+export interface SwapExtensionContractsConfig {
   swapSparrow: SwapSparrowContractConfig;
   /// update PairConfig list
   swapPairConfigList?: SwapPairInfo[];
 }
 
-export interface SwapExtentionContractsDeployed {
+export interface SwapExtensionContractsDeployed {
   swapSparrow?: ContractDeployed;
 }
 
