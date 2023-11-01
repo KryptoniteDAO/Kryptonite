@@ -16,10 +16,6 @@ import * as _28 from "./LiquidationQueue.types";
 import * as _29 from "./LiquidationQueue.client";
 import * as _30 from "./Market.types";
 import * as _31 from "./Market.client";
-import * as _32 from "./Oracle.types";
-import * as _33 from "./Oracle.client";
-import * as _34 from "./OraclePyth.types";
-import * as _35 from "./OraclePyth.client";
 import * as _36 from "./Overseer.types";
 import * as _37 from "./Overseer.client";
 export namespace marketContracts {
@@ -40,12 +36,6 @@ export namespace marketContracts {
   };
   export const Market = { ..._30,
     ..._31
-  };
-  export const Oracle = { ..._32,
-    ..._33
-  };
-  export const OraclePyth = { ..._34,
-    ..._35
   };
   export const Overseer = { ..._36,
     ..._37

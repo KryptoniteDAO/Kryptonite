@@ -1,44 +1,54 @@
 import type { Addr, BaseContractConfig, ContractDeployed } from "@/types";
+import type { InstantiateMsg as CdpCentralControlInstantiateMsg } from "@/contracts/cdp/CentralControl.types";
+import type { InstantiateMsg as CdpCustodyInstantiateMsg } from "@/contracts/cdp/Custody.types";
+import type { InstantiateMsg as CdpLiquidationQueueInstantiateMsg } from "@/contracts/cdp/LiquidationQueue.types";
+import type { InstantiateMsg as CdpRewardBookInstantiateMsg } from "@/contracts/cdp/RewardBook.types";
+import type { InstantiateMsg as CdpStablePoolInstantiateMsg } from "@/contracts/cdp/StablePool.types";
 
 export interface CdpCentralControlContractConfig extends BaseContractConfig {
-  initMsg?: {
-    owner_addr?: Addr;
-    stable_denom: Addr;
-    epoch_period: number;
-    redeem_fee: string;
-  };
+  initMsg?: CdpCentralControlInstantiateMsg;
+  // initMsg?: {
+  //   owner_addr?: Addr;
+  //   stable_denom: Addr;
+  //   epoch_period: number;
+  //   redeem_fee: string;
+  // };
 }
 
 export interface CdpCustodyContractConfig extends BaseContractConfig {
-  initMsg?: {
-    owner_addr?: Addr;
-  };
+  initMsg?: CdpCustodyInstantiateMsg;
+  // initMsg?: {
+  //   owner_addr?: Addr;
+  // };
 }
 
 export interface CdpRewardBookContractConfig extends BaseContractConfig {
-  initMsg?: {
-    threshold: string;
-  };
+  initMsg?: CdpRewardBookInstantiateMsg;
+  // initMsg?: {
+  //   threshold: string;
+  // };
 }
 
 export interface CdpLiquidationQueueContractConfig extends BaseContractConfig {
-  initMsg?: {
-    owner?: Addr;
-    safe_ratio: string;
-    bid_fee: string;
-    liquidator_fee: string;
-    liquidation_threshold: string;
-    price_timeframe: number;
-    waiting_period: number;
-  };
+  initMsg?: CdpLiquidationQueueInstantiateMsg;
+  // initMsg?: {
+  //   owner?: Addr;
+  //   safe_ratio: string;
+  //   bid_fee: string;
+  //   liquidator_fee: string;
+  //   liquidation_threshold: string;
+  //   price_timeframe: number;
+  //   waiting_period: number;
+  // };
 }
 
 export interface CdpStablePoolContractConfig extends BaseContractConfig {
-  initMsg?: {
-    owner_addr?: Addr;
-    sub_demon: string;
-    min_redeem_value: string;
-  };
+  initMsg?: CdpStablePoolInstantiateMsg;
+  // initMsg?: {
+  //   owner_addr?: Addr;
+  //   sub_demon: string;
+  //   min_redeem_value: string;
+  // };
 }
 
 export interface CdpCollateralPairsConfig {

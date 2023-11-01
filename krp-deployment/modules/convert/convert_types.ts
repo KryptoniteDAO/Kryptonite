@@ -1,20 +1,26 @@
 import type { Addr, BaseContractConfig, ContractDeployed } from "@/types";
-import { InitialBalance, TokenInfo } from "@/types";
+import type { InitialBalance, TokenInfo } from "@/types";
+import type { InstantiateMsg as ConvertBassetConverterInstantiateMsg } from "@/contracts/convert/BassetConverter.types";
+import type { TokenInstantiateMsg as ConvertBassetTokenInstantiateMsg } from "@/contracts/convert/BassetToken.types";
 
 export interface ConvertConverterContractConfig extends BaseContractConfig {
-  initMsg?: {
-    owner?: Addr;
-  };
+  initMsg?: ConvertBassetConverterInstantiateMsg;
+  // initMsg?: {
+  //   owner?: Addr;
+  // };
 }
+
 export interface ConvertBtokenContractConfig extends BaseContractConfig {
-  initMsg?: {
-    name: string;
-    symbol: string;
-    decimals: number;
-    initial_balances: InitialBalance[];
-    // mint: string;
-  };
+  initMsg?: ConvertBassetTokenInstantiateMsg;
+  // initMsg?: {
+  //   name: string;
+  //   symbol: string;
+  //   decimals: number;
+  //   initial_balances: InitialBalance[];
+  //   // mint: string;
+  // };
 }
+
 export interface ConvertCustodyContractConfig extends BaseContractConfig {
   initMsg?: {
     owner?: Addr;

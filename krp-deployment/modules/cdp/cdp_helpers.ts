@@ -32,7 +32,8 @@ export async function deployCdpCentralControl(walletData: WalletData, networkCdp
     {
       oracle_contract: oraclePyth?.address || walletData?.activeWallet?.address,
       pool_contract: walletData?.activeWallet?.address,
-      liquidation_contract: walletData?.activeWallet?.address
+      liquidation_contract: walletData?.activeWallet?.address,
+      custody_contract: walletData?.activeWallet?.address
     },
     config?.initMsg ?? {},
     {

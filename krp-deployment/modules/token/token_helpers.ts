@@ -159,7 +159,7 @@ export async function deployTokenDistribute(walletData: WalletData, networkToken
   }
   const contractName: keyof Required<TokenContractsDeployed> = "distribute";
   const config: TokenDistributeContractConfig | undefined = tokenConfigs?.[contractName];
-  const ruleConfigs: Record<string, TokenDistributeRuleConfig> | undefined = config?.initMsg?.rule_configs_map;
+  const ruleConfigs: Record<string, TokenDistributeRuleConfig> | undefined = config?.initMsg?.rule_configs_map as unknown as Record<string, TokenDistributeRuleConfig>;
   for (let ruleConfigKey in ruleConfigs) {
     let ruleConfig: TokenDistributeRuleConfig | undefined = ruleConfigs[ruleConfigKey];
     if (!ruleConfig?.rule_owner) {

@@ -3,7 +3,7 @@ import type { BSeiTokenContractConfig, HubContractConfig, RewardContractConfig, 
 import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
 import { deployContract, readArtifact, writeArtifact } from "@/common";
 import { stakingContracts } from "@/contracts";
-import { Config } from "@/contracts/staking/RewardsDispatcher.types";
+import { ConfigResponse } from "@/contracts/staking/RewardsDispatcher.types";
 
 export const STAKING_ARTIFACTS_PATH = "../krp-staking-contracts/artifacts";
 export const STAKING_CONTRACTS_PATH = "../krp-staking-contracts/contracts";
@@ -254,7 +254,7 @@ export async function doRewardsDispatcherConfig(walletData: WalletData, networkS
   const rewardsDispatcherClient = new stakingContracts.RewardsDispatcher.RewardsDispatcherClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, rewardsDispatcher.address);
   const rewardsDispatcherQueryClient = new stakingContracts.RewardsDispatcher.RewardsDispatcherQueryClient(walletData?.activeWallet?.signingCosmWasmClient, rewardsDispatcher.address);
 
-  const beforeRes: Config = await rewardsDispatcherQueryClient.config();
+  const beforeRes: ConfigResponse = await rewardsDispatcherQueryClient.config();
   // {"owner":"","reward_dispatcher_contract":"","validators_registry_contract":"","bsei_token_contract":"","stsei_token_contract":"","airdrop_registry_contract":null,"token_contract":""}
   // const initFlag: boolean = rewardsDispatcher.address === beforeRes?.reward_dispatcher_contract && validatorsRegistry.address === beforeRes?.validators_registry_contract && bSeiToken.address === beforeRes?.bsei_token_contract && stSeiToken.address === beforeRes?.stsei_token_contract;
   // if (initFlag) {

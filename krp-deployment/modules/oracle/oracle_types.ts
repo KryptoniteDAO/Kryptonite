@@ -1,10 +1,14 @@
 import type { Addr, BaseContractConfig, ContractDeployed } from "@/types";
+import type { InstantiateMsg as OracleOraclePythInstantiateMsg } from "@/contracts/oracle/OraclePyth.types";
+import type { InstantiateMsg as OracleMockOracleInstantiateMsg } from "@/contracts/oracle/MockOracle.types";
+
 
 export interface OraclePythContractConfig extends BaseContractConfig {
-  initMsg?: {
-    owner?: Addr;
-    pyth_contract: string;
-  };
+  initMsg?: OracleOraclePythInstantiateMsg;
+  // initMsg?: {
+  //   owner?: Addr;
+  //   pyth_contract: string;
+  // };
 }
 
 export interface OracleContractsConfig {

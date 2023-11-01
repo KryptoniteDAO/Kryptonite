@@ -1,9 +1,12 @@
 import type { Addr, BaseContractConfig, ContractDeployed, AssetInfo } from "@/types";
+import type { InstantiateMsg as SwapSparrowInstantiateMsg } from "@/contracts/swap-extension/SwapSparrow.types";
+import type { InstantiateMsg as MockSwapPairInstantiateMsg } from "@/contracts/swap-extension/MockSwapPair.types";
 
 export interface SwapSparrowContractConfig extends BaseContractConfig {
-  initMsg?: {
-    owner?: Addr;
-  };
+  initMsg?: SwapSparrowInstantiateMsg;
+  // initMsg?: {
+  //   owner?: Addr;
+  // };
 }
 
 export interface SwapExtensionContractsConfig {
