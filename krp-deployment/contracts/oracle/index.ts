@@ -4,15 +4,15 @@
 * and run the @cosmwasm/ts-codegen generate command to regenerate this file.
 */
 
-import * as _4 from "./MockOracle.types";
-import * as _5 from "./MockOracle.client";
-import * as _6 from "./OraclePyth.types";
-import * as _7 from "./OraclePyth.client";
+import * as _0 from "./MockOracle.types";
+import * as _1 from "./MockOracle.client";
+import * as _2 from "./OraclePyth.types";
+import * as _3 from "./OraclePyth.client";
 export namespace oracleContracts {
-  export const MockOracle = { ..._4,
-    ..._5
+  export const MockOracle = { ..._0,
+    ..._1
   };
-  export const OraclePyth = { ..._6,
-    ..._7
+  export const OraclePyth = { ..._2,
+    ..._3
   };
 }

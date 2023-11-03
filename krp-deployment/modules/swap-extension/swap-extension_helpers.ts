@@ -1,13 +1,11 @@
-import type { AssetInfo, ContractDeployed, WalletData } from "@/types";
-import type { SwapSparrowContractConfig, SwapExtensionContractsConfig, SwapPairInfo, StakingContractsDeployed, SwapExtensionContractsDeployed } from "@/modules";
-import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
 import { deployContract, queryWasmContractByWalletData, readArtifact, writeArtifact } from "@/common";
 import { swapExtensionContracts } from "@/contracts";
 import { PairConfigResponse } from "@/contracts/swap-extension/SwapSparrow.types";
+import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
+import type { StakingContractsDeployed, SwapExtensionContractsConfig, SwapExtensionContractsDeployed, SwapPairInfo, SwapSparrowContractConfig } from "@/modules";
+import { SWAP_EXTENSION_ARTIFACTS_PATH, SWAP_EXTENSION_MODULE_NAME } from "@/modules";
+import type { AssetInfo, ContractDeployed, WalletData } from "@/types";
 
-export const SWAP_EXTENSION_ARTIFACTS_PATH = "../swap-extension/artifacts";
-export const SWAP_EXTENSION_CONTRACTS_PATH = "../swap-extension/contracts";
-export const SWAP_EXTENSION_MODULE_NAME = "swap-extension";
 export const swapExtensionConfigs: SwapExtensionContractsConfig = readArtifact(`${SWAP_EXTENSION_MODULE_NAME}_config_${DEPLOY_CHAIN_ID}`, `./modules/${SWAP_EXTENSION_MODULE_NAME}/`);
 
 export function getSwapExtensionDeployFileName(chainId: string): string {

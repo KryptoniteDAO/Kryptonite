@@ -4,11 +4,9 @@
 * and run the @cosmwasm/ts-codegen generate command to regenerate this file.
 */
 
-export interface ChangeOwnerMsg {
-  new_owner: string;
-}
-export interface ConfigResponse {
-  owner: string;
+export type Addr = string;
+export interface InstantiateMsg {
+  owner: Addr;
   pyth_contract: string;
 }
 export type ExecuteMsg = {
@@ -26,38 +24,16 @@ export type ExecuteMsg = {
     valid: boolean;
   };
 } | {
-  change_owner: {
-    new_owner: string;
-  };
-} | {
   change_pyth_contract: {
     pyth_contract: string;
   };
+} | {
+  set_owner: {
+    owner: Addr;
+  };
+} | {
+  accept_ownership: {};
 };
-export type Addr = string;
-export interface InstantiateMsg {
-  owner: Addr;
-  pyth_contract: string;
-}
-export type Decimal256 = string;
-export interface PriceResponse {
-  asset: string;
-  emv_price: Decimal256;
-  emv_price_raw: number;
-  last_updated_base: number;
-  last_updated_quote: number;
-  price: Decimal256;
-  price_raw: number;
-}
-export type Identifier = string;
-export interface PythFeederConfigResponse {
-  check_feed_age: boolean;
-  is_valid: boolean;
-  price_feed_age: number;
-  price_feed_decimal: number;
-  price_feed_id: Identifier;
-  price_feed_symbol: string;
-}
 export type QueryMsg = {
   query_price: {
     asset: string;
@@ -78,8 +54,29 @@ export type QueryMsg = {
     quote_label: string;
   };
 };
-export interface SetConfigFeedValidMsg {
-  asset_address: string;
-  valid: boolean;
+export interface ConfigResponse {
+  new_owner?: string | null;
+  owner: string;
+  pyth_contract: string;
+}
+export type Decimal256 = string;
+export interface PriceResponse {
+  asset: string;
+  emv_price: Decimal256;
+  emv_price_raw: number;
+  last_updated_base: number;
+  last_updated_quote: number;
+  price: Decimal256;
+  price_raw: number;
+}
+export type ArrayOfPriceResponse = PriceResponse[];
+export type Identifier = string;
+export interface PythFeederConfigResponse {
+  check_feed_age: boolean;
+  is_valid: boolean;
+  price_feed_age: number;
+  price_feed_decimal: number;
+  price_feed_id: Identifier;
+  price_feed_symbol: string;
 }
 export type OraclePythExecuteMsg = ExecuteMsg;

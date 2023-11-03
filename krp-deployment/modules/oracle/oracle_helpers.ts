@@ -4,10 +4,8 @@ import { ChainId, DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
 import { deployContract, readArtifact, writeArtifact } from "@/common";
 import { oracleContracts } from "@/contracts";
 import { PythFeederConfigResponse } from "@/contracts/oracle/OraclePyth.types";
+import { ORACLE_ARTIFACTS_PATH, ORACLE_CONTRACTS_PATH, ORACLE_MODULE_NAME } from "@/modules";
 
-export const ORACLE_ARTIFACTS_PATH = "../krp-oracle/artifacts";
-export const ORACLE_CONTRACTS_PATH = "../krp-oracle/contracts";
-export const ORACLE_MODULE_NAME = "oracle";
 export const oracleConfigs: OracleContractsConfig = readArtifact(`${ORACLE_MODULE_NAME}_config_${DEPLOY_CHAIN_ID}`, `./modules/${ORACLE_MODULE_NAME}/`);
 
 export function getOracleDeployFileName(chainId: string): string {

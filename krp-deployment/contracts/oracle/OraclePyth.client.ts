@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { ChangeOwnerMsg, ConfigResponse, ExecuteMsg, Addr, InstantiateMsg, Decimal256, PriceResponse, Identifier, PythFeederConfigResponse, QueryMsg, SetConfigFeedValidMsg } from "./OraclePyth.types";
+import { Addr, InstantiateMsg, ExecuteMsg, QueryMsg, ConfigResponse, Decimal256, PriceResponse, ArrayOfPriceResponse, Identifier, PythFeederConfigResponse } from "./OraclePyth.types";
 export interface OraclePythReadOnlyInterface {
   contractAddress: string;
   queryPrice: ({
@@ -18,7 +18,7 @@ export interface OraclePythReadOnlyInterface {
     assets
   }: {
     assets: string[];
-  }) => Promise<PriceResponse[]>;
+  }) => Promise<ArrayOfPriceResponse>;
   queryConfig: () => Promise<ConfigResponse>;
   queryPythFeederConfig: ({
     asset
@@ -62,7 +62,7 @@ export class OraclePythQueryClient implements OraclePythReadOnlyInterface {
     assets
   }: {
     assets: string[];
-  }): Promise<PriceResponse[]> => {
+  }): Promise<ArrayOfPriceResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       query_prices: {
         assets
@@ -125,16 +125,17 @@ export interface OraclePythInterface {
     asset: string;
     valid: boolean;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  changeOwner: ({
-    newOwner
-  }: {
-    newOwner: string;
-  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   changePythContract: ({
     pythContract
   }: {
     pythContract: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setOwner: ({
+    owner
+  }: {
+    owner: Addr;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptOwnership: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class OraclePythClient implements OraclePythInterface {
   client: SigningCosmWasmClient;
@@ -147,8 +148,9 @@ export class OraclePythClient implements OraclePythInterface {
     this.contractAddress = contractAddress;
     this.configFeedInfo = this.configFeedInfo.bind(this);
     this.setConfigFeedValid = this.setConfigFeedValid.bind(this);
-    this.changeOwner = this.changeOwner.bind(this);
     this.changePythContract = this.changePythContract.bind(this);
+    this.setOwner = this.setOwner.bind(this);
+    this.acceptOwnership = this.acceptOwnership.bind(this);
   }
 
   configFeedInfo = async ({
@@ -191,17 +193,6 @@ export class OraclePythClient implements OraclePythInterface {
       }
     }, fee, memo, _funds);
   };
-  changeOwner = async ({
-    newOwner
-  }: {
-    newOwner: string;
-  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
-    return await this.client.execute(this.sender, this.contractAddress, {
-      change_owner: {
-        new_owner: newOwner
-      }
-    }, fee, memo, _funds);
-  };
   changePythContract = async ({
     pythContract
   }: {
@@ -211,6 +202,22 @@ export class OraclePythClient implements OraclePythInterface {
       change_pyth_contract: {
         pyth_contract: pythContract
       }
+    }, fee, memo, _funds);
+  };
+  setOwner = async ({
+    owner
+  }: {
+    owner: Addr;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      set_owner: {
+        owner
+      }
+    }, fee, memo, _funds);
+  };
+  acceptOwnership = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_ownership: {}
     }, fee, memo, _funds);
   };
 }
