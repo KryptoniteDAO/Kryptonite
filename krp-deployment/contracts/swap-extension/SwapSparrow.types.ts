@@ -16,10 +16,6 @@ export type ExecuteMsg = {
     to?: Addr | null;
   };
 } | {
-  change_owner: {
-    new_owner: Addr;
-  };
-} | {
   update_pair_status: {
     asset_infos: [AssetInfo, AssetInfo];
     is_disabled: boolean;
@@ -38,7 +34,14 @@ export type ExecuteMsg = {
   swap_denom: {
     from_coin: Coin;
     target_denom: string;
+    to_address?: string | null;
   };
+} | {
+  set_owner: {
+    owner: Addr;
+  };
+} | {
+  accept_ownership: {};
 };
 export type AssetInfo = {
   token: {
@@ -84,12 +87,17 @@ export type QueryMsg = {
   query_cumulative_prices: {
     asset_infos: [AssetInfo, AssetInfo];
   };
+} | {
+  query_pool: {
+    asset_infos: [AssetInfo, AssetInfo];
+  };
 };
 export interface Asset {
   amount: Uint128;
   info: AssetInfo;
 }
 export interface ConfigResponse {
+  new_owner?: Addr | null;
   owner: Addr;
 }
 export interface CumulativePricesResponse {
@@ -105,6 +113,10 @@ export interface PairConfigResponse {
   pair_address: Addr;
   to?: Addr | null;
 }
+export interface PoolResponse {
+  assets: [Asset, Asset];
+  total_share: Uint128;
+}
 export interface ReverseSimulationResponse {
   commission_amount: Uint128;
   offer_amount: Uint128;
@@ -116,7 +128,11 @@ export interface SimulationResponse {
   spread_amount: Uint128;
 }
 export interface SwapInfoResponse {
-  total_amount_in: Uint128;
-  total_amount_out: Uint128;
+  token0_in: string;
+  token1_in: string;
+  total_token0_in_amount_in: Uint128;
+  total_token0_in_amount_out: Uint128;
+  total_token1_in_amount_in: Uint128;
+  total_token1_in_amount_out: Uint128;
 }
 export type SwapSparrowExecuteMsg = ExecuteMsg;

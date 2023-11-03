@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { StdFee } from "@cosmjs/amino";
-import { Addr, InstantiateMsg, ExecuteMsg, AssetInfo, Decimal, Uint128, Coin, QueryMsg, Asset, ConfigResponse, CumulativePricesResponse, Boolean, PairConfigResponse, ReverseSimulationResponse, SimulationResponse, SwapInfoResponse } from "./SwapSparrow.types";
+import { Addr, InstantiateMsg, ExecuteMsg, AssetInfo, Decimal, Uint128, Coin, QueryMsg, Asset, ConfigResponse, CumulativePricesResponse, Boolean, PairConfigResponse, PoolResponse, ReverseSimulationResponse, SimulationResponse, SwapInfoResponse } from "./SwapSparrow.types";
 export interface SwapSparrowReadOnlyInterface {
   contractAddress: string;
   queryConfig: () => Promise<ConfigResponse>;
@@ -44,6 +44,11 @@ export interface SwapSparrowReadOnlyInterface {
   }: {
     assetInfos: AssetInfo[];
   }) => Promise<CumulativePricesResponse>;
+  queryPool: ({
+    assetInfos
+  }: {
+    assetInfos: AssetInfo[];
+  }) => Promise<PoolResponse>;
 }
 export class SwapSparrowQueryClient implements SwapSparrowReadOnlyInterface {
   client: CosmWasmClient;
@@ -59,6 +64,7 @@ export class SwapSparrowQueryClient implements SwapSparrowReadOnlyInterface {
     this.querySimulation = this.querySimulation.bind(this);
     this.queryReverseSimulation = this.queryReverseSimulation.bind(this);
     this.queryCumulativePrices = this.queryCumulativePrices.bind(this);
+    this.queryPool = this.queryPool.bind(this);
   }
 
   queryConfig = async (): Promise<ConfigResponse> => {
@@ -138,6 +144,17 @@ export class SwapSparrowQueryClient implements SwapSparrowReadOnlyInterface {
       }
     });
   };
+  queryPool = async ({
+    assetInfos
+  }: {
+    assetInfos: AssetInfo[];
+  }): Promise<PoolResponse> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      query_pool: {
+        asset_infos: assetInfos
+      }
+    });
+  };
 }
 export interface SwapSparrowInterface {
   contractAddress: string;
@@ -152,11 +169,6 @@ export interface SwapSparrowInterface {
     maxSpread?: Decimal;
     pairAddress: Addr;
     to?: Addr;
-  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  changeOwner: ({
-    newOwner
-  }: {
-    newOwner: Addr;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   updatePairStatus: ({
     assetInfos,
@@ -181,11 +193,19 @@ export interface SwapSparrowInterface {
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   swapDenom: ({
     fromCoin,
-    targetDenom
+    targetDenom,
+    toAddress
   }: {
     fromCoin: Coin;
     targetDenom: string;
+    toAddress?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setOwner: ({
+    owner
+  }: {
+    owner: Addr;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptOwnership: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class SwapSparrowClient implements SwapSparrowInterface {
   client: SigningCosmWasmClient;
@@ -197,11 +217,12 @@ export class SwapSparrowClient implements SwapSparrowInterface {
     this.sender = sender;
     this.contractAddress = contractAddress;
     this.updatePairConfig = this.updatePairConfig.bind(this);
-    this.changeOwner = this.changeOwner.bind(this);
     this.updatePairStatus = this.updatePairStatus.bind(this);
     this.updatePairMaxSpread = this.updatePairMaxSpread.bind(this);
     this.setWhitelist = this.setWhitelist.bind(this);
     this.swapDenom = this.swapDenom.bind(this);
+    this.setOwner = this.setOwner.bind(this);
+    this.acceptOwnership = this.acceptOwnership.bind(this);
   }
 
   updatePairConfig = async ({
@@ -221,17 +242,6 @@ export class SwapSparrowClient implements SwapSparrowInterface {
         max_spread: maxSpread,
         pair_address: pairAddress,
         to
-      }
-    }, fee, memo, _funds);
-  };
-  changeOwner = async ({
-    newOwner
-  }: {
-    newOwner: Addr;
-  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
-    return await this.client.execute(this.sender, this.contractAddress, {
-      change_owner: {
-        new_owner: newOwner
       }
     }, fee, memo, _funds);
   };
@@ -279,16 +289,35 @@ export class SwapSparrowClient implements SwapSparrowInterface {
   };
   swapDenom = async ({
     fromCoin,
-    targetDenom
+    targetDenom,
+    toAddress
   }: {
     fromCoin: Coin;
     targetDenom: string;
+    toAddress?: string;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       swap_denom: {
         from_coin: fromCoin,
-        target_denom: targetDenom
+        target_denom: targetDenom,
+        to_address: toAddress
       }
+    }, fee, memo, _funds);
+  };
+  setOwner = async ({
+    owner
+  }: {
+    owner: Addr;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      set_owner: {
+        owner
+      }
+    }, fee, memo, _funds);
+  };
+  acceptOwnership = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_ownership: {}
     }, fee, memo, _funds);
   };
 }
