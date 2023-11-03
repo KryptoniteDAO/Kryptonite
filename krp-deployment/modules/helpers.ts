@@ -1,21 +1,8 @@
 import type { CdpContractsDeployed, TokenStakingPairsContractsDeployed, ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, TokenContractsDeployed, SwapExtensionContractsDeployed, OracleContractsDeployed } from "@/modules";
-import {
-  stakingReadArtifact,
-  marketReadArtifact,
-  swapExtensionReadArtifact,
-  convertReadArtifact,
-  tokenReadArtifact,
-  cdpReadArtifact,
-  oracleReadArtifact,
-  convertConfigs,
-  CDP_MODULE_NAME,
-  SWAP_EXTENSION_MODULE_NAME,
-  ORACLE_MODULE_NAME,
-  STAKING_MODULE_NAME,
-  MARKET_MODULE_NAME,
-  CONVERT_MODULE_NAME,
-  TOKEN_MODULE_NAME
-} from "@/modules";
+import { stakingReadArtifact, marketReadArtifact, swapExtensionReadArtifact, convertReadArtifact, tokenReadArtifact, cdpReadArtifact, oracleReadArtifact, convertConfigs, CDP_MODULE_NAME, STAKING_MODULE_NAME, MARKET_MODULE_NAME, CONVERT_MODULE_NAME } from "@/modules";
+import { ORACLE_MODULE_NAME } from "@/modules/oracle/oracle_constants";
+import { SWAP_EXTENSION_MODULE_NAME } from "@/modules/swap-extension/swap-extension_constants";
+import { TOKEN_MODULE_NAME } from "@/modules/token/token_constants";
 import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
 import { BnComparedTo, BnDiv, BnFormat, BnMul, queryAddressBalance, toEncodedBinary, writeArtifact } from "@/common";
 import { ContractDeployed, WalletData } from "@/types";

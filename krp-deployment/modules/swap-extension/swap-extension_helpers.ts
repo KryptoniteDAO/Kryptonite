@@ -3,8 +3,8 @@ import { swapExtensionContracts } from "@/contracts";
 import { PairConfigResponse } from "@/contracts/swap-extension/SwapSparrow.types";
 import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
 import type { StakingContractsDeployed, SwapExtensionContractsConfig, SwapExtensionContractsDeployed, SwapPairInfo, SwapSparrowContractConfig } from "@/modules";
-import { SWAP_EXTENSION_ARTIFACTS_PATH, SWAP_EXTENSION_MODULE_NAME } from "@/modules";
 import type { AssetInfo, ContractDeployed, WalletData } from "@/types";
+import { SWAP_EXTENSION_ARTIFACTS_PATH, SWAP_EXTENSION_MODULE_NAME } from "./swap-extension_constants";
 
 export const swapExtensionConfigs: SwapExtensionContractsConfig = readArtifact(`${SWAP_EXTENSION_MODULE_NAME}_config_${DEPLOY_CHAIN_ID}`, `./modules/${SWAP_EXTENSION_MODULE_NAME}/`);
 

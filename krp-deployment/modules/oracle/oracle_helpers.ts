@@ -1,10 +1,10 @@
-import type { BaseContractConfig, ContractDeployed, WalletData } from "@/types";
-import type { OracleContractsConfig, OracleContractsDeployed, OraclePythContractConfig } from "@/modules";
-import { ChainId, DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
 import { deployContract, readArtifact, writeArtifact } from "@/common";
 import { oracleContracts } from "@/contracts";
 import { PythFeederConfigResponse } from "@/contracts/oracle/OraclePyth.types";
-import { ORACLE_ARTIFACTS_PATH, ORACLE_CONTRACTS_PATH, ORACLE_MODULE_NAME } from "@/modules";
+import { ChainId, DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
+import type { OracleContractsConfig, OracleContractsDeployed, OraclePythContractConfig } from "@/modules";
+import type { BaseContractConfig, ContractDeployed, WalletData } from "@/types";
+import { ORACLE_ARTIFACTS_PATH, ORACLE_CONTRACTS_PATH, ORACLE_MODULE_NAME } from "./oracle_constants";
 
 export const oracleConfigs: OracleContractsConfig = readArtifact(`${ORACLE_MODULE_NAME}_config_${DEPLOY_CHAIN_ID}`, `./modules/${ORACLE_MODULE_NAME}/`);
 
@@ -23,7 +23,6 @@ export function oracleWriteArtifact(networkOracle: OracleContractsDeployed, chai
 export async function deployMockOracle(walletData: WalletData, networkOracle: OracleContractsDeployed): Promise<void> {
   const contractName: keyof Required<OracleContractsDeployed> = "mockOracle";
   const config: BaseContractConfig | undefined = oracleConfigs?.[contractName];
-
   const defaultInitMsg: object | undefined = Object.assign({}, config?.initMsg ?? {});
   const writeFunc = oracleWriteArtifact;
 

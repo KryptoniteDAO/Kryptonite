@@ -19,8 +19,8 @@ import type {
   TokenTreasureContractConfig,
   TokenVeSeilorContractConfig
 } from "@/modules";
-import { TOKEN_ARTIFACTS_PATH, TOKEN_MODULE_NAME } from "@/modules";
 import type { ContractDeployed, InitialBalance, WalletData } from "@/types";
+import { TOKEN_ARTIFACTS_PATH, TOKEN_MODULE_NAME } from "./token_constants";
 
 export const tokenConfigs: TokenContractsConfig = readArtifact(`${TOKEN_MODULE_NAME}_config_${DEPLOY_CHAIN_ID}`, `./modules/${TOKEN_MODULE_NAME}/`);
 
