@@ -16,16 +16,14 @@ export interface InstantiateMsg {
   ve_seilor_addr: Addr;
 }
 export type ExecuteMsg = {
+  receive: Cw20ReceiveMsg;
+} | {
   update_fund_config: {
     update_config_msg: UpdateConfigMsg;
   };
 } | {
   refresh_reward: {
     account: Addr;
-  };
-} | {
-  stake: {
-    amount: Uint128;
   };
 } | {
   unstake: {
@@ -41,11 +39,22 @@ export type ExecuteMsg = {
   get_reward: {};
 } | {
   notify_reward_amount: {};
+} | {
+  set_gov: {
+    gov: Addr;
+  };
+} | {
+  accept_gov: {};
 };
 export type Uint128 = string;
+export type Binary = string;
+export interface Cw20ReceiveMsg {
+  amount: Uint128;
+  msg: Binary;
+  sender: string;
+}
 export interface UpdateConfigMsg {
   claim_able_time?: Uint64 | null;
-  gov?: Addr | null;
   kusd_denom?: string | null;
   kusd_reward_addr?: Addr | null;
   seilor_addr?: Addr | null;
@@ -101,6 +110,7 @@ export interface FundConfigResponse {
   kusd_reward_addr: Addr;
   kusd_reward_total_amount: Uint128;
   kusd_reward_total_paid_amount: Uint128;
+  new_gov?: Addr | null;
   reward_per_token_stored: Uint128;
   seilor_addr: Addr;
   ve_seilor_addr: Addr;

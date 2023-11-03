@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Uint128, InstantiateMsg, ExecuteMsg, QueryMsg, ConfigResponse, StateResponse } from "./Keeper.types";
+import { Uint128, InstantiateMsg, ExecuteMsg, Addr, QueryMsg, ConfigResponse, StateResponse } from "./Keeper.types";
 export interface KeeperReadOnlyInterface {
   contractAddress: string;
   config: () => Promise<ConfigResponse>;
@@ -38,17 +38,21 @@ export interface KeeperInterface {
   contractAddress: string;
   sender: string;
   updateConfig: ({
-    owner,
     rewardsContract,
     rewardsDenom,
     threshold
   }: {
-    owner?: string;
     rewardsContract?: string;
     rewardsDenom?: string;
     threshold?: Uint128;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   distribute: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setOwner: ({
+    owner
+  }: {
+    owner: Addr;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptOwnership: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class KeeperClient implements KeeperInterface {
   client: SigningCosmWasmClient;
@@ -61,22 +65,21 @@ export class KeeperClient implements KeeperInterface {
     this.contractAddress = contractAddress;
     this.updateConfig = this.updateConfig.bind(this);
     this.distribute = this.distribute.bind(this);
+    this.setOwner = this.setOwner.bind(this);
+    this.acceptOwnership = this.acceptOwnership.bind(this);
   }
 
   updateConfig = async ({
-    owner,
     rewardsContract,
     rewardsDenom,
     threshold
   }: {
-    owner?: string;
     rewardsContract?: string;
     rewardsDenom?: string;
     threshold?: Uint128;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
-        owner,
         rewards_contract: rewardsContract,
         rewards_denom: rewardsDenom,
         threshold
@@ -86,6 +89,22 @@ export class KeeperClient implements KeeperInterface {
   distribute = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       distribute: {}
+    }, fee, memo, _funds);
+  };
+  setOwner = async ({
+    owner
+  }: {
+    owner: Addr;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      set_owner: {
+        owner
+      }
+    }, fee, memo, _funds);
+  };
+  acceptOwnership = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_ownership: {}
     }, fee, memo, _funds);
   };
 }

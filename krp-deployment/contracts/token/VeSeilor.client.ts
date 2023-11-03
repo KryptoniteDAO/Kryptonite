@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Uint128, Logo, EmbeddedLogo, Binary, Addr, InstantiateMsg, InstantiateMsg1, Cw20Coin, InstantiateMarketingInfo, MinterResponse, ExecuteMsg, QueryMsg, AllAccountsResponse, BalanceResponse, CheckpointResponse, DownloadLogoResponse, GetPastTotalSupplyResponse, GetPastVotesResponse, GetVotesResponse, IsMinterResponse, LogoInfo, MarketingInfoResponse, NumCheckpointsResponse, TokenInfoResponse, VoteConfigResponse } from "./VeSeilor.types";
+import { Uint128, Logo, EmbeddedLogo, Binary, Addr, InstantiateMsg, InstantiateMsg1, Cw20Coin, InstantiateMarketingInfo, MinterResponse, ExecuteMsg, QueryMsg, AllAccountsResponse, BalanceResponse, CheckpointResponse, DownloadLogoResponse, GetPastVotesResponse, GetVotesResponse, IsMinterResponse, LogoInfo, MarketingInfoResponse, NumCheckpointsResponse, TokenInfoResponse, VoteConfigResponse } from "./VeSeilor.types";
 export interface VeSeilorReadOnlyInterface {
   contractAddress: string;
   voteConfig: () => Promise<VoteConfigResponse>;
@@ -39,11 +39,6 @@ export interface VeSeilorReadOnlyInterface {
     account: Addr;
     blockNumber: number;
   }) => Promise<GetPastVotesResponse>;
-  getPastTotalSupply: ({
-    blockNumber
-  }: {
-    blockNumber: number;
-  }) => Promise<GetPastTotalSupplyResponse>;
   balance: ({
     address
   }: {
@@ -74,7 +69,6 @@ export class VeSeilorQueryClient implements VeSeilorReadOnlyInterface {
     this.numCheckpoints = this.numCheckpoints.bind(this);
     this.getVotes = this.getVotes.bind(this);
     this.getPastVotes = this.getPastVotes.bind(this);
-    this.getPastTotalSupply = this.getPastTotalSupply.bind(this);
     this.balance = this.balance.bind(this);
     this.tokenInfo = this.tokenInfo.bind(this);
     this.minter = this.minter.bind(this);
@@ -149,17 +143,6 @@ export class VeSeilorQueryClient implements VeSeilorReadOnlyInterface {
       }
     });
   };
-  getPastTotalSupply = async ({
-    blockNumber
-  }: {
-    blockNumber: number;
-  }): Promise<GetPastTotalSupplyResponse> => {
-    return this.client.queryContractSmart(this.contractAddress, {
-      get_past_total_supply: {
-        block_number: blockNumber
-      }
-    });
-  };
   balance = async ({
     address
   }: {
@@ -211,11 +194,9 @@ export interface VeSeilorInterface {
   sender: string;
   updateConfig: ({
     fund,
-    gov,
     maxMinted
   }: {
     fund?: Addr;
-    gov?: Addr;
     maxMinted?: Uint128;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   setMinters: ({
@@ -249,6 +230,12 @@ export interface VeSeilorInterface {
     project?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   uploadLogo: (logo: Logo, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setGov: ({
+    gov
+  }: {
+    gov: Addr;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptGov: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class VeSeilorClient implements VeSeilorInterface {
   client: SigningCosmWasmClient;
@@ -265,21 +252,20 @@ export class VeSeilorClient implements VeSeilorInterface {
     this.burn = this.burn.bind(this);
     this.updateMarketing = this.updateMarketing.bind(this);
     this.uploadLogo = this.uploadLogo.bind(this);
+    this.setGov = this.setGov.bind(this);
+    this.acceptGov = this.acceptGov.bind(this);
   }
 
   updateConfig = async ({
     fund,
-    gov,
     maxMinted
   }: {
     fund?: Addr;
-    gov?: Addr;
     maxMinted?: Uint128;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
         fund,
-        gov,
         max_minted: maxMinted
       }
     }, fee, memo, _funds);
@@ -346,6 +332,22 @@ export class VeSeilorClient implements VeSeilorInterface {
   uploadLogo = async (logo: Logo, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       upload_logo: logo
+    }, fee, memo, _funds);
+  };
+  setGov = async ({
+    gov
+  }: {
+    gov: Addr;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      set_gov: {
+        gov
+      }
+    }, fee, memo, _funds);
+  };
+  acceptGov = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_gov: {}
     }, fee, memo, _funds);
   };
 }

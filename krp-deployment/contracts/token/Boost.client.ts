@@ -98,11 +98,12 @@ export interface BoostInterface {
     duration: Uint128;
     miningBoost: Uint128;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  changeGov: ({
+  setGov: ({
     gov
   }: {
     gov: Addr;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptGov: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   setLockStatus: ({
     index
   }: {
@@ -119,7 +120,8 @@ export class BoostClient implements BoostInterface {
     this.sender = sender;
     this.contractAddress = contractAddress;
     this.addLockSetting = this.addLockSetting.bind(this);
-    this.changeGov = this.changeGov.bind(this);
+    this.setGov = this.setGov.bind(this);
+    this.acceptGov = this.acceptGov.bind(this);
     this.setLockStatus = this.setLockStatus.bind(this);
   }
 
@@ -137,15 +139,20 @@ export class BoostClient implements BoostInterface {
       }
     }, fee, memo, _funds);
   };
-  changeGov = async ({
+  setGov = async ({
     gov
   }: {
     gov: Addr;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
-      change_gov: {
+      set_gov: {
         gov
       }
+    }, fee, memo, _funds);
+  };
+  acceptGov = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_gov: {}
     }, fee, memo, _funds);
   };
   setLockStatus = async ({

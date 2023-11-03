@@ -175,12 +175,10 @@ export interface SeilorInterface {
   sender: string;
   updateConfig: ({
     distribute,
-    fund,
-    gov
+    fund
   }: {
     distribute?: Addr;
     fund?: Addr;
-    gov?: Addr;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   mint: ({
     amount,
@@ -194,11 +192,16 @@ export interface SeilorInterface {
     recipient: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   burn: ({
-    amount,
-    user
+    amount
   }: {
     amount: Uint128;
-    user: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  burnFrom: ({
+    amount,
+    owner
+  }: {
+    amount: Uint128;
+    owner: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   transfer: ({
     amount,
@@ -269,6 +272,12 @@ export interface SeilorInterface {
     project?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   uploadLogo: (logo: Logo, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setGov: ({
+    gov
+  }: {
+    gov: Addr;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptGov: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class SeilorClient implements SeilorInterface {
   client: SigningCosmWasmClient;
@@ -282,6 +291,7 @@ export class SeilorClient implements SeilorInterface {
     this.updateConfig = this.updateConfig.bind(this);
     this.mint = this.mint.bind(this);
     this.burn = this.burn.bind(this);
+    this.burnFrom = this.burnFrom.bind(this);
     this.transfer = this.transfer.bind(this);
     this.send = this.send.bind(this);
     this.increaseAllowance = this.increaseAllowance.bind(this);
@@ -291,22 +301,21 @@ export class SeilorClient implements SeilorInterface {
     this.updateMinter = this.updateMinter.bind(this);
     this.updateMarketing = this.updateMarketing.bind(this);
     this.uploadLogo = this.uploadLogo.bind(this);
+    this.setGov = this.setGov.bind(this);
+    this.acceptGov = this.acceptGov.bind(this);
   }
 
   updateConfig = async ({
     distribute,
-    fund,
-    gov
+    fund
   }: {
     distribute?: Addr;
     fund?: Addr;
-    gov?: Addr;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
         distribute,
-        fund,
-        gov
+        fund
       }
     }, fee, memo, _funds);
   };
@@ -331,16 +340,27 @@ export class SeilorClient implements SeilorInterface {
     }, fee, memo, _funds);
   };
   burn = async ({
-    amount,
-    user
+    amount
   }: {
     amount: Uint128;
-    user: string;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       burn: {
+        amount
+      }
+    }, fee, memo, _funds);
+  };
+  burnFrom = async ({
+    amount,
+    owner
+  }: {
+    amount: Uint128;
+    owner: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      burn_from: {
         amount,
-        user
+        owner
       }
     }, fee, memo, _funds);
   };
@@ -477,6 +497,22 @@ export class SeilorClient implements SeilorInterface {
   uploadLogo = async (logo: Logo, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       upload_logo: logo
+    }, fee, memo, _funds);
+  };
+  setGov = async ({
+    gov
+  }: {
+    gov: Addr;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      set_gov: {
+        gov
+      }
+    }, fee, memo, _funds);
+  };
+  acceptGov = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_gov: {}
     }, fee, memo, _funds);
   };
 }

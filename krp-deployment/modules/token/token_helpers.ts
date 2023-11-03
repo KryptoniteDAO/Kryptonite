@@ -1,30 +1,27 @@
-import type { ContractDeployed, InitialBalance, WalletData } from "@/types";
+import { deployContract, readArtifact, writeArtifact } from "@/common";
+import { tokenContracts } from "@/contracts";
+import { QueryRuleInfoResponse } from "@/contracts/token/Distribute.types";
+import { SeilorConfigResponse } from "@/contracts/token/Seilor.types";
+import { IsMinterResponse, VoteConfigResponse } from "@/contracts/token/VeSeilor.types";
+import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
 import type {
+  TokenBoostContractConfig,
   TokenContractConfig,
   TokenContractsConfig,
   TokenContractsDeployed,
+  TokenDispatcherContractConfig,
+  TokenDistributeContractConfig,
+  TokenDistributeRuleConfig,
   TokenFundContractConfig,
+  TokenKeeperContractConfig,
   TokenStakingPairsConfig,
   TokenStakingPairsContractsDeployed,
-  TokenBoostContractConfig,
-  TokenVeSeilorContractConfig,
   TokenTreasureContractConfig,
-  TokenDistributeContractConfig,
-  TokenKeeperContractConfig,
-  TokenDistributeRuleConfig,
-  TokenDispatcherContractConfig
+  TokenVeSeilorContractConfig
 } from "@/modules";
-import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
-import { deployContract, readArtifact, writeArtifact } from "@/common";
-import { tokenContracts } from "@/contracts";
-import { FundConfigResponse } from "@/contracts/token/Fund.types";
-import { SeilorConfigResponse } from "@/contracts/token/Seilor.types";
-import { IsMinterResponse, VoteConfigResponse } from "@/contracts/token/VeSeilor.types";
-import { QueryRuleInfoResponse } from "@/contracts/token/Distribute.types";
+import { TOKEN_ARTIFACTS_PATH, TOKEN_MODULE_NAME } from "@/modules";
+import type { ContractDeployed, InitialBalance, WalletData } from "@/types";
 
-export const TOKEN_ARTIFACTS_PATH: string = "../krp-token-contracts/artifacts";
-export const TOKEN_CONTRACTS_PATH: string = "../krp-token-contracts/contracts";
-export const TOKEN_MODULE_NAME: string = "token";
 export const tokenConfigs: TokenContractsConfig = readArtifact(`${TOKEN_MODULE_NAME}_config_${DEPLOY_CHAIN_ID}`, `./modules/${TOKEN_MODULE_NAME}/`);
 
 export function getTokenDeployFileName(chainId: string): string {

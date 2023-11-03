@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Uint64, Addr, InstantiateMsg, ExecuteMsg, Uint128, UpdateConfigMsg, QueryMsg, EarnedResponse, FundConfigResponse, GetClaimAbleKusdResponse, GetClaimAbleSeilorResponse, GetReservedSeilorForVestingResponse, UserLastWithdrawTimeResponse, UserRewardPerTokenPaidResponse, UserRewardsResponse, UserTime2FullRedemptionResponse, Uint256, UserUnstakeRateResponse } from "./Fund.types";
+import { Uint64, Addr, InstantiateMsg, ExecuteMsg, Uint128, Binary, Cw20ReceiveMsg, UpdateConfigMsg, QueryMsg, EarnedResponse, FundConfigResponse, GetClaimAbleKusdResponse, GetClaimAbleSeilorResponse, GetReservedSeilorForVestingResponse, UserLastWithdrawTimeResponse, UserRewardPerTokenPaidResponse, UserRewardsResponse, UserTime2FullRedemptionResponse, Uint256, UserUnstakeRateResponse } from "./Fund.types";
 export interface FundReadOnlyInterface {
   contractAddress: string;
   fundConfig: () => Promise<FundConfigResponse>;
@@ -183,6 +183,15 @@ export class FundQueryClient implements FundReadOnlyInterface {
 export interface FundInterface {
   contractAddress: string;
   sender: string;
+  receive: ({
+    amount,
+    msg,
+    sender
+  }: {
+    amount: Uint128;
+    msg: Binary;
+    sender: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   updateFundConfig: ({
     updateConfigMsg
   }: {
@@ -192,11 +201,6 @@ export interface FundInterface {
     account
   }: {
     account: Addr;
-  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  stake: ({
-    amount
-  }: {
-    amount: Uint128;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   unstake: ({
     amount
@@ -211,6 +215,12 @@ export interface FundInterface {
   reStake: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   getReward: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   notifyRewardAmount: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setGov: ({
+    gov
+  }: {
+    gov: Addr;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptGov: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class FundClient implements FundInterface {
   client: SigningCosmWasmClient;
@@ -221,16 +231,35 @@ export class FundClient implements FundInterface {
     this.client = client;
     this.sender = sender;
     this.contractAddress = contractAddress;
+    this.receive = this.receive.bind(this);
     this.updateFundConfig = this.updateFundConfig.bind(this);
     this.refreshReward = this.refreshReward.bind(this);
-    this.stake = this.stake.bind(this);
     this.unstake = this.unstake.bind(this);
     this.withdraw = this.withdraw.bind(this);
     this.reStake = this.reStake.bind(this);
     this.getReward = this.getReward.bind(this);
     this.notifyRewardAmount = this.notifyRewardAmount.bind(this);
+    this.setGov = this.setGov.bind(this);
+    this.acceptGov = this.acceptGov.bind(this);
   }
 
+  receive = async ({
+    amount,
+    msg,
+    sender
+  }: {
+    amount: Uint128;
+    msg: Binary;
+    sender: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      receive: {
+        amount,
+        msg,
+        sender
+      }
+    }, fee, memo, _funds);
+  };
   updateFundConfig = async ({
     updateConfigMsg
   }: {
@@ -250,17 +279,6 @@ export class FundClient implements FundInterface {
     return await this.client.execute(this.sender, this.contractAddress, {
       refresh_reward: {
         account
-      }
-    }, fee, memo, _funds);
-  };
-  stake = async ({
-    amount
-  }: {
-    amount: Uint128;
-  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
-    return await this.client.execute(this.sender, this.contractAddress, {
-      stake: {
-        amount
       }
     }, fee, memo, _funds);
   };
@@ -299,6 +317,22 @@ export class FundClient implements FundInterface {
   notifyRewardAmount = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       notify_reward_amount: {}
+    }, fee, memo, _funds);
+  };
+  setGov = async ({
+    gov
+  }: {
+    gov: Addr;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      set_gov: {
+        gov
+      }
+    }, fee, memo, _funds);
+  };
+  acceptGov = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_gov: {}
     }, fee, memo, _funds);
   };
 }

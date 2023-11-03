@@ -21,9 +21,11 @@ export type ExecuteMsg = {
     mining_boost: Uint128;
   };
 } | {
-  change_gov: {
+  set_gov: {
     gov: Addr;
   };
+} | {
+  accept_gov: {};
 } | {
   set_lock_status: {
     index: number;

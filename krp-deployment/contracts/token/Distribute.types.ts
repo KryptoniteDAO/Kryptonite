@@ -14,7 +14,6 @@ export interface InstantiateMsg {
   total_amount: number;
 }
 export interface RuleConfigMsg {
-  lock_end_time: number;
   lock_start_time: number;
   rule_name: string;
   rule_owner: Addr;
@@ -32,7 +31,6 @@ export type ExecuteMsg = {
 } | {
   update_config: {
     distribute_token?: Addr | null;
-    gov?: Addr | null;
   };
 } | {
   update_rule_config: {
@@ -43,6 +41,12 @@ export type ExecuteMsg = {
     rule_msg: RuleConfigMsg;
     rule_type: string;
   };
+} | {
+  set_gov: {
+    gov: Addr;
+  };
+} | {
+  accept_gov: {};
 };
 export type Binary = string;
 export interface UpdateRuleConfigMsg {
@@ -79,7 +83,6 @@ export interface QueryRuleInfoResponse {
 export interface RuleConfig {
   end_linear_release_time: number;
   linear_release_per_second: number;
-  lock_end_time: number;
   lock_start_time: number;
   rule_name: string;
   rule_owner: Addr;

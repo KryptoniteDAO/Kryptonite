@@ -71,17 +71,21 @@ export interface DispatcherInterface {
   sender: string;
   updateConfig: ({
     claimToken,
-    gov,
     startLockPeriodTime,
     totalLockAmount
   }: {
     claimToken?: Addr;
-    gov?: Addr;
     startLockPeriodTime?: number;
     totalLockAmount?: Uint256;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   addUser: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   userClaim: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setGov: ({
+    gov
+  }: {
+    gov: Addr;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptGov: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class DispatcherClient implements DispatcherInterface {
   client: SigningCosmWasmClient;
@@ -95,23 +99,22 @@ export class DispatcherClient implements DispatcherInterface {
     this.updateConfig = this.updateConfig.bind(this);
     this.addUser = this.addUser.bind(this);
     this.userClaim = this.userClaim.bind(this);
+    this.setGov = this.setGov.bind(this);
+    this.acceptGov = this.acceptGov.bind(this);
   }
 
   updateConfig = async ({
     claimToken,
-    gov,
     startLockPeriodTime,
     totalLockAmount
   }: {
     claimToken?: Addr;
-    gov?: Addr;
     startLockPeriodTime?: number;
     totalLockAmount?: Uint256;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
         claim_token: claimToken,
-        gov,
         start_lock_period_time: startLockPeriodTime,
         total_lock_amount: totalLockAmount
       }
@@ -125,6 +128,22 @@ export class DispatcherClient implements DispatcherInterface {
   userClaim = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       user_claim: {}
+    }, fee, memo, _funds);
+  };
+  setGov = async ({
+    gov
+  }: {
+    gov: Addr;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      set_gov: {
+        gov
+      }
+    }, fee, memo, _funds);
+  };
+  acceptGov = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_gov: {}
     }, fee, memo, _funds);
   };
 }

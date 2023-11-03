@@ -166,6 +166,12 @@ export interface StakingInterface {
   }: {
     amount: Uint128;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setGov: ({
+    gov
+  }: {
+    gov: Addr;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptGov: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class StakingClient implements StakingInterface {
   client: SigningCosmWasmClient;
@@ -182,6 +188,8 @@ export class StakingClient implements StakingInterface {
     this.getReward = this.getReward.bind(this);
     this.withdraw = this.withdraw.bind(this);
     this.notifyRewardAmount = this.notifyRewardAmount.bind(this);
+    this.setGov = this.setGov.bind(this);
+    this.acceptGov = this.acceptGov.bind(this);
   }
 
   receive = async ({
@@ -248,6 +256,22 @@ export class StakingClient implements StakingInterface {
       notify_reward_amount: {
         amount
       }
+    }, fee, memo, _funds);
+  };
+  setGov = async ({
+    gov
+  }: {
+    gov: Addr;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      set_gov: {
+        gov
+      }
+    }, fee, memo, _funds);
+  };
+  acceptGov = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_gov: {}
     }, fee, memo, _funds);
   };
 }

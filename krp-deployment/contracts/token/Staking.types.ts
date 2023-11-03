@@ -35,6 +35,12 @@ export type ExecuteMsg = {
   notify_reward_amount: {
     amount: Uint128;
   };
+} | {
+  set_gov: {
+    gov: Addr;
+  };
+} | {
+  accept_gov: {};
 };
 export type Binary = string;
 export interface Cw20ReceiveMsg {
@@ -45,10 +51,7 @@ export interface Cw20ReceiveMsg {
 export interface UpdateStakingConfigStruct {
   boost?: Addr | null;
   fund?: Addr | null;
-  gov?: Addr | null;
   reward_controller_addr?: Addr | null;
-  rewards_token?: Addr | null;
-  staking_token?: Addr | null;
 }
 export type QueryMsg = {
   reward_per_token: {};

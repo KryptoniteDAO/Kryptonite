@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Uint128, Addr, InstantiateMsg, ExecuteMsg, Binary, Cw20ReceiveMsg, TreasureConfigMsg, QueryMsg, ConfigInfosResponse, TreasureConfig, TreasureState, UserInfosResponse, TreasureUserState } from "./Treasure.types";
+import { Addr, Uint128, InstantiateMsg, ExecuteMsg, Binary, Cw20ReceiveMsg, TreasureConfigMsg, QueryMsg, ConfigInfosResponse, TreasureConfig, TreasureState, UserInfosResponse, TreasureUserState } from "./Treasure.types";
 export interface TreasureReadOnlyInterface {
   contractAddress: string;
   queryConfigInfos: () => Promise<ConfigInfosResponse>;
@@ -57,32 +57,18 @@ export interface TreasureInterface {
     sender: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   updateConfig: ({
-    dustRewardPerSecond,
     endLockTime,
-    gov,
     lockToken,
-    mintNftCostDust,
-    modNum,
-    nftEndPreMintTime,
-    nftStartPreMintTime,
     noDelayPunishCoefficient,
     punishReceiver,
     startLockTime,
-    winningNum,
     withdrawDelayDuration
   }: {
-    dustRewardPerSecond?: Uint128;
     endLockTime?: number;
-    gov?: Addr;
     lockToken?: Addr;
-    mintNftCostDust?: Uint128;
-    modNum?: number;
-    nftEndPreMintTime?: number;
-    nftStartPreMintTime?: number;
     noDelayPunishCoefficient?: Uint128;
     punishReceiver?: Addr;
     startLockTime?: number;
-    winningNum?: number[];
     withdrawDelayDuration?: number;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   userWithdraw: ({
@@ -95,11 +81,12 @@ export interface TreasureInterface {
   }: {
     amount: Uint128;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  preMintNft: ({
-    mintNum
+  setGov: ({
+    gov
   }: {
-    mintNum: number;
+    gov: Addr;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptGov: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class TreasureClient implements TreasureInterface {
   client: SigningCosmWasmClient;
@@ -114,7 +101,8 @@ export class TreasureClient implements TreasureInterface {
     this.updateConfig = this.updateConfig.bind(this);
     this.userWithdraw = this.userWithdraw.bind(this);
     this.userUnlock = this.userUnlock.bind(this);
-    this.preMintNft = this.preMintNft.bind(this);
+    this.setGov = this.setGov.bind(this);
+    this.acceptGov = this.acceptGov.bind(this);
   }
 
   receive = async ({
@@ -135,48 +123,27 @@ export class TreasureClient implements TreasureInterface {
     }, fee, memo, _funds);
   };
   updateConfig = async ({
-    dustRewardPerSecond,
     endLockTime,
-    gov,
     lockToken,
-    mintNftCostDust,
-    modNum,
-    nftEndPreMintTime,
-    nftStartPreMintTime,
     noDelayPunishCoefficient,
     punishReceiver,
     startLockTime,
-    winningNum,
     withdrawDelayDuration
   }: {
-    dustRewardPerSecond?: Uint128;
     endLockTime?: number;
-    gov?: Addr;
     lockToken?: Addr;
-    mintNftCostDust?: Uint128;
-    modNum?: number;
-    nftEndPreMintTime?: number;
-    nftStartPreMintTime?: number;
     noDelayPunishCoefficient?: Uint128;
     punishReceiver?: Addr;
     startLockTime?: number;
-    winningNum?: number[];
     withdrawDelayDuration?: number;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
-        dust_reward_per_second: dustRewardPerSecond,
         end_lock_time: endLockTime,
-        gov,
         lock_token: lockToken,
-        mint_nft_cost_dust: mintNftCostDust,
-        mod_num: modNum,
-        nft_end_pre_mint_time: nftEndPreMintTime,
-        nft_start_pre_mint_time: nftStartPreMintTime,
         no_delay_punish_coefficient: noDelayPunishCoefficient,
         punish_receiver: punishReceiver,
         start_lock_time: startLockTime,
-        winning_num: winningNum,
         withdraw_delay_duration: withdrawDelayDuration
       }
     }, fee, memo, _funds);
@@ -203,15 +170,20 @@ export class TreasureClient implements TreasureInterface {
       }
     }, fee, memo, _funds);
   };
-  preMintNft = async ({
-    mintNum
+  setGov = async ({
+    gov
   }: {
-    mintNum: number;
+    gov: Addr;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
-      pre_mint_nft: {
-        mint_num: mintNum
+      set_gov: {
+        gov
       }
+    }, fee, memo, _funds);
+  };
+  acceptGov = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_gov: {}
     }, fee, memo, _funds);
   };
 }

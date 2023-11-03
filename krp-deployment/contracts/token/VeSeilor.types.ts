@@ -48,7 +48,6 @@ export interface MinterResponse {
 export type ExecuteMsg = {
   update_config: {
     fund?: Addr | null;
-    gov?: Addr | null;
     max_minted?: Uint128 | null;
   };
 } | {
@@ -74,6 +73,12 @@ export type ExecuteMsg = {
   };
 } | {
   upload_logo: Logo;
+} | {
+  set_gov: {
+    gov: Addr;
+  };
+} | {
+  accept_gov: {};
 };
 export type QueryMsg = {
   vote_config: {};
@@ -97,10 +102,6 @@ export type QueryMsg = {
 } | {
   get_past_votes: {
     account: Addr;
-    block_number: number;
-  };
-} | {
-  get_past_total_supply: {
     block_number: number;
   };
 } | {
@@ -135,9 +136,6 @@ export interface CheckpointResponse {
 export interface DownloadLogoResponse {
   data: Binary;
   mime_type: string;
-}
-export interface GetPastTotalSupplyResponse {
-  total_supply: number;
 }
 export interface GetPastVotesResponse {
   votes: number;

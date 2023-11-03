@@ -48,7 +48,6 @@ export type ExecuteMsg = {
   update_config: {
     distribute?: Addr | null;
     fund?: Addr | null;
-    gov?: Addr | null;
   };
 } | {
   mint: {
@@ -60,7 +59,11 @@ export type ExecuteMsg = {
 } | {
   burn: {
     amount: Uint128;
-    user: string;
+  };
+} | {
+  burn_from: {
+    amount: Uint128;
+    owner: string;
   };
 } | {
   transfer: {
@@ -110,6 +113,12 @@ export type ExecuteMsg = {
   };
 } | {
   upload_logo: Logo;
+} | {
+  set_gov: {
+    gov: Addr;
+  };
+} | {
+  accept_gov: {};
 };
 export type Expiration = {
   at_height: number;

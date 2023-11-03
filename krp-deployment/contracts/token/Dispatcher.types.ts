@@ -20,10 +20,15 @@ export type ExecuteMsg = {
   add_user: AddUserMsg[];
 } | {
   user_claim: {};
+} | {
+  set_gov: {
+    gov: Addr;
+  };
+} | {
+  accept_gov: {};
 };
 export interface UpdateGlobalConfigMsg {
   claim_token?: Addr | null;
-  gov?: Addr | null;
   start_lock_period_time?: number | null;
   total_lock_amount?: Uint256 | null;
 }
@@ -52,6 +57,7 @@ export interface GlobalConfig {
   claim_token: Addr;
   duration_per_period: number;
   gov: Addr;
+  new_gov?: Addr | null;
   periods: number;
   start_lock_period_time: number;
   total_lock_amount: Uint256;

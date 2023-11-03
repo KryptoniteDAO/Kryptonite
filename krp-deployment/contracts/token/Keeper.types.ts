@@ -13,20 +13,27 @@ export interface InstantiateMsg {
 }
 export type ExecuteMsg = {
   update_config: {
-    owner?: string | null;
     rewards_contract?: string | null;
     rewards_denom?: string | null;
     threshold?: Uint128 | null;
   };
 } | {
   distribute: {};
+} | {
+  set_owner: {
+    owner: Addr;
+  };
+} | {
+  accept_ownership: {};
 };
+export type Addr = string;
 export type QueryMsg = {
   config: {};
 } | {
   state: {};
 };
 export interface ConfigResponse {
+  new_owner?: string | null;
   owner: string;
   rewards_contract: string;
   rewards_denom: string;

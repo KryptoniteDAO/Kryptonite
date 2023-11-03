@@ -26,9 +26,9 @@ export interface PriceFeed {
   price: Price;
 }
 export interface Price {
-  conf: number;
+  conf: string;
   expo: number;
-  price: number;
+  price: string;
   publish_time: number;
 }
 export type MockOracleExecuteMsg = ExecuteMsg;

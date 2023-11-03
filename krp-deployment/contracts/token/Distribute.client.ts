@@ -72,11 +72,9 @@ export interface DistributeInterface {
     ruleType: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   updateConfig: ({
-    distributeToken,
-    gov
+    distributeToken
   }: {
     distributeToken?: Addr;
-    gov?: Addr;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   updateRuleConfig: ({
     updateRuleMsg
@@ -90,6 +88,12 @@ export interface DistributeInterface {
     ruleMsg: RuleConfigMsg;
     ruleType: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setGov: ({
+    gov
+  }: {
+    gov: Addr;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptGov: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class DistributeClient implements DistributeInterface {
   client: SigningCosmWasmClient;
@@ -104,6 +108,8 @@ export class DistributeClient implements DistributeInterface {
     this.updateConfig = this.updateConfig.bind(this);
     this.updateRuleConfig = this.updateRuleConfig.bind(this);
     this.addRuleConfig = this.addRuleConfig.bind(this);
+    this.setGov = this.setGov.bind(this);
+    this.acceptGov = this.acceptGov.bind(this);
   }
 
   claim = async ({
@@ -121,16 +127,13 @@ export class DistributeClient implements DistributeInterface {
     }, fee, memo, _funds);
   };
   updateConfig = async ({
-    distributeToken,
-    gov
+    distributeToken
   }: {
     distributeToken?: Addr;
-    gov?: Addr;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
-        distribute_token: distributeToken,
-        gov
+        distribute_token: distributeToken
       }
     }, fee, memo, _funds);
   };
@@ -157,6 +160,22 @@ export class DistributeClient implements DistributeInterface {
         rule_msg: ruleMsg,
         rule_type: ruleType
       }
+    }, fee, memo, _funds);
+  };
+  setGov = async ({
+    gov
+  }: {
+    gov: Addr;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      set_gov: {
+        gov
+      }
+    }, fee, memo, _funds);
+  };
+  acceptGov = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_gov: {}
     }, fee, memo, _funds);
   };
 }

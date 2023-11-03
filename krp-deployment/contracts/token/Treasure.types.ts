@@ -4,21 +4,15 @@
 * and run the @cosmwasm/ts-codegen generate command to regenerate this file.
 */
 
-export type Uint128 = string;
 export type Addr = string;
+export type Uint128 = string;
 export interface InstantiateMsg {
-  dust_reward_per_second: Uint128;
   end_lock_time: number;
   gov?: Addr | null;
   lock_token: Addr;
-  mint_nft_cost_dust: Uint128;
-  mod_num: number;
-  nft_end_pre_mint_time: number;
-  nft_start_pre_mint_time: number;
   no_delay_punish_coefficient: Uint128;
   punish_receiver: Addr;
   start_lock_time: number;
-  winning_num: number[];
   withdraw_delay_duration: number;
 }
 export type ExecuteMsg = {
@@ -34,9 +28,11 @@ export type ExecuteMsg = {
     amount: Uint128;
   };
 } | {
-  pre_mint_nft: {
-    mint_num: number;
+  set_gov: {
+    gov: Addr;
   };
+} | {
+  accept_gov: {};
 };
 export type Binary = string;
 export interface Cw20ReceiveMsg {
@@ -45,18 +41,11 @@ export interface Cw20ReceiveMsg {
   sender: string;
 }
 export interface TreasureConfigMsg {
-  dust_reward_per_second?: Uint128 | null;
   end_lock_time?: number | null;
-  gov?: Addr | null;
   lock_token?: Addr | null;
-  mint_nft_cost_dust?: Uint128 | null;
-  mod_num?: number | null;
-  nft_end_pre_mint_time?: number | null;
-  nft_start_pre_mint_time?: number | null;
   no_delay_punish_coefficient?: Uint128 | null;
   punish_receiver?: Addr | null;
   start_lock_time?: number | null;
-  winning_num?: number[] | null;
   withdraw_delay_duration?: number | null;
 }
 export type QueryMsg = {
@@ -71,30 +60,21 @@ export interface ConfigInfosResponse {
   state: TreasureState;
 }
 export interface TreasureConfig {
-  dust_reward_per_second: Uint128;
   end_lock_time: number;
   gov: Addr;
   lock_token: Addr;
-  mint_nft_cost_dust: Uint128;
-  mod_num: number;
-  nft_end_pre_mint_time: number;
-  nft_start_pre_mint_time: number;
+  new_gov?: Addr | null;
   no_delay_punish_coefficient: Uint128;
   punish_receiver: Addr;
   start_lock_time: number;
-  winning_num: number[];
   withdraw_delay_duration: number;
   [k: string]: unknown;
 }
 export interface TreasureState {
   current_locked_amount: Uint128;
   current_unlock_amount: Uint128;
-  total_cost_dust_amount: Uint128;
   total_locked_amount: Uint128;
-  total_lose_nft_num: number;
   total_punish_amount: Uint128;
-  total_unlock_amount: Uint128;
-  total_win_nft_num: number;
   total_withdraw_amount: Uint128;
   [k: string]: unknown;
 }
@@ -102,18 +82,14 @@ export interface UserInfosResponse {
   user_state: TreasureUserState;
 }
 export interface TreasureUserState {
-  current_dust_amount: Uint128;
   current_locked_amount: Uint128;
   current_unlock_amount: Uint128;
   last_lock_time: number;
   last_unlock_time: number;
-  lose_nft_num: number;
-  total_cost_dust_amount: Uint128;
   total_locked_amount: Uint128;
   total_punish_amount: Uint128;
   total_unlock_amount: Uint128;
   total_withdraw_amount: Uint128;
-  win_nft_num: number;
   [k: string]: unknown;
 }
 export type TreasureExecuteMsg = ExecuteMsg;
