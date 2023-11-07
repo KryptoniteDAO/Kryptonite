@@ -1,11 +1,9 @@
-import { readArtifact, storeCodeByWalletData, writeArtifact, instantiateContractByWalletData, queryWasmContractByWalletData, executeContractByWalletData, printChangeBalancesByWalletData, queryContractConfig } from "../../common";
 import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
-import type { ContractDeployed, WalletData } from "@/types";
 import type { ConvertContractsConfig, ConvertContractsDeployed, ConvertPairsConfig } from "@/modules";
+import type { ContractDeployed, WalletData } from "@/types";
+import { executeContractByWalletData, instantiateContractByWalletData, queryContractConfig, readArtifact, storeCodeByWalletData, writeArtifact } from "../../common";
+import { CONVERT_ARTIFACTS_PATH, CONVERT_MODULE_NAME } from "./convert_constants";
 
-export const CONVERT_ARTIFACTS_PATH = "../krp-basset-convert/artifacts";
-export const CONVERT_CONTRACTS_PATH = "../krp-basset-convert/contracts";
-export const CONVERT_MODULE_NAME = "convert";
 export const convertConfigs: ConvertContractsConfig = readArtifact(`${CONVERT_MODULE_NAME}_config_${DEPLOY_CHAIN_ID}`, `./modules/${CONVERT_MODULE_NAME}/`);
 
 export function getConvertDeployFileName(chainId: string): string {

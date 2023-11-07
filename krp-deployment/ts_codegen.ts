@@ -1,22 +1,13 @@
+import { CDP_CONTRACTS_PATH, CDP_MODULE_NAME } from "@/modules/cdp/cdp_constants";
+import { CONVERT_CONTRACTS_PATH, CONVERT_MODULE_NAME } from "@/modules/convert/convert_constants";
+import { MARKET_CONTRACTS_PATH, MARKET_MODULE_NAME } from "@/modules/market/market_constants";
+import { ORACLE_CONTRACTS_PATH, ORACLE_MODULE_NAME } from "@/modules/oracle/oracle_constants";
+import { STAKING_CONTRACTS_PATH, STAKING_MODULE_NAME } from "@/modules/staking/staking_constants";
+import { SWAP_EXTENSION_CONTRACTS_PATH, SWAP_EXTENSION_MODULE_NAME } from "@/modules/swap-extension/swap-extension_constants";
+import { TOKEN_CONTRACTS_PATH, TOKEN_MODULE_NAME } from "@/modules/token/token_constants";
 import codegen from "@cosmwasm/ts-codegen";
 import * as fs from "fs";
 import * as path from "path";
-import {
-  CONVERT_MODULE_NAME,
-  TOKEN_MODULE_NAME,
-  MARKET_MODULE_NAME,
-  STAKING_MODULE_NAME,
-  SWAP_EXTENSION_MODULE_NAME,
-  CDP_MODULE_NAME,
-  STAKING_CONTRACTS_PATH,
-  MARKET_CONTRACTS_PATH,
-  CONVERT_CONTRACTS_PATH,
-  SWAP_EXTENSION_CONTRACTS_PATH,
-  TOKEN_CONTRACTS_PATH,
-  CDP_CONTRACTS_PATH,
-  ORACLE_CONTRACTS_PATH,
-  ORACLE_MODULE_NAME
-} from "@/modules";
 
 export type ContractConfig = {
   name: string;
@@ -26,18 +17,15 @@ export type ContractConfig = {
 /**
  * after do it
  * module: market
- * 1. OraclePyth.client.ts: `<Query` => `<`, `ExchangeRateByAssetLabelResponse` => `Decimal256`
- * 2. Market.client.ts: `StateResponse` => `State`
- * 3. Overseer.client.ts: `EpochStateResponse` => `EpochState`, `DynrateStateResponse` => `DynrateState`
- * 4. LiquidationQueue.client.ts: `BidsByUserResponse` => `BidsResponse`, `BidPoolsByCollateralResponse` => `BidPoolsResponse`
+ * 1. Market.client.ts: `StateResponse` => `State`
+ * 2. Overseer.client.ts: `EpochStateResponse` => `EpochState`, `DynrateStateResponse` => `DynrateState`
+ * 3. LiquidationQueue.client.ts: `BidsByUserResponse` => `BidsResponse`, `BidPoolsByCollateralResponse` => `BidPoolsResponse`
  * module: staking
  * 1. Hub.client.ts: `ParametersResponse` => `Parameters[]`
  * 2. RewardsDispatcher.client.ts: `ConfigResponse` => `Config`
  * 3. ValidatorsRegistry.client.ts: `ConfigResponse` => `Config`, `GetValidatorsForDelegationResponse` => `Validator[]`
- * module: kpt
+ * module: token
  * 1.Fund.client.ts: `UserTime2fullRedemptionResponse` => `UserTime2FullRedemptionResponse`,
- * module: blind-box
- * 1.BlindBox.client.ts: `NullableEmpty` => `Nullable_Empty`,
  */
 async function main(): Promise<void> {
   console.log(`\n  ✨✨✨ do code generate enter.`);
@@ -46,13 +34,13 @@ async function main(): Promise<void> {
   const modulesMap: Map<string, ContractConfig[]> = new Map<string, ContractConfig[]>();
 
   /// custom modules - start
-  // modulesMap.set(SWAP_EXTENSION_MODULE_NAME, getContractConfigByPath(SWAP_EXTENSION_CONTRACTS_PATH));
-  // modulesMap.set(ORACLE_MODULE_NAME, getContractConfigByPath(ORACLE_CONTRACTS_PATH));
-  // modulesMap.set(STAKING_MODULE_NAME, getContractConfigByPath(STAKING_CONTRACTS_PATH));
-  // modulesMap.set(MARKET_MODULE_NAME, getContractConfigByPath(MARKET_CONTRACTS_PATH));
-  // modulesMap.set(CONVERT_MODULE_NAME, getContractConfigByPath(CONVERT_CONTRACTS_PATH));
-  // modulesMap.set(TOKEN_MODULE_NAME, getContractConfigByPath(TOKEN_CONTRACTS_PATH));
-  // modulesMap.set(CDP_MODULE_NAME, getContractConfigByPath(CDP_CONTRACTS_PATH));
+  modulesMap.set(SWAP_EXTENSION_MODULE_NAME, getContractConfigByPath(SWAP_EXTENSION_CONTRACTS_PATH));
+  modulesMap.set(ORACLE_MODULE_NAME, getContractConfigByPath(ORACLE_CONTRACTS_PATH));
+  modulesMap.set(STAKING_MODULE_NAME, getContractConfigByPath(STAKING_CONTRACTS_PATH));
+  modulesMap.set(MARKET_MODULE_NAME, getContractConfigByPath(MARKET_CONTRACTS_PATH));
+  modulesMap.set(CONVERT_MODULE_NAME, getContractConfigByPath(CONVERT_CONTRACTS_PATH));
+  modulesMap.set(TOKEN_MODULE_NAME, getContractConfigByPath(TOKEN_CONTRACTS_PATH));
+  modulesMap.set(CDP_MODULE_NAME, getContractConfigByPath(CDP_CONTRACTS_PATH));
   /// custom modules - end
 
   if (modulesMap.size <= 0) {

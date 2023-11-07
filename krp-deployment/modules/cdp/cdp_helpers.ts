@@ -1,16 +1,14 @@
-import type { WalletData, ContractDeployed } from "@/types";
-import type { CdpCentralControlContractConfig, CdpContractsConfig, CdpContractsDeployed, CdpStablePoolContractConfig, CdpCustodyContractConfig, CdpLiquidationQueueContractConfig, CdpCollateralPairsDeployed, CdpCollateralPairsConfig, CdpRewardBookContractConfig } from "@/modules";
-import { DEPLOY_VERSION, DEPLOY_CHAIN_ID } from "@/env_data";
 import { deployContract, getStableCoinDenom, readArtifact, writeArtifact } from "@/common";
 import { cdpContracts } from "@/contracts";
 import { ConfigResponse as CentralControlConfigResponse, WhitelistResponse } from "@/contracts/cdp/CentralControl.types";
 import { ConfigResponse as CustodyConfigResponse } from "@/contracts/cdp/Custody.types";
-import { ConfigResponse as RewardBookConfigResponse } from "@/contracts/cdp/RewardBook.types";
 import { CollateralInfoResponse, ConfigResponse as LiquidationQueueConfigResponse } from "@/contracts/cdp/LiquidationQueue.types";
+import { ConfigResponse as RewardBookConfigResponse } from "@/contracts/cdp/RewardBook.types";
+import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
+import type { CdpCentralControlContractConfig, CdpCollateralPairsConfig, CdpCollateralPairsDeployed, CdpContractsConfig, CdpContractsDeployed, CdpCustodyContractConfig, CdpLiquidationQueueContractConfig, CdpRewardBookContractConfig, CdpStablePoolContractConfig } from "@/modules";
+import type { ContractDeployed, WalletData } from "@/types";
+import { CDP_ARTIFACTS_PATH, CDP_MODULE_NAME } from "./cdp_constants";
 
-export const CDP_ARTIFACTS_PATH = "../krp-cdp-contracts/artifacts";
-export const CDP_CONTRACTS_PATH = "../krp-cdp-contracts/contracts";
-export const CDP_MODULE_NAME = "cdp";
 export const cdpConfigs: CdpContractsConfig = readArtifact(`${CDP_MODULE_NAME}_config_${DEPLOY_CHAIN_ID}`, `./modules/${CDP_MODULE_NAME}/`);
 
 export function getCdpDeployFileName(chainId: string): string {

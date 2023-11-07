@@ -1,13 +1,11 @@
-import type { ContractDeployed, WalletData } from "@/types";
-import type { BSeiTokenContractConfig, HubContractConfig, RewardContractConfig, RewardsDispatcherContractConfig, StakingContractsConfig, StakingContractsDeployed, StSeiTokenContractConfig, ValidatorsRegistryContractConfig } from "@/modules";
-import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
 import { deployContract, readArtifact, writeArtifact } from "@/common";
 import { stakingContracts } from "@/contracts";
 import { ConfigResponse } from "@/contracts/staking/RewardsDispatcher.types";
+import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
+import type { BSeiTokenContractConfig, HubContractConfig, RewardContractConfig, RewardsDispatcherContractConfig, StakingContractsConfig, StakingContractsDeployed, StSeiTokenContractConfig, ValidatorsRegistryContractConfig } from "@/modules";
+import type { ContractDeployed, WalletData } from "@/types";
+import { STAKING_ARTIFACTS_PATH, STAKING_MODULE_NAME } from "./staking_constants";
 
-export const STAKING_ARTIFACTS_PATH = "../krp-staking-contracts/artifacts";
-export const STAKING_CONTRACTS_PATH = "../krp-staking-contracts/contracts";
-export const STAKING_MODULE_NAME = "staking";
 export const stakingConfigs: StakingContractsConfig = readArtifact(`${STAKING_MODULE_NAME}_config_${DEPLOY_CHAIN_ID}`, `./modules/${STAKING_MODULE_NAME}/`);
 
 export function getStakingDeployFileName(chainId: string): string {

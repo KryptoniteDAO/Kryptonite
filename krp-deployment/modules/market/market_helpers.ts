@@ -1,11 +1,9 @@
-import type { ContractDeployed, WalletData } from "@/types";
-import type { CustodyBSeiContractConfig, DistributionModelContractConfig, InterestModelContractConfig, LiquidationQueueContractConfig, MarketContractsConfig, MarketContractsDeployed, OverseerContractConfig } from "@/modules";
-import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
 import { deployContract, executeContractByWalletData, instantiateContract2ByWalletData, queryContractConfig, queryWasmContractByWalletData, readArtifact, storeCodeByWalletData, writeArtifact } from "@/common";
+import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
+import type { CustodyBSeiContractConfig, DistributionModelContractConfig, InterestModelContractConfig, LiquidationQueueContractConfig, MarketContractsConfig, MarketContractsDeployed, OverseerContractConfig } from "@/modules";
+import type { ContractDeployed, WalletData } from "@/types";
+import { MARKET_ARTIFACTS_PATH, MARKET_MODULE_NAME } from "./market_constants";
 
-export const MARKET_ARTIFACTS_PATH = "../krp-market-contracts/artifacts";
-export const MARKET_CONTRACTS_PATH = "../krp-market-contracts/contracts";
-export const MARKET_MODULE_NAME = "market";
 export const marketConfigs: MarketContractsConfig = readArtifact(`${MARKET_MODULE_NAME}_config_${DEPLOY_CHAIN_ID}`, `./modules/${MARKET_MODULE_NAME}/`);
 
 export function getMarketDeployFileName(chainId: string): string {

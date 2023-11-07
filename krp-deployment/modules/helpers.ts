@@ -1,12 +1,16 @@
-import type { CdpContractsDeployed, TokenStakingPairsContractsDeployed, ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, TokenContractsDeployed, SwapExtensionContractsDeployed, OracleContractsDeployed } from "@/modules";
-import { stakingReadArtifact, marketReadArtifact, swapExtensionReadArtifact, convertReadArtifact, tokenReadArtifact, cdpReadArtifact, oracleReadArtifact, convertConfigs, CDP_MODULE_NAME, STAKING_MODULE_NAME, MARKET_MODULE_NAME, CONVERT_MODULE_NAME } from "@/modules";
+import { BnComparedTo, BnDiv, BnFormat, BnMul, queryAddressBalance, toEncodedBinary, writeArtifact } from "@/common";
+import { cdpContracts, cw20BaseContracts, oracleContracts, stakingContracts } from "@/contracts";
+import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
+import type { CdpContractsDeployed, ConvertContractsDeployed, MarketContractsDeployed, OracleContractsDeployed, StakingContractsDeployed, SwapExtensionContractsDeployed, TokenContractsDeployed, TokenStakingPairsContractsDeployed } from "@/modules";
+import { cdpReadArtifact, convertConfigs, convertReadArtifact, marketReadArtifact, oracleReadArtifact, stakingReadArtifact, swapExtensionReadArtifact, tokenReadArtifact } from "@/modules";
+import { CDP_MODULE_NAME } from "@/modules/cdp/cdp_constants";
+import { CONVERT_MODULE_NAME } from "@/modules/convert/convert_constants";
+import { MARKET_MODULE_NAME } from "@/modules/market/market_constants";
 import { ORACLE_MODULE_NAME } from "@/modules/oracle/oracle_constants";
+import { STAKING_MODULE_NAME } from "@/modules/staking/staking_constants";
 import { SWAP_EXTENSION_MODULE_NAME } from "@/modules/swap-extension/swap-extension_constants";
 import { TOKEN_MODULE_NAME } from "@/modules/token/token_constants";
-import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
-import { BnComparedTo, BnDiv, BnFormat, BnMul, queryAddressBalance, toEncodedBinary, writeArtifact } from "@/common";
 import { ContractDeployed, WalletData } from "@/types";
-import { cdpContracts, cw20BaseContracts, oracleContracts, stakingContracts } from "@/contracts";
 
 require("dotenv").config();
 
