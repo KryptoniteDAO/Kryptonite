@@ -3,7 +3,6 @@ import { loadingWalletData } from "@/env_data";
 import type { ContractsDeployed } from "@/modules";
 import { deployCdpCentralControl, deployCdpLiquidationQueue, deployCdpStablePool, printDeployedCdpContracts, readDeployedContracts } from "@/modules";
 import { CDP_MODULE_NAME } from "@/modules/cdp/cdp_constants";
-import { ORACLE_MODULE_NAME } from "@/modules/oracle/oracle_constants";
 import type { WalletData } from "@/types";
 
 (async (): Promise<void> => {
@@ -12,11 +11,6 @@ import type { WalletData } from "@/types";
   const walletData: WalletData = await loadingWalletData();
 
   const network: ContractsDeployed = readDeployedContracts(walletData.chainId);
-  const { oracleNetwork } = network;
-  const { oraclePyth } = oracleNetwork;
-  if (!oraclePyth?.address) {
-    throw new Error(`\n  --- --- deploy ${CDP_MODULE_NAME} contracts error, Please deploy ${ORACLE_MODULE_NAME} contracts first --- ---`);
-  }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 

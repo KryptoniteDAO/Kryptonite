@@ -1,6 +1,6 @@
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
-import type { CdpCollateralPairsDeployed, FeedInfo } from "@/modules";
+import type { CdpCollateralPairsDeployed, CdpContractsDeployed, FeedInfo, StakingContractsDeployed } from "@/modules";
 import {
   cdpConfigs,
   doCdpCentralControlSetWhitelistCollateral,
@@ -17,7 +17,6 @@ import {
   stakingConfigs
 } from "@/modules";
 import { CDP_MODULE_NAME } from "@/modules/cdp/cdp_constants";
-import { ORACLE_MODULE_NAME } from "@/modules/oracle/oracle_constants";
 import type { ContractDeployed, WalletData } from "@/types";
 
 (async (): Promise<void> => {
@@ -25,12 +24,9 @@ import type { ContractDeployed, WalletData } from "@/types";
 
   const walletData: WalletData = await loadingWalletData();
 
-  const { oracleNetwork, cdpNetwork, stakingNetwork } = readDeployedContracts(walletData.chainId);
-  const { oraclePyth } = oracleNetwork;
+  const network = readDeployedContracts(walletData.chainId);
+  const { oracleNetwork: { oraclePyth } = {}, cdpNetwork = {} as CdpContractsDeployed, stakingNetwork = {} as StakingContractsDeployed } = network;
   const { stable_coin_denom } = cdpNetwork;
-  if (!oraclePyth?.address) {
-    throw new Error(`\n  --- --- config ${CDP_MODULE_NAME} contracts error, Please deploy ${ORACLE_MODULE_NAME} contracts first --- ---`);
-  }
 
   await printDeployedCdpContracts(cdpNetwork);
 
@@ -39,8 +35,8 @@ import type { ContractDeployed, WalletData } from "@/types";
   const print: boolean = true;
 
   await doCdpStableCoinDenomMetadata(walletData, cdpNetwork, print);
-  await doCdpCentralControlUpdateConfig(walletData, cdpNetwork, oracleNetwork?.oraclePyth, stakingNetwork?.bAssetsToken, print);
-  await doCdpLiquidationQueueConfig(walletData, cdpNetwork, oracleNetwork?.oraclePyth, print);
+  await doCdpCentralControlUpdateConfig(walletData, cdpNetwork, oraclePyth, stakingNetwork?.bAssetsToken, print);
+  await doCdpLiquidationQueueConfig(walletData, cdpNetwork, oraclePyth, print);
 
   if (!!stable_coin_denom) {
     const feedInfo: FeedInfo = oracleConfigs?.feedInfoConfigList?.find(value => "%stable_coin_denom%" === value.asset);
@@ -49,7 +45,7 @@ import type { ContractDeployed, WalletData } from "@/types";
     }
     feedInfo.asset = feedInfo.asset.replace("%stable_coin_denom%", stable_coin_denom);
     const feedInfo2 = Object.assign({}, oracleConfigs.baseFeedInfoConfig, feedInfo);
-    await doOraclePythConfigFeedInfo(walletData, oracleNetwork, feedInfo2, print);
+    await doOraclePythConfigFeedInfo(walletData, network?.oracleNetwork, feedInfo2, print);
   }
 
   const { cdpCollateralPairs } = cdpConfigs;

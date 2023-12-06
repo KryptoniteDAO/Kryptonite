@@ -11,5 +11,6 @@ export enum TokenContracts {
   platToken = "platToken",
   veToken = "veToken",
   treasure = "treasure",
-  staking = "staking"
+  staking = "staking",
+  stakingPairs = "stakingPairs"
 }

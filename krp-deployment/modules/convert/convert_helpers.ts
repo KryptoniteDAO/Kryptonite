@@ -176,12 +176,12 @@ export async function deployConvertPairCustodyBAssets(
       const initMsg = Object.assign(
         {
           collateral_token: bAssetsToken.address,
-          liquidation_contract: liquidationQueue.address,
-          market_contract: market.address,
-          overseer_contract: overseer.address,
-          reward_contract: reward.address,
-          stable_denom: stable_coin_denom,
-          swap_contract: swapSparrow?.address,
+          liquidation_contract: liquidationQueue?.address ?? walletData?.activeWallet?.address,
+          market_contract: market?.address ?? walletData?.activeWallet?.address,
+          overseer_contract: overseer?.address ?? walletData?.activeWallet?.address,
+          reward_contract: reward?.address ?? walletData?.activeWallet?.address,
+          stable_denom: stable_coin_denom ?? walletData?.activeWallet?.address,
+          swap_contract: swapSparrow?.address ?? walletData?.activeWallet?.address,
           swap_denoms: [walletData?.nativeCurrency?.coinMinimalDenom]
         },
         convertPairsConfig?.custody?.initMsg,
@@ -190,6 +190,7 @@ export async function deployConvertPairCustodyBAssets(
           owner: convertPairsConfig?.custody?.initMsg?.owner || walletData?.activeWallet?.address
         }
       );
+
       convertPairsNetwork.custody.address = await instantiateContractByWalletData(walletData, admin, convertPairsNetwork.custody.codeId, initMsg, label);
       writeDeployedContracts(network, walletData.chainId);
       convertPairsConfig.custody.deploy = true;

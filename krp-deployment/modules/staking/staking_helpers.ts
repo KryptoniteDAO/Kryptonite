@@ -1,7 +1,7 @@
 import { deployContract, readArtifact, writeArtifact } from "@/common";
 import { stakingContracts } from "@/contracts";
-import type { ConfigResponse } from "@/contracts/staking/RewardsDispatcher.types";
-import type { InstantiateMarketingInfo } from "@/contracts/staking/TokenStsei.types.ts";
+import { ConfigResponse, Decimal } from "@/contracts/staking/RewardsDispatcher.types";
+import { InstantiateMarketingInfo } from "@/contracts/staking/TokenStsei.types.ts";
 import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
 import type { BAssetsTokenContractConfig, ContractsDeployed, HubContractConfig, RewardContractConfig, RewardsDispatcherContractConfig, StakingContractsConfig, StakingContractsDeployed, StAssetsTokenContractConfig, ValidatorsRegistryContractConfig } from "@/modules";
 import { ContractsDeployedModules, writeDeployedContracts } from "@/modules";
@@ -23,20 +23,17 @@ export function stakingWriteArtifact(stakingNetwork: StakingContractsDeployed, c
 }
 
 export async function deployStakingHub(walletData: WalletData, network: ContractsDeployed): Promise<void> {
-  const { cdpNetwork, swapExtensionNetwork } = network;
-  const { swapSparrow } = swapExtensionNetwork;
-  const { stable_coin_denom } = cdpNetwork;
-  if (!swapSparrow?.address || !stable_coin_denom) {
-    console.error(`\n  ********* deploy error: missing info. deployStakingHub / ${swapSparrow?.address} / ${stable_coin_denom}`);
-    return;
-  }
+  const { cdpNetwork: { stable_coin_denom } = {} } = network;
+  // if (!stable_coin_denom) {
+  //   console.error(`\n  ********* deploy error: missing info. deployStakingHub / ${stable_coin_denom}`);
+  //   return;
+  // }
   const contractName: keyof Required<StakingContractsDeployed> = "hub";
   const config: HubContractConfig | undefined = stakingConfigs?.[contractName];
   const defaultInitMsg: object | undefined = Object.assign(
     {
-      reward_denom: stable_coin_denom,
-      underlying_coin_denom: walletData?.nativeCurrency?.coinMinimalDenom,
-      swap_contract: swapSparrow?.address
+      reward_denom: stable_coin_denom ?? walletData?.activeWallet?.address,
+      underlying_coin_denom: walletData?.nativeCurrency?.coinMinimalDenom
     },
     config?.initMsg ?? {},
     {
@@ -50,12 +47,13 @@ export async function deployStakingHub(walletData: WalletData, network: Contract
 }
 
 export async function deployStakingReward(walletData: WalletData, network: ContractsDeployed): Promise<void> {
-  const { stakingNetwork, cdpNetwork, swapExtensionNetwork } = network;
-  const { hub } = stakingNetwork;
-  const { swapSparrow } = swapExtensionNetwork;
-  const { stable_coin_denom } = cdpNetwork;
-  if (!hub?.address || !swapSparrow?.address || !stable_coin_denom) {
-    console.error(`\n  ********* deploy error: missing info. deployStakingReward / ${hub?.address} / ${swapSparrow?.address} / ${stable_coin_denom}`);
+  const { stakingNetwork: { hub } = {}, cdpNetwork: { stable_coin_denom } = {}, swapExtensionNetwork: { swapSparrow } = {} } = network;
+  // if (!hub?.address || !swapSparrow?.address || !stable_coin_denom) {
+  //   console.error(`\n  ********* deploy error: missing info. deployStakingReward / ${hub?.address} / ${swapSparrow?.address} / ${stable_coin_denom}`);
+  //   return;
+  // }
+  if (!hub?.address) {
+    console.error(`\n  ********* deploy error: missing info. deployStakingReward / ${hub?.address}`);
     return;
   }
 
@@ -63,14 +61,14 @@ export async function deployStakingReward(walletData: WalletData, network: Contr
   const config: RewardContractConfig | undefined = stakingConfigs?.[contractName];
   const defaultInitMsg: object | undefined = Object.assign(
     {
-      hub_contract: hub?.address,
-      reward_denom: stable_coin_denom,
-      swap_contract: swapSparrow?.address,
+      hub_contract: hub?.address ?? walletData?.activeWallet?.address,
+      reward_denom: stable_coin_denom ?? walletData?.activeWallet?.address,
+      swap_contract: swapSparrow?.address ?? walletData?.activeWallet?.address,
       swap_denoms: [walletData?.nativeCurrency?.coinMinimalDenom]
     },
     config?.initMsg ?? {},
     {
-      owner: config?.initMsg?.owner || walletData?.activeWallet?.address
+      // owner: config?.initMsg?.owner || walletData?.activeWallet?.address
     }
   );
 
@@ -81,8 +79,7 @@ export async function deployStakingReward(walletData: WalletData, network: Contr
 }
 
 export async function deployStakingBAssetsToken(walletData: WalletData, network: ContractsDeployed): Promise<void> {
-  const { stakingNetwork } = network;
-  const { hub } = stakingNetwork;
+  const { stakingNetwork: { hub } = {} } = network;
   if (!hub?.address) {
     console.error(`\n  ********* deploy error: missing info. deployStakingBAssetsToken / ${hub?.address}`);
     return;
@@ -103,14 +100,14 @@ export async function deployStakingBAssetsToken(walletData: WalletData, network:
   await deployContract(walletData, contractPath, network, undefined, config, { defaultInitMsg, writeFunc });
 }
 
-export async function deployStakingRewardsDispatcher(walletData: WalletData, network: ContractsDeployed, keeperAddress: string | undefined): Promise<void> {
-  const { stakingNetwork, swapExtensionNetwork, oracleNetwork, cdpNetwork } = network;
-  const { hub, reward } = stakingNetwork;
-  const { swapSparrow } = swapExtensionNetwork;
-  const { oraclePyth } = oracleNetwork;
-  const { stable_coin_denom } = cdpNetwork;
-  if (!hub?.address || !reward?.address || !swapSparrow?.address || !oraclePyth?.address || !stable_coin_denom) {
-    console.error(`\n  ********* deploy error: missing info. deployStakingRewardsDispatcher / ${hub?.address} / ${reward?.address} / ${swapSparrow?.address} / ${oraclePyth?.address} / ${stable_coin_denom}`);
+export async function deployStakingRewardsDispatcher(walletData: WalletData, network: ContractsDeployed): Promise<void> {
+  const { stakingNetwork: { hub, reward } = {}, swapExtensionNetwork: { swapSparrow } = {}, oracleNetwork: { oraclePyth } = {}, cdpNetwork: { stable_coin_denom } = {}, tokenNetwork: { keeper } = {} } = network;
+  // if (!hub?.address || !reward?.address || !swapSparrow?.address || !oraclePyth?.address || !stable_coin_denom) {
+  //   console.error(`\n  ********* deploy error: missing info. deployStakingRewardsDispatcher / ${hub?.address} / ${reward?.address} / ${swapSparrow?.address} / ${oraclePyth?.address} / ${stable_coin_denom}`);
+  //   return;
+  // }
+  if (!hub?.address || !reward?.address) {
+    console.error(`\n  ********* deploy error: missing info. deployStakingRewardsDispatcher / ${hub?.address} / ${reward?.address}`);
     return;
   }
 
@@ -118,17 +115,17 @@ export async function deployStakingRewardsDispatcher(walletData: WalletData, net
   const config: RewardsDispatcherContractConfig | undefined = stakingConfigs?.[contractName];
   const defaultInitMsg: object | undefined = Object.assign(
     {
-      hub_contract: hub?.address,
-      bsei_reward_contract: reward?.address,
+      hub_contract: hub?.address ?? walletData?.activeWallet?.address,
+      binj_reward_contract: reward?.address ?? walletData?.activeWallet?.address,
       stsei_reward_denom: walletData?.nativeCurrency?.coinMinimalDenom,
-      bsei_reward_denom: stable_coin_denom,
-      swap_contract: swapSparrow?.address,
+      binj_reward_denom: stable_coin_denom ?? walletData?.activeWallet?.address,
+      swap_contract: swapSparrow?.address ?? walletData?.activeWallet?.address,
       swap_denoms: [walletData?.nativeCurrency?.coinMinimalDenom],
-      oracle_contract: oraclePyth?.address
+      oracle_contract: oraclePyth?.address ?? walletData?.activeWallet?.address
     },
     config?.initMsg ?? {},
     {
-      krp_keeper_address: config?.initMsg?.krp_keeper_address || keeperAddress || walletData?.activeWallet?.address
+      ninja_keeper_address: config?.initMsg?.ninja_keeper_address || keeper?.address || walletData?.activeWallet?.address
     }
   );
   const writeFunc = writeDeployedContracts;
@@ -138,8 +135,7 @@ export async function deployStakingRewardsDispatcher(walletData: WalletData, net
 }
 
 export async function deployStakingValidatorsRegistry(walletData: WalletData, network: ContractsDeployed): Promise<void> {
-  const { stakingNetwork } = network;
-  const { hub } = stakingNetwork;
+  const { stakingNetwork: { hub } = {} } = network;
   if (!hub?.address) {
     console.error(`\n  ********* deploy error: missing info. deployStakingValidatorsRegistry / ${hub?.address}`);
     return;
@@ -147,7 +143,7 @@ export async function deployStakingValidatorsRegistry(walletData: WalletData, ne
 
   const contractName: keyof Required<StakingContractsDeployed> = "validatorsRegistry";
   const config: ValidatorsRegistryContractConfig | undefined = stakingConfigs?.[contractName];
-  const registry = config?.initMsg?.registry?.map((q, i, v) => Object.assign({}, q, { address: stakingConfigs?.validators?.[i] })).filter(value => !!value?.address);
+  const registry = config?.initMsg?.registry?.map((q, i, v) => Object.assign({}, q, { address: stakingConfigs?.validators?.[i] ?? "" })).filter(value => !!value?.address);
   const defaultInitMsg: object = Object.assign({ hub_contract: hub?.address }, { registry });
   const writeFunc = writeDeployedContracts;
   const contractPath: string = `${ContractsDeployedModules.staking}.${contractName}`;
@@ -156,8 +152,7 @@ export async function deployStakingValidatorsRegistry(walletData: WalletData, ne
 }
 
 export async function deployStakingStAssetsToken(walletData: WalletData, network: ContractsDeployed): Promise<void> {
-  const { stakingNetwork } = network;
-  const { hub } = stakingNetwork;
+  const { stakingNetwork: { hub } = {} } = network;
   if (!hub?.address) {
     console.error(`\n  ********* deploy error: missing info. deployStakingStAssetsToken / ${hub?.address}`);
     return;
@@ -176,6 +171,7 @@ export async function deployStakingStAssetsToken(walletData: WalletData, network
     },
     config?.initMsg?.marketing ?? {}
   );
+
   const defaultInitMsg: object = Object.assign(
     {
       hub_contract: hub?.address,
@@ -190,14 +186,9 @@ export async function deployStakingStAssetsToken(walletData: WalletData, network
   await deployContract(walletData, contractPath, network, undefined, config, { defaultInitMsg, writeFunc });
 }
 
-export async function doHubConfig(walletData: WalletData, stakingNetwork: StakingContractsDeployed, print: boolean = true): Promise<void> {
-  print && console.log(`\n  query ${STAKING_MODULE_NAME}.hub config enter.`);
-  const hub: ContractDeployed | undefined = stakingNetwork?.hub;
-  const reward: ContractDeployed | undefined = stakingNetwork?.reward;
-  const bAssetsToken: ContractDeployed | undefined = stakingNetwork?.bAssetsToken;
-  const rewardsDispatcher: ContractDeployed | undefined = stakingNetwork?.rewardsDispatcher;
-  const validatorsRegistry: ContractDeployed | undefined = stakingNetwork?.validatorsRegistry;
-  const stAssetsToken: ContractDeployed | undefined = stakingNetwork?.stAssetsToken;
+export async function doStakingHubUpdateConfig(walletData: WalletData, stakingNetwork: StakingContractsDeployed, print: boolean = true): Promise<void> {
+  print && console.log(`\n  query ${STAKING_MODULE_NAME}.hub update_config enter.`);
+  const { hub, reward, bAssetsToken, rewardsDispatcher, validatorsRegistry, stAssetsToken } = stakingNetwork;
   if (!hub?.address || !reward?.address || !bAssetsToken?.address || !rewardsDispatcher?.address || !validatorsRegistry?.address || !stAssetsToken?.address) {
     console.error(`\n  ********* missing info!`);
     return;
@@ -207,12 +198,18 @@ export async function doHubConfig(walletData: WalletData, stakingNetwork: Stakin
   const hubQueryClient = new stakingContracts.Hub.HubQueryClient(walletData?.activeWallet?.signingCosmWasmClient, hub.address);
 
   const beforeRes = await hubQueryClient.config();
-  const initFlag: boolean = rewardsDispatcher.address === beforeRes?.reward_dispatcher_contract && validatorsRegistry.address === beforeRes?.validators_registry_contract && bAssetsToken.address === beforeRes?.bsei_token_contract && stAssetsToken.address === beforeRes?.stsei_token_contract;
+  const initFlag: boolean = rewardsDispatcher.address === beforeRes?.reward_dispatcher_contract && validatorsRegistry.address === beforeRes?.validators_registry_contract && bAssetsToken.address === beforeRes?.binj_token_contract && stAssetsToken.address === beforeRes?.stsei_token_contract;
   if (initFlag) {
     console.warn(`\n  ######### ${STAKING_MODULE_NAME}.hub config is already done.`);
     return;
   }
-
+  // airdropRegistryContract,
+  // binjTokenContract,
+  // rewardsContract,
+  // rewardsDispatcherContract,
+  // stseiTokenContract,
+  // updateRewardIndexAddr,
+  // validatorsRegistryContract
   const doRes = await hubClient.updateConfig({
     bseiTokenContract: bAssetsToken.address,
     stseiTokenContract: stAssetsToken.address,
@@ -226,13 +223,77 @@ export async function doHubConfig(walletData: WalletData, stakingNetwork: Stakin
   print && console.log(`\n  ${STAKING_MODULE_NAME}.hub config info: \n  ${JSON.stringify(afterRes)}`);
 }
 
-export async function doStakingRewardsDispatcherUpdateConfig(walletData: WalletData, stakingNetwork: StakingContractsDeployed, keeperAddress: string, stable_coin_denom: string, print: boolean = true): Promise<void> {
-  print && console.log(`\n  do ${STAKING_MODULE_NAME}.rewardsDispatcher update_config enter.`);
-  const { hub, reward, rewardsDispatcher } = stakingNetwork;
-  if (!rewardsDispatcher?.address || !hub?.address || !reward?.address || !stable_coin_denom) {
+export async function doStakingHubUpdateParameters(walletData: WalletData, network: ContractsDeployed, print: boolean = true): Promise<void> {
+  print && console.log(`\n  query ${STAKING_MODULE_NAME}.hub update_parameters enter.`);
+  const { stakingNetwork: { hub } = {}, cdpNetwork: { stable_coin_denom } = {} } = network;
+  if (!hub?.address) {
+    console.error(`\n  ********* missing info! / ${hub?.address}`);
+    return;
+  }
+  const rewardDenom = stable_coin_denom ?? walletData?.activeWallet?.address;
+
+  const hubClient = new stakingContracts.Hub.HubClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, hub.address);
+  const hubQueryClient = new stakingContracts.Hub.HubQueryClient(walletData?.activeWallet?.signingCosmWasmClient, hub.address);
+
+  const beforeRes = await hubQueryClient.parameters();
+  const initFlag: boolean = rewardDenom === beforeRes?.reward_denom;
+  if (initFlag) {
+    console.warn(`\n  ######### ${STAKING_MODULE_NAME}.hub parameters is already done.`);
+    return;
+  }
+  const doRes = await hubClient.updateParams({
+    // rewardDenom
+  });
+  console.log(`\n  Do ${STAKING_MODULE_NAME}.hub update_parameters ok. \n  ${doRes?.transactionHash}`);
+
+  const afterRes = await hubQueryClient.parameters();
+  print && console.log(`\n  ${STAKING_MODULE_NAME}.hub parameters info: \n  ${JSON.stringify(afterRes)}`);
+}
+
+export async function doStakingRewardUpdateConfig(walletData: WalletData, network: ContractsDeployed, print: boolean = true): Promise<void> {
+  print && console.log(`\n  query ${STAKING_MODULE_NAME}.reward config enter.`);
+  const { stakingNetwork: { hub, reward } = {}, swapExtensionNetwork: { swapSparrow } = {}, cdpNetwork: { stable_coin_denom } = {} } = network;
+  if (!hub?.address || !reward?.address) {
     console.error(`\n  ********* missing info!`);
     return;
   }
+  const rewardDenom: string = stable_coin_denom ?? walletData?.activeWallet?.address;
+  const swapContract: string = swapSparrow?.address ?? walletData?.activeWallet?.address;
+
+  const rewardClient = new stakingContracts.Reward.RewardClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, reward.address);
+  const rewardQueryClient = new stakingContracts.Reward.RewardQueryClient(walletData?.activeWallet?.signingCosmWasmClient, reward.address);
+
+  const beforeRes = await rewardQueryClient.config();
+  const initFlag: boolean = hub?.address === beforeRes?.hub_contract && swapContract === beforeRes?.swap_contract && rewardDenom === beforeRes?.reward_denom;
+  if (initFlag) {
+    console.warn(`\n  ######### ${STAKING_MODULE_NAME}.reward config is already done.`);
+    return;
+  }
+  // hubContract,
+  // rewardDenom,
+  // swapContract
+  const doRes = await rewardClient.updateConfig({
+    hubContract: hub?.address,
+    swapContract,
+    rewardDenom
+  });
+  console.log(`\n  Do ${STAKING_MODULE_NAME}.reward update_config ok. \n  ${doRes?.transactionHash}`);
+
+  const afterRes = await rewardQueryClient.config();
+  print && console.log(`\n  ${STAKING_MODULE_NAME}.reward config info: \n  ${JSON.stringify(afterRes)}`);
+}
+
+export async function doStakingRewardsDispatcherUpdateConfig(walletData: WalletData, network: ContractsDeployed, print: boolean = true): Promise<void> {
+  print && console.log(`\n  do ${STAKING_MODULE_NAME}.rewardsDispatcher update_config enter.`);
+  const { stakingNetwork: { hub, reward, rewardsDispatcher } = {}, tokenNetwork: { keeper } = {}, swapExtensionNetwork: { swapSparrow } = {}, oracleNetwork: { oraclePyth } = {}, cdpNetwork: { stable_coin_denom } = {} } = network;
+  if (!rewardsDispatcher?.address || !hub?.address || !reward?.address) {
+    console.error(`\n  ********* missing info!`);
+    return;
+  }
+  const bseiRewardDenom: string = stable_coin_denom ?? walletData?.activeWallet?.address;
+  const krpKeeperAddress: string = keeper?.address ?? walletData?.activeWallet.address;
+  const swapContract: string = swapSparrow?.address ?? walletData?.activeWallet.address;
+  const oracleContract: string = oraclePyth?.address ?? walletData?.activeWallet.address;
 
   const rewardsDispatcherClient = new stakingContracts.RewardsDispatcher.RewardsDispatcherClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, rewardsDispatcher.address);
   const rewardsDispatcherQueryClient = new stakingContracts.RewardsDispatcher.RewardsDispatcherQueryClient(walletData?.activeWallet?.signingCosmWasmClient, rewardsDispatcher.address);
@@ -240,27 +301,58 @@ export async function doStakingRewardsDispatcherUpdateConfig(walletData: WalletD
   // bsei_reward_contract: string;
   // bsei_reward_denom: string;
   // hub_contract: string;
-  // krp_keeper_address: string;
+  // ninja_keeper_address: string;
   // oracle_contract: string;
   // stsei_reward_denom: string;
   // swap_contract: string;
   // swap_denoms: string[];
-  const keeper = keeperAddress ?? walletData?.activeWallet.address;
   const beforeRes: ConfigResponse = await rewardsDispatcherQueryClient.config();
-  const initFlag: boolean = hub.address === beforeRes?.hub_contract && reward.address === beforeRes?.bsei_reward_contract && keeper === beforeRes?.krp_keeper_address && stable_coin_denom === beforeRes?.bsei_reward_denom;
-  if (initFlag) {
-    console.warn(`\n  ######### ${STAKING_MODULE_NAME}.rewardsDispatcher config is already done.`);
-    return;
+
+  try {
+    const initFlag: boolean = hub.address === beforeRes?.hub_contract && reward.address === beforeRes?.bsei_reward_contract && krpKeeperAddress === beforeRes?.ninja_keeper_address && bseiRewardDenom === beforeRes?.bsei_reward_denom;
+    if (initFlag) {
+      console.warn(`\n  ######### ${STAKING_MODULE_NAME}.rewardsDispatcher config is already done.`);
+    } else {
+      const doRes = await rewardsDispatcherClient.updateConfig({
+        hubContract: hub?.address,
+        bseiRewardContract: reward?.address,
+        krpKeeperAddress,
+        // stseiRewardDenom: walletData?.nativeCurrency?.coinMinimalDenom,
+        bseiRewardDenom
+      });
+      console.log(`\n  Do ${STAKING_MODULE_NAME}.rewardsDispatcher update_config ok. \n  ${doRes?.transactionHash}`);
+    }
+  } catch (error: any) {
+    console.error(`\n  Do ${STAKING_MODULE_NAME}.rewardsDispatcher update_config error. \n  `, error);
   }
 
-  const doRes = await rewardsDispatcherClient.updateConfig({
-    hubContract: hub?.address,
-    bseiRewardContract: reward?.address,
-    krpKeeperAddress: keeper,
-    // stseiRewardDenom: walletData?.nativeCurrency?.coinMinimalDenom,
-    bseiRewardDenom: stable_coin_denom
-  });
-  console.log(`\n  Do ${STAKING_MODULE_NAME}.rewardsDispatcher update_config ok. \n  ${doRes?.transactionHash}`);
+  try {
+    const initFlag: boolean = oracleContract === beforeRes?.oracle_contract;
+    if (initFlag) {
+      console.warn(`\n  ######### ${STAKING_MODULE_NAME}.rewardsDispatcher oracle config is already done.`);
+    } else {
+      const doRes = await rewardsDispatcherClient.updateOracleContract({
+        oracleContract
+      });
+      console.log(`\n  Do ${STAKING_MODULE_NAME}.rewardsDispatcher update_oracle ok. \n  ${doRes?.transactionHash}`);
+    }
+  } catch (error: any) {
+    console.error(`\n  Do ${STAKING_MODULE_NAME}.rewardsDispatcher update_oracle error. \n  `, error);
+  }
+
+  try {
+    const initFlag: boolean = swapContract === beforeRes?.swap_contract;
+    if (initFlag) {
+      console.warn(`\n  ######### ${STAKING_MODULE_NAME}.rewardsDispatcher swap config is already done.`);
+    } else {
+      const doRes = await rewardsDispatcherClient.updateSwapContract({
+        swapContract
+      });
+      console.log(`\n  Do ${STAKING_MODULE_NAME}.rewardsDispatcher update_swap ok. \n  ${doRes?.transactionHash}`);
+    }
+  } catch (error: any) {
+    console.error(`\n  Do ${STAKING_MODULE_NAME}.rewardsDispatcher update_swap error. \n  `, error);
+  }
 
   const afterRes = await rewardsDispatcherQueryClient.config();
   print && console.log(`\n  after ${STAKING_MODULE_NAME}.rewardsDispatcher config info: \n  ${JSON.stringify(afterRes)}`);

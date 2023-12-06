@@ -1,10 +1,19 @@
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
-import { doHubConfig, doOraclePythConfigFeedInfo, doStakingRewardsDispatcherUpdateConfig, doSwapSparrowSetWhitelist, oracleConfigs, printDeployedStakingContracts, queryHubParameters, readDeployedContracts } from "@/modules";
-import { CDP_MODULE_NAME } from "@/modules/cdp/cdp_constants";
-import { ORACLE_MODULE_NAME } from "@/modules/oracle/oracle_constants";
+import type { ContractsDeployed } from "@/modules";
+import {
+  doOraclePythConfigFeedInfo,
+  doStakingHubUpdateConfig,
+  doStakingHubUpdateParameters,
+  doStakingRewardsDispatcherUpdateConfig,
+  doStakingRewardUpdateConfig,
+  doSwapSparrowSetWhitelist,
+  oracleConfigs,
+  printDeployedStakingContracts,
+  queryHubParameters,
+  readDeployedContracts
+} from "@/modules";
 import { STAKING_MODULE_NAME } from "@/modules/staking/staking_constants";
-import { SWAP_EXTENSION_MODULE_NAME } from "@/modules/swap-extension/swap-extension_constants";
 import type { WalletData } from "@/types";
 
 (async (): Promise<void> => {
@@ -12,21 +21,8 @@ import type { WalletData } from "@/types";
 
   const walletData: WalletData = await loadingWalletData();
 
-  const { swapExtensionNetwork, oracleNetwork, cdpNetwork, tokenNetwork, stakingNetwork } = readDeployedContracts(walletData.chainId);
-  const { swapSparrow } = swapExtensionNetwork;
-  const { oraclePyth } = oracleNetwork;
-  const { stable_coin_denom } = cdpNetwork;
-  const { keeper } = tokenNetwork;
-
-  if (!swapSparrow?.address) {
-    throw new Error(`\n  --- --- config ${STAKING_MODULE_NAME} contracts error, Please deploy ${SWAP_EXTENSION_MODULE_NAME} contracts first --- ---`);
-  }
-  if (!oraclePyth?.address) {
-    throw new Error(`\n  --- --- config ${STAKING_MODULE_NAME} contracts error, Please deploy ${ORACLE_MODULE_NAME} contracts first --- ---`);
-  }
-  if (!stable_coin_denom) {
-    throw new Error(`\n  --- --- config ${STAKING_MODULE_NAME} contracts error, Please deploy ${CDP_MODULE_NAME} contracts first --- ---`);
-  }
+  const network: ContractsDeployed = readDeployedContracts(walletData.chainId);
+  const { swapExtensionNetwork: { swapSparrow } = {}, oracleNetwork = {}, cdpNetwork: { stable_coin_denom } = {}, tokenNetwork: { keeper } = {}, stakingNetwork = {} } = network;
 
   await printDeployedStakingContracts(stakingNetwork);
 
@@ -35,8 +31,10 @@ import type { WalletData } from "@/types";
   const print: boolean = true;
   const { hub, reward, bAssetsToken, rewardsDispatcher, validatorsRegistry, stAssetsToken } = stakingNetwork;
 
-  await doHubConfig(walletData, stakingNetwork);
-  await doStakingRewardsDispatcherUpdateConfig(walletData, stakingNetwork, keeper?.address, stable_coin_denom, print);
+  await doStakingHubUpdateConfig(walletData, stakingNetwork);
+  await doStakingHubUpdateParameters(walletData, network);
+  await doStakingRewardUpdateConfig(walletData, network);
+  await doStakingRewardsDispatcherUpdateConfig(walletData, network, print);
   await queryHubParameters(walletData, hub);
 
   /// add bAssetsToken feed price

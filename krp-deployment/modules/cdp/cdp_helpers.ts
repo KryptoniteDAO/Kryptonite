@@ -25,8 +25,7 @@ export function cdpWriteArtifact(cdpNetwork: CdpContractsDeployed, chainId: stri
 }
 
 export async function deployCdpCentralControl(walletData: WalletData, network: ContractsDeployed): Promise<void> {
-  const { oracleNetwork } = network;
-  const { oraclePyth } = oracleNetwork;
+  const { oracleNetwork: { oraclePyth } = {} } = network;
   const contractName: keyof Required<CdpContractsDeployed> = "cdpCentralControl";
   const config: CdpCentralControlContractConfig | undefined = cdpConfigs?.[contractName];
   const defaultInitMsg: object | undefined = Object.assign(
@@ -79,9 +78,7 @@ export async function deployCdpStablePool(walletData: WalletData, network: Contr
 }
 
 export async function deployCdpLiquidationQueue(walletData: WalletData, network: ContractsDeployed): Promise<void> {
-  const { cdpNetwork, oracleNetwork } = network;
-  const { cdpCentralControl, stable_coin_denom } = cdpNetwork;
-  const { oraclePyth } = oracleNetwork;
+  const { cdpNetwork: { cdpCentralControl, stable_coin_denom } = {}, oracleNetwork: { oraclePyth } = {} } = network;
   if (!cdpCentralControl?.address || !stable_coin_denom) {
     console.error(`\n  ********* deploy error: missing info. deployCdpLiquidationQueue / ${cdpCentralControl?.address} / ${stable_coin_denom}`);
     return;
@@ -264,10 +261,12 @@ export async function doCdpCentralControlUpdateConfig(walletData: WalletData, cd
   print && console.log(`\n  Do ${CDP_MODULE_NAME}.centralControl update_config enter.`);
   const { cdpCentralControl, cdpStablePool, cdpLiquidationQueue, cdpCollateralPairs } = cdpNetwork;
   const cdpCustodyBAssets = cdpCollateralPairs?.find(value => value.collateral === bAssetsToken?.address)?.custody;
-  if (!cdpCentralControl?.address || !cdpStablePool?.address || !cdpLiquidationQueue?.address || !oraclePyth?.address || !cdpCustodyBAssets?.address) {
+  if (!cdpCentralControl?.address || !cdpStablePool?.address || !cdpLiquidationQueue?.address) {
     console.error("\n  ********* missing info!");
     return;
   }
+  const oracleContract: string = oraclePyth?.address ?? walletData?.activeWallet?.address;
+  const custodyContract: string = cdpCustodyBAssets?.address ?? walletData?.activeWallet?.address;
 
   const centralControlClient = new cdpContracts.CentralControl.CentralControlClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, cdpCentralControl.address);
   const centralControlQueryClient = new cdpContracts.CentralControl.CentralControlQueryClient(walletData?.activeWallet?.signingCosmWasmClient, cdpCentralControl.address);
@@ -288,15 +287,15 @@ export async function doCdpCentralControlUpdateConfig(walletData: WalletData, cd
   // liquidation_contract: string;
   // oracle_contract: string;
   // pool_contract: string;
-  if (initFlag && cdpStablePool?.address === beforeRes?.pool_contract && oraclePyth?.address === beforeRes?.oracle_contract && cdpLiquidationQueue?.address === beforeRes?.liquidation_contract && cdpCustodyBAssets?.address === beforeRes?.custody_contract) {
+  if (initFlag && cdpStablePool?.address === beforeRes?.pool_contract && oracleContract === beforeRes?.oracle_contract && cdpLiquidationQueue?.address === beforeRes?.liquidation_contract && custodyContract === beforeRes?.custody_contract) {
     console.warn(`\n  ######### The ${CDP_MODULE_NAME}.centralControl config is already done. \n  ${JSON.stringify(beforeRes)}`);
     return;
   }
   const doRes = await centralControlClient.updateConfig({
     liquidationContract: cdpLiquidationQueue?.address,
     poolContract: cdpStablePool?.address,
-    oracleContract: oraclePyth?.address,
-    custodyContract: cdpCustodyBAssets?.address
+    custodyContract,
+    oracleContract
   });
   console.log(`\n  Do ${CDP_MODULE_NAME}.centralControl update_config ok. \n  ${doRes?.transactionHash}`);
 
@@ -306,13 +305,12 @@ export async function doCdpCentralControlUpdateConfig(walletData: WalletData, cd
 
 export async function doCdpLiquidationQueueConfig(walletData: WalletData, cdpNetwork: CdpContractsDeployed, oraclePyth: ContractDeployed, print: boolean = true): Promise<any> {
   print && console.log(`\n  Do ${CDP_MODULE_NAME}.liquidationQueue update_config enter.`);
-  const cdpCentralControl: ContractDeployed = cdpNetwork?.cdpCentralControl;
-  // const cdpStablePool: ContractDeployed = cdpNetwork?.cdpStablePool;
-  const cdpLiquidationQueue: ContractDeployed = cdpNetwork?.cdpLiquidationQueue;
-  if (!cdpCentralControl?.address || !cdpLiquidationQueue?.address || !oraclePyth?.address) {
+  const { cdpCentralControl, cdpLiquidationQueue } = cdpNetwork;
+  if (!cdpCentralControl?.address || !cdpLiquidationQueue?.address) {
     console.error("\n  ********* missing info!");
     return;
   }
+  const oracleContract: string = oraclePyth?.address ?? walletData?.activeWallet?.address;
 
   const liquidationQueueClient = new cdpContracts.LiquidationQueue.LiquidationQueueClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, cdpLiquidationQueue.address);
   const liquidationQueueQueryClient = new cdpContracts.LiquidationQueue.LiquidationQueueQueryClient(walletData?.activeWallet?.signingCosmWasmClient, cdpLiquidationQueue.address);
@@ -331,13 +329,13 @@ export async function doCdpLiquidationQueueConfig(walletData: WalletData, cdpNet
   }
   // control_contract: string;
   // oracle_contract: string;
-  if (initFlag && cdpCentralControl?.address === beforeRes?.control_contract && oraclePyth?.address === beforeRes?.oracle_contract) {
+  if (initFlag && cdpCentralControl?.address === beforeRes?.control_contract && oracleContract === beforeRes?.oracle_contract) {
     console.warn(`\n  ######### The ${CDP_MODULE_NAME}.liquidationQueue config is already done.\n  ${JSON.stringify(beforeRes)}`);
     return;
   }
   const doRes = await liquidationQueueClient.updateConfig({
     controlContract: cdpCentralControl?.address,
-    oracleContract: oraclePyth?.address
+    oracleContract
   });
   console.log(`\n  Do ${CDP_MODULE_NAME}.liquidationQueue update_config ok. \n  ${doRes?.transactionHash}`);
 

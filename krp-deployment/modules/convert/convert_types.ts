@@ -30,6 +30,7 @@ export interface ConvertPairsConfig {
   converter: ConvertConverterContractConfig;
   bAssetsToken: ConvertBAssetsTokenContractConfig;
   custody: ConvertCustodyContractConfig;
+  marketCollateralWhitelist: boolean
   overseerWhitelistConfig?: {
     name: string;
     symbol: string;

@@ -116,7 +116,7 @@ export async function storeCode<P extends { gasLimit?: number }>(clientData: Cli
       const gasEstimation = await clientData?.signingCosmWasmClient.simulate(clientData?.senderAddress, uploadMsgEncodeObject(clientData?.senderAddress, uint8Array), memo);
       fee = calculateFee(Math.round(gasEstimation * GAS_MULTIPLIER), clientData?.gasPrice);
     }
-    console.log(`  storeCode fee`, fee);
+    console.log(`  storeCode fee: ${JSON.stringify(fee)}`);
     if (BnComparedTo(fee.amount[0].amount, FEE_AMOUNT_WARNING) >= 0) {
       console.error(`\n  ********* store code error：too large fee.`, contract_file);
       return;
@@ -202,7 +202,7 @@ export async function instantiateContract2<
     );
     fee = calculateFee(Math.round(gasEstimation * GAS_MULTIPLIER), clientData?.gasPrice);
   }
-  console.log(`  instantiateContract fee`, fee);
+  console.log(`  instantiateContract fee: ${JSON.stringify(fee)}`);
   if (BnComparedTo(fee.amount[0].amount, FEE_AMOUNT_WARNING) >= 0) {
     console.error(`\n  ********* instantiateContract error：too large fee. codeId: `, codeId);
     return;
@@ -245,7 +245,7 @@ export async function executeContract<P extends { gasLimit?: number }>(clientDat
     const gasEstimation = await clientData?.signingCosmWasmClient.simulate(clientData?.senderAddress, executeMsgEncodeObject(clientData?.senderAddress, contractAddress, message, funds), memo);
     fee = calculateFee(Math.round(gasEstimation * GAS_MULTIPLIER), clientData?.gasPrice);
   }
-  console.log(`  executeContract fee`, fee);
+  console.log(`  executeContract fee: ${JSON.stringify(fee)}`);
   if (BnComparedTo(fee.amount[0].amount, FEE_AMOUNT_WARNING) >= 0) {
     console.error(`\n  ********* executeContract error：too large fee. `, contractAddress, message);
     return;
@@ -271,7 +271,7 @@ export async function migrateContract<P extends { gasLimit?: number }>(clientDat
     const gasEstimation = await clientData?.signingCosmWasmClient.simulate(clientData?.senderAddress, migrateMsgEncodeObject(clientData?.senderAddress, contractAddress, newCodeId, migrateMsg), memo);
     fee = calculateFee(Math.round(gasEstimation * GAS_MULTIPLIER), clientData?.gasPrice);
   }
-  console.log(`  migrateContract fee`, fee);
+  console.log(`  migrateContract fee: ${JSON.stringify(fee)}`);
   if (BnComparedTo(fee.amount[0].amount, FEE_AMOUNT_WARNING) >= 0) {
     console.error(`\n  ********* migrateContract error：too large fee. `, newCodeId, contractAddress, migrateMsg);
     return;
@@ -296,7 +296,7 @@ export async function sendTokens<P extends { gasLimit?: number }>(clientData: Cl
     const gasEstimation = await clientData?.signingCosmWasmClient.simulate(clientData?.senderAddress, sendTokensMsgEncodeObject(clientData?.senderAddress, recipientAddress, funds), memo);
     fee = calculateFee(Math.round(gasEstimation * GAS_MULTIPLIER), clientData?.gasPrice);
   }
-  console.log(`  migrateContract fee`, fee);
+  console.log(`  migrateContract fee: ${JSON.stringify(fee)}`);
   if (BnComparedTo(fee.amount[0].amount, FEE_AMOUNT_WARNING) >= 0) {
     console.error(`\n  ********* sendTokens error：too large fee. `, recipientAddress, funds);
     return;
@@ -847,6 +847,9 @@ export const objGetValue = <T extends any>(obj: any, path: string | string[]): T
 };
 
 export const extractDeployedAddress = (obj: any): any => {
+  if (typeof obj == "undefined") {
+    return obj;
+  }
   if (typeof obj !== "object") {
     return obj;
   }
@@ -855,7 +858,7 @@ export const extractDeployedAddress = (obj: any): any => {
     if (typeof value !== "object") {
       return;
     }
-    if (!!value["address"]) {
+    if (has(value, "address")) {
       obj[key] = value["address"];
       return;
     }

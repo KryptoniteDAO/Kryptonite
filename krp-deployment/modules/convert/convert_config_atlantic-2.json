@@ -38,6 +38,7 @@
         "filePath": "../krp-market-contracts/artifacts/moneymarket_custody_base.wasm",
         "deploy": false
       },
+      "marketCollateralWhitelist": true,
       "overseerWhitelistConfig": {
         "name": "Bond stSei",
         "symbol": "BSTSEI",
