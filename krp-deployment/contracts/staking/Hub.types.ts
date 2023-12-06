@@ -58,7 +58,6 @@ export type ExecuteMsg = {
   update_config: {
     airdrop_registry_contract?: string | null;
     bsei_token_contract?: string | null;
-    owner?: string | null;
     rewards_contract?: string | null;
     rewards_dispatcher_contract?: string | null;
     stsei_token_contract?: string | null;
@@ -72,6 +71,15 @@ export type ExecuteMsg = {
     paused?: boolean | null;
     peg_recovery_fee?: Decimal | null;
     unbonding_period?: number | null;
+    [k: string]: unknown;
+  };
+} | {
+  set_owner: {
+    new_owner_addr: string;
+    [k: string]: unknown;
+  };
+} | {
+  accept_ownership: {
     [k: string]: unknown;
   };
 } | {

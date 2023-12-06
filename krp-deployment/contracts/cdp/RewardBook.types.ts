@@ -16,11 +16,16 @@ export type ExecuteMsg = {
   update_config: {
     control_contract?: string | null;
     custody_contract?: string | null;
-    owner_addr?: string | null;
     reward_contract?: string | null;
     reward_denom?: string | null;
     threshold?: Uint256 | null;
   };
+} | {
+  set_owner: {
+    new_owner_addr: string;
+  };
+} | {
+  accept_ownership: {};
 } | {
   increase_balance: {
     address: string;

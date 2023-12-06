@@ -51,11 +51,6 @@ export type ExecuteMsg = {
     max_minted?: Uint128 | null;
   };
 } | {
-  set_minters: {
-    contracts: Addr[];
-    is_minter: boolean[];
-  };
-} | {
   mint: {
     amount: Uint128;
     recipient: string;
@@ -82,10 +77,6 @@ export type ExecuteMsg = {
 };
 export type QueryMsg = {
   vote_config: {};
-} | {
-  is_minter: {
-    address: string;
-  };
 } | {
   checkpoints: {
     account: Addr;
@@ -142,9 +133,6 @@ export interface GetPastVotesResponse {
 }
 export interface GetVotesResponse {
   votes: number;
-}
-export interface IsMinterResponse {
-  is_minter: boolean;
 }
 export type LogoInfo = {
   url: string;

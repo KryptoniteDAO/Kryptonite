@@ -4,10 +4,9 @@
 * and run the @cosmwasm/ts-codegen generate command to regenerate this file.
 */
 
-import {EpochState} from "@/contracts/market/Overseer.types";
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Decimal256, Uint256, BorrowerInfoResponse, BorrowerInfosResponse, ConfigResponse, Cw20HookMsg, ExecuteMsg, Uint128, Binary, Cw20ReceiveMsg, InstantiateMsg, MigrateMsg, QueryMsg, State } from "./Market.types";
+import { Decimal256, Uint256, BorrowerInfoResponse, BorrowerInfosResponse, ConfigResponse, Cw20HookMsg, EpochStateResponse, ExecuteMsg, Uint128, Binary, Cw20ReceiveMsg, InstantiateMsg, MigrateMsg, QueryMsg, State } from "./Market.types";
 export interface MarketReadOnlyInterface {
   contractAddress: string;
   config: () => Promise<ConfigResponse>;
@@ -22,7 +21,7 @@ export interface MarketReadOnlyInterface {
   }: {
     blockHeight?: number;
     distributedInterest?: Uint256;
-  }) => Promise<EpochState>;
+  }) => Promise<EpochStateResponse>;
   borrowerInfo: ({
     blockHeight,
     borrower
@@ -74,7 +73,7 @@ export class MarketQueryClient implements MarketReadOnlyInterface {
   }: {
     blockHeight?: number;
     distributedInterest?: Uint256;
-  }): Promise<EpochState> => {
+  }): Promise<EpochStateResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       epoch_state: {
         block_height: blockHeight,
@@ -139,14 +138,18 @@ export interface MarketInterface {
   updateConfig: ({
     distributionModel,
     interestModel,
-    maxBorrowFactor,
-    ownerAddr
+    maxBorrowFactor
   }: {
     distributionModel?: string;
     interestModel?: string;
     maxBorrowFactor?: Decimal256;
-    ownerAddr?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setOwner: ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptOwnership: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   repayStableFromLiquidation: ({
     borrower,
     prevBalance
@@ -192,6 +195,8 @@ export class MarketClient implements MarketInterface {
     this.receive = this.receive.bind(this);
     this.registerContracts = this.registerContracts.bind(this);
     this.updateConfig = this.updateConfig.bind(this);
+    this.setOwner = this.setOwner.bind(this);
+    this.acceptOwnership = this.acceptOwnership.bind(this);
     this.repayStableFromLiquidation = this.repayStableFromLiquidation.bind(this);
     this.executeEpochOperations = this.executeEpochOperations.bind(this);
     this.depositStable = this.depositStable.bind(this);
@@ -243,21 +248,34 @@ export class MarketClient implements MarketInterface {
   updateConfig = async ({
     distributionModel,
     interestModel,
-    maxBorrowFactor,
-    ownerAddr
+    maxBorrowFactor
   }: {
     distributionModel?: string;
     interestModel?: string;
     maxBorrowFactor?: Decimal256;
-    ownerAddr?: string;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
         distribution_model: distributionModel,
         interest_model: interestModel,
-        max_borrow_factor: maxBorrowFactor,
-        owner_addr: ownerAddr
+        max_borrow_factor: maxBorrowFactor
       }
+    }, fee, memo, _funds);
+  };
+  setOwner = async ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      set_owner: {
+        new_owner_addr: newOwnerAddr
+      }
+    }, fee, memo, _funds);
+  };
+  acceptOwnership = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_ownership: {}
     }, fee, memo, _funds);
   };
   repayStableFromLiquidation = async ({

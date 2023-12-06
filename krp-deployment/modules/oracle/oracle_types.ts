@@ -5,10 +5,6 @@ import type { InstantiateMsg as OracleMockOracleInstantiateMsg } from "@/contrac
 
 export interface OraclePythContractConfig extends BaseContractConfig {
   initMsg?: OracleOraclePythInstantiateMsg;
-  // initMsg?: {
-  //   owner?: Addr;
-  //   pyth_contract: string;
-  // };
 }
 
 export interface OracleContractsConfig {

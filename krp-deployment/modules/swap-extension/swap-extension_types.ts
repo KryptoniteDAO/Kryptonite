@@ -1,12 +1,9 @@
-import type { Addr, BaseContractConfig, ContractDeployed, AssetInfo } from "@/types";
 import type { InstantiateMsg as SwapSparrowInstantiateMsg } from "@/contracts/swap-extension/SwapSparrow.types";
-import type { InstantiateMsg as MockSwapPairInstantiateMsg } from "@/contracts/swap-extension/MockSwapPair.types";
+import type { FeedInfo } from "@/modules";
+import type { Addr, AssetInfo, BaseContractConfig, ContractDeployed } from "@/types";
 
 export interface SwapSparrowContractConfig extends BaseContractConfig {
   initMsg?: SwapSparrowInstantiateMsg;
-  // initMsg?: {
-  //   owner?: Addr;
-  // };
 }
 
 export interface SwapExtensionContractsConfig {
@@ -22,6 +19,8 @@ export interface SwapExtensionContractsDeployed {
 export interface SwapPairInfo {
   assetInfos?: AssetInfo[];
   pairAddress: Addr;
+  lpTokenAddress: Addr;
   maxSpread?: string;
   to?: Addr;
+  oracleFeedInfoConfigs?: FeedInfo[];
 }

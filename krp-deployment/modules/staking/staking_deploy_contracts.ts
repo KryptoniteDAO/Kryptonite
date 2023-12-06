@@ -1,115 +1,58 @@
-import type { WalletData } from "@/types";
-import type { TokenContractsDeployed, OracleContractsDeployed, StakingContractsDeployed, SwapExtensionContractsDeployed } from "@/modules";
-import type { ContractDeployed } from "@/types";
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
-import {
-  doSwapSparrowSetWhitelist,
-  swapExtensionReadArtifact,
-  deployOraclePyth,
-  loadingStakingData,
-  deployBSeiToken,
-  deployHub,
-  deployReward,
-  deployRewardsDispatcher,
-  deployStSeiToken,
-  deployValidatorsRegistry,
-  doHubConfig,
-  printDeployedStakingContracts,
-  queryHubParameters,
-  stakingReadArtifact,
-  oracleReadArtifact,
-  doOraclePythConfigFeedInfo,
-  oracleConfigs,
-  tokenReadArtifact,
-  writeDeployed,
-  cdpReadArtifact,
-  CdpContractsDeployed,
-  stakingConfigs
-} from "@/modules";
+import { ContractsDeployed, deployStakingBAssetsToken, deployStakingHub, deployStakingReward, deployStakingRewardsDispatcher, deployStakingStAssetsToken, deployStakingValidatorsRegistry, printDeployedStakingContracts, readDeployedContracts, stakingConfigs } from "@/modules";
+import { CDP_MODULE_NAME } from "@/modules/cdp/cdp_constants";
+import { ORACLE_MODULE_NAME } from "@/modules/oracle/oracle_constants";
+import { STAKING_MODULE_NAME } from "@/modules/staking/staking_constants";
+import { SWAP_EXTENSION_MODULE_NAME } from "@/modules/swap-extension/swap-extension_constants";
+import type { WalletData } from "@/types";
 
-main().catch(console.error);
-
-async function main(): Promise<void> {
-  console.log(`\n  --- --- deploy staking contracts enter --- ---`);
+(async (): Promise<void> => {
+  console.log(`\n  --- --- deploy contracts enter: ${STAKING_MODULE_NAME} --- ---`);
 
   const walletData: WalletData = await loadingWalletData();
 
-  const networkSwap = swapExtensionReadArtifact(walletData.chainId) as SwapExtensionContractsDeployed;
-  const networkOracle = oracleReadArtifact(walletData.chainId) as OracleContractsDeployed;
-  const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
-  const { stable_coin_denom } = networkCdp;
-  const networkToken = tokenReadArtifact(walletData.chainId) as TokenContractsDeployed;
-  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
+  const network: ContractsDeployed = readDeployedContracts(walletData.chainId);
 
-  const validator = stakingConfigs.validator;
-  if (!validator) {
-    throw new Error("\n  Set the validator in configuration file variable to the validator address of the node");
+  const { swapExtensionNetwork, oracleNetwork, cdpNetwork, tokenNetwork } = network;
+  const swapSparrow = swapExtensionNetwork?.swapSparrow;
+  const oraclePyth = oracleNetwork?.oraclePyth;
+  const stable_coin_denom = cdpNetwork?.stable_coin_denom;
+  const keeper = tokenNetwork?.keeper;
+
+  const validators = stakingConfigs?.validators;
+  if (!validators || validators.length <= 0) {
+    throw new Error("\n  Set the validators in configuration file variable to the validators address of the node");
   }
-  const swapSparrow: ContractDeployed | undefined = networkSwap?.swapSparrow;
   if (!swapSparrow?.address) {
-    throw new Error(`\n  --- --- deploy staking contracts error, Please deploy swapExtension contracts first --- ---`);
+    throw new Error(`\n  --- --- deploy ${STAKING_MODULE_NAME} contracts error, Please deploy ${SWAP_EXTENSION_MODULE_NAME} contracts first --- ---`);
   }
-  const oraclePyth: ContractDeployed | undefined = networkOracle.oraclePyth;
   if (!oraclePyth?.address) {
-    throw new Error(`\n  --- --- deploy staking contracts error, Please deploy oracle contracts first --- ---`);
+    throw new Error(`\n  --- --- deploy ${STAKING_MODULE_NAME} contracts error, Please deploy ${ORACLE_MODULE_NAME} contracts first --- ---`);
   }
   if (!stable_coin_denom) {
-    throw new Error(`\n  --- --- deploy staking contracts error, Please deploy cpd contracts first --- ---`);
+    throw new Error(`\n  --- --- deploy ${STAKING_MODULE_NAME} contracts error, Please deploy ${CDP_MODULE_NAME} contracts first --- ---`);
   }
-
-  console.log(`\n  --- --- staking contracts storeCode & instantiateContract enter --- ---`);
-
-  await deployHub(walletData, networkStaking, swapSparrow, stable_coin_denom);
-  await deployReward(walletData, networkStaking, swapSparrow, stable_coin_denom);
-  await deployBSeiToken(walletData, networkStaking);
-  await deployRewardsDispatcher(walletData, networkStaking, swapSparrow, oraclePyth, networkToken?.keeper?.address, stable_coin_denom);
-  await deployValidatorsRegistry(walletData, networkStaking);
-  await deployStSeiToken(walletData, networkStaking);
-  await writeDeployed({});
-
-  console.log(`\n  --- --- staking contracts storeCode & instantiateContract end --- ---`);
-
-  await printDeployedStakingContracts(networkStaking);
-
-  // //////////////////////////////////////configure contracts///////////////////////////////////////////
-
-  console.log(`\n  --- --- staking contracts configure enter --- ---`);
-
-  const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(networkStaking);
-  const print: boolean = true;
-
-  await doHubConfig(walletData, networkStaking);
-  await queryHubParameters(walletData, hub);
-
-  /// add bseiToken feed price
-  if (bSeiToken?.address) {
-    const feedInfo = Object.assign({ asset: bSeiToken?.address }, oracleConfigs.baseFeedInfoConfig);
-    await doOraclePythConfigFeedInfo(walletData, networkOracle, feedInfo, print);
-  }
-
-  /// add staking.reward & staking.rewardsDispatcher to swap whitelist
-  const swapWhitelistList: {
-    caller: string;
-    isWhitelist: boolean;
-  }[] = [];
-  if (reward?.address) {
-    swapWhitelistList.push({ caller: reward?.address, isWhitelist: true });
-  }
-  if (rewardsDispatcher?.address) {
-    swapWhitelistList.push({ caller: rewardsDispatcher?.address, isWhitelist: true });
-  }
-  if (swapWhitelistList.length > 0) {
-    for (const swapWhitelist of swapWhitelistList) {
-      await doSwapSparrowSetWhitelist(walletData, swapSparrow, swapWhitelist, print);
-    }
-  }
-
-  console.log(`\n  --- --- staking contracts configure end --- ---`);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  console.log(`\n  --- --- deploy staking contracts end --- ---`);
+  console.log(`\n  --- --- store code & instantiate contracts enter: ${STAKING_MODULE_NAME} --- ---`);
+
+  await deployStakingHub(walletData, network);
+  await deployStakingReward(walletData, network);
+  await deployStakingBAssetsToken(walletData, network);
+  await deployStakingRewardsDispatcher(walletData, network, keeper?.address);
+  await deployStakingValidatorsRegistry(walletData, network);
+  await deployStakingStAssetsToken(walletData, network);
+
+  console.log(`\n  --- --- store code & instantiate contracts end: ${STAKING_MODULE_NAME} --- ---`);
+
+  const { stakingNetwork } = network;
+  await printDeployedStakingContracts(stakingNetwork);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  console.log(`\n  --- --- deploy contracts end: ${STAKING_MODULE_NAME} --- ---`);
 
   await printChangeBalancesByWalletData(walletData);
-}
+})().catch(console.error);

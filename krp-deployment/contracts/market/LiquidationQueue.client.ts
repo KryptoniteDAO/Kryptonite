@@ -192,7 +192,6 @@ export interface LiquidationQueueInterface {
     liquidatorFee,
     oracleContract,
     overseer,
-    owner,
     priceTimeframe,
     safeRatio,
     waitingPeriod
@@ -202,11 +201,16 @@ export interface LiquidationQueueInterface {
     liquidatorFee?: Decimal256;
     oracleContract?: string;
     overseer?: string;
-    owner?: string;
     priceTimeframe?: number;
     safeRatio?: Decimal256;
     waitingPeriod?: number;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setOwner: ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptOwnership: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   whitelistCollateral: ({
     bidThreshold,
     collateralToken,
@@ -280,6 +284,8 @@ export class LiquidationQueueClient implements LiquidationQueueInterface {
     this.contractAddress = contractAddress;
     this.receive = this.receive.bind(this);
     this.updateConfig = this.updateConfig.bind(this);
+    this.setOwner = this.setOwner.bind(this);
+    this.acceptOwnership = this.acceptOwnership.bind(this);
     this.whitelistCollateral = this.whitelistCollateral.bind(this);
     this.updateCollateralInfo = this.updateCollateralInfo.bind(this);
     this.submitBid = this.submitBid.bind(this);
@@ -312,7 +318,6 @@ export class LiquidationQueueClient implements LiquidationQueueInterface {
     liquidatorFee,
     oracleContract,
     overseer,
-    owner,
     priceTimeframe,
     safeRatio,
     waitingPeriod
@@ -322,7 +327,6 @@ export class LiquidationQueueClient implements LiquidationQueueInterface {
     liquidatorFee?: Decimal256;
     oracleContract?: string;
     overseer?: string;
-    owner?: string;
     priceTimeframe?: number;
     safeRatio?: Decimal256;
     waitingPeriod?: number;
@@ -334,11 +338,26 @@ export class LiquidationQueueClient implements LiquidationQueueInterface {
         liquidator_fee: liquidatorFee,
         oracle_contract: oracleContract,
         overseer,
-        owner,
         price_timeframe: priceTimeframe,
         safe_ratio: safeRatio,
         waiting_period: waitingPeriod
       }
+    }, fee, memo, _funds);
+  };
+  setOwner = async ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      set_owner: {
+        new_owner_addr: newOwnerAddr
+      }
+    }, fee, memo, _funds);
+  };
+  acceptOwnership = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_ownership: {}
     }, fee, memo, _funds);
   };
   whitelistCollateral = async ({

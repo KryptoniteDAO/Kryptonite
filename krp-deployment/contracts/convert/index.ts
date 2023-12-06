@@ -4,15 +4,15 @@
 * and run the @cosmwasm/ts-codegen generate command to regenerate this file.
 */
 
-import * as _38 from "./BassetConverter.types";
-import * as _39 from "./BassetConverter.client";
-import * as _40 from "./BassetToken.types";
-import * as _41 from "./BassetToken.client";
+import * as _0 from "./BassetConverter.types";
+import * as _1 from "./BassetConverter.client";
+import * as _2 from "./BassetToken.types";
+import * as _3 from "./BassetToken.client";
 export namespace convertContracts {
-  export const BassetConverter = { ..._38,
-    ..._39
+  export const BassetConverter = { ..._0,
+    ..._1
   };
-  export const BassetToken = { ..._40,
-    ..._41
+  export const BassetToken = { ..._2,
+    ..._3
   };
 }

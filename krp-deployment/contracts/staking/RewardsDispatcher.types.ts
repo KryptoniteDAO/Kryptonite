@@ -31,8 +31,16 @@ export type ExecuteMsg = {
     hub_contract?: string | null;
     krp_keeper_address?: string | null;
     krp_keeper_rate?: Decimal | null;
-    owner?: string | null;
     stsei_reward_denom?: string | null;
+    [k: string]: unknown;
+  };
+} | {
+  set_owner: {
+    new_owner_addr: string;
+    [k: string]: unknown;
+  };
+} | {
+  accept_ownership: {
     [k: string]: unknown;
   };
 } | {
@@ -73,10 +81,6 @@ export interface InstantiateMsg {
   [k: string]: unknown;
 }
 export type QueryMsg = {
-  get_buffered_rewards: {
-    [k: string]: unknown;
-  };
-} | {
   config: {
     [k: string]: unknown;
   };

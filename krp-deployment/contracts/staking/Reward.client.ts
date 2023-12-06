@@ -95,16 +95,19 @@ export interface RewardInterface {
   sender: string;
   updateConfig: ({
     hubContract,
-    ownerAddr,
     rewardDenom,
     swapContract
   }: {
     hubContract?: string;
-    ownerAddr?: string;
     rewardDenom?: string;
     swapContract?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  swapToRewardDenom: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setOwner: ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptOwnership: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   updateGlobalIndex: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   increaseBalance: ({
     address,
@@ -143,7 +146,8 @@ export class RewardClient implements RewardInterface {
     this.sender = sender;
     this.contractAddress = contractAddress;
     this.updateConfig = this.updateConfig.bind(this);
-    this.swapToRewardDenom = this.swapToRewardDenom.bind(this);
+    this.setOwner = this.setOwner.bind(this);
+    this.acceptOwnership = this.acceptOwnership.bind(this);
     this.updateGlobalIndex = this.updateGlobalIndex.bind(this);
     this.increaseBalance = this.increaseBalance.bind(this);
     this.decreaseBalance = this.decreaseBalance.bind(this);
@@ -153,27 +157,35 @@ export class RewardClient implements RewardInterface {
 
   updateConfig = async ({
     hubContract,
-    ownerAddr,
     rewardDenom,
     swapContract
   }: {
     hubContract?: string;
-    ownerAddr?: string;
     rewardDenom?: string;
     swapContract?: string;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
         hub_contract: hubContract,
-        owner_addr: ownerAddr,
         reward_denom: rewardDenom,
         swap_contract: swapContract
       }
     }, fee, memo, _funds);
   };
-  swapToRewardDenom = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+  setOwner = async ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
-      swap_to_reward_denom: {}
+      set_owner: {
+        new_owner_addr: newOwnerAddr
+      }
+    }, fee, memo, _funds);
+  };
+  acceptOwnership = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_ownership: {}
     }, fee, memo, _funds);
   };
   updateGlobalIndex = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {

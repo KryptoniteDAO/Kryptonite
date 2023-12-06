@@ -1,24 +1,14 @@
-import type { Addr, BaseContractConfig, ContractDeployed } from "@/types";
-import type { InitialBalance, TokenInfo } from "@/types";
 import type { InstantiateMsg as ConvertBassetConverterInstantiateMsg } from "@/contracts/convert/BassetConverter.types";
 import type { TokenInstantiateMsg as ConvertBassetTokenInstantiateMsg } from "@/contracts/convert/BassetToken.types";
+import { BaseFeedInfo } from "@/modules";
+import type { Addr, BaseContractConfig, ContractDeployed, TokenInfo } from "@/types";
 
 export interface ConvertConverterContractConfig extends BaseContractConfig {
   initMsg?: ConvertBassetConverterInstantiateMsg;
-  // initMsg?: {
-  //   owner?: Addr;
-  // };
 }
 
-export interface ConvertBtokenContractConfig extends BaseContractConfig {
+export interface ConvertBAssetsTokenContractConfig extends BaseContractConfig {
   initMsg?: ConvertBassetTokenInstantiateMsg;
-  // initMsg?: {
-  //   name: string;
-  //   symbol: string;
-  //   decimals: number;
-  //   initial_balances: InitialBalance[];
-  //   // mint: string;
-  // };
 }
 
 export interface ConvertCustodyContractConfig extends BaseContractConfig {
@@ -28,11 +18,17 @@ export interface ConvertCustodyContractConfig extends BaseContractConfig {
   };
 }
 
+export interface ConvertPairAssetsConfig {
+  nativeName: string;
+  nativeDenom: string;
+  nativeDenomDecimals: number;
+}
+
 export interface ConvertPairsConfig {
   name?: string;
-  native_denom: string;
+  assets: ConvertPairAssetsConfig;
   converter: ConvertConverterContractConfig;
-  btoken: ConvertBtokenContractConfig;
+  bAssetsToken: ConvertBAssetsTokenContractConfig;
   custody: ConvertCustodyContractConfig;
   overseerWhitelistConfig?: {
     name: string;
@@ -44,6 +40,7 @@ export interface ConvertPairsConfig {
     max_slot: number;
     premium_rate_per_slot: string;
   };
+  oracleFeedInfoConfig: BaseFeedInfo;
 }
 
 export interface ConvertContractsConfig {
@@ -54,7 +51,7 @@ export interface ConvertPairsContractsDeployed {
   name?: string;
   native_denom?: string;
   converter?: ContractDeployed;
-  btoken?: ContractDeployed;
+  bAssetsToken?: ContractDeployed;
   custody?: ContractDeployed;
 }
 

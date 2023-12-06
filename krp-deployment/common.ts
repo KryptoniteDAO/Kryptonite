@@ -1,36 +1,37 @@
+import type { BalanceResponse } from "@/contracts/cw20Base/Cw20Base.types";
+import type { Coin, StdFee } from "@cosmjs/amino";
 import type {
   CosmWasmClient,
   ExecuteInstruction,
+  InstantiateOptions,
   InstantiateResult,
   JsonObject,
-  MsgExecuteContractEncodeObject,
-  InstantiateOptions,
   MsgClearAdminEncodeObject,
+  MsgExecuteContractEncodeObject,
   MsgInstantiateContractEncodeObject,
   MsgMigrateContractEncodeObject,
-  MsgUpdateAdminEncodeObject,
-  MsgStoreCodeEncodeObject
+  MsgStoreCodeEncodeObject,
+  MsgUpdateAdminEncodeObject
 } from "@cosmjs/cosmwasm-stargate";
+import { fromBech32, toBase64, toUtf8 } from "@cosmjs/encoding";
+import { Uint53 } from "@cosmjs/math";
 import type { GasPrice, MsgDelegateEncodeObject, MsgSendEncodeObject, MsgTransferEncodeObject, MsgUndelegateEncodeObject, MsgWithdrawDelegatorRewardEncodeObject } from "@cosmjs/stargate";
-import type { Balance, BaseContractConfig, ClientData, ContractDeployed, WalletData, WalletInstantiate } from "./types";
-import type { Coin, StdFee } from "@cosmjs/amino";
-import { getQueryClient } from "@sei-js/core";
 import { calculateFee, coins } from "@cosmjs/stargate";
-import * as fs from "fs";
-import * as path from "path";
-import { fromBech32, toUtf8 } from "@cosmjs/encoding";
+import { getQueryClient } from "@sei-js/core";
 import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
 import { MsgSetWithdrawAddress, MsgWithdrawDelegatorReward } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
 import { MsgBeginRedelegate, MsgDelegate, MsgUndelegate } from "cosmjs-types/cosmos/staking/v1beta1/tx";
 import { MsgCreateVestingAccount } from "cosmjs-types/cosmos/vesting/v1beta1/tx";
-import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
 import { MsgClearAdmin, MsgExecuteContract, MsgInstantiateContract, MsgMigrateContract, MsgStoreCode, MsgUpdateAdmin } from "cosmjs-types/cosmwasm/wasm/v1/tx";
-import pako from "pako";
-import { Uint53 } from "@cosmjs/math";
-import Long from "long";
+import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
 import { Height } from "cosmjs-types/ibc/core/client/v1/client";
-
-const Decimal = require("decimal.js");
+import Decimal from "decimal.js";
+import { forIn, get, has, set } from "lodash";
+import Long from "long";
+import * as fs from "node:fs";
+import * as path from "node:path";
+import pako from "pako";
+import type { Balance, BaseContractConfig, ClientData, ContractDeployed, WalletData, WalletInstantiate } from "./types";
 
 export const FEE_AMOUNT_WARNING: number = 500000;
 export const GAS_MULTIPLIER: number = 1.3;
@@ -59,8 +60,8 @@ export const toEncodedBinary = (data: string | object): string => {
   return Buffer.from(JSON.stringify(data)).toString("base64");
 };
 
-export function toDecodedBinary(data: string) {
-  return Buffer.from(data, "base64");
+export function toDecodedBinary(data: string): Record<string, any> {
+  return JSON.parse(Buffer.from(data, "base64").toString());
 }
 
 export function getWalletInstantiate(walletData: WalletData, walletIndex: number): WalletInstantiate {
@@ -134,15 +135,15 @@ export async function instantiateContractByWalletData<
   P extends {
     gasLimit?: number;
   }
->(walletData: WalletData, admin: string, codeId: number, message: object, label: string = "", funds: Coin[] = [], otherParams?: P): Promise<string> {
-  return instantiateContract(getClientDataByWalletData(walletData), admin, codeId, message, label, funds, otherParams);
+>(walletData: WalletData, admin: string, codeId: number, message: object, label: string = "", funds: Coin[] = [], memo?: string, otherParams?: P): Promise<string> {
+  return instantiateContract(getClientDataByWalletData(walletData), admin, codeId, message, label, funds, memo, otherParams);
 }
 
 export async function instantiateContract<
   P extends {
     gasLimit?: number;
   }
->(clientData: ClientData, admin: string, codeId: number, message: object, label: string = "", funds: Coin[] = [], otherParams?: P): Promise<string> {
+>(clientData: ClientData, admin: string, codeId: number, message: object, label: string = "", funds: Coin[] = [], memo?: string, otherParams?: P): Promise<string> {
   console.log(`\n  Instantiating contract enter. code_id = ${codeId}`);
   // const fee: StdFee | "auto" | number = calculateFee(otherParams?.gasLimit ?? 300_000, clientData?.gasPrice || "0.001usei");
   let fee: StdFee | "auto" | number;
@@ -152,7 +153,7 @@ export async function instantiateContract<
     const gasEstimation = await clientData?.signingCosmWasmClient.simulate(
       clientData?.senderAddress,
       instantiateMsgEncodeObject(clientData?.senderAddress, codeId, message, label, {
-        memo: "",
+        memo,
         funds,
         admin
       }),
@@ -165,20 +166,49 @@ export async function instantiateContract<
     console.error(`\n  ********* instantiateContract error：too large fee. codeId: `, codeId);
     return;
   }
-  const instantiateTxResult = await clientData?.signingCosmWasmClient?.instantiate(clientData?.senderAddress, codeId, message, label, fee, { memo: "", funds, admin });
+  const instantiateTxResult = await clientData?.signingCosmWasmClient?.instantiate(clientData?.senderAddress, codeId, message, label, fee, { memo, funds, admin });
   console.log(`  Instantiating stored codeId = ${codeId} / ${instantiateTxResult?.transactionHash}`);
   return instantiateTxResult.contractAddress;
 }
 
-export async function instantiateContract2ByWalletData(walletData: WalletData, admin: string, codeId: number, message: object, label: string = "", funds: Coin[] = []): Promise<[string, string]> {
-  return instantiateContract2(getClientDataByWalletData(walletData), admin, codeId, message, label, funds);
+export async function instantiateContract2ByWalletData<
+  P extends {
+    gasLimit?: number;
+  }
+>(walletData: WalletData, admin: string, codeId: number, message: object, label: string = "", funds: Coin[] = [], memo?: string, otherParams?: P): Promise<[string, string]> {
+  return instantiateContract2(getClientDataByWalletData(walletData), admin, codeId, message, label, funds, memo, otherParams);
 }
 
-export async function instantiateContract2(clientData: ClientData, admin: string, codeId: number, message: object, label: string = "", funds: Coin[] = []): Promise<[string, string]> {
-  console.log(`\n  Instantiating contract enter. code_id = ${codeId}`);
-  const fee: StdFee | "auto" | number = calculateFee(5_000_000, clientData?.gasPrice || "0.001usei");
+export async function instantiateContract2<
+  P extends {
+    gasLimit?: number;
+  }
+>(clientData: ClientData, admin: string, codeId: number, message: object, label: string = "", funds: Coin[] = [], memo?: string, otherParams?: P): Promise<[string, string]> {
+  console.log(`\n  Instantiating contract2 enter. code_id = ${codeId}`);
+  // const fee: StdFee | "auto" | number = calculateFee(5_000_000, clientData?.gasPrice || "0.001usei");
 
-  const instantiateTxResult = await clientData?.signingCosmWasmClient?.instantiate(clientData?.senderAddress, codeId, message, label, fee, { memo: "", funds, admin });
+  let fee: StdFee | "auto" | number;
+  if (otherParams?.gasLimit && otherParams?.gasLimit > 0) {
+    fee = calculateFee(otherParams?.gasLimit, clientData?.gasPrice);
+  } else {
+    const gasEstimation = await clientData?.signingCosmWasmClient.simulate(
+      clientData?.senderAddress,
+      instantiateMsgEncodeObject(clientData?.senderAddress, codeId, message, label, {
+        memo,
+        funds,
+        admin
+      }),
+      memo
+    );
+    fee = calculateFee(Math.round(gasEstimation * GAS_MULTIPLIER), clientData?.gasPrice);
+  }
+  console.log(`  instantiateContract fee`, fee);
+  if (BnComparedTo(fee.amount[0].amount, FEE_AMOUNT_WARNING) >= 0) {
+    console.error(`\n  ********* instantiateContract error：too large fee. codeId: `, codeId);
+    return;
+  }
+
+  const instantiateTxResult = await clientData?.signingCosmWasmClient?.instantiate(clientData?.senderAddress, codeId, message, label, fee, { memo, funds, admin });
   //   console.log(`instantiate ret:${JSON.stringify(instantiateTxResult)}`);
   console.log(`  Instantiating stored codeId = ${codeId} / ${instantiateTxResult?.transactionHash}`);
   return getContractAddresses(instantiateTxResult);
@@ -202,17 +232,17 @@ export async function executeContractByWalletData<
   P extends {
     gasLimit?: number;
   }
->(walletData: WalletData, contractAddress: string, message: object, label: string = "", funds: Coin[] = [], otherParams?: P) {
-  return executeContract(getClientDataByWalletData(walletData), contractAddress, message, label, funds, otherParams);
+>(walletData: WalletData, contractAddress: string, message: object, memo: string = "", funds: Coin[] = [], otherParams?: P) {
+  return executeContract(getClientDataByWalletData(walletData), contractAddress, message, memo, funds, otherParams);
 }
 
-export async function executeContract<P extends { gasLimit?: number }>(clientData: ClientData, contractAddress: string, message: object, label: string = "", funds: Coin[] = [], otherParams?: P) {
+export async function executeContract<P extends { gasLimit?: number }>(clientData: ClientData, contractAddress: string, message: object, memo: string = "", funds: Coin[] = [], otherParams?: P) {
   // const fee: StdFee | "auto" | number = calculateFee(3_000_000, clientData?.gasPrice || "0.001usei");
   let fee: StdFee | "auto" | number;
   if (otherParams?.gasLimit && otherParams?.gasLimit > 0) {
     fee = calculateFee(otherParams?.gasLimit, clientData?.gasPrice);
   } else {
-    const gasEstimation = await clientData?.signingCosmWasmClient.simulate(clientData?.senderAddress, executeMsgEncodeObject(clientData?.senderAddress, contractAddress, message, funds), label);
+    const gasEstimation = await clientData?.signingCosmWasmClient.simulate(clientData?.senderAddress, executeMsgEncodeObject(clientData?.senderAddress, contractAddress, message, funds), memo);
     fee = calculateFee(Math.round(gasEstimation * GAS_MULTIPLIER), clientData?.gasPrice);
   }
   console.log(`  executeContract fee`, fee);
@@ -220,7 +250,7 @@ export async function executeContract<P extends { gasLimit?: number }>(clientDat
     console.error(`\n  ********* executeContract error：too large fee. `, contractAddress, message);
     return;
   }
-  return await clientData?.signingCosmWasmClient?.execute(clientData?.senderAddress, contractAddress, message, fee, label, funds);
+  return await clientData?.signingCosmWasmClient?.execute(clientData?.senderAddress, contractAddress, message, fee, memo, funds);
 }
 
 export async function migrateContractByWalletData<
@@ -291,21 +321,28 @@ export async function queryAddressAllBalances(walletData: WalletData, address: s
   return walletData?.stargateClient?.getAllBalances(address);
 }
 
-export async function queryWasmContractByWalletData(walletData: WalletData, contractAddress: string, message: object) {
-  return queryWasmContract(walletData?.cosmWasmClient, contractAddress, message);
+export async function queryWasmContractByWalletData<T extends any>(walletData: WalletData, contractAddress: string, message: object): Promise<T> {
+  return queryWasmContract<T>(walletData?.cosmWasmClient, contractAddress, message);
 }
 
-export async function queryWasmContract(cosmWasmClient: CosmWasmClient, contractAddress: string, message: object) {
-  return await cosmWasmClient.queryContractSmart(contractAddress, message);
+export async function queryWasmContract<T extends any>(cosmWasmClient: CosmWasmClient, contractAddress: string, message: object): Promise<T> {
+  const response = await cosmWasmClient.queryContractSmart(contractAddress, toEncodedBinary(message));
+  const data: string = toBase64(response?.data);
+
+  return toDecodedBinary(data) as unknown as T;
 }
 
-export async function queryAddressTokenBalance(cosmWasmClient: CosmWasmClient, userAddress: string, contractAddress: string) {
+export async function queryAddressTokenBalanceByWalletData(walletData: WalletData, userAddress: string, contractAddress: string): Promise<BalanceResponse> {
+  return queryAddressTokenBalance(walletData.cosmWasmClient, userAddress, contractAddress);
+}
+
+export async function queryAddressTokenBalance(cosmWasmClient: CosmWasmClient, userAddress: string, contractAddress: string): Promise<BalanceResponse> {
   const queryMsg = {
     balance: {
       address: userAddress
     }
   };
-  return await queryWasmContract(cosmWasmClient, contractAddress, queryMsg);
+  return await queryWasmContract<BalanceResponse>(cosmWasmClient, contractAddress, queryMsg);
 }
 
 export async function queryStaking(LCD_ENDPOINT: string) {
@@ -359,16 +396,16 @@ export async function sendCoinToOtherAddress(walletData: WalletData, receiver: s
 }
 
 export async function printChangeBalancesByWalletData(walletData: WalletData) {
-  const beforeAddressesBalances = walletData.addressesBalances;
-  const afterAddressesBalances = await loadAddressesBalances(walletData, walletData.addressList, walletData.denomList);
+  const beforeAddressesBalances = walletData?.addressesBalances;
+  const afterAddressesBalances = await loadAddressesBalances(walletData, walletData?.addressList, walletData.denomList);
   console.log(`\n  addresses balance changes (after - before): `);
-  for (let address of walletData.addressList) {
+  for (let address of walletData?.addressList) {
     for (let denom of walletData.denomList) {
       let balanceBefore = beforeAddressesBalances.find(v => address === v?.address && denom === v?.balance?.denom)?.balance?.amount;
       let balanceAfter = afterAddressesBalances.find(v => address === v?.address && denom === v?.balance?.denom)?.balance?.amount;
       let amountValue = new Decimal(balanceAfter).sub(new Decimal(balanceBefore));
       // if (amountValue.comparedTo(new Decimal("0")) !== 0) {
-      let amount = amountValue.div(new Decimal("10").pow(walletData.nativeCurrency.coinDecimals)).toString();
+      let amount = amountValue.div(new Decimal("10").pow(walletData?.nativeCurrency?.coinDecimals)).toString();
       console.log(`${address}: ${amount} [${amountValue}] ${denom}`);
       // }
     }
@@ -411,26 +448,33 @@ export async function deployContract<
     storeCoreGasLimit?: number;
     instantiateGasLimit?: number;
   } = any
->(walletData: WalletData, contractName: string, network: unknown, contractNetwork: ContractDeployed | undefined, contractConfig: C, { defaultFilePath, defaultLabel, defaultInitMsg, defaultFunds, writeAble = true, writeFunc, memo, storeCoreGasLimit, instantiateGasLimit }: D): Promise<void> {
-  if (!network || !contractConfig || !contractName) {
-    console.error(`\n  Missing info: ${contractName}`);
+>(
+  walletData: WalletData,
+  contractPath: string | string[],
+  network: unknown,
+  contractNetwork: ContractDeployed | undefined,
+  contractConfig: C,
+  { defaultFilePath, defaultLabel, defaultInitMsg, defaultFunds, writeAble = true, writeFunc, memo, storeCoreGasLimit, instantiateGasLimit }: D
+): Promise<void> {
+  if (!network || !contractConfig || !contractPath) {
+    console.error(`\n  Missing info: ${contractPath}`);
     return;
   }
 
   if (!contractNetwork) {
-    contractNetwork = network[contractName] as unknown as ContractDeployed;
+    contractNetwork = objGetValue<ContractDeployed>(network, contractPath);
   }
   if (!!contractNetwork?.address) {
     return;
   }
   if (!contractNetwork) {
     contractNetwork = {} as ContractDeployed;
-    network[contractName] = contractNetwork;
+    objSetDefaultValue(network, contractPath, contractNetwork);
   }
   if (!contractNetwork?.codeId || contractNetwork?.codeId <= 0) {
     const filePath = contractConfig?.filePath || defaultFilePath;
     if (!filePath) {
-      console.error(`\n  Missing file: ${contractName}`);
+      console.error(`\n  Missing file: ${contractPath}`);
       return;
     }
 
@@ -439,13 +483,15 @@ export async function deployContract<
   }
   if (contractNetwork?.codeId > 0) {
     const admin = contractConfig?.admin || walletData?.activeWallet?.address;
-    const label = contractConfig?.label || defaultLabel || contractName || "deploy contract";
+    const label = contractConfig?.label || defaultLabel || contractPath?.toString() || "deploy contract";
     const initMsg = defaultInitMsg || Object.assign({}, contractConfig?.initMsg);
-    contractNetwork.address = await instantiateContractByWalletData(walletData, admin, contractNetwork.codeId, initMsg, label, defaultFunds, { gasLimit: instantiateGasLimit });
+    console.log(`\n  [contractPath]: ${contractPath} / initMsg: \n  `, JSON.stringify(initMsg));
+
+    contractNetwork.address = await instantiateContractByWalletData(walletData, admin, contractNetwork.codeId, initMsg, label, defaultFunds, memo, { gasLimit: instantiateGasLimit });
     writeAble && typeof writeFunc === "function" && writeFunc(network, walletData.chainId);
     contractConfig.deploy = true;
   }
-  console.log(`\n  [contractName]: `, contractName, JSON.stringify(contractNetwork));
+  console.log(`\n  [contractPath]: ${contractPath} / network: `, JSON.stringify(contractNetwork));
 }
 
 export async function queryContractQueryConfig(walletData: WalletData, deployContract: ContractDeployed, print: boolean = true): Promise<{ initFlag; config }> {
@@ -786,3 +832,34 @@ export function getStableCoinDenom(CREATOR_ADDRESS: string, SUBDENOM: string): s
   }
   return `factory/${CREATOR_ADDRESS}/${SUBDENOM}`;
 }
+
+export const objSetDefaultValue = (obj: any, path: string | string[], value: any = {}): void => {
+  if (!obj) {
+    obj = {};
+  }
+  if (!has(obj, path)) {
+    set(obj, path, value);
+  }
+};
+
+export const objGetValue = <T extends any>(obj: any, path: string | string[]): T => {
+  return get(obj, path);
+};
+
+export const extractDeployedAddress = (obj: any): any => {
+  if (typeof obj !== "object") {
+    return obj;
+  }
+  obj = JSON.parse(JSON.stringify(obj));
+  forIn(obj, (value: any, key: string) => {
+    if (typeof value !== "object") {
+      return;
+    }
+    if (!!value["address"]) {
+      obj[key] = value["address"];
+      return;
+    }
+    obj[key] = extractDeployedAddress(value);
+  });
+  return obj;
+};

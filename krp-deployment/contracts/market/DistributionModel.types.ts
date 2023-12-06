@@ -5,10 +5,6 @@
 */
 
 export type Decimal256 = string;
-export interface AncEmissionRateResponse {
-  emission_rate: Decimal256;
-  [k: string]: unknown;
-}
 export interface ConfigResponse {
   decrement_multiplier: Decimal256;
   emission_cap: Decimal256;
@@ -23,7 +19,15 @@ export type ExecuteMsg = {
     emission_cap?: Decimal256 | null;
     emission_floor?: Decimal256 | null;
     increment_multiplier?: Decimal256 | null;
-    owner?: string | null;
+    [k: string]: unknown;
+  };
+} | {
+  set_owner: {
+    new_owner_addr: string;
+    [k: string]: unknown;
+  };
+} | {
+  accept_ownership: {
     [k: string]: unknown;
   };
 };
@@ -33,6 +37,10 @@ export interface InstantiateMsg {
   emission_floor: Decimal256;
   increment_multiplier: Decimal256;
   owner: string;
+  [k: string]: unknown;
+}
+export interface KptEmissionRateResponse {
+  emission_rate: Decimal256;
   [k: string]: unknown;
 }
 export type QueryMsg = {

@@ -27,12 +27,17 @@ export type ExecuteMsg = {
     liquidation_threshold?: Uint256 | null;
     liquidator_fee?: Decimal256 | null;
     oracle_contract?: string | null;
-    owner?: string | null;
     price_timeframe?: number | null;
     safe_ratio?: Decimal256 | null;
     stable_denom?: string | null;
     waiting_period?: number | null;
   };
+} | {
+  set_owner: {
+    new_owner_addr: string;
+  };
+} | {
+  accept_ownership: {};
 } | {
   whitelist_collateral: {
     bid_threshold: Uint256;
@@ -65,14 +70,6 @@ export type ExecuteMsg = {
   claim_liquidations: {
     bids_idx?: Uint128[] | null;
     collateral_token: string;
-  };
-} | {
-  execute_bid: {
-    amount: Uint256;
-    collateral_denom: string;
-    fee_address: string;
-    liquidator: string;
-    repay_address: string;
   };
 };
 export type Uint128 = string;

@@ -1,12 +1,13 @@
 {
-  "validator": "seivaloper19t4d78pt5xg6xm0mf97q8ay7v0xwrr4jmf04j3",
+  "validators": ["seivaloper19t4d78pt5xg6xm0mf97q8ay7v0xwrr4jmf04j3"],
   "hub": {
     "admin": null,
     "initMsg": {
+      "update_reward_index_addr": null,
       "epoch_period": 259200,
       "er_threshold": "1.0",
       "peg_recovery_fee": "0.005",
-      "unbonding_period": 259200
+      "unbonding_period": 1814400
     },
     "label": "sei hub",
     "filePath": "../krp-staking-contracts/artifacts/basset_sei_hub.wasm",
@@ -21,7 +22,7 @@
     "filePath": "../krp-staking-contracts/artifacts/basset_sei_reward.wasm",
     "deploy": false
   },
-  "bSeiToken": {
+  "bAssetsToken": {
     "admin": null,
     "initMsg": {
       "name": "bsei",
@@ -46,18 +47,13 @@
   "validatorsRegistry": {
     "admin": null,
     "initMsg": {
-      "registry": [
-        {
-          "active": true,
-          "total_delegated": "0"
-        }
-      ]
+      "registry": [{}]
     },
     "label": "validator registry",
     "filePath": "../krp-staking-contracts/artifacts/basset_sei_validators_registry.wasm",
     "deploy": false
   },
-  "stSeiToken": {
+  "stAssetsToken": {
     "admin": null,
     "initMsg": {
       "name": "stsei",

@@ -158,22 +158,28 @@ export interface CentralControlInterface {
   contractAddress: string;
   sender: string;
   updateConfig: ({
+    custodyContract,
     epochPeriod,
     liquidationContract,
     oracleContract,
-    ownerAddr,
     poolContract,
     redeemFee,
     stableDenom
   }: {
+    custodyContract?: string;
     epochPeriod?: number;
     liquidationContract?: string;
     oracleContract?: string;
-    ownerAddr?: string;
     poolContract?: string;
     redeemFee?: Decimal256;
     stableDenom?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setOwner: ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptOwnership: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   mintStableCoin: ({
     collateralAmount,
     collateralContract,
@@ -255,6 +261,8 @@ export class CentralControlClient implements CentralControlInterface {
     this.sender = sender;
     this.contractAddress = contractAddress;
     this.updateConfig = this.updateConfig.bind(this);
+    this.setOwner = this.setOwner.bind(this);
+    this.acceptOwnership = this.acceptOwnership.bind(this);
     this.mintStableCoin = this.mintStableCoin.bind(this);
     this.becomeRedemptionProvider = this.becomeRedemptionProvider.bind(this);
     this.repayStableCoin = this.repayStableCoin.bind(this);
@@ -266,32 +274,48 @@ export class CentralControlClient implements CentralControlInterface {
   }
 
   updateConfig = async ({
+    custodyContract,
     epochPeriod,
     liquidationContract,
     oracleContract,
-    ownerAddr,
     poolContract,
     redeemFee,
     stableDenom
   }: {
+    custodyContract?: string;
     epochPeriod?: number;
     liquidationContract?: string;
     oracleContract?: string;
-    ownerAddr?: string;
     poolContract?: string;
     redeemFee?: Decimal256;
     stableDenom?: string;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
+        custody_contract: custodyContract,
         epoch_period: epochPeriod,
         liquidation_contract: liquidationContract,
         oracle_contract: oracleContract,
-        owner_addr: ownerAddr,
         pool_contract: poolContract,
         redeem_fee: redeemFee,
         stable_denom: stableDenom
       }
+    }, fee, memo, _funds);
+  };
+  setOwner = async ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      set_owner: {
+        new_owner_addr: newOwnerAddr
+      }
+    }, fee, memo, _funds);
+  };
+  acceptOwnership = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_ownership: {}
     }, fee, memo, _funds);
   };
   mintStableCoin = async ({

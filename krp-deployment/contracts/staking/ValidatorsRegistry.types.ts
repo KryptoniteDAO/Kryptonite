@@ -24,7 +24,20 @@ export type ExecuteMsg = {
 } | {
   update_config: {
     hub_contract?: string | null;
-    owner?: string | null;
+    [k: string]: unknown;
+  };
+} | {
+  redelegations: {
+    address: string;
+    [k: string]: unknown;
+  };
+} | {
+  set_owner: {
+    new_owner_addr: string;
+    [k: string]: unknown;
+  };
+} | {
+  accept_ownership: {
     [k: string]: unknown;
   };
 };

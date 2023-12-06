@@ -27,9 +27,9 @@ import {
 
   const walletData: WalletData = await loadingWalletData();
 
-  const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
-  const { stable_coin_denom } = networkCdp;
-  const networkToken = tokenReadArtifact(walletData.chainId) as TokenContractsDeployed;
+  const cdpNetwork = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
+  const { stable_coin_denom } = cdpNetwork;
+  const tokenNetwork = tokenReadArtifact(walletData.chainId) as TokenContractsDeployed;
   if (!stable_coin_denom) {
     throw new Error(`\n  --- --- deploy ${MODULE_NAME} contracts error, Please deploy cpd contracts first --- ---`);
   }
@@ -39,38 +39,38 @@ import {
 
   console.log(`\n  --- --- ${MODULE_NAME} contracts storeCode & instantiateContract enter --- ---`);
 
-  // await deployTokenSeilor(walletData, networkToken);
-  // await deployTokenDistribute(walletData, networkToken);
-  await deployTokenVeSeilor(walletData, networkToken);
-  await deployTokenFund(walletData, networkToken, stable_coin_denom);
-  await deployTokenBoost(walletData, networkToken);
-  await deployTokenKeeper(walletData, networkToken, stable_coin_denom);
+  // await deployTokenSeilor(walletData, tokenNetwork);
+  // await deployTokenDistribute(walletData, tokenNetwork);
+  await deployTokenVeSeilor(walletData, tokenNetwork);
+  await deployTokenFund(walletData, tokenNetwork, stable_coin_denom);
+  await deployTokenBoost(walletData, tokenNetwork);
+  await deployTokenKeeper(walletData, tokenNetwork, stable_coin_denom);
 
   const stakingRewardsPairsConfig = tokenConfigs.stakingPairs;
   if (!!stakingRewardsPairsConfig && stakingRewardsPairsConfig.length > 0) {
     for (const stakingRewardsPairConfig of stakingRewardsPairsConfig) {
-      await deploySeilorStaking(walletData, networkToken, stakingRewardsPairConfig);
+      await deploySeilorStaking(walletData, tokenNetwork, stakingRewardsPairConfig);
     }
   }
   await writeDeployed({});
 
   console.log(`\n  --- --- ${MODULE_NAME} contracts storeCode & instantiateContract end --- ---`);
 
-  await printDeployedTokenContracts(networkToken);
+  await printDeployedTokenContracts(tokenNetwork);
 
   // //////////////////////////////////////configure contracts///////////////////////////////////////////
 
   console.log(`\n  --- --- kpt contracts configure enter --- ---`);
   const print: boolean = true;
 
-  await doTokenSeilorUpdateConfig(walletData, networkToken, print);
-  await doTokenVeSeilorUpdateConfig(walletData, networkToken, print);
-  // await doKptDistributeUpdateRuleConfig(walletData, networkToken, { ruleType: "loot_box", ruleOwner: networkToken?.blindBoxInviterReward?.address }, print);
+  await doTokenSeilorUpdateConfig(walletData, tokenNetwork, print);
+  await doTokenVeSeilorUpdateConfig(walletData, tokenNetwork, print);
+  // await doKptDistributeUpdateRuleConfig(walletData, tokenNetwork, { ruleType: "loot_box", ruleOwner: tokenNetwork?.blindBoxInviterReward?.address }, print);
 
   if (!!stakingRewardsPairsConfig && stakingRewardsPairsConfig.length > 0) {
     for (const stakingRewardsPairConfig of stakingRewardsPairsConfig) {
-      const stakingRewardsPairsNetwork = networkToken?.stakingPairs?.find((v: TokenStakingPairsContractsDeployed) => stakingRewardsPairConfig.staking_token === v.staking_token);
-      await doVeSeilorSetMinters(walletData, networkToken?.veSeilor, stakingRewardsPairsNetwork?.staking, true, print);
+      const stakingRewardsPairsNetwork = tokenNetwork?.stakingPairs?.find((v: TokenStakingPairsContractsDeployed) => stakingRewardsPairConfig.staking_token === v.staking_token);
+      await doVeSeilorSetMinters(walletData, tokenNetwork?.veSeilor, stakingRewardsPairsNetwork?.staking, true, print);
     }
   }
 

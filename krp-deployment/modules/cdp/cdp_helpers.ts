@@ -6,6 +6,7 @@ import { CollateralInfoResponse, ConfigResponse as LiquidationQueueConfigRespons
 import { ConfigResponse as RewardBookConfigResponse } from "@/contracts/cdp/RewardBook.types";
 import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
 import type { CdpCentralControlContractConfig, CdpCollateralPairsConfig, CdpCollateralPairsDeployed, CdpContractsConfig, CdpContractsDeployed, CdpCustodyContractConfig, CdpLiquidationQueueContractConfig, CdpRewardBookContractConfig, CdpStablePoolContractConfig } from "@/modules";
+import { ContractsDeployed, ContractsDeployedModules, writeDeployedContracts } from "@/modules";
 import type { ContractDeployed, WalletData } from "@/types";
 import { CDP_ARTIFACTS_PATH, CDP_MODULE_NAME } from "./cdp_constants";
 
@@ -19,34 +20,38 @@ export function cdpReadArtifact(chainId: string): CdpContractsDeployed {
   return readArtifact(getCdpDeployFileName(chainId), CDP_ARTIFACTS_PATH) as CdpContractsDeployed;
 }
 
-export function cdpWriteArtifact(networkCdp: CdpContractsDeployed, chainId: string): void {
-  writeArtifact(networkCdp, getCdpDeployFileName(chainId), CDP_ARTIFACTS_PATH);
+export function cdpWriteArtifact(cdpNetwork: CdpContractsDeployed, chainId: string): void {
+  writeArtifact(cdpNetwork, getCdpDeployFileName(chainId), CDP_ARTIFACTS_PATH);
 }
 
-export async function deployCdpCentralControl(walletData: WalletData, networkCdp: CdpContractsDeployed, oraclePyth?: ContractDeployed): Promise<void> {
+export async function deployCdpCentralControl(walletData: WalletData, network: ContractsDeployed): Promise<void> {
+  const { oracleNetwork } = network;
+  const { oraclePyth } = oracleNetwork;
   const contractName: keyof Required<CdpContractsDeployed> = "cdpCentralControl";
   const config: CdpCentralControlContractConfig | undefined = cdpConfigs?.[contractName];
   const defaultInitMsg: object | undefined = Object.assign(
     {
       oracle_contract: oraclePyth?.address || walletData?.activeWallet?.address,
+      custody_contract: walletData?.activeWallet?.address,
       pool_contract: walletData?.activeWallet?.address,
-      liquidation_contract: walletData?.activeWallet?.address,
-      custody_contract: walletData?.activeWallet?.address
+      liquidation_contract: walletData?.activeWallet?.address
     },
     config?.initMsg ?? {},
     {
       owner_addr: config?.initMsg?.owner_addr || walletData?.activeWallet?.address
     }
   );
-  const writeFunc = cdpWriteArtifact;
+  const writeFunc = writeDeployedContracts;
+  const contractPath: string = `${ContractsDeployedModules.cdp}.${contractName}`;
 
-  await deployContract(walletData, contractName, networkCdp, undefined, config, { defaultInitMsg, writeFunc });
+  await deployContract(walletData, contractPath, network, undefined, config, { defaultInitMsg, writeFunc });
 }
 
-export async function deployCdpStablePool(walletData: WalletData, networkCdp: CdpContractsDeployed): Promise<void> {
-  const cdpCentralControl: ContractDeployed = networkCdp?.cdpCentralControl;
+export async function deployCdpStablePool(walletData: WalletData, network: ContractsDeployed): Promise<void> {
+  const { cdpNetwork } = network;
+  const { cdpCentralControl } = cdpNetwork;
   if (!cdpCentralControl?.address) {
-    console.error(`\n  ********* deploy error: missing info`);
+    console.error(`\n  ********* deploy error: missing info. deployCdpStablePool / ${cdpCentralControl?.address}`);
     return;
   }
 
@@ -62,21 +67,23 @@ export async function deployCdpStablePool(walletData: WalletData, networkCdp: Cd
     }
   );
   const defaultFunds = config?.initCoins?.map(q => Object.assign({}, q, { denom: q?.denom || walletData?.nativeCurrency?.coinMinimalDenom }));
-  const writeFunc = cdpWriteArtifact;
+  const writeFunc = writeDeployedContracts;
+  const contractPath: string = `${ContractsDeployedModules.cdp}.${contractName}`;
 
-  await deployContract(walletData, contractName, networkCdp, undefined, config, { defaultInitMsg, defaultFunds, writeFunc });
+  await deployContract(walletData, contractPath, network, undefined, config, { defaultInitMsg, defaultFunds, writeFunc });
 
-  if (networkCdp?.cdpStablePool?.address) {
-    networkCdp.stable_coin_denom = getStableCoinDenom(networkCdp?.cdpStablePool?.address, "kUSD");
-    cdpWriteArtifact(networkCdp, walletData.chainId);
+  if (cdpNetwork?.cdpStablePool?.address) {
+    cdpNetwork.stable_coin_denom = getStableCoinDenom(cdpNetwork?.cdpStablePool?.address, config.initMsg.sub_demon);
+    writeDeployedContracts(network, walletData.chainId);
   }
 }
 
-export async function deployCdpLiquidationQueue(walletData: WalletData, networkCdp: CdpContractsDeployed, oraclePyth?: ContractDeployed): Promise<void> {
-  const cdpCentralControl: ContractDeployed = networkCdp?.cdpCentralControl;
-  const stable_coin_denom: string = networkCdp?.stable_coin_denom;
+export async function deployCdpLiquidationQueue(walletData: WalletData, network: ContractsDeployed): Promise<void> {
+  const { cdpNetwork, oracleNetwork } = network;
+  const { cdpCentralControl, stable_coin_denom } = cdpNetwork;
+  const { oraclePyth } = oracleNetwork;
   if (!cdpCentralControl?.address || !stable_coin_denom) {
-    console.error(`\n  ********* deploy error: missing info`);
+    console.error(`\n  ********* deploy error: missing info. deployCdpLiquidationQueue / ${cdpCentralControl?.address} / ${stable_coin_denom}`);
     return;
   }
 
@@ -93,27 +100,27 @@ export async function deployCdpLiquidationQueue(walletData: WalletData, networkC
       owner: config?.initMsg?.owner || walletData?.activeWallet?.address
     }
   );
-  const writeFunc = cdpWriteArtifact;
+  const writeFunc = writeDeployedContracts;
+  const contractPath: string = `${ContractsDeployedModules.cdp}.${contractName}`;
 
-  await deployContract(walletData, contractName, networkCdp, undefined, config, { defaultInitMsg, writeFunc });
+  await deployContract(walletData, contractPath, network, undefined, config, { defaultInitMsg, writeFunc });
 }
 
-export async function deployCdpRewardBook(walletData: WalletData, networkCdp: CdpContractsDeployed, collateralPairConfig: CdpCollateralPairsConfig, stakingReward: ContractDeployed): Promise<void> {
-  const cdpCentralControl: ContractDeployed = networkCdp?.cdpCentralControl;
-  // const cdpCentralControl: ContractDeployed = networkCdp?.;
-  const cdpStablePool: ContractDeployed = networkCdp?.cdpStablePool;
-  const cdpLiquidationQueue: ContractDeployed = networkCdp?.cdpLiquidationQueue;
-  const stable_coin_denom: string = networkCdp?.stable_coin_denom;
-  if (!cdpCentralControl?.address || !cdpStablePool?.address || !cdpLiquidationQueue?.address || !collateralPairConfig?.collateral || !stable_coin_denom) {
+export async function deployCdpPairRewardBook(walletData: WalletData, network: ContractsDeployed, collateralPairConfig: CdpCollateralPairsConfig): Promise<void> {
+  const { cdpNetwork, stakingNetwork } = network;
+  const { cdpCentralControl, cdpStablePool, cdpLiquidationQueue, stable_coin_denom } = cdpNetwork;
+  const { reward } = stakingNetwork;
+  if (!collateralPairConfig?.collateral || !cdpCentralControl?.address || !cdpStablePool?.address || !cdpLiquidationQueue?.address || !stable_coin_denom) {
+    console.error(`\n  ********* deploy error: missing info. deployCdpPairRewardBook / ${collateralPairConfig?.collateral} / ${cdpCentralControl?.address} / ${cdpStablePool?.address} / ${cdpLiquidationQueue?.address} / ${stable_coin_denom}`);
     return;
   }
 
   const contractName: string = "cdpRewardBook";
   // set contract deployed info
-  let cdpCollateralPairsDeployed: CdpCollateralPairsDeployed[] | undefined = networkCdp?.cdpCollateralPairs;
+  let cdpCollateralPairsDeployed: CdpCollateralPairsDeployed[] | undefined = cdpNetwork?.cdpCollateralPairs;
   if (!cdpCollateralPairsDeployed) {
     cdpCollateralPairsDeployed = [];
-    networkCdp.cdpCollateralPairs = cdpCollateralPairsDeployed;
+    cdpNetwork.cdpCollateralPairs = cdpCollateralPairsDeployed;
   }
 
   let cdpCollateralPairDeployed: CdpCollateralPairsDeployed | undefined = cdpCollateralPairsDeployed?.["find"]?.(value => collateralPairConfig?.collateral === value.collateral);
@@ -134,31 +141,34 @@ export async function deployCdpRewardBook(walletData: WalletData, networkCdp: Cd
   const defaultInitMsg: object | undefined = Object.assign(
     {
       control_contract: cdpCentralControl?.address,
-      reward_contract: stakingReward?.address || walletData?.activeWallet?.address,
+      reward_contract: reward?.address || walletData?.activeWallet?.address,
       custody_contract: cdpCollateralPairDeployed?.custody?.address || walletData?.activeWallet?.address,
       reward_denom: stable_coin_denom
     },
     config?.initMsg ?? {}
   );
-  const writeFunc = cdpWriteArtifact;
 
-  await deployContract(walletData, contractName, networkCdp, contractNetwork, config, { defaultInitMsg, writeFunc });
+  const writeFunc = writeDeployedContracts;
+  const cdpCollateralPairDeployedIndex: number = cdpCollateralPairsDeployed?.["findIndex"]?.(value => collateralPairConfig?.collateral === value.collateral);
+  const contractPath: string = `${ContractsDeployedModules.cdp}[${cdpCollateralPairDeployedIndex}].${contractName}`;
+
+  await deployContract(walletData, contractPath, network, contractNetwork, config, { defaultInitMsg, writeFunc });
 }
 
-export async function deployCdpCustody(walletData: WalletData, networkCdp: CdpContractsDeployed, collateralPairConfig: CdpCollateralPairsConfig): Promise<void> {
-  const cdpCentralControl: ContractDeployed = networkCdp?.cdpCentralControl;
-  const cdpStablePool: ContractDeployed = networkCdp?.cdpStablePool;
-  const cdpLiquidationQueue: ContractDeployed = networkCdp?.cdpLiquidationQueue;
+export async function deployCdpPairCustody(walletData: WalletData, network: ContractsDeployed, collateralPairConfig: CdpCollateralPairsConfig): Promise<void> {
+  const { cdpNetwork } = network;
+  const { cdpCentralControl, cdpStablePool, cdpLiquidationQueue } = cdpNetwork;
   if (!cdpCentralControl?.address || !cdpStablePool?.address || !cdpLiquidationQueue?.address || !collateralPairConfig?.collateral) {
+    console.error(`\n  ********* deploy error: missing info. deployCdpPairCustody / ${collateralPairConfig?.collateral} / ${cdpCentralControl?.address} / ${cdpStablePool?.address} / ${cdpLiquidationQueue?.address}`);
     return;
   }
 
   const contractName: string = "cdpCustody";
   // set contract deployed info
-  let cdpCollateralPairsDeployed: CdpCollateralPairsDeployed[] | undefined = networkCdp?.cdpCollateralPairs;
+  let cdpCollateralPairsDeployed: CdpCollateralPairsDeployed[] | undefined = cdpNetwork?.cdpCollateralPairs;
   if (!cdpCollateralPairsDeployed) {
     cdpCollateralPairsDeployed = [];
-    networkCdp.cdpCollateralPairs = cdpCollateralPairsDeployed;
+    cdpNetwork.cdpCollateralPairs = cdpCollateralPairsDeployed;
   }
 
   let cdpCollateralPairDeployed: CdpCollateralPairsDeployed | undefined = cdpCollateralPairsDeployed?.["find"]?.(value => collateralPairConfig?.collateral === value.collateral);
@@ -189,14 +199,16 @@ export async function deployCdpCustody(walletData: WalletData, networkCdp: CdpCo
       owner_addr: config?.initMsg?.owner_addr || walletData?.activeWallet?.address
     }
   );
-  const writeFunc = cdpWriteArtifact;
+  const writeFunc = writeDeployedContracts;
+  const cdpCollateralPairDeployedIndex: number = cdpCollateralPairsDeployed?.["findIndex"]?.(value => collateralPairConfig?.collateral === value.collateral);
+  const contractPath: string = `${ContractsDeployedModules.cdp}[${cdpCollateralPairDeployedIndex}].${contractName}`;
 
-  await deployContract(walletData, contractName, networkCdp, contractNetwork, config, { defaultInitMsg, writeFunc });
+  await deployContract(walletData, contractPath, network, contractNetwork, config, { defaultInitMsg, writeFunc });
 }
 
-export async function printDeployedCdpContracts(networkCdp: CdpContractsDeployed): Promise<void> {
-  console.log(`\n  --- --- deployed cdp contracts info --- ---`);
-  const contractNames = Object.keys(networkCdp);
+export async function printDeployedCdpContracts(cdpNetwork: CdpContractsDeployed): Promise<void> {
+  console.log(`\n  --- --- deployed contracts info: ${CDP_MODULE_NAME} --- ---`);
+  const contractNames = Object.keys(cdpNetwork);
   if (!contractNames || contractNames.length <= 0) {
     return;
   }
@@ -205,15 +217,24 @@ export async function printDeployedCdpContracts(networkCdp: CdpContractsDeployed
   const tableDataPairs = [];
   for (const contractName of contractNames) {
     if ("cdpCollateralPairs" === contractName) {
-      if (networkCdp.cdpCollateralPairs) {
-        for (let networkPair of networkCdp.cdpCollateralPairs) {
+      if (cdpNetwork.cdpCollateralPairs) {
+        for (let networkPair of cdpNetwork.cdpCollateralPairs) {
           const pairConfig = config?.cdpCollateralPairs?.find(v => networkPair.collateral === v.collateral);
           tableDataPairs.push({
             name: networkPair?.name || pairConfig?.name,
+            contractName: "custody",
             collateral: networkPair?.collateral || pairConfig?.collateral,
             deploy: pairConfig?.custody?.deploy ?? false,
             codeId: networkPair?.custody?.codeId || 0,
             address: networkPair?.custody?.address
+          });
+          tableDataPairs.push({
+            name: networkPair?.name || pairConfig?.name,
+            contractName: "rewardBook",
+            collateral: networkPair?.collateral || pairConfig?.collateral,
+            deploy: pairConfig?.rewardBook?.deploy ?? false,
+            codeId: networkPair?.rewardBook?.codeId || 0,
+            address: networkPair?.rewardBook?.address
           });
         }
       }
@@ -224,27 +245,26 @@ export async function printDeployedCdpContracts(networkCdp: CdpContractsDeployed
         name: contractName,
         deploy: config?.[contractName]?.deploy ?? false,
         codeId: 0,
-        address: networkCdp?.[contractName]
+        address: cdpNetwork?.[contractName]
       });
       continue;
     }
     tableData.push({
       name: contractName,
       deploy: config?.[contractName]?.deploy ?? false,
-      codeId: networkCdp?.[contractName]?.codeId || 0,
-      address: networkCdp?.[contractName]?.address
+      codeId: cdpNetwork?.[contractName]?.codeId || 0,
+      address: cdpNetwork?.[contractName]?.address
     });
   }
   console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
-  console.table(tableDataPairs, [`name`, `collateral`, `codeId`, `address`, `deploy`]);
+  console.table(tableDataPairs, [`name`, `contractName`, `collateral`, `codeId`, `address`, `deploy`]);
 }
 
-export async function doCdpCentralControlUpdateConfig(walletData: WalletData, networkCdp: CdpContractsDeployed, oraclePyth: ContractDeployed, print: boolean = true): Promise<any> {
-  print && console.log(`\n  Do cdpCentralControl.address update_config enter.`);
-  const cdpCentralControl: ContractDeployed = networkCdp?.cdpCentralControl;
-  const cdpStablePool: ContractDeployed = networkCdp?.cdpStablePool;
-  const cdpLiquidationQueue: ContractDeployed = networkCdp?.cdpLiquidationQueue;
-  if (!cdpCentralControl?.address || !cdpStablePool?.address || !cdpLiquidationQueue?.address || !oraclePyth?.address) {
+export async function doCdpCentralControlUpdateConfig(walletData: WalletData, cdpNetwork: CdpContractsDeployed, oraclePyth: ContractDeployed, bAssetsToken: ContractDeployed, print: boolean = true): Promise<any> {
+  print && console.log(`\n  Do ${CDP_MODULE_NAME}.centralControl update_config enter.`);
+  const { cdpCentralControl, cdpStablePool, cdpLiquidationQueue, cdpCollateralPairs } = cdpNetwork;
+  const cdpCustodyBAssets = cdpCollateralPairs?.find(value => value.collateral === bAssetsToken?.address)?.custody;
+  if (!cdpCentralControl?.address || !cdpStablePool?.address || !cdpLiquidationQueue?.address || !oraclePyth?.address || !cdpCustodyBAssets?.address) {
     console.error("\n  ********* missing info!");
     return;
   }
@@ -253,38 +273,42 @@ export async function doCdpCentralControlUpdateConfig(walletData: WalletData, ne
   const centralControlQueryClient = new cdpContracts.CentralControl.CentralControlQueryClient(walletData?.activeWallet?.signingCosmWasmClient, cdpCentralControl.address);
 
   let beforeRes: CentralControlConfigResponse = null;
-  let initFlag = true;
+  let initFlag: boolean = true;
   try {
     beforeRes = await centralControlQueryClient.config();
   } catch (error: any) {
     if (error?.toString().includes("config not found")) {
       initFlag = false;
-      console.error(`\n  cdpCentralControl.address: need update_config.`);
+      console.error(`\n  ${CDP_MODULE_NAME}.centralControl: need update_config.`);
     } else {
       throw new Error(error);
     }
   }
-
-  if (initFlag && cdpStablePool?.address === beforeRes?.pool_contract && oraclePyth?.address === beforeRes?.oracle_contract) {
-    console.warn(`\n  ######### The cdpCentralControl.address config is already done. \n  ${JSON.stringify(beforeRes)}`);
+  // custody_contract: string;
+  // liquidation_contract: string;
+  // oracle_contract: string;
+  // pool_contract: string;
+  if (initFlag && cdpStablePool?.address === beforeRes?.pool_contract && oraclePyth?.address === beforeRes?.oracle_contract && cdpLiquidationQueue?.address === beforeRes?.liquidation_contract && cdpCustodyBAssets?.address === beforeRes?.custody_contract) {
+    console.warn(`\n  ######### The ${CDP_MODULE_NAME}.centralControl config is already done. \n  ${JSON.stringify(beforeRes)}`);
     return;
   }
   const doRes = await centralControlClient.updateConfig({
     liquidationContract: cdpLiquidationQueue?.address,
     poolContract: cdpStablePool?.address,
-    oracleContract: oraclePyth?.address
+    oracleContract: oraclePyth?.address,
+    custodyContract: cdpCustodyBAssets?.address
   });
-  console.log(`\n  Do cdpCentralControl.address update_config ok. \n  ${doRes?.transactionHash}`);
+  console.log(`\n  Do ${CDP_MODULE_NAME}.centralControl update_config ok. \n  ${doRes?.transactionHash}`);
 
   const afterRes = await centralControlQueryClient.config();
-  print && console.log(`\n  cdpLiquidationQueue.address config info: \n  ${JSON.stringify(afterRes)}`);
+  print && console.log(`\n  ${CDP_MODULE_NAME}.centralControl config info: \n  ${JSON.stringify(afterRes)}`);
 }
 
-export async function doCdpLiquidationQueueConfig(walletData: WalletData, networkCdp: CdpContractsDeployed, oraclePyth: ContractDeployed, print: boolean = true): Promise<any> {
-  print && console.log(`\n  Do cdpLiquidationQueue.address update_config enter.`);
-  const cdpCentralControl: ContractDeployed = networkCdp?.cdpCentralControl;
-  // const cdpStablePool: ContractDeployed = networkCdp?.cdpStablePool;
-  const cdpLiquidationQueue: ContractDeployed = networkCdp?.cdpLiquidationQueue;
+export async function doCdpLiquidationQueueConfig(walletData: WalletData, cdpNetwork: CdpContractsDeployed, oraclePyth: ContractDeployed, print: boolean = true): Promise<any> {
+  print && console.log(`\n  Do ${CDP_MODULE_NAME}.liquidationQueue update_config enter.`);
+  const cdpCentralControl: ContractDeployed = cdpNetwork?.cdpCentralControl;
+  // const cdpStablePool: ContractDeployed = cdpNetwork?.cdpStablePool;
+  const cdpLiquidationQueue: ContractDeployed = cdpNetwork?.cdpLiquidationQueue;
   if (!cdpCentralControl?.address || !cdpLiquidationQueue?.address || !oraclePyth?.address) {
     console.error("\n  ********* missing info!");
     return;
@@ -300,29 +324,30 @@ export async function doCdpLiquidationQueueConfig(walletData: WalletData, networ
   } catch (error: any) {
     if (error?.toString().includes("config not found")) {
       initFlag = false;
-      console.error(`\n  cdpLiquidationQueue.address: need update_config.`);
+      console.error(`\n  ${CDP_MODULE_NAME}.liquidationQueue: need update_config.`);
     } else {
       throw new Error(error);
     }
   }
-
+  // control_contract: string;
+  // oracle_contract: string;
   if (initFlag && cdpCentralControl?.address === beforeRes?.control_contract && oraclePyth?.address === beforeRes?.oracle_contract) {
-    console.warn(`\n  ######### The cdpLiquidationQueue.address config is already done.\n  ${JSON.stringify(beforeRes)}`);
+    console.warn(`\n  ######### The ${CDP_MODULE_NAME}.liquidationQueue config is already done.\n  ${JSON.stringify(beforeRes)}`);
     return;
   }
   const doRes = await liquidationQueueClient.updateConfig({
     controlContract: cdpCentralControl?.address,
     oracleContract: oraclePyth?.address
   });
-  console.log(`\n  Do cdpLiquidationQueue.address update_config ok. \n  ${doRes?.transactionHash}`);
+  console.log(`\n  Do ${CDP_MODULE_NAME}.liquidationQueue update_config ok. \n  ${doRes?.transactionHash}`);
 
   const afterRes = await liquidationQueueQueryClient.config();
   print && console.log(`\n  cdpLiquidationQueue.address config info: \n  ${JSON.stringify(afterRes)}`);
 }
 
-export async function doCdpCentralControlSetWhitelistCollateral(walletData: WalletData, networkCdp: CdpContractsDeployed, collateralPairConfig: CdpCollateralPairsConfig, custody: ContractDeployed, rewardBook: ContractDeployed, print: boolean = true): Promise<any> {
-  print && console.log(`\n  Do cdp.cdpCentralControl WhitelistCollateral enter. collateral: ${collateralPairConfig?.collateral}`);
-  const cdpCentralControl: ContractDeployed = networkCdp?.cdpCentralControl;
+export async function doCdpCentralControlSetWhitelistCollateral(walletData: WalletData, cdpNetwork: CdpContractsDeployed, collateralPairConfig: CdpCollateralPairsConfig, custody: ContractDeployed, rewardBook: ContractDeployed, print: boolean = true): Promise<any> {
+  print && console.log(`\n  Do ${CDP_MODULE_NAME}.centralControl WhitelistCollateral enter. collateral: ${collateralPairConfig?.collateral}`);
+  const cdpCentralControl: ContractDeployed = cdpNetwork?.cdpCentralControl;
   if (!cdpCentralControl?.address || !collateralPairConfig?.collateral || !custody?.address || !rewardBook?.address) {
     console.error("\n  ********* missing info!");
     return;
@@ -338,14 +363,14 @@ export async function doCdpCentralControlSetWhitelistCollateral(walletData: Wall
   } catch (error: any) {
     if (error?.toString().includes("Token is not registered as collateral")) {
       initFlag = false;
-      console.error(`\n  cdp.cdpCentralControl: need set_whitelist.`);
+      console.error(`\n  ${CDP_MODULE_NAME}.centralControl: need set_whitelist.`);
     } else {
       throw new Error(error);
     }
   }
 
   if (initFlag && !!beforeRes?.elems?.find(value => collateralPairConfig?.collateral === value.collateral_contract && custody?.address === value.custody_contract && rewardBook?.address === value.reward_book_contract)) {
-    console.warn(`\n  ######### cdp.cdpCentralControl whitelist is already done.`);
+    console.warn(`\n  ######### ${CDP_MODULE_NAME}.centralControl whitelist is already done.`);
     return;
   }
 
@@ -358,15 +383,15 @@ export async function doCdpCentralControlSetWhitelistCollateral(walletData: Wall
     maxLtv: collateralPairConfig?.centralControlWhitelistConfig?.max_ltv
   });
 
-  console.log(`\n  Do cdpCentralControl.address whitelistCollateral ok. \n  ${doRes?.transactionHash}`);
+  console.log(`\n  Do ${CDP_MODULE_NAME}.centralControl whitelistCollateral ok. \n  ${doRes?.transactionHash}`);
 
   const afterRes = await centralControlQueryClient.whitelist({ collateralContract: collateralPairConfig?.collateral });
-  print && console.log(`\n  cdp.cdpCentralControl whitelist: ${JSON.stringify(afterRes)}`);
+  print && console.log(`\n  ${CDP_MODULE_NAME}.centralControl whitelist: ${JSON.stringify(afterRes)}`);
 }
 
-export async function doCdpLiquidationQueueSetWhitelistCollateral(walletData: WalletData, networkCdp: CdpContractsDeployed, collateralPairConfig: CdpCollateralPairsConfig, print: boolean = true): Promise<any> {
-  print && console.log(`\n  Do cdp.cdpLiquidationQueue WhitelistCollateral enter. collateral: ${collateralPairConfig?.collateral}`);
-  const cdpLiquidationQueue: ContractDeployed = networkCdp?.cdpLiquidationQueue;
+export async function doCdpLiquidationQueueSetWhitelistCollateral(walletData: WalletData, cdpNetwork: CdpContractsDeployed, collateralPairConfig: CdpCollateralPairsConfig, print: boolean = true): Promise<any> {
+  print && console.log(`\n  Do ${CDP_MODULE_NAME}.liquidationQueue WhitelistCollateral enter. collateral: ${collateralPairConfig?.collateral}`);
+  const cdpLiquidationQueue: ContractDeployed = cdpNetwork?.cdpLiquidationQueue;
   if (!cdpLiquidationQueue?.address || !collateralPairConfig?.collateral) {
     console.error("\n  ********* missing info!");
     return;
@@ -382,14 +407,14 @@ export async function doCdpLiquidationQueueSetWhitelistCollateral(walletData: Wa
   } catch (error: any) {
     if (error?.toString().includes("Collateral is not whitelisted")) {
       initFlag = false;
-      console.error(`\n  cdp.cdpLiquidationQueue: need set_whitelist.`);
+      console.error(`\n  ${CDP_MODULE_NAME}.liquidationQueue: need set_whitelist.`);
     } else {
       throw new Error(error);
     }
   }
 
   if (initFlag && beforeRes?.collateral_token === collateralPairConfig?.collateral) {
-    console.warn(`\n  ######### cdp.cdpLiquidationQueue whitelist is already done.`);
+    console.warn(`\n  ######### ${CDP_MODULE_NAME}.liquidationQueue whitelist is already done.`);
     return;
   }
 
@@ -399,17 +424,16 @@ export async function doCdpLiquidationQueueSetWhitelistCollateral(walletData: Wa
     maxSlot: collateralPairConfig?.liquidationQueueWhitelistConfig?.max_slot,
     premiumRatePerSlot: collateralPairConfig?.liquidationQueueWhitelistConfig?.premium_rate_per_slot
   });
-  console.log(`\n  Do cdp.cdpLiquidationQueue whitelistCollateral ok. \n  ${doRes?.transactionHash}`);
+  console.log(`\n  Do ${CDP_MODULE_NAME}.liquidationQueue whitelistCollateral ok. \n  ${doRes?.transactionHash}`);
 
   const afterRes = await liquidationQueueQueryClient.collateralInfo({ collateralToken: collateralPairConfig?.collateral });
-  print && console.log(`\n  cdp.cdpLiquidationQueue whitelist: ${JSON.stringify(afterRes)}`);
+  print && console.log(`\n  ${CDP_MODULE_NAME}.liquidationQueue whitelist: ${JSON.stringify(afterRes)}`);
 }
 
-export async function doCdpCustodyUpdateConfig(walletData: WalletData, networkCdp: CdpContractsDeployed, cdpCollateralPairsDeployed: CdpCollateralPairsDeployed, print: boolean = true): Promise<any> {
-  print && console.log(`\n  Do cdp.custody update_config enter. collateral: ${cdpCollateralPairsDeployed?.name} / ${cdpCollateralPairsDeployed?.collateral}`);
-  const cdpCentralControl: ContractDeployed = networkCdp?.cdpCentralControl;
-  const cdpStablePool: ContractDeployed = networkCdp?.cdpStablePool;
-  const cdpLiquidationQueue: ContractDeployed = networkCdp?.cdpLiquidationQueue;
+export async function doCdpCustodyUpdateConfig(walletData: WalletData, cdpNetwork: CdpContractsDeployed, cdpCollateralPairsDeployed: CdpCollateralPairsDeployed, print: boolean = true): Promise<any> {
+  print && console.log(`\n  Do ${CDP_MODULE_NAME}.custody update_config enter. collateral: ${cdpCollateralPairsDeployed?.name} / ${cdpCollateralPairsDeployed?.collateral}`);
+  const { cdpCentralControl, cdpStablePool, cdpLiquidationQueue } = cdpNetwork;
+
   const custody: ContractDeployed = cdpCollateralPairsDeployed?.custody;
   const rewardBook: ContractDeployed = cdpCollateralPairsDeployed?.rewardBook;
   if (!custody?.address || !rewardBook?.address || !cdpCentralControl?.address || !cdpStablePool?.address || !cdpLiquidationQueue?.address) {
@@ -427,14 +451,14 @@ export async function doCdpCustodyUpdateConfig(walletData: WalletData, networkCd
   } catch (error: any) {
     if (error?.toString().includes("config not found")) {
       initFlag = false;
-      console.error(`\n  ######### cdp.custody: need update_config.`);
+      console.error(`\n  ######### ${CDP_MODULE_NAME}.custody: need update_config.`);
     } else {
       throw new Error(error);
     }
   }
 
   if (initFlag && cdpCentralControl?.address === beforeRes?.control_contract && cdpLiquidationQueue?.address === beforeRes?.liquidation_contract && cdpStablePool?.address === beforeRes?.pool_contract && rewardBook?.address === beforeRes?.reward_book_contract) {
-    console.warn(`\n  ######### The cdp.custody config is already done. \n  ${JSON.stringify(beforeRes)}`);
+    console.warn(`\n  ######### The ${CDP_MODULE_NAME}.custody config is already done. \n  ${JSON.stringify(beforeRes)}`);
     return;
   }
   const doRes = await custodyClient.updateConfig({
@@ -443,18 +467,17 @@ export async function doCdpCustodyUpdateConfig(walletData: WalletData, networkCd
     poolContract: cdpStablePool?.address,
     rewardBookContract: rewardBook?.address
   });
-  console.log(`\n  Do cdp.custody update_config ok. \n  ${doRes?.transactionHash}`);
+  console.log(`\n  Do ${CDP_MODULE_NAME}.custody update_config ok. \n  ${doRes?.transactionHash}`);
 
   const afterRes = await custodyQueryClient.config();
-  print && console.log(`\n  after cdp.custody config info: \n  ${JSON.stringify(afterRes)}`);
+  print && console.log(`\n  after ${CDP_MODULE_NAME}.custody config info: \n  ${JSON.stringify(afterRes)}`);
 }
 
-export async function doCdpRewardBookUpdateConfig(walletData: WalletData, networkCdp: CdpContractsDeployed, cdpCollateralPairsDeployed: CdpCollateralPairsDeployed, stakingReward: ContractDeployed, print: boolean = true): Promise<any> {
-  print && console.log(`\n  Do cdp.rewardBook update_config enter. collateral: ${cdpCollateralPairsDeployed?.name} / ${cdpCollateralPairsDeployed?.collateral}`);
-  const cdpCentralControl: ContractDeployed = networkCdp?.cdpCentralControl;
-  const cdpStablePool: ContractDeployed = networkCdp?.cdpStablePool;
-  const cdpLiquidationQueue: ContractDeployed = networkCdp?.cdpLiquidationQueue;
-  const stable_coin_denom: string = networkCdp?.stable_coin_denom;
+export async function doCdpRewardBookUpdateConfig(walletData: WalletData, cdpNetwork: CdpContractsDeployed, cdpCollateralPairsDeployed: CdpCollateralPairsDeployed, stakingReward: ContractDeployed, print: boolean = true): Promise<any> {
+  print && console.log(`\n  Do ${CDP_MODULE_NAME}.rewardBook update_config enter. collateral: ${cdpCollateralPairsDeployed?.name} / ${cdpCollateralPairsDeployed?.collateral}`);
+  const { cdpCentralControl, cdpStablePool, cdpLiquidationQueue } = cdpNetwork;
+
+  const stable_coin_denom: string = cdpNetwork?.stable_coin_denom;
   const custody: ContractDeployed = cdpCollateralPairsDeployed?.custody;
   const rewardBook: ContractDeployed = cdpCollateralPairsDeployed?.rewardBook;
   if (!custody?.address || !rewardBook?.address || !cdpCentralControl?.address || !cdpStablePool?.address || !cdpLiquidationQueue?.address || !stakingReward?.address || !stable_coin_denom) {
@@ -466,20 +489,20 @@ export async function doCdpRewardBookUpdateConfig(walletData: WalletData, networ
   const rewardBookQueryClient = new cdpContracts.RewardBook.RewardBookQueryClient(walletData?.activeWallet?.signingCosmWasmClient, rewardBook.address);
 
   let beforeRes: RewardBookConfigResponse = null;
-  let initFlag = true;
+  let initFlag: boolean = true;
   try {
     beforeRes = await rewardBookQueryClient.config();
   } catch (error: any) {
     if (error?.toString().includes("config not found")) {
       initFlag = false;
-      console.error(`\n  ######### cdp.rewardBook: need update_config.`);
+      console.error(`\n  ######### ${CDP_MODULE_NAME}.rewardBook: need update_config.`);
     } else {
       throw new Error(error);
     }
   }
 
   if (initFlag && cdpCentralControl?.address === beforeRes?.control_contract && custody?.address === beforeRes?.custody_contract && stakingReward?.address === beforeRes?.reward_contract && stable_coin_denom === beforeRes?.reward_denom) {
-    console.warn(`\n  ######### The cdp.rewardBook config is already done. \n  ${JSON.stringify(beforeRes)}`);
+    console.warn(`\n  ######### The ${CDP_MODULE_NAME}.rewardBook config is already done. \n  ${JSON.stringify(beforeRes)}`);
     return;
   }
   const doRes = await rewardBookClient.updateConfig({
@@ -488,8 +511,45 @@ export async function doCdpRewardBookUpdateConfig(walletData: WalletData, networ
     rewardContract: stakingReward?.address,
     rewardDenom: stable_coin_denom
   });
-  console.log(`\n  Do cdp.rewardBook update_config ok. \n  ${doRes?.transactionHash}`);
+  console.log(`\n  Do ${CDP_MODULE_NAME}.rewardBook update_config ok. \n  ${doRes?.transactionHash}`);
 
   const afterRes = await rewardBookQueryClient.config();
-  print && console.log(`\n  after cdp.rewardBook config info: \n  ${JSON.stringify(afterRes)}`);
+  print && console.log(`\n  after ${CDP_MODULE_NAME}.rewardBook config info: \n  ${JSON.stringify(afterRes)}`);
+}
+
+export async function doCdpStableCoinDenomMetadata(walletData: WalletData, cdpNetwork: CdpContractsDeployed, print: boolean = true): Promise<any> {
+  // print && console.log(`\n  Do ${CDP_MODULE_NAME}.cdpStablePool setTokenMetadata enter.`);
+  // const { cdpStablePool, stable_coin_denom } = cdpNetwork;
+  // const metadataConfig = cdpConfigs?.stableCoinDenomMetadata;
+  // if (!cdpStablePool?.address || !stable_coin_denom || !metadataConfig) {
+  //   console.error("\n  ********* missing info!");
+  //   return;
+  // }
+  // const stablePoolClient = new cdpContracts.StablePool.StablePoolClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, cdpStablePool?.address);
+  // const stablePoolQueryClient = new cdpContracts.StablePool.StablePoolQueryClient(walletData?.activeWallet?.signingCosmWasmClient, cdpStablePool?.address);
+  //
+  // let beforeRes: Metadata = null;
+  // let initFlag: boolean = true;
+  // try {
+  //   beforeRes = await walletData?.chainGrpcClient?.bank?.fetchDenomMetadata(stable_coin_denom);
+  // } catch (error: any) {
+  //   if (error?.toString().includes("Metadata not found")) {
+  //     initFlag = false;
+  //     console.error(`\n  ######### ${CDP_MODULE_NAME}.cdpStablePool: need setTokenMetadata.`);
+  //   } else {
+  //     throw new Error(error);
+  //   }
+  // }
+  //
+  // if (initFlag && metadataConfig?.name === beforeRes?.name && metadataConfig?.symbol === beforeRes?.symbol && metadataConfig?.decimals === beforeRes?.denomUnits?.[1]?.exponent) {
+  //   console.warn(`\n  ######### The ${CDP_MODULE_NAME}.cdpStablePool tokenMetadata is already done. \n  ${JSON.stringify(beforeRes)}`);
+  //   return;
+  // }
+  // const doRes = await stablePoolClient.setTokenMetadata({
+  //   ...metadataConfig
+  // });
+  // console.log(`\n  Do ${CDP_MODULE_NAME}.cdpStablePool setTokenMetadata ok. \n  ${doRes?.transactionHash}`);
+  //
+  // const afterRes = await walletData?.chainGrpcClient?.bank?.fetchDenomMetadata(stable_coin_denom);
+  // print && console.log(`\n  after ${CDP_MODULE_NAME}.cdpStablePool tokenMetadata info: \n  ${JSON.stringify(afterRes)}`);
 }

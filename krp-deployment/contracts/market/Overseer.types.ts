@@ -21,7 +21,6 @@ export interface BorrowLimitResponse {
 }
 export type Decimal256 = string;
 export interface ConfigResponse {
-  kpt_purchase_factor: Decimal256;
   buffer_distribution_factor: Decimal256;
   collector_contract: string;
   dyn_rate_epoch: number;
@@ -30,6 +29,7 @@ export interface ConfigResponse {
   dyn_rate_min: Decimal256;
   dyn_rate_yr_increase_expectation: Decimal256;
   epoch_period: number;
+  kpt_purchase_factor: Decimal256;
   liquidation_contract: string;
   market_contract: string;
   oracle_contract: string;
@@ -55,7 +55,6 @@ export interface EpochState {
 }
 export type ExecuteMsg = {
   update_config: {
-    kpt_purchase_factor?: Decimal256 | null;
     buffer_distribution_factor?: Decimal256 | null;
     dyn_rate_epoch?: number | null;
     dyn_rate_max?: Decimal256 | null;
@@ -63,12 +62,21 @@ export type ExecuteMsg = {
     dyn_rate_min?: Decimal256 | null;
     dyn_rate_yr_increase_expectation?: Decimal256 | null;
     epoch_period?: number | null;
+    kpt_purchase_factor?: Decimal256 | null;
     liquidation_contract?: string | null;
     oracle_contract?: string | null;
-    owner_addr?: string | null;
     price_timeframe?: number | null;
     target_deposit_rate?: Decimal256 | null;
     threshold_deposit_rate?: Decimal256 | null;
+    [k: string]: unknown;
+  };
+} | {
+  set_owner: {
+    new_owner_addr: string;
+    [k: string]: unknown;
+  };
+} | {
+  accept_ownership: {
     [k: string]: unknown;
   };
 } | {
@@ -126,7 +134,6 @@ export type ExecuteMsg = {
 export type OfBlocksPerEachDynamicRateChangePeriod = number;
 export type OfBlocksPerEpochPeriod = number;
 export interface InstantiateMsg {
-  kpt_purchase_factor: Decimal256;
   buffer_distribution_factor: Decimal256;
   collector_contract: string;
   dyn_rate_epoch: OfBlocksPerEachDynamicRateChangePeriod;
@@ -135,6 +142,7 @@ export interface InstantiateMsg {
   dyn_rate_min: Decimal256;
   dyn_rate_yr_increase_expectation: Decimal256;
   epoch_period: OfBlocksPerEpochPeriod;
+  kpt_purchase_factor: Decimal256;
   liquidation_contract: string;
   market_contract: string;
   oracle_contract: string;

@@ -1,8 +1,10 @@
 import { deployContract, readArtifact, writeArtifact } from "@/common";
 import { stakingContracts } from "@/contracts";
-import { ConfigResponse } from "@/contracts/staking/RewardsDispatcher.types";
+import type { ConfigResponse } from "@/contracts/staking/RewardsDispatcher.types";
+import type { InstantiateMarketingInfo } from "@/contracts/staking/TokenStsei.types.ts";
 import { DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
-import type { BSeiTokenContractConfig, HubContractConfig, RewardContractConfig, RewardsDispatcherContractConfig, StakingContractsConfig, StakingContractsDeployed, StSeiTokenContractConfig, ValidatorsRegistryContractConfig } from "@/modules";
+import type { BAssetsTokenContractConfig, ContractsDeployed, HubContractConfig, RewardContractConfig, RewardsDispatcherContractConfig, StakingContractsConfig, StakingContractsDeployed, StAssetsTokenContractConfig, ValidatorsRegistryContractConfig } from "@/modules";
+import { ContractsDeployedModules, writeDeployedContracts } from "@/modules";
 import type { ContractDeployed, WalletData } from "@/types";
 import { STAKING_ARTIFACTS_PATH, STAKING_MODULE_NAME } from "./staking_constants";
 
@@ -16,57 +18,16 @@ export function stakingReadArtifact(chainId: string): StakingContractsDeployed {
   return readArtifact(getStakingDeployFileName(chainId), STAKING_ARTIFACTS_PATH) as StakingContractsDeployed;
 }
 
-export function stakingWriteArtifact(networkStaking: StakingContractsDeployed, chainId: string): void {
-  writeArtifact(networkStaking, getStakingDeployFileName(chainId), STAKING_ARTIFACTS_PATH);
+export function stakingWriteArtifact(stakingNetwork: StakingContractsDeployed, chainId: string): void {
+  writeArtifact(stakingNetwork, getStakingDeployFileName(chainId), STAKING_ARTIFACTS_PATH);
 }
 
-/**
- * hub,
- * reward,
- * bSeiToken,
- * rewardsDispatcher,
- * validatorsRegistry,
- * stSeiToken,
- */
-export async function loadingStakingData(networkStaking: StakingContractsDeployed | undefined) {
-  const hub: ContractDeployed = {
-    codeId: networkStaking?.hub?.codeId || 0,
-    address: networkStaking?.hub?.address
-  };
-  const reward: ContractDeployed = {
-    codeId: networkStaking?.reward?.codeId || 0,
-    address: networkStaking?.reward?.address
-  };
-  const bSeiToken: ContractDeployed = {
-    codeId: networkStaking?.bSeiToken?.codeId || 0,
-    address: networkStaking?.bSeiToken?.address
-  };
-  const rewardsDispatcher: ContractDeployed = {
-    codeId: networkStaking?.rewardsDispatcher?.codeId || 0,
-    address: networkStaking?.rewardsDispatcher?.address
-  };
-  const validatorsRegistry: ContractDeployed = {
-    codeId: networkStaking?.validatorsRegistry?.codeId || 0,
-    address: networkStaking?.validatorsRegistry?.address
-  };
-  const stSeiToken: ContractDeployed = {
-    codeId: networkStaking?.stSeiToken?.codeId || 0,
-    address: networkStaking?.stSeiToken?.address
-  };
-
-  return {
-    hub,
-    reward,
-    bSeiToken,
-    rewardsDispatcher,
-    validatorsRegistry,
-    stSeiToken
-  };
-}
-
-export async function deployHub(walletData: WalletData, networkStaking: StakingContractsDeployed, swapSparrow: ContractDeployed, stable_coin_denom: string): Promise<void> {
+export async function deployStakingHub(walletData: WalletData, network: ContractsDeployed): Promise<void> {
+  const { cdpNetwork, swapExtensionNetwork } = network;
+  const { swapSparrow } = swapExtensionNetwork;
+  const { stable_coin_denom } = cdpNetwork;
   if (!swapSparrow?.address || !stable_coin_denom) {
-    console.error(`\n  ********* deploy error: missing info`);
+    console.error(`\n  ********* deploy error: missing info. deployStakingHub / ${swapSparrow?.address} / ${stable_coin_denom}`);
     return;
   }
   const contractName: keyof Required<StakingContractsDeployed> = "hub";
@@ -77,17 +38,24 @@ export async function deployHub(walletData: WalletData, networkStaking: StakingC
       underlying_coin_denom: walletData?.nativeCurrency?.coinMinimalDenom,
       swap_contract: swapSparrow?.address
     },
-    config?.initMsg ?? {}
+    config?.initMsg ?? {},
+    {
+      update_reward_index_addr: config?.initMsg?.update_reward_index_addr ?? walletData?.activeWallet?.address
+    }
   );
-  const writeFunc = stakingWriteArtifact;
+  const writeFunc = writeDeployedContracts;
+  const contractPath: string = `${ContractsDeployedModules.staking}.${contractName}`;
 
-  await deployContract(walletData, contractName, networkStaking, undefined, config, { defaultInitMsg, writeFunc });
+  await deployContract(walletData, contractPath, network, undefined, config, { defaultInitMsg, writeFunc });
 }
 
-export async function deployReward(walletData: WalletData, networkStaking: StakingContractsDeployed, swapSparrow: ContractDeployed, stable_coin_denom: string): Promise<void> {
-  const hub: ContractDeployed | undefined = networkStaking?.hub;
+export async function deployStakingReward(walletData: WalletData, network: ContractsDeployed): Promise<void> {
+  const { stakingNetwork, cdpNetwork, swapExtensionNetwork } = network;
+  const { hub } = stakingNetwork;
+  const { swapSparrow } = swapExtensionNetwork;
+  const { stable_coin_denom } = cdpNetwork;
   if (!hub?.address || !swapSparrow?.address || !stable_coin_denom) {
-    console.error(`\n  ********* deploy error: missing info`);
+    console.error(`\n  ********* deploy error: missing info. deployStakingReward / ${hub?.address} / ${swapSparrow?.address} / ${stable_coin_denom}`);
     return;
   }
 
@@ -106,20 +74,22 @@ export async function deployReward(walletData: WalletData, networkStaking: Staki
     }
   );
 
-  const writeFunc = stakingWriteArtifact;
+  const writeFunc = writeDeployedContracts;
+  const contractPath: string = `${ContractsDeployedModules.staking}.${contractName}`;
 
-  await deployContract(walletData, contractName, networkStaking, undefined, config, { defaultInitMsg, writeFunc });
+  await deployContract(walletData, contractPath, network, undefined, config, { defaultInitMsg, writeFunc });
 }
 
-export async function deployBSeiToken(walletData: WalletData, networkStaking: StakingContractsDeployed): Promise<void> {
-  const hub: ContractDeployed | undefined = networkStaking?.hub;
+export async function deployStakingBAssetsToken(walletData: WalletData, network: ContractsDeployed): Promise<void> {
+  const { stakingNetwork } = network;
+  const { hub } = stakingNetwork;
   if (!hub?.address) {
-    console.error(`\n  ********* deploy error: missing info`);
+    console.error(`\n  ********* deploy error: missing info. deployStakingBAssetsToken / ${hub?.address}`);
     return;
   }
 
-  const contractName: keyof Required<StakingContractsDeployed> = "bSeiToken";
-  const config: BSeiTokenContractConfig | undefined = stakingConfigs?.[contractName];
+  const contractName: keyof Required<StakingContractsDeployed> = "bAssetsToken";
+  const config: BAssetsTokenContractConfig | undefined = stakingConfigs?.[contractName];
   const defaultInitMsg: object | undefined = Object.assign(
     {
       hub_contract: hub?.address,
@@ -127,16 +97,20 @@ export async function deployBSeiToken(walletData: WalletData, networkStaking: St
     },
     config?.initMsg ?? {}
   );
-  const writeFunc = stakingWriteArtifact;
+  const writeFunc = writeDeployedContracts;
+  const contractPath: string = `${ContractsDeployedModules.staking}.${contractName}`;
 
-  await deployContract(walletData, contractName, networkStaking, undefined, config, { defaultInitMsg, writeFunc });
+  await deployContract(walletData, contractPath, network, undefined, config, { defaultInitMsg, writeFunc });
 }
 
-export async function deployRewardsDispatcher(walletData: WalletData, networkStaking: StakingContractsDeployed, swapSparrow: ContractDeployed, oraclePyth: ContractDeployed, keeperAddress: string | undefined, stable_coin_denom: string): Promise<void> {
-  const hub: ContractDeployed | undefined = networkStaking?.hub;
-  const reward: ContractDeployed | undefined = networkStaking?.reward;
-  if (!hub?.address || !reward?.address || !swapSparrow?.address || !oraclePyth?.address || !keeperAddress || !stable_coin_denom) {
-    console.error(`\n  ********* deploy error: missing info`);
+export async function deployStakingRewardsDispatcher(walletData: WalletData, network: ContractsDeployed, keeperAddress: string | undefined): Promise<void> {
+  const { stakingNetwork, swapExtensionNetwork, oracleNetwork, cdpNetwork } = network;
+  const { hub, reward } = stakingNetwork;
+  const { swapSparrow } = swapExtensionNetwork;
+  const { oraclePyth } = oracleNetwork;
+  const { stable_coin_denom } = cdpNetwork;
+  if (!hub?.address || !reward?.address || !swapSparrow?.address || !oraclePyth?.address || !stable_coin_denom) {
+    console.error(`\n  ********* deploy error: missing info. deployStakingRewardsDispatcher / ${hub?.address} / ${reward?.address} / ${swapSparrow?.address} / ${oraclePyth?.address} / ${stable_coin_denom}`);
     return;
   }
 
@@ -157,57 +131,74 @@ export async function deployRewardsDispatcher(walletData: WalletData, networkSta
       krp_keeper_address: config?.initMsg?.krp_keeper_address || keeperAddress || walletData?.activeWallet?.address
     }
   );
-  const writeFunc = stakingWriteArtifact;
+  const writeFunc = writeDeployedContracts;
+  const contractPath: string = `${ContractsDeployedModules.staking}.${contractName}`;
 
-  await deployContract(walletData, contractName, networkStaking, undefined, config, { defaultInitMsg, writeFunc });
+  await deployContract(walletData, contractPath, network, undefined, config, { defaultInitMsg, writeFunc });
 }
 
-export async function deployValidatorsRegistry(walletData: WalletData, networkStaking: StakingContractsDeployed): Promise<void> {
-  const hub: ContractDeployed | undefined = networkStaking?.hub;
+export async function deployStakingValidatorsRegistry(walletData: WalletData, network: ContractsDeployed): Promise<void> {
+  const { stakingNetwork } = network;
+  const { hub } = stakingNetwork;
   if (!hub?.address) {
-    console.error(`\n  ********* deploy error: missing info`);
+    console.error(`\n  ********* deploy error: missing info. deployStakingValidatorsRegistry / ${hub?.address}`);
     return;
   }
 
   const contractName: keyof Required<StakingContractsDeployed> = "validatorsRegistry";
   const config: ValidatorsRegistryContractConfig | undefined = stakingConfigs?.[contractName];
-  const registry = config?.initMsg?.registry?.map(q => Object.assign({}, q, { address: stakingConfigs.validator }));
+  const registry = config?.initMsg?.registry?.map((q, i, v) => Object.assign({}, q, { address: stakingConfigs?.validators?.[i] })).filter(value => !!value?.address);
   const defaultInitMsg: object = Object.assign({ hub_contract: hub?.address }, { registry });
-  const writeFunc = stakingWriteArtifact;
+  const writeFunc = writeDeployedContracts;
+  const contractPath: string = `${ContractsDeployedModules.staking}.${contractName}`;
 
-  await deployContract(walletData, contractName, networkStaking, undefined, config, { defaultInitMsg, writeFunc });
+  await deployContract(walletData, contractPath, network, undefined, config, { defaultInitMsg, writeFunc });
 }
 
-export async function deployStSeiToken(walletData: WalletData, networkStaking: StakingContractsDeployed): Promise<void> {
-  const hub: ContractDeployed | undefined = networkStaking?.hub;
+export async function deployStakingStAssetsToken(walletData: WalletData, network: ContractsDeployed): Promise<void> {
+  const { stakingNetwork } = network;
+  const { hub } = stakingNetwork;
   if (!hub?.address) {
-    console.error(`\n  ********* deploy error: missing info`);
+    console.error(`\n  ********* deploy error: missing info. deployStakingStAssetsToken / ${hub?.address}`);
     return;
   }
 
-  const contractName: keyof Required<StakingContractsDeployed> = "stSeiToken";
-  const config: StSeiTokenContractConfig | undefined = stakingConfigs?.[contractName];
+  const contractName: keyof Required<StakingContractsDeployed> = "stAssetsToken";
+  const config: StAssetsTokenContractConfig | undefined = stakingConfigs?.[contractName];
+  const marketing: InstantiateMarketingInfo = Object.assign(
+    {
+      description: config?.initMsg?.name,
+      logo: {
+        url: "https://www.google.com"
+      },
+      marketing: walletData?.activeWallet?.address,
+      project: config?.initMsg?.name
+    },
+    config?.initMsg?.marketing ?? {}
+  );
   const defaultInitMsg: object = Object.assign(
     {
       hub_contract: hub?.address,
       mint: { minter: hub?.address, cap: null }
     },
-    config?.initMsg ?? {}
+    config?.initMsg ?? {},
+    { marketing }
   );
-  const writeFunc = stakingWriteArtifact;
+  const writeFunc = writeDeployedContracts;
+  const contractPath: string = `${ContractsDeployedModules.staking}.${contractName}`;
 
-  await deployContract(walletData, contractName, networkStaking, undefined, config, { defaultInitMsg, writeFunc });
+  await deployContract(walletData, contractPath, network, undefined, config, { defaultInitMsg, writeFunc });
 }
 
-export async function doHubConfig(walletData: WalletData, networkStaking: StakingContractsDeployed, print: boolean = true): Promise<void> {
-  print && console.log(`\n  query staking.hub config enter.`);
-  const hub: ContractDeployed | undefined = networkStaking?.hub;
-  const reward: ContractDeployed | undefined = networkStaking?.reward;
-  const bSeiToken: ContractDeployed | undefined = networkStaking?.bSeiToken;
-  const rewardsDispatcher: ContractDeployed | undefined = networkStaking?.rewardsDispatcher;
-  const validatorsRegistry: ContractDeployed | undefined = networkStaking?.validatorsRegistry;
-  const stSeiToken: ContractDeployed | undefined = networkStaking?.stSeiToken;
-  if (!hub?.address || !reward?.address || !bSeiToken?.address || !rewardsDispatcher?.address || !validatorsRegistry?.address || !stSeiToken?.address) {
+export async function doHubConfig(walletData: WalletData, stakingNetwork: StakingContractsDeployed, print: boolean = true): Promise<void> {
+  print && console.log(`\n  query ${STAKING_MODULE_NAME}.hub config enter.`);
+  const hub: ContractDeployed | undefined = stakingNetwork?.hub;
+  const reward: ContractDeployed | undefined = stakingNetwork?.reward;
+  const bAssetsToken: ContractDeployed | undefined = stakingNetwork?.bAssetsToken;
+  const rewardsDispatcher: ContractDeployed | undefined = stakingNetwork?.rewardsDispatcher;
+  const validatorsRegistry: ContractDeployed | undefined = stakingNetwork?.validatorsRegistry;
+  const stAssetsToken: ContractDeployed | undefined = stakingNetwork?.stAssetsToken;
+  if (!hub?.address || !reward?.address || !bAssetsToken?.address || !rewardsDispatcher?.address || !validatorsRegistry?.address || !stAssetsToken?.address) {
     console.error(`\n  ********* missing info!`);
     return;
   }
@@ -216,35 +207,29 @@ export async function doHubConfig(walletData: WalletData, networkStaking: Stakin
   const hubQueryClient = new stakingContracts.Hub.HubQueryClient(walletData?.activeWallet?.signingCosmWasmClient, hub.address);
 
   const beforeRes = await hubQueryClient.config();
-  // {"owner":"","reward_dispatcher_contract":"","validators_registry_contract":"","bsei_token_contract":"","stsei_token_contract":"","airdrop_registry_contract":null,"token_contract":""}
-  const initFlag: boolean = rewardsDispatcher.address === beforeRes?.reward_dispatcher_contract && validatorsRegistry.address === beforeRes?.validators_registry_contract && bSeiToken.address === beforeRes?.bsei_token_contract && stSeiToken.address === beforeRes?.stsei_token_contract;
+  const initFlag: boolean = rewardsDispatcher.address === beforeRes?.reward_dispatcher_contract && validatorsRegistry.address === beforeRes?.validators_registry_contract && bAssetsToken.address === beforeRes?.bsei_token_contract && stAssetsToken.address === beforeRes?.stsei_token_contract;
   if (initFlag) {
-    console.warn(`\n  ######### staking.hub config is already done.`);
+    console.warn(`\n  ######### ${STAKING_MODULE_NAME}.hub config is already done.`);
     return;
   }
 
   const doRes = await hubClient.updateConfig({
-    bseiTokenContract: bSeiToken.address,
-    stseiTokenContract: stSeiToken.address,
+    bseiTokenContract: bAssetsToken.address,
+    stseiTokenContract: stAssetsToken.address,
     rewardsDispatcherContract: rewardsDispatcher.address,
     validatorsRegistryContract: validatorsRegistry.address,
     rewardsContract: reward.address
   });
-  console.log(`\n  Do staking.hub update_config ok. \n  ${doRes?.transactionHash}`);
+  console.log(`\n  Do ${STAKING_MODULE_NAME}.hub update_config ok. \n  ${doRes?.transactionHash}`);
 
   const afterRes = await hubQueryClient.config();
-  print && console.log(`\n  staking.hub config info: \n  ${JSON.stringify(afterRes)}`);
+  print && console.log(`\n  ${STAKING_MODULE_NAME}.hub config info: \n  ${JSON.stringify(afterRes)}`);
 }
 
-export async function doRewardsDispatcherConfig(walletData: WalletData, networkStaking: StakingContractsDeployed, print: boolean = true): Promise<void> {
-  print && console.log(`\n  query staking.rewardsDispatcher config enter.`);
-  const hub: ContractDeployed | undefined = networkStaking?.hub;
-  const reward: ContractDeployed | undefined = networkStaking?.reward;
-  const bSeiToken: ContractDeployed | undefined = networkStaking?.bSeiToken;
-  const rewardsDispatcher: ContractDeployed | undefined = networkStaking?.rewardsDispatcher;
-  const validatorsRegistry: ContractDeployed | undefined = networkStaking?.validatorsRegistry;
-  const stSeiToken: ContractDeployed | undefined = networkStaking?.stSeiToken;
-  if (!hub?.address || !reward?.address || !bSeiToken?.address || !rewardsDispatcher?.address || !validatorsRegistry?.address || !stSeiToken?.address) {
+export async function doStakingRewardsDispatcherUpdateConfig(walletData: WalletData, stakingNetwork: StakingContractsDeployed, keeperAddress: string, stable_coin_denom: string, print: boolean = true): Promise<void> {
+  print && console.log(`\n  do ${STAKING_MODULE_NAME}.rewardsDispatcher update_config enter.`);
+  const { hub, reward, rewardsDispatcher } = stakingNetwork;
+  if (!rewardsDispatcher?.address || !hub?.address || !reward?.address || !stable_coin_denom) {
     console.error(`\n  ********* missing info!`);
     return;
   }
@@ -252,75 +237,77 @@ export async function doRewardsDispatcherConfig(walletData: WalletData, networkS
   const rewardsDispatcherClient = new stakingContracts.RewardsDispatcher.RewardsDispatcherClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, rewardsDispatcher.address);
   const rewardsDispatcherQueryClient = new stakingContracts.RewardsDispatcher.RewardsDispatcherQueryClient(walletData?.activeWallet?.signingCosmWasmClient, rewardsDispatcher.address);
 
+  // bsei_reward_contract: string;
+  // bsei_reward_denom: string;
+  // hub_contract: string;
+  // krp_keeper_address: string;
+  // oracle_contract: string;
+  // stsei_reward_denom: string;
+  // swap_contract: string;
+  // swap_denoms: string[];
+  const keeper = keeperAddress ?? walletData?.activeWallet.address;
   const beforeRes: ConfigResponse = await rewardsDispatcherQueryClient.config();
-  // {"owner":"","reward_dispatcher_contract":"","validators_registry_contract":"","bsei_token_contract":"","stsei_token_contract":"","airdrop_registry_contract":null,"token_contract":""}
-  // const initFlag: boolean = rewardsDispatcher.address === beforeRes?.reward_dispatcher_contract && validatorsRegistry.address === beforeRes?.validators_registry_contract && bSeiToken.address === beforeRes?.bsei_token_contract && stSeiToken.address === beforeRes?.stsei_token_contract;
-  // if (initFlag) {
-  //   console.warn(`\n  ######### staking.rewardsDispatcher config is already done.`);
-  //   return;
-  // }
-  //
-  // const doRes = await rewardsDispatcherClient.updateConfig({
-  //   bseiRewardContract
-  //   bseiRewardDenom
-  //   hubContract,
-  //   bseiTokenContract: bSeiToken.address,
-  //   stseiTokenContract: stSeiToken.address,
-  //   rewardsDispatcherContract: rewardsDispatcher.address,
-  //   validatorsRegistryContract: validatorsRegistry.address,
-  //   rewardsContract: reward.address
-  // });
-  // console.log(`\n  Do staking.rewardsDispatcher update_config ok. \n  ${doRes?.transactionHash}`);
+  const initFlag: boolean = hub.address === beforeRes?.hub_contract && reward.address === beforeRes?.bsei_reward_contract && keeper === beforeRes?.krp_keeper_address && stable_coin_denom === beforeRes?.bsei_reward_denom;
+  if (initFlag) {
+    console.warn(`\n  ######### ${STAKING_MODULE_NAME}.rewardsDispatcher config is already done.`);
+    return;
+  }
+
+  const doRes = await rewardsDispatcherClient.updateConfig({
+    hubContract: hub?.address,
+    bseiRewardContract: reward?.address,
+    krpKeeperAddress: keeper,
+    // stseiRewardDenom: walletData?.nativeCurrency?.coinMinimalDenom,
+    bseiRewardDenom: stable_coin_denom
+  });
+  console.log(`\n  Do ${STAKING_MODULE_NAME}.rewardsDispatcher update_config ok. \n  ${doRes?.transactionHash}`);
 
   const afterRes = await rewardsDispatcherQueryClient.config();
-  print && console.log(`\n  after staking.rewardsDispatcher config info: \n  ${JSON.stringify(afterRes)}`);
+  print && console.log(`\n  after ${STAKING_MODULE_NAME}.rewardsDispatcher config info: \n  ${JSON.stringify(afterRes)}`);
 }
 
-/**
- * {"epoch_period":30,"underlying_coin_denom":"usei","unbonding_period":120,"peg_recovery_fee":"0","er_threshold":"1","reward_denom":"","paused":false}
- */
 export async function queryHubParameters(walletData: WalletData, hub: ContractDeployed, print: boolean = true): Promise<any> {
   if (!hub?.address) {
     return;
   }
-  print && console.log(`\n  Query staking.hub parameters enter.`);
+  print && console.log(`\n  Query ${STAKING_MODULE_NAME}.hub parameters enter.`);
   const hubQueryClient = new stakingContracts.Hub.HubQueryClient(walletData?.activeWallet?.signingCosmWasmClient, hub.address);
   const hubParametersRes = await hubQueryClient.parameters();
-  print && console.log(`\n  staking.hub parameters: \n  ${JSON.stringify(hubParametersRes)}`);
+  print && console.log(`\n  ${STAKING_MODULE_NAME}.hub parameters: \n  ${JSON.stringify(hubParametersRes)}`);
   return hubParametersRes;
 }
 
-export async function printDeployedStakingContracts(networkStaking: StakingContractsDeployed): Promise<void> {
-  console.log(`\n  --- --- deployed staking contracts info --- ---`);
+export async function printDeployedStakingContracts(stakingNetwork: StakingContractsDeployed): Promise<void> {
+  console.log(`\n  --- --- deployed contracts info: ${STAKING_MODULE_NAME} --- ---`);
   const tableData = [
-    { name: `hub`, deploy: stakingConfigs?.hub?.deploy, codeId: networkStaking?.hub?.codeId, address: networkStaking?.hub?.address },
-    { name: `reward`, deploy: stakingConfigs?.reward?.deploy, codeId: networkStaking?.reward?.codeId, address: networkStaking?.reward?.address },
-    { name: `bSeiToken`, deploy: stakingConfigs?.bSeiToken?.deploy, codeId: networkStaking?.bSeiToken?.codeId, address: networkStaking?.bSeiToken?.address },
-    { name: `rewardsDispatcher`, deploy: stakingConfigs?.rewardsDispatcher?.deploy, codeId: networkStaking?.rewardsDispatcher?.codeId, address: networkStaking?.rewardsDispatcher?.address },
-    { name: `validatorsRegistry`, deploy: stakingConfigs?.validatorsRegistry?.deploy, codeId: networkStaking?.validatorsRegistry?.codeId, address: networkStaking?.validatorsRegistry?.address },
-    { name: `stSeiToken`, deploy: stakingConfigs?.stSeiToken?.deploy, codeId: networkStaking?.stSeiToken?.codeId, address: networkStaking?.stSeiToken?.address }
+    { name: `hub`, deploy: stakingConfigs?.hub?.deploy, codeId: stakingNetwork?.hub?.codeId, address: stakingNetwork?.hub?.address },
+    { name: `reward`, deploy: stakingConfigs?.reward?.deploy, codeId: stakingNetwork?.reward?.codeId, address: stakingNetwork?.reward?.address },
+    { name: `bAssetsToken`, deploy: stakingConfigs?.bAssetsToken?.deploy, codeId: stakingNetwork?.bAssetsToken?.codeId, address: stakingNetwork?.bAssetsToken?.address },
+    { name: `rewardsDispatcher`, deploy: stakingConfigs?.rewardsDispatcher?.deploy, codeId: stakingNetwork?.rewardsDispatcher?.codeId, address: stakingNetwork?.rewardsDispatcher?.address },
+    { name: `validatorsRegistry`, deploy: stakingConfigs?.validatorsRegistry?.deploy, codeId: stakingNetwork?.validatorsRegistry?.codeId, address: stakingNetwork?.validatorsRegistry?.address },
+    { name: `stAssetsToken`, deploy: stakingConfigs?.stAssetsToken?.deploy, codeId: stakingNetwork?.stAssetsToken?.codeId, address: stakingNetwork?.stAssetsToken?.address }
   ];
   console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
 }
 
 export async function addValidator(walletData: WalletData, validatorRegister: ContractDeployed, validator: string, print: boolean = true): Promise<any> {
-  print && console.warn(`\n  Do staking.validatorRegister addValidator enter`);
+  print && console.warn(`\n  Do ${STAKING_MODULE_NAME}.validatorRegister addValidator enter`);
   if (!validatorRegister?.address) {
     return;
   }
   const validatorsRegistryClient = new stakingContracts.ValidatorsRegistry.ValidatorsRegistryClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, validatorRegister.address);
   const doRes = await validatorsRegistryClient.addValidator({ validator: { address: validator } });
 
-  print && console.warn(`\n  Do staking.validatorRegister addValidator  ok. \n  ${doRes?.transactionHash}`);
+  print && console.warn(`\n  Do ${STAKING_MODULE_NAME}.validatorRegister addValidator  ok. \n  ${doRes?.transactionHash}`);
 }
 
 export async function removeValidator(walletData: WalletData, validatorRegister: ContractDeployed, validator: string, print: boolean = true): Promise<any> {
-  print && console.warn(`\n  Do staking.validatorRegister removeValidator enter`);
+  print && console.warn(`\n  Do ${STAKING_MODULE_NAME}.validatorRegister removeValidator enter`);
   if (!validatorRegister?.address) {
     return;
   }
   const validatorsRegistryClient = new stakingContracts.ValidatorsRegistry.ValidatorsRegistryClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, validatorRegister.address);
   const doRes = await validatorsRegistryClient.removeValidator({ address: validator });
 
-  print && console.warn(`\n  Do staking.validatorRegister removeValidator  ok. \n  ${doRes?.transactionHash}`);
+  print && console.warn(`\n  Do ${STAKING_MODULE_NAME}.validatorRegister removeValidator  ok. \n  ${doRes?.transactionHash}`);
 }

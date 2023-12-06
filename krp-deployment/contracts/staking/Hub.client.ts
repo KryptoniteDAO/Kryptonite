@@ -17,7 +17,7 @@ export interface HubReadOnlyInterface {
   }: {
     address: string;
   }) => Promise<WithdrawableUnbondedResponse>;
-  parameters: () => Promise<Parameters[]>;
+  parameters: () => Promise<Parameters>;
   unbondRequests: ({
     address
   }: {
@@ -73,7 +73,7 @@ export class HubQueryClient implements HubReadOnlyInterface {
       }
     });
   };
-  parameters = async (): Promise<Parameters[]> => {
+  parameters = async (): Promise<Parameters> => {
     return this.client.queryContractSmart(this.contractAddress, {
       parameters: {}
     });
@@ -110,7 +110,6 @@ export interface HubInterface {
   updateConfig: ({
     airdropRegistryContract,
     bseiTokenContract,
-    owner,
     rewardsContract,
     rewardsDispatcherContract,
     stseiTokenContract,
@@ -118,7 +117,6 @@ export interface HubInterface {
   }: {
     airdropRegistryContract?: string;
     bseiTokenContract?: string;
-    owner?: string;
     rewardsContract?: string;
     rewardsDispatcherContract?: string;
     stseiTokenContract?: string;
@@ -137,6 +135,12 @@ export interface HubInterface {
     pegRecoveryFee?: Decimal;
     unbondingPeriod?: number;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setOwner: ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptOwnership: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   bond: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   bondForStSei: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   bondRewards: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
@@ -202,6 +206,8 @@ export class HubClient implements HubInterface {
     this.contractAddress = contractAddress;
     this.updateConfig = this.updateConfig.bind(this);
     this.updateParams = this.updateParams.bind(this);
+    this.setOwner = this.setOwner.bind(this);
+    this.acceptOwnership = this.acceptOwnership.bind(this);
     this.bond = this.bond.bind(this);
     this.bondForStSei = this.bondForStSei.bind(this);
     this.bondRewards = this.bondRewards.bind(this);
@@ -218,7 +224,6 @@ export class HubClient implements HubInterface {
   updateConfig = async ({
     airdropRegistryContract,
     bseiTokenContract,
-    owner,
     rewardsContract,
     rewardsDispatcherContract,
     stseiTokenContract,
@@ -226,7 +231,6 @@ export class HubClient implements HubInterface {
   }: {
     airdropRegistryContract?: string;
     bseiTokenContract?: string;
-    owner?: string;
     rewardsContract?: string;
     rewardsDispatcherContract?: string;
     stseiTokenContract?: string;
@@ -236,7 +240,6 @@ export class HubClient implements HubInterface {
       update_config: {
         airdrop_registry_contract: airdropRegistryContract,
         bsei_token_contract: bseiTokenContract,
-        owner,
         rewards_contract: rewardsContract,
         rewards_dispatcher_contract: rewardsDispatcherContract,
         stsei_token_contract: stseiTokenContract,
@@ -265,6 +268,22 @@ export class HubClient implements HubInterface {
         peg_recovery_fee: pegRecoveryFee,
         unbonding_period: unbondingPeriod
       }
+    }, fee, memo, _funds);
+  };
+  setOwner = async ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      set_owner: {
+        new_owner_addr: newOwnerAddr
+      }
+    }, fee, memo, _funds);
+  };
+  acceptOwnership = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_ownership: {}
     }, fee, memo, _funds);
   };
   bond = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {

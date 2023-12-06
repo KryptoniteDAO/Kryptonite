@@ -17,10 +17,15 @@ export type ExecuteMsg = {
     collateral_contract?: string | null;
     control_contract?: string | null;
     liquidation_contract?: string | null;
-    owner_addr?: string | null;
     pool_contract?: string | null;
     reward_book_contract?: string | null;
   };
+} | {
+  set_owner: {
+    new_owner_addr: string;
+  };
+} | {
+  accept_ownership: {};
 } | {
   receive: Cw20ReceiveMsg;
 } | {

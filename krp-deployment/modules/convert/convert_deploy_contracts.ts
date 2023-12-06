@@ -1,116 +1,56 @@
-import type { WalletData } from "@/types";
-import type { OracleContractsDeployed, CdpContractsDeployed, SwapExtensionContractsDeployed, StakingContractsDeployed, MarketContractsDeployed, ConvertContractsDeployed } from "@/modules";
-import { loadingWalletData } from "@/env_data";
-import {
-  swapExtensionReadArtifact,
-  stakingReadArtifact,
-  convertReadArtifact,
-  marketReadArtifact,
-  deployBtoken,
-  deployConverter,
-  deployCustody,
-  doConverterRegisterTokens,
-  printDeployedConvertContracts,
-  loadingStakingData,
-  loadingMarketData,
-  doSwapSparrowSetWhitelist,
-  doLiquidationQueueWhitelistCollateral,
-  doOraclePythConfigFeedInfo,
-  doOverseerWhitelist,
-  convertConfigs,
-  oracleConfigs,
-  oracleReadArtifact,
-  writeDeployed,
-  cdpReadArtifact
-} from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
+import { loadingWalletData } from "@/env_data";
+import type { ContractsDeployed } from "@/modules";
+import { convertConfigs, deployConvertPairBAssetsToken, deployConvertPairConverter, deployConvertPairCustodyBAssets, printDeployedConvertContracts, readDeployedContracts } from "@/modules";
+import { CONVERT_MODULE_NAME } from "@/modules/convert/convert_constants";
+import { MARKET_MODULE_NAME } from "@/modules/market/market_constants";
+import type { WalletData } from "@/types";
 
-main().catch(console.error);
-
-async function main(): Promise<void> {
-  console.log(`\n  --- --- deploy convert contracts enter --- ---`);
+(async (): Promise<void> => {
+  console.log(`\n  --- --- deploy contracts enter: ${CONVERT_MODULE_NAME} --- ---`);
 
   const walletData: WalletData = await loadingWalletData();
 
-  const networkSwap = swapExtensionReadArtifact(walletData.chainId) as SwapExtensionContractsDeployed;
-  const networkOracle = oracleReadArtifact(walletData.chainId) as OracleContractsDeployed;
-  const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
-  const { stable_coin_denom } = networkCdp;
-  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
-  const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
-  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;
+  const network: ContractsDeployed = readDeployedContracts(walletData.chainId);
+  const { swapExtensionNetwork, cdpNetwork, stakingNetwork, marketNetwork } = network;
 
-  const { hub, reward, bSeiToken, rewardsDispatcher, validatorsRegistry, stSeiToken } = await loadingStakingData(networkStaking);
-  if (!hub?.address || !reward?.address || !bSeiToken?.address || !rewardsDispatcher?.address || !validatorsRegistry?.address || !stSeiToken?.address) {
-    throw new Error(`\n  --- --- deploy convert contracts error, Please deploy staking contracts first --- ---`);
+  if (!marketNetwork) {
+    throw new Error(`\n  --- --- deploy ${CONVERT_MODULE_NAME} contracts error, missing some deployed ${MARKET_MODULE_NAME} address info --- ---`);
   }
-
-  const { aToken, market, interestModel, distributionModel, overseer, liquidationQueue, custodyBSei } = await loadingMarketData(networkMarket);
-  if (!aToken?.address || !market?.address || !interestModel?.address || !distributionModel?.address || !overseer?.address || !liquidationQueue?.address || !custodyBSei?.address) {
-    throw new Error(`\n  --- --- deploy convert contracts error, missing some deployed market address info --- ---`);
+  const { aToken, market, interestModel, distributionModel, overseer, liquidationQueue, custodyBAssets } = marketNetwork;
+  if (!aToken?.address || !market?.address || !interestModel?.address || !distributionModel?.address || !overseer?.address || !liquidationQueue?.address || !custodyBAssets?.address) {
+    throw new Error(`\n  --- --- deploy ${CONVERT_MODULE_NAME} contracts error, missing some deployed ${MARKET_MODULE_NAME} address info --- ---`);
   }
-  const swapSparrow = networkSwap?.swapSparrow;
-  const oraclePyth = networkOracle?.oraclePyth;
-
-  console.log(`\n  --- --- convert contracts storeCode & instantiateContract enter --- ---`);
-
-  if (convertConfigs?.convertPairs && convertConfigs.convertPairs.length > 0) {
-    for (const convertPair of convertConfigs.convertPairs) {
-      await deployConverter(walletData, networkConvert, convertPair.native_denom, convertPair?.name);
-      await deployBtoken(walletData, networkConvert, convertPair.native_denom, convertPair?.name);
-      await deployCustody(walletData, networkConvert, convertPair.native_denom, convertPair?.name, reward, market, overseer, liquidationQueue, swapSparrow, stable_coin_denom);
-    }
-  }
-  await writeDeployed({});
-
-  console.log(`\n  --- --- convert contracts storeCode & instantiateContract end --- ---`);
-
-  await printDeployedConvertContracts(networkConvert);
-
-  // //////////////////////////////////////configure contracts///////////////////////////////////////////
-
-  console.log(`\n  --- --- convert contracts configure enter --- ---`);
-  const print: boolean = false;
-
-  if (convertConfigs?.convertPairs && convertConfigs.convertPairs.length > 0) {
-    for (let convertPairsConfig of convertConfigs.convertPairs) {
-      const nativeDenom = convertPairsConfig.native_denom;
-      const convertPairsNetwork = networkConvert?.convertPairs?.find((v: any) => nativeDenom === v.native_denom);
-      if (!convertPairsConfig || !convertPairsNetwork) {
-        continue;
-      }
-      // const converterConfig = convertPairsConfig?.converter;
-      // const btokenConfig = convertPairsConfig?.btoken;
-      // const custodyConfig = convertPairsConfig?.custody;
-
-      const converterNetwork = convertPairsNetwork?.converter;
-      const btokenNetwork = convertPairsNetwork?.btoken;
-      const custodyNetwork = convertPairsNetwork?.custody;
-
-      await doConverterRegisterTokens(walletData, nativeDenom, converterNetwork, btokenNetwork);
-      await doOverseerWhitelist(walletData, overseer, custodyNetwork, btokenNetwork?.address, convertPairsConfig?.overseerWhitelistConfig);
-      await doLiquidationQueueWhitelistCollateral(walletData, liquidationQueue, btokenNetwork?.address, convertPairsConfig?.liquidationQueueWhitelistCollateralConfig);
-      // await doOracleRegisterFeeder(walletData, nativeDenom, oracle, btokenNetwork);
-      // await doOracleFeedPrice(walletData, nativeDenom, oracle, btokenNetwork, nativeDenomItem?.["price"]);
-
-      /// add bToken feed price
-      if (btokenNetwork?.address) {
-        const feedInfo = Object.assign({ asset: btokenNetwork?.address }, oracleConfigs.baseFeedInfoConfig);
-        await doOraclePythConfigFeedInfo(walletData, networkOracle, feedInfo, print);
-      }
-
-      /// add custody to swap whitelist
-      if (custodyNetwork?.address) {
-        await doSwapSparrowSetWhitelist(walletData, swapSparrow, { caller: custodyNetwork?.address, isWhitelist: true }, print);
-      }
-    }
-  }
-
-  console.log(`\n  --- --- convert contracts configure end --- ---`);
+  const { reward } = stakingNetwork;
+  const { swapSparrow } = swapExtensionNetwork;
+  const { stable_coin_denom } = cdpNetwork;
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  console.log(`\n  --- --- deploy convert contracts end --- ---`);
+  console.log(`\n  --- --- store code & instantiate contracts enter: ${CONVERT_MODULE_NAME} --- ---`);
+
+  const { convertPairs } = convertConfigs;
+  if (!!convertPairs && convertPairs.length > 0) {
+    for (const convertPair of convertPairs) {
+      const nativeDenom: string = convertPair?.assets?.nativeDenom;
+      if (!nativeDenom) {
+        console.error(`\n  deploy ${CONVERT_MODULE_NAME} pair error: missing pair's nativeDenom`);
+        continue;
+      }
+      await deployConvertPairConverter(walletData, network, convertPair);
+      await deployConvertPairBAssetsToken(walletData, network, convertPair);
+      await deployConvertPairCustodyBAssets(walletData, network, convertPair, reward, market, overseer, liquidationQueue, swapSparrow, stable_coin_denom);
+    }
+  }
+
+  console.log(`\n  --- --- store code & instantiate contracts end: ${CONVERT_MODULE_NAME} --- ---`);
+
+  const { convertNetwork } = network;
+  await printDeployedConvertContracts(convertNetwork);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  console.log(`\n  --- --- deploy contracts end: ${CONVERT_MODULE_NAME} --- ---`);
 
   await printChangeBalancesByWalletData(walletData);
-}
+})().catch(console.error);

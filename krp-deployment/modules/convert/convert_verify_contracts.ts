@@ -1,54 +1,53 @@
-import Decimal from "decimal.js";
-import { coins } from "@cosmjs/stargate";
-import type { ContractDeployed, WalletData } from "@/types";
-import type { SwapExtensionContractsDeployed, StakingContractsDeployed, MarketContractsDeployed, ConvertContractsDeployed } from "@/modules";
-import { loadingWalletData } from "@/env_data";
-import { swapExtensionReadArtifact, stakingReadArtifact, convertReadArtifact, marketReadArtifact, printDeployedConvertContracts } from "@/modules";
 import { executeContractByWalletData, printChangeBalancesByWalletData, queryAddressBalance, queryAddressTokenBalance } from "@/common";
+import { loadingWalletData } from "@/env_data";
+import { printDeployedConvertContracts, readDeployedContracts } from "@/modules";
+import type { ContractDeployed, WalletData } from "@/types";
+import { coins } from "@cosmjs/stargate";
+import Decimal from "decimal.js";
+import { CONVERT_MODULE_NAME } from "./convert_constants";
 
-main().catch(console.error);
-
-async function main(): Promise<void> {
-  console.log(`\n  --- --- verify deployed convert contracts enter --- ---`);
+(async (): Promise<void> => {
+  console.log(`\n  --- --- verify deployed contracts enter: ${CONVERT_MODULE_NAME} --- ---`);
 
   const walletData: WalletData = await loadingWalletData();
 
-  const networkSwap = swapExtensionReadArtifact(walletData.chainId) as SwapExtensionContractsDeployed;
-  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
-  const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
-  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;
-  await printDeployedConvertContracts(networkConvert);
+  const { convertNetwork } = readDeployedContracts(walletData.chainId);
+  if (!convertNetwork) {
+    throw new Error(`\n  --- --- verify ${CONVERT_MODULE_NAME} contracts error, missing some deployed ${CONVERT_MODULE_NAME} address info --- ---`);
+  }
+  await printDeployedConvertContracts(convertNetwork);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   // // just a few simple tests to make sure the contracts are not failing
   // // for more accurate tests we must use integration-tests repo
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   const doFunc: boolean = false;
   const print: boolean = true;
 
-  if (networkConvert?.convertPairs && networkConvert.convertPairs.length > 0) {
-    for (let convertPairsNetwork of networkConvert.convertPairs) {
+  if (convertNetwork?.convertPairs && convertNetwork.convertPairs.length > 0) {
+    for (let convertPairsNetwork of convertNetwork.convertPairs) {
       const nativeDenom = convertPairsNetwork?.native_denom;
 
       const converterNetwork = convertPairsNetwork?.converter;
-      const btokenNetwork = convertPairsNetwork?.btoken;
+      const bAssetsTokenNetwork = convertPairsNetwork?.bAssetsToken;
       const custodyNetwork = convertPairsNetwork?.custody;
 
-      await doConvertNativeToBasset(walletData, nativeDenom, converterNetwork, btokenNetwork, "1000000");
-      await doConvertBassetToNative(walletData, nativeDenom, btokenNetwork, converterNetwork, "1000000");
+      await doConvertNativeToBasset(walletData, nativeDenom, converterNetwork, bAssetsTokenNetwork, "1000000");
+      await doConvertBassetToNative(walletData, nativeDenom, bAssetsTokenNetwork, converterNetwork, "1000000");
     }
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  console.log(`\n  --- --- verify deployed convert contracts end --- ---`);
+  console.log(`\n  --- --- verify deployed contracts end: ${CONVERT_MODULE_NAME} --- ---`);
 
   await printChangeBalancesByWalletData(walletData);
-}
+})().catch(console.error);
 
 /// convert native coin to cw20 token
-async function doConvertNativeToBasset(walletData: WalletData, nativeDenom: string, converter: ContractDeployed, btoken: ContractDeployed, amount: number | string): Promise<void> {
-  if (!converter?.address || !btoken?.address) {
+async function doConvertNativeToBasset(walletData: WalletData, nativeDenom: string, converter: ContractDeployed, bAssetsToken: ContractDeployed, amount: number | string): Promise<void> {
+  if (!converter?.address || !bAssetsToken?.address) {
     return;
   }
   if (!amount || new Decimal(amount).comparedTo(0) < 0) {
@@ -61,22 +60,22 @@ async function doConvertNativeToBasset(walletData: WalletData, nativeDenom: stri
     console.error(`\n  ********* The nativeDenom balance is insufficient. ${amount} but ${beforeNativeBalanceRes?.amount ?? 0}`);
     return;
   }
-  const beforeTokenBalanceRes = await queryAddressTokenBalance(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, btoken.address);
+  const beforeTokenBalanceRes = await queryAddressTokenBalance(walletData?.cosmWasmClient, walletData?.activeWallet?.address, bAssetsToken.address);
   console.log(`before native balance: ${beforeNativeBalanceRes.amount} ${nativeDenom}`);
-  console.log(`before token balance: ${beforeTokenBalanceRes.balance} ${btoken.address}`);
+  console.log(`before token balance: ${beforeTokenBalanceRes.balance} ${bAssetsToken.address}`);
 
   const convertRes = await executeContractByWalletData(walletData, converter.address, { convert_native_to_basset: {} }, "convert native to cw20", coins(amount, nativeDenom));
   console.log(`Do convert native coin to cw20 token ok. \n  ${convertRes?.transactionHash}`);
 
   const afterBalanceRes = await queryAddressBalance(walletData, walletData?.activeWallet?.address, nativeDenom);
   console.log(`after native balance: ${afterBalanceRes?.amount} ${nativeDenom}`);
-  const afterTokenBalanceRes = await queryAddressTokenBalance(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, btoken.address);
-  console.log(`after token balance: ${afterTokenBalanceRes.balance} ${btoken.address}`);
+  const afterTokenBalanceRes = await queryAddressTokenBalance(walletData?.cosmWasmClient, walletData?.activeWallet?.address, bAssetsToken.address);
+  console.log(`after token balance: ${afterTokenBalanceRes.balance} ${bAssetsToken.address}`);
 }
 
 /// convert cw20 token to native coin
-async function doConvertBassetToNative(walletData: WalletData, nativeDenom: string, btoken: ContractDeployed, converter: ContractDeployed, amount: string): Promise<void> {
-  if (!btoken?.address || !converter?.address) {
+async function doConvertBassetToNative(walletData: WalletData, nativeDenom: string, bAssetsToken: ContractDeployed, converter: ContractDeployed, amount: string): Promise<void> {
+  if (!bAssetsToken?.address || !converter?.address) {
     return;
   }
   if (!amount || new Decimal(amount).comparedTo(0) < 0) {
@@ -84,18 +83,18 @@ async function doConvertBassetToNative(walletData: WalletData, nativeDenom: stri
     return;
   }
   console.log(`\n  Do convert cw20 token to native coin enter. nativeDenom: ${nativeDenom} / amount: ${amount}`);
-  const beforeTokenBalanceRes = await queryAddressTokenBalance(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, btoken.address);
+  const beforeTokenBalanceRes = await queryAddressTokenBalance(walletData?.cosmWasmClient, walletData?.activeWallet?.address, bAssetsToken.address);
   if (new Decimal(beforeTokenBalanceRes?.balance ?? 0).comparedTo(new Decimal(amount)) < 0) {
     console.error(`\n  ********* The nativeDenom balance is insufficient. ${amount} but ${beforeTokenBalanceRes?.balance ?? 0}`);
     return;
   }
   const beforeNativeBalanceRes = await queryAddressBalance(walletData, walletData?.activeWallet?.address, nativeDenom);
   console.log(`before native balance: ${beforeNativeBalanceRes?.amount} ${nativeDenom}`);
-  console.log(`before token balance: ${beforeTokenBalanceRes.balance} ${btoken.address}`);
+  console.log(`before token balance: ${beforeTokenBalanceRes.balance} ${bAssetsToken.address}`);
 
   const convertRes = await executeContractByWalletData(
     walletData,
-    btoken.address,
+    bAssetsToken.address,
     {
       send: {
         contract: converter.address,
@@ -109,6 +108,6 @@ async function doConvertBassetToNative(walletData: WalletData, nativeDenom: stri
 
   const afterBalanceRes = await queryAddressBalance(walletData, walletData?.activeWallet?.address, nativeDenom);
   console.log(`after native balance: ${afterBalanceRes?.amount} ${nativeDenom}`);
-  const afterTokenBalanceRes = await queryAddressTokenBalance(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, btoken.address);
-  console.log(`after token balance: ${afterTokenBalanceRes.balance} ${btoken.address}`);
+  const afterTokenBalanceRes = await queryAddressTokenBalance(walletData?.cosmWasmClient, walletData?.activeWallet?.address, bAssetsToken.address);
+  console.log(`after token balance: ${afterTokenBalanceRes.balance} ${bAssetsToken.address}`);
 }

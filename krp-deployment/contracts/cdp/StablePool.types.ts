@@ -15,8 +15,13 @@ export type ExecuteMsg = {
   update_config: {
     control_contract?: string | null;
     min_redeem_value?: Uint256 | null;
-    owner_addr?: string | null;
   };
+} | {
+  set_owner: {
+    new_owner_addr: string;
+  };
+} | {
+  accept_ownership: {};
 } | {
   mint_stable_coin: {
     minter: string;

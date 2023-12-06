@@ -133,7 +133,6 @@ export interface OverseerInterface {
   contractAddress: string;
   sender: string;
   updateConfig: ({
-    kptPurchaseFactor,
     bufferDistributionFactor,
     dynRateEpoch,
     dynRateMax,
@@ -141,14 +140,13 @@ export interface OverseerInterface {
     dynRateMin,
     dynRateYrIncreaseExpectation,
     epochPeriod,
+    kptPurchaseFactor,
     liquidationContract,
     oracleContract,
-    ownerAddr,
     priceTimeframe,
     targetDepositRate,
     thresholdDepositRate
   }: {
-    kptPurchaseFactor?: Decimal256;
     bufferDistributionFactor?: Decimal256;
     dynRateEpoch?: number;
     dynRateMax?: Decimal256;
@@ -156,13 +154,19 @@ export interface OverseerInterface {
     dynRateMin?: Decimal256;
     dynRateYrIncreaseExpectation?: Decimal256;
     epochPeriod?: number;
+    kptPurchaseFactor?: Decimal256;
     liquidationContract?: string;
     oracleContract?: string;
-    ownerAddr?: string;
     priceTimeframe?: number;
     targetDepositRate?: Decimal256;
     thresholdDepositRate?: Decimal256;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setOwner: ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptOwnership: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   whitelist: ({
     collateralToken,
     custodyContract,
@@ -227,6 +231,8 @@ export class OverseerClient implements OverseerInterface {
     this.sender = sender;
     this.contractAddress = contractAddress;
     this.updateConfig = this.updateConfig.bind(this);
+    this.setOwner = this.setOwner.bind(this);
+    this.acceptOwnership = this.acceptOwnership.bind(this);
     this.whitelist = this.whitelist.bind(this);
     this.updateWhitelist = this.updateWhitelist.bind(this);
     this.executeEpochOperations = this.executeEpochOperations.bind(this);
@@ -239,7 +245,6 @@ export class OverseerClient implements OverseerInterface {
   }
 
   updateConfig = async ({
-    kptPurchaseFactor,
     bufferDistributionFactor,
     dynRateEpoch,
     dynRateMax,
@@ -247,14 +252,13 @@ export class OverseerClient implements OverseerInterface {
     dynRateMin,
     dynRateYrIncreaseExpectation,
     epochPeriod,
+    kptPurchaseFactor,
     liquidationContract,
     oracleContract,
-    ownerAddr,
     priceTimeframe,
     targetDepositRate,
     thresholdDepositRate
   }: {
-    kptPurchaseFactor?: Decimal256;
     bufferDistributionFactor?: Decimal256;
     dynRateEpoch?: number;
     dynRateMax?: Decimal256;
@@ -262,16 +266,15 @@ export class OverseerClient implements OverseerInterface {
     dynRateMin?: Decimal256;
     dynRateYrIncreaseExpectation?: Decimal256;
     epochPeriod?: number;
+    kptPurchaseFactor?: Decimal256;
     liquidationContract?: string;
     oracleContract?: string;
-    ownerAddr?: string;
     priceTimeframe?: number;
     targetDepositRate?: Decimal256;
     thresholdDepositRate?: Decimal256;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
-        kpt_purchase_factor: kptPurchaseFactor,
         buffer_distribution_factor: bufferDistributionFactor,
         dyn_rate_epoch: dynRateEpoch,
         dyn_rate_max: dynRateMax,
@@ -279,13 +282,29 @@ export class OverseerClient implements OverseerInterface {
         dyn_rate_min: dynRateMin,
         dyn_rate_yr_increase_expectation: dynRateYrIncreaseExpectation,
         epoch_period: epochPeriod,
+        kpt_purchase_factor: kptPurchaseFactor,
         liquidation_contract: liquidationContract,
         oracle_contract: oracleContract,
-        owner_addr: ownerAddr,
         price_timeframe: priceTimeframe,
         target_deposit_rate: targetDepositRate,
         threshold_deposit_rate: thresholdDepositRate
       }
+    }, fee, memo, _funds);
+  };
+  setOwner = async ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      set_owner: {
+        new_owner_addr: newOwnerAddr
+      }
+    }, fee, memo, _funds);
+  };
+  acceptOwnership = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_ownership: {}
     }, fee, memo, _funds);
   };
   whitelist = async ({

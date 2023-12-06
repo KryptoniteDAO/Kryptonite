@@ -1,13 +1,12 @@
-import { CosmWasmClient, SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
-import { getStargateClient } from "@sei-js/core/dist/lib/signingClient/stargateClient";
-import type { BaseCurrencyInfo, WalletData, WalletInstantiate } from "./types";
-import { DirectSecp256k1Wallet, DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
-import { GasPrice, SigningStargateClient, StargateClient } from "@cosmjs/stargate";
-import { getCosmWasmClient, getSigningClient, getSigningCosmWasmClient } from "@sei-js/core";
-import { toBeArray } from "ethers";
-import { loadAddressesBalances, readArtifact } from "./common";
-import { Secp256k1HdWallet } from "@cosmjs/amino/build/secp256k1hdwallet";
 import { Secp256k1Wallet } from "@cosmjs/amino";
+import { Secp256k1HdWallet } from "@cosmjs/amino/build/secp256k1hdwallet";
+import { CosmWasmClient, SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
+import { DirectSecp256k1HdWallet, DirectSecp256k1Wallet } from "@cosmjs/proto-signing";
+import { GasPrice, SigningStargateClient, StargateClient } from "@cosmjs/stargate";
+import { getCosmWasmClient, getSigningClient, getSigningCosmWasmClient, getStargateClient } from "@sei-js/core";
+import { toBeArray } from "ethers";
+import { loadAddressesBalances } from "./common";
+import type { BaseCurrencyInfo, WalletData, WalletInstantiate } from "./types";
 
 require("dotenv").config();
 
@@ -55,7 +54,7 @@ async function loadingEnvData() {
   };
 }
 
-export async function loadingWalletData(loadBalances: boolean = true, denomList: string[] = []): Promise<WalletData> {
+export async function loadingWalletData(loadBalances: boolean = true, denomList: string[] = [], printAble= true): Promise<WalletData> {
   const { LCD_ENDPOINT, RPC_ENDPOINT, GRPC_ENDPOINT, chainId, gasPriceValue, wallets } = await loadingEnvData();
 
   if (!LCD_ENDPOINT) {
@@ -136,11 +135,11 @@ export async function loadingWalletData(loadBalances: boolean = true, denomList:
   // }
 
   const activeWallet: WalletInstantiate = walletInstantiates?.find((wallet: WalletInstantiate) => wallet.active) || walletInstantiates?.[0];
-  console.log(`\n  --- --- env data --- ---`);
-  console.log(`  current chainId: ${chainId}`);
-  console.log(`  deploy version: ${DEPLOY_VERSION}`);
-  console.log(`  active address: ${activeWallet?.address}`);
-  console.log(`  address list: ${addressList}`);
+  printAble && console.log(`\n  --- --- env data --- ---`);
+  printAble && console.log(`  current chainId: ${chainId}`);
+  printAble && console.log(`  deploy version: ${DEPLOY_VERSION}`);
+  printAble && console.log(`  active address: ${activeWallet?.address}`);
+  printAble && console.log(`  address list: ${addressList}`);
 
   denomList.push(nativeCurrency.coinMinimalDenom);
   let addressesBalances = [];

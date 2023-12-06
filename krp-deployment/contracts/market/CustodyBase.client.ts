@@ -79,12 +79,16 @@ export interface CustodyBaseInterface {
     sender: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   updateConfig: ({
-    liquidationContract,
-    owner
+    liquidationContract
   }: {
     liquidationContract?: string;
-    owner?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setOwner: ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptOwnership: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   lockCollateral: ({
     amount,
     borrower
@@ -140,6 +144,8 @@ export class CustodyBaseClient implements CustodyBaseInterface {
     this.contractAddress = contractAddress;
     this.receive = this.receive.bind(this);
     this.updateConfig = this.updateConfig.bind(this);
+    this.setOwner = this.setOwner.bind(this);
+    this.acceptOwnership = this.acceptOwnership.bind(this);
     this.lockCollateral = this.lockCollateral.bind(this);
     this.unlockCollateral = this.unlockCollateral.bind(this);
     this.distributeRewards = this.distributeRewards.bind(this);
@@ -167,17 +173,30 @@ export class CustodyBaseClient implements CustodyBaseInterface {
     }, fee, memo, _funds);
   };
   updateConfig = async ({
-    liquidationContract,
-    owner
+    liquidationContract
   }: {
     liquidationContract?: string;
-    owner?: string;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
-        liquidation_contract: liquidationContract,
-        owner
+        liquidation_contract: liquidationContract
       }
+    }, fee, memo, _funds);
+  };
+  setOwner = async ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      set_owner: {
+        new_owner_addr: newOwnerAddr
+      }
+    }, fee, memo, _funds);
+  };
+  acceptOwnership = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_ownership: {}
     }, fee, memo, _funds);
   };
   lockCollateral = async ({

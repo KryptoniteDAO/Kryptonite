@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Addr, InstantiateMsg, RuleConfigMsg, ExecuteMsg, Binary, UpdateRuleConfigMsg, QueryMsg, QueryClaimableInfoResponse, QueryConfigResponse, QueryRuleInfoResponse, RuleConfig, RuleConfigState } from "./Distribute.types";
+import { Addr, InstantiateMsg, RuleConfigMsg, ExecuteMsg, Binary, UpdateRuleConfigMsg, QueryMsg, QueryClaimableInfoResponse, Uint128, QueryConfigResponse, QueryRuleInfoResponse, RuleConfig, RuleConfigState } from "./Distribute.types";
 export interface DistributeReadOnlyInterface {
   contractAddress: string;
   queryClaimableInfo: ({

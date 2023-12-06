@@ -1,22 +1,37 @@
 {
+  "include": ["./*.ts","./**/*.ts","./*.d.ts"],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
   "compilerOptions": {
+    "ignoreDeprecations": "5.0",
+    "verbatimModuleSyntax": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "isolatedModules": true,
     "useDefineForClassFields": true,
     "noImplicitOverride": false,
+    "allowSyntheticDefaultImports": true,
     "allowJs": true,
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve",
     "moduleResolution": "Node",
-    "target": "esnext",
+    "target": "ESNext",
+    //    "module": "ESNext",
     "lib": ["es2015", "dom", "esnext"],
     "types": ["node", "jsdom", "jest"],
-    "baseUrl": ".",
+    "baseUrl": "./",
+    "rootDir": "./",
     "paths": {
       "@/*": ["./*"]
     }
   },
   "ts-node": {
     "esm": true,
-    "experimentalSpecifierResolution": "node"
+    "experimentalSpecifierResolution": "node",
+    "require": ["tsconfig-paths/register"]
   }
 }

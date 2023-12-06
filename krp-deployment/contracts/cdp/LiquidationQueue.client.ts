@@ -192,7 +192,6 @@ export interface LiquidationQueueInterface {
     liquidationThreshold,
     liquidatorFee,
     oracleContract,
-    owner,
     priceTimeframe,
     safeRatio,
     stableDenom,
@@ -203,12 +202,17 @@ export interface LiquidationQueueInterface {
     liquidationThreshold?: Uint256;
     liquidatorFee?: Decimal256;
     oracleContract?: string;
-    owner?: string;
     priceTimeframe?: number;
     safeRatio?: Decimal256;
     stableDenom?: string;
     waitingPeriod?: number;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setOwner: ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptOwnership: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   whitelistCollateral: ({
     bidThreshold,
     collateralToken,
@@ -257,19 +261,6 @@ export interface LiquidationQueueInterface {
     bidsIdx?: Uint128[];
     collateralToken: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  executeBid: ({
-    amount,
-    collateralDenom,
-    feeAddress,
-    liquidator,
-    repayAddress
-  }: {
-    amount: Uint256;
-    collateralDenom: string;
-    feeAddress: string;
-    liquidator: string;
-    repayAddress: string;
-  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class LiquidationQueueClient implements LiquidationQueueInterface {
   client: SigningCosmWasmClient;
@@ -282,13 +273,14 @@ export class LiquidationQueueClient implements LiquidationQueueInterface {
     this.contractAddress = contractAddress;
     this.receive = this.receive.bind(this);
     this.updateConfig = this.updateConfig.bind(this);
+    this.setOwner = this.setOwner.bind(this);
+    this.acceptOwnership = this.acceptOwnership.bind(this);
     this.whitelistCollateral = this.whitelistCollateral.bind(this);
     this.updateCollateralInfo = this.updateCollateralInfo.bind(this);
     this.submitBid = this.submitBid.bind(this);
     this.retractBid = this.retractBid.bind(this);
     this.activateBids = this.activateBids.bind(this);
     this.claimLiquidations = this.claimLiquidations.bind(this);
-    this.executeBid = this.executeBid.bind(this);
   }
 
   receive = async ({
@@ -314,7 +306,6 @@ export class LiquidationQueueClient implements LiquidationQueueInterface {
     liquidationThreshold,
     liquidatorFee,
     oracleContract,
-    owner,
     priceTimeframe,
     safeRatio,
     stableDenom,
@@ -325,7 +316,6 @@ export class LiquidationQueueClient implements LiquidationQueueInterface {
     liquidationThreshold?: Uint256;
     liquidatorFee?: Decimal256;
     oracleContract?: string;
-    owner?: string;
     priceTimeframe?: number;
     safeRatio?: Decimal256;
     stableDenom?: string;
@@ -338,12 +328,27 @@ export class LiquidationQueueClient implements LiquidationQueueInterface {
         liquidation_threshold: liquidationThreshold,
         liquidator_fee: liquidatorFee,
         oracle_contract: oracleContract,
-        owner,
         price_timeframe: priceTimeframe,
         safe_ratio: safeRatio,
         stable_denom: stableDenom,
         waiting_period: waitingPeriod
       }
+    }, fee, memo, _funds);
+  };
+  setOwner = async ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      set_owner: {
+        new_owner_addr: newOwnerAddr
+      }
+    }, fee, memo, _funds);
+  };
+  acceptOwnership = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_ownership: {}
     }, fee, memo, _funds);
   };
   whitelistCollateral = async ({
@@ -436,29 +441,6 @@ export class LiquidationQueueClient implements LiquidationQueueInterface {
       claim_liquidations: {
         bids_idx: bidsIdx,
         collateral_token: collateralToken
-      }
-    }, fee, memo, _funds);
-  };
-  executeBid = async ({
-    amount,
-    collateralDenom,
-    feeAddress,
-    liquidator,
-    repayAddress
-  }: {
-    amount: Uint256;
-    collateralDenom: string;
-    feeAddress: string;
-    liquidator: string;
-    repayAddress: string;
-  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
-    return await this.client.execute(this.sender, this.contractAddress, {
-      execute_bid: {
-        amount,
-        collateral_denom: collateralDenom,
-        fee_address: feeAddress,
-        liquidator,
-        repay_address: repayAddress
       }
     }, fee, memo, _funds);
   };

@@ -4,40 +4,40 @@
 * and run the @cosmwasm/ts-codegen generate command to regenerate this file.
 */
 
-import * as _20 from "./CustodyBase.types";
-import * as _21 from "./CustodyBase.client";
-import * as _22 from "./CustodyBsei.types";
-import * as _23 from "./CustodyBsei.client";
-import * as _24 from "./DistributionModel.types";
-import * as _25 from "./DistributionModel.client";
-import * as _26 from "./InterestModel.types";
-import * as _27 from "./InterestModel.client";
-import * as _28 from "./LiquidationQueue.types";
-import * as _29 from "./LiquidationQueue.client";
-import * as _30 from "./Market.types";
-import * as _31 from "./Market.client";
-import * as _36 from "./Overseer.types";
-import * as _37 from "./Overseer.client";
+import * as _0 from "./CustodyBase.types";
+import * as _1 from "./CustodyBase.client";
+import * as _2 from "./CustodyBsei.types";
+import * as _3 from "./CustodyBsei.client";
+import * as _4 from "./DistributionModel.types";
+import * as _5 from "./DistributionModel.client";
+import * as _6 from "./InterestModel.types";
+import * as _7 from "./InterestModel.client";
+import * as _8 from "./LiquidationQueue.types";
+import * as _9 from "./LiquidationQueue.client";
+import * as _10 from "./Market.types";
+import * as _11 from "./Market.client";
+import * as _12 from "./Overseer.types";
+import * as _13 from "./Overseer.client";
 export namespace marketContracts {
-  export const CustodyBase = { ..._20,
-    ..._21
+  export const CustodyBase = { ..._0,
+    ..._1
   };
-  export const CustodyBsei = { ..._22,
-    ..._23
+  export const CustodyBsei = { ..._2,
+    ..._3
   };
-  export const DistributionModel = { ..._24,
-    ..._25
+  export const DistributionModel = { ..._4,
+    ..._5
   };
-  export const InterestModel = { ..._26,
-    ..._27
+  export const InterestModel = { ..._6,
+    ..._7
   };
-  export const LiquidationQueue = { ..._28,
-    ..._29
+  export const LiquidationQueue = { ..._8,
+    ..._9
   };
-  export const Market = { ..._30,
-    ..._31
+  export const Market = { ..._10,
+    ..._11
   };
-  export const Overseer = { ..._36,
-    ..._37
+  export const Overseer = { ..._12,
+    ..._13
   };
 }

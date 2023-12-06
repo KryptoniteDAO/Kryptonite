@@ -1,59 +1,39 @@
-import type { ContractDeployed, WalletData } from "@/types";
-import type { CdpContractsDeployed, OracleContractsDeployed } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
-import { cdpReadArtifact, deployCdpCentralControl, deployCdpLiquidationQueue, deployCdpStablePool, doCdpCentralControlUpdateConfig, doCdpLiquidationQueueConfig, printDeployedCdpContracts, oracleReadArtifact, writeDeployed, oracleConfigs, doOraclePythConfigFeedInfo, FeedInfo } from "@/modules";
+import type { ContractsDeployed } from "@/modules";
+import { deployCdpCentralControl, deployCdpLiquidationQueue, deployCdpStablePool, printDeployedCdpContracts, readDeployedContracts } from "@/modules";
+import { CDP_MODULE_NAME } from "@/modules/cdp/cdp_constants";
+import { ORACLE_MODULE_NAME } from "@/modules/oracle/oracle_constants";
+import type { WalletData } from "@/types";
 
-main().catch(console.error);
-
-async function main(): Promise<void> {
-  console.log(`\n  --- --- deploy cdp contracts enter --- ---`);
+(async (): Promise<void> => {
+  console.log(`\n  --- --- deploy contracts enter: ${CDP_MODULE_NAME} --- ---`);
 
   const walletData: WalletData = await loadingWalletData();
 
-  const networkOracle = oracleReadArtifact(walletData.chainId) as OracleContractsDeployed;
-  const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
-
-  const oraclePyth: ContractDeployed | undefined = networkOracle.oraclePyth;
+  const network: ContractsDeployed = readDeployedContracts(walletData.chainId);
+  const { oracleNetwork } = network;
+  const { oraclePyth } = oracleNetwork;
   if (!oraclePyth?.address) {
-    throw new Error(`\n  --- --- deploy staking contracts error, Please deploy oracle contracts first --- ---`);
+    throw new Error(`\n  --- --- deploy ${CDP_MODULE_NAME} contracts error, Please deploy ${ORACLE_MODULE_NAME} contracts first --- ---`);
   }
-
-  console.log(`\n  --- --- cdp contracts storeCode & instantiateContract enter --- ---`);
-
-  await deployCdpCentralControl(walletData, networkCdp, networkOracle?.oraclePyth);
-  await deployCdpStablePool(walletData, networkCdp);
-  await deployCdpLiquidationQueue(walletData, networkCdp, networkOracle?.oraclePyth);
-
-  await writeDeployed({});
-
-  console.log(`\n  --- --- cdp contracts storeCode & instantiateContract end --- ---`);
-
-  await printDeployedCdpContracts(networkCdp);
-
-  // //////////////////////////////////////configure contracts///////////////////////////////////////////
-
-  console.log(`\n  --- --- cdp contracts configure enter --- ---`);
-  const print: boolean = true;
-
-  await doCdpCentralControlUpdateConfig(walletData, networkCdp, networkOracle?.oraclePyth, print);
-  await doCdpLiquidationQueueConfig(walletData, networkCdp, networkOracle?.oraclePyth, print);
-
-  if (networkCdp?.stable_coin_denom) {
-    const feedInfo: FeedInfo = oracleConfigs?.feedInfoConfigList?.find(value => "%stable_coin_denom%" === value.asset);
-    if (!feedInfo) {
-      return;
-    }
-    feedInfo.asset = feedInfo.asset.replace("%stable_coin_denom%", networkCdp?.stable_coin_denom);
-    const feedInfo2 = Object.assign({}, oracleConfigs.baseFeedInfoConfig, feedInfo);
-    await doOraclePythConfigFeedInfo(walletData, networkOracle, feedInfo2, print);
-  }
-
-  console.log(`\n  --- --- cdp contracts configure end --- ---`);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  console.log(`\n  --- --- deploy cdp contracts end --- ---`);
+  console.log(`\n  --- --- store code & instantiate contracts enter: ${CDP_MODULE_NAME} --- ---`);
+
+  await deployCdpCentralControl(walletData, network);
+  await deployCdpStablePool(walletData, network);
+  await deployCdpLiquidationQueue(walletData, network);
+
+  console.log(`\n  --- --- store code & instantiate contracts end: ${CDP_MODULE_NAME} --- ---`);
+
+  const { cdpNetwork } = network;
+  await printDeployedCdpContracts(cdpNetwork);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  console.log(`\n  --- --- deploy contracts end: ${CDP_MODULE_NAME} --- ---`);
 
   await printChangeBalancesByWalletData(walletData);
-}
+})().catch(console.error);

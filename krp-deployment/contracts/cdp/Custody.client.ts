@@ -41,17 +41,21 @@ export interface CustodyInterface {
     collateralContract,
     controlContract,
     liquidationContract,
-    ownerAddr,
     poolContract,
     rewardBookContract
   }: {
     collateralContract?: string;
     controlContract?: string;
     liquidationContract?: string;
-    ownerAddr?: string;
     poolContract?: string;
     rewardBookContract?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setOwner: ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptOwnership: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   receive: ({
     amount,
     msg,
@@ -100,6 +104,8 @@ export class CustodyClient implements CustodyInterface {
     this.sender = sender;
     this.contractAddress = contractAddress;
     this.updateConfig = this.updateConfig.bind(this);
+    this.setOwner = this.setOwner.bind(this);
+    this.acceptOwnership = this.acceptOwnership.bind(this);
     this.receive = this.receive.bind(this);
     this.redeemStableCoin = this.redeemStableCoin.bind(this);
     this.withdrawCollateral = this.withdrawCollateral.bind(this);
@@ -111,14 +117,12 @@ export class CustodyClient implements CustodyInterface {
     collateralContract,
     controlContract,
     liquidationContract,
-    ownerAddr,
     poolContract,
     rewardBookContract
   }: {
     collateralContract?: string;
     controlContract?: string;
     liquidationContract?: string;
-    ownerAddr?: string;
     poolContract?: string;
     rewardBookContract?: string;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
@@ -127,10 +131,25 @@ export class CustodyClient implements CustodyInterface {
         collateral_contract: collateralContract,
         control_contract: controlContract,
         liquidation_contract: liquidationContract,
-        owner_addr: ownerAddr,
         pool_contract: poolContract,
         reward_book_contract: rewardBookContract
       }
+    }, fee, memo, _funds);
+  };
+  setOwner = async ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      set_owner: {
+        new_owner_addr: newOwnerAddr
+      }
+    }, fee, memo, _funds);
+  };
+  acceptOwnership = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_ownership: {}
     }, fee, memo, _funds);
   };
   receive = async ({

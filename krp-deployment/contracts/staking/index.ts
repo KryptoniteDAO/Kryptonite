@@ -4,35 +4,35 @@
 * and run the @cosmwasm/ts-codegen generate command to regenerate this file.
 */
 
-import * as _8 from "./Hub.types";
-import * as _9 from "./Hub.client";
-import * as _10 from "./Reward.types";
-import * as _11 from "./Reward.client";
-import * as _12 from "./RewardsDispatcher.types";
-import * as _13 from "./RewardsDispatcher.client";
-import * as _14 from "./TokenBsei.types";
-import * as _15 from "./TokenBsei.client";
-import * as _16 from "./TokenStsei.types";
-import * as _17 from "./TokenStsei.client";
-import * as _18 from "./ValidatorsRegistry.types";
-import * as _19 from "./ValidatorsRegistry.client";
+import * as _0 from "./Hub.types";
+import * as _1 from "./Hub.client";
+import * as _2 from "./Reward.types";
+import * as _3 from "./Reward.client";
+import * as _4 from "./RewardsDispatcher.types";
+import * as _5 from "./RewardsDispatcher.client";
+import * as _6 from "./TokenBsei.types";
+import * as _7 from "./TokenBsei.client";
+import * as _8 from "./TokenStsei.types";
+import * as _9 from "./TokenStsei.client";
+import * as _10 from "./ValidatorsRegistry.types";
+import * as _11 from "./ValidatorsRegistry.client";
 export namespace stakingContracts {
-  export const Hub = { ..._8,
+  export const Hub = { ..._0,
+    ..._1
+  };
+  export const Reward = { ..._2,
+    ..._3
+  };
+  export const RewardsDispatcher = { ..._4,
+    ..._5
+  };
+  export const TokenBsei = { ..._6,
+    ..._7
+  };
+  export const TokenStsei = { ..._8,
     ..._9
   };
-  export const Reward = { ..._10,
+  export const ValidatorsRegistry = { ..._10,
     ..._11
-  };
-  export const RewardsDispatcher = { ..._12,
-    ..._13
-  };
-  export const TokenBsei = { ..._14,
-    ..._15
-  };
-  export const TokenStsei = { ..._16,
-    ..._17
-  };
-  export const ValidatorsRegistry = { ..._18,
-    ..._19
   };
 }

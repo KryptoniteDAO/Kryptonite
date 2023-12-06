@@ -45,6 +45,16 @@ export type ExecuteMsg = {
   };
 } | {
   accept_gov: {};
+} | {
+  set_ve_fund_minter: {
+    is_ve_minter: boolean;
+    minter: Addr;
+  };
+} | {
+  ve_fund_mint: {
+    amount: Uint128;
+    user: Addr;
+  };
 };
 export type Uint128 = string;
 export type Binary = string;
@@ -98,6 +108,10 @@ export type QueryMsg = {
   get_user_last_withdraw_time: {
     account: Addr;
   };
+} | {
+  is_ve_fund_minter: {
+    minter: Addr;
+  };
 };
 export interface EarnedResponse {
   amount: Uint128;
@@ -113,6 +127,7 @@ export interface FundConfigResponse {
   new_gov?: Addr | null;
   reward_per_token_stored: Uint128;
   seilor_addr: Addr;
+  token_cap?: Uint128 | null;
   ve_seilor_addr: Addr;
 }
 export interface GetClaimAbleKusdResponse {
@@ -140,4 +155,5 @@ export type Uint256 = string;
 export interface UserUnstakeRateResponse {
   user_unstake_rate: Uint256;
 }
+export type Boolean = boolean;
 export type FundExecuteMsg = ExecuteMsg;

@@ -14,3 +14,14 @@ node_modules
 *temp.ts
 deploy_testing.ts
 deploy_testing_muilti_stable.ts
+!*/*.env.example
+*.iml
+**/*/deployed_*.json
+**/*/deployed_*.md
+
+# macOS
+.DS_Store
+
+# Text file backups
+**/*.rs.bk
+**/*.ts.bk

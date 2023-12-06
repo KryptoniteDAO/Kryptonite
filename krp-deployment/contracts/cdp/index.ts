@@ -4,30 +4,30 @@
 * and run the @cosmwasm/ts-codegen generate command to regenerate this file.
 */
 
-import * as _60 from "./CentralControl.types";
-import * as _61 from "./CentralControl.client";
-import * as _62 from "./Custody.types";
-import * as _63 from "./Custody.client";
-import * as _64 from "./LiquidationQueue.types";
-import * as _65 from "./LiquidationQueue.client";
-import * as _66 from "./RewardBook.types";
-import * as _67 from "./RewardBook.client";
-import * as _68 from "./StablePool.types";
-import * as _69 from "./StablePool.client";
+import * as _0 from "./CentralControl.types";
+import * as _1 from "./CentralControl.client";
+import * as _2 from "./Custody.types";
+import * as _3 from "./Custody.client";
+import * as _4 from "./LiquidationQueue.types";
+import * as _5 from "./LiquidationQueue.client";
+import * as _6 from "./RewardBook.types";
+import * as _7 from "./RewardBook.client";
+import * as _8 from "./StablePool.types";
+import * as _9 from "./StablePool.client";
 export namespace cdpContracts {
-  export const CentralControl = { ..._60,
-    ..._61
+  export const CentralControl = { ..._0,
+    ..._1
   };
-  export const Custody = { ..._62,
-    ..._63
+  export const Custody = { ..._2,
+    ..._3
   };
-  export const LiquidationQueue = { ..._64,
-    ..._65
+  export const LiquidationQueue = { ..._4,
+    ..._5
   };
-  export const RewardBook = { ..._66,
-    ..._67
+  export const RewardBook = { ..._6,
+    ..._7
   };
-  export const StablePool = { ..._68,
-    ..._69
+  export const StablePool = { ..._8,
+    ..._9
   };
 }

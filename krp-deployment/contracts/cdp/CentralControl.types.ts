@@ -6,6 +6,7 @@
 
 export type Decimal256 = string;
 export interface InstantiateMsg {
+  custody_contract: string;
   epoch_period: number;
   liquidation_contract: string;
   oracle_contract: string;
@@ -16,14 +17,20 @@ export interface InstantiateMsg {
 }
 export type ExecuteMsg = {
   update_config: {
+    custody_contract?: string | null;
     epoch_period?: number | null;
     liquidation_contract?: string | null;
     oracle_contract?: string | null;
-    owner_addr?: string | null;
     pool_contract?: string | null;
     redeem_fee?: Decimal256 | null;
     stable_denom?: string | null;
   };
+} | {
+  set_owner: {
+    new_owner_addr: string;
+  };
+} | {
+  accept_ownership: {};
 } | {
   mint_stable_coin: {
     collateral_amount?: Uint128 | null;
@@ -117,6 +124,7 @@ export interface WhitelistElemResponse {
   symbol: string;
 }
 export interface ConfigResponse {
+  custody_contract: string;
   epoch_period: number;
   liquidation_contract: string;
   oracle_contract: string;

@@ -75,10 +75,18 @@ export type ExecuteMsg = {
     liquidator_fee?: Decimal256 | null;
     oracle_contract?: string | null;
     overseer?: string | null;
-    owner?: string | null;
     price_timeframe?: number | null;
     safe_ratio?: Decimal256 | null;
     waiting_period?: number | null;
+    [k: string]: unknown;
+  };
+} | {
+  set_owner: {
+    new_owner_addr: string;
+    [k: string]: unknown;
+  };
+} | {
+  accept_ownership: {
     [k: string]: unknown;
   };
 } | {

@@ -10,8 +10,6 @@ export interface BorrowerInfoResponse {
   borrower: string;
   interest_index: Decimal256;
   loan_amount: Uint256;
-  pending_rewards: Decimal256;
-  reward_index: Decimal256;
   [k: string]: unknown;
 }
 export interface BorrowerInfosResponse {
@@ -65,7 +63,15 @@ export type ExecuteMsg = {
     distribution_model?: string | null;
     interest_model?: string | null;
     max_borrow_factor?: Decimal256 | null;
-    owner_addr?: string | null;
+    [k: string]: unknown;
+  };
+} | {
+  set_owner: {
+    new_owner_addr: string;
+    [k: string]: unknown;
+  };
+} | {
+  accept_ownership: {
     [k: string]: unknown;
   };
 } | {
@@ -110,8 +116,8 @@ export interface Cw20ReceiveMsg {
   sender: string;
 }
 export interface InstantiateMsg {
-  kpt_emission_rate: Decimal256;
   atoken_code_id: number;
+  kpt_emission_rate: Decimal256;
   max_borrow_factor: Decimal256;
   owner_addr: string;
   stable_denom: string;
@@ -149,9 +155,9 @@ export type QueryMsg = {
   };
 };
 export interface State {
-  kpt_emission_rate: Decimal256;
   global_interest_index: Decimal256;
   global_reward_index: Decimal256;
+  kpt_emission_rate: Decimal256;
   last_interest_updated: number;
   last_reward_updated: number;
   prev_atoken_supply: Uint256;

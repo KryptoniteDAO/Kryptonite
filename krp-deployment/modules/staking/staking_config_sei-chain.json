@@ -1,8 +1,9 @@
 {
-  "validator": "seivaloper1h3ukufh4lhacftdf6kyxzum4p86rcnel0mamnx",
+  "validators": ["seivaloper1h3ukufh4lhacftdf6kyxzum4p86rcnel0mamnx"],
   "hub": {
     "admin": null,
     "initMsg": {
+      "update_reward_index_addr": null,
       "epoch_period": 30,
       "er_threshold": "1.0",
       "peg_recovery_fee": "0",
@@ -21,10 +22,10 @@
     "filePath": "../krp-staking-contracts/artifacts/basset_sei_reward.wasm",
     "deploy": false
   },
-  "bSeiToken": {
+  "bAssetsToken": {
     "admin": null,
     "initMsg": {
-      "name": "bsei",
+      "name": "bSEI",
       "symbol": "BSEI",
       "decimals": 6,
       "initial_balances": []
@@ -46,21 +47,16 @@
   "validatorsRegistry": {
     "admin": null,
     "initMsg": {
-      "registry": [
-        {
-          "active": true,
-          "total_delegated": "0"
-        }
-      ]
+      "registry": [{}]
     },
     "label": "validator registry",
     "filePath": "../krp-staking-contracts/artifacts/basset_sei_validators_registry.wasm",
     "deploy": false
   },
-  "stSeiToken": {
+  "stAssetsToken": {
     "admin": null,
     "initMsg": {
-      "name": "stsei",
+      "name": "stSEI",
       "symbol": "STSEI",
       "decimals": 6,
       "initial_balances": []

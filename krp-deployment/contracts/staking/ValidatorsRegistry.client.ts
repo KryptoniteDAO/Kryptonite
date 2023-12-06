@@ -48,12 +48,21 @@ export interface ValidatorsRegistryInterface {
     address: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   updateConfig: ({
-    hubContract,
-    owner
+    hubContract
   }: {
     hubContract?: string;
-    owner?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  redelegations: ({
+    address
+  }: {
+    address: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setOwner: ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptOwnership: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class ValidatorsRegistryClient implements ValidatorsRegistryInterface {
   client: SigningCosmWasmClient;
@@ -67,6 +76,9 @@ export class ValidatorsRegistryClient implements ValidatorsRegistryInterface {
     this.addValidator = this.addValidator.bind(this);
     this.removeValidator = this.removeValidator.bind(this);
     this.updateConfig = this.updateConfig.bind(this);
+    this.redelegations = this.redelegations.bind(this);
+    this.setOwner = this.setOwner.bind(this);
+    this.acceptOwnership = this.acceptOwnership.bind(this);
   }
 
   addValidator = async ({
@@ -92,17 +104,41 @@ export class ValidatorsRegistryClient implements ValidatorsRegistryInterface {
     }, fee, memo, _funds);
   };
   updateConfig = async ({
-    hubContract,
-    owner
+    hubContract
   }: {
     hubContract?: string;
-    owner?: string;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
-        hub_contract: hubContract,
-        owner
+        hub_contract: hubContract
       }
+    }, fee, memo, _funds);
+  };
+  redelegations = async ({
+    address
+  }: {
+    address: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      redelegations: {
+        address
+      }
+    }, fee, memo, _funds);
+  };
+  setOwner = async ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      set_owner: {
+        new_owner_addr: newOwnerAddr
+      }
+    }, fee, memo, _funds);
+  };
+  acceptOwnership = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_ownership: {}
     }, fee, memo, _funds);
   };
 }

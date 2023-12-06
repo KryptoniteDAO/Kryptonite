@@ -1,23 +1,18 @@
-import type { WalletData } from "@/types";
-import type { ConvertContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, SwapExtensionContractsDeployed } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
-import { loadingWalletData } from "@/env_data";
-import { swapExtensionConfigs, swapExtensionReadArtifact } from "./index";
-import { stakingReadArtifact, marketReadArtifact, convertReadArtifact, printDeployedSwapContracts } from "@/modules";
 import { swapExtensionContracts } from "@/contracts";
+import { loadingWalletData } from "@/env_data";
+import { printDeployedSwapContracts, readDeployedContracts } from "@/modules";
+import type { WalletData } from "@/types";
+import { swapExtensionConfigs } from "./index";
+import { SWAP_EXTENSION_MODULE_NAME } from "./swap-extension_constants";
 
-main().catch(console.error);
-
-async function main(): Promise<void> {
-  console.log(`\n  --- --- verify deployed swap contracts enter --- ---`);
+(async (): Promise<void> => {
+  console.log(`\n  --- --- verify deployed contracts enter: ${SWAP_EXTENSION_MODULE_NAME} --- ---`);
 
   const walletData: WalletData = await loadingWalletData();
 
-  const networkSwap = swapExtensionReadArtifact(walletData.chainId) as SwapExtensionContractsDeployed;
-  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
-  const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
-  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;
-  await printDeployedSwapContracts(networkSwap);
+  const { swapExtensionNetwork, marketNetwork, stakingNetwork, convertNetwork } = readDeployedContracts(walletData.chainId);
+  await printDeployedSwapContracts(swapExtensionNetwork);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   // // just a few simple tests to make sure the contracts are not failing
@@ -26,7 +21,7 @@ async function main(): Promise<void> {
   const doFunc: boolean = false;
   const print: boolean = true;
 
-  const swapSparrow = networkSwap?.swapSparrow;
+  const swapSparrow = swapExtensionNetwork?.swapSparrow;
   if (!swapSparrow?.address) {
     throw new Error(`\n  ********* no deploy`);
   }
@@ -38,17 +33,17 @@ async function main(): Promise<void> {
     caller: string;
     isWhitelist: boolean;
   }[] = [];
-  if (networkStaking?.reward?.address) {
-    swapWhitelistList.push({ name: "staking.reward", caller: networkStaking?.reward?.address, isWhitelist: true });
+  if (stakingNetwork?.reward?.address) {
+    swapWhitelistList.push({ name: "staking.reward", caller: stakingNetwork?.reward?.address, isWhitelist: true });
   }
-  if (networkStaking?.rewardsDispatcher?.address) {
-    swapWhitelistList.push({ name: "staking.rewardsDispatcher", caller: networkStaking?.rewardsDispatcher?.address, isWhitelist: true });
+  if (stakingNetwork?.rewardsDispatcher?.address) {
+    swapWhitelistList.push({ name: "staking.rewardsDispatcher", caller: stakingNetwork?.rewardsDispatcher?.address, isWhitelist: true });
   }
-  if (networkMarket?.custodyBSei?.address) {
-    swapWhitelistList.push({ name: "market.custodyBSei", caller: networkMarket?.custodyBSei?.address, isWhitelist: true });
+  if (marketNetwork?.custodyBAssets?.address) {
+    swapWhitelistList.push({ name: "market.custodyNAsset", caller: marketNetwork?.custodyBAssets?.address, isWhitelist: true });
   }
-  if (networkConvert?.convertPairs) {
-    for (const convertPair of networkConvert.convertPairs) {
+  if (convertNetwork?.convertPairs) {
+    for (const convertPair of convertNetwork.convertPairs) {
       if (convertPair?.custody?.address) {
         swapWhitelistList.push({ name: "convert.convertPairs." + convertPair?.native_denom, caller: convertPair?.custody?.address, isWhitelist: true });
       }
@@ -71,7 +66,7 @@ async function main(): Promise<void> {
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  console.log(`\n  --- --- verify deployed swap contracts end --- ---`);
+  console.log(`\n  --- --- verify deployed contracts end: ${SWAP_EXTENSION_MODULE_NAME} --- ---`);
 
   await printChangeBalancesByWalletData(walletData);
-}
+})().catch(console.error);

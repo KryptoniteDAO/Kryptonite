@@ -39,13 +39,17 @@ export interface StablePoolInterface {
   sender: string;
   updateConfig: ({
     controlContract,
-    minRedeemValue,
-    ownerAddr
+    minRedeemValue
   }: {
     controlContract?: string;
     minRedeemValue?: Uint256;
-    ownerAddr?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setOwner: ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptOwnership: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   mintStableCoin: ({
     minter,
     stableAmount
@@ -77,6 +81,8 @@ export class StablePoolClient implements StablePoolInterface {
     this.sender = sender;
     this.contractAddress = contractAddress;
     this.updateConfig = this.updateConfig.bind(this);
+    this.setOwner = this.setOwner.bind(this);
+    this.acceptOwnership = this.acceptOwnership.bind(this);
     this.mintStableCoin = this.mintStableCoin.bind(this);
     this.repayStableCoin = this.repayStableCoin.bind(this);
     this.redeemStableCoin = this.redeemStableCoin.bind(this);
@@ -85,19 +91,32 @@ export class StablePoolClient implements StablePoolInterface {
 
   updateConfig = async ({
     controlContract,
-    minRedeemValue,
-    ownerAddr
+    minRedeemValue
   }: {
     controlContract?: string;
     minRedeemValue?: Uint256;
-    ownerAddr?: string;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
         control_contract: controlContract,
-        min_redeem_value: minRedeemValue,
-        owner_addr: ownerAddr
+        min_redeem_value: minRedeemValue
       }
+    }, fee, memo, _funds);
+  };
+  setOwner = async ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      set_owner: {
+        new_owner_addr: newOwnerAddr
+      }
+    }, fee, memo, _funds);
+  };
+  acceptOwnership = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_ownership: {}
     }, fee, memo, _funds);
   };
   mintStableCoin = async ({

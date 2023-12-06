@@ -59,13 +59,17 @@ export interface InterestModelInterface {
   sender: string;
   updateConfig: ({
     baseRate,
-    interestMultiplier,
-    owner
+    interestMultiplier
   }: {
     baseRate?: Decimal256;
     interestMultiplier?: Decimal256;
-    owner?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setOwner: ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptOwnership: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class InterestModelClient implements InterestModelInterface {
   client: SigningCosmWasmClient;
@@ -77,23 +81,38 @@ export class InterestModelClient implements InterestModelInterface {
     this.sender = sender;
     this.contractAddress = contractAddress;
     this.updateConfig = this.updateConfig.bind(this);
+    this.setOwner = this.setOwner.bind(this);
+    this.acceptOwnership = this.acceptOwnership.bind(this);
   }
 
   updateConfig = async ({
     baseRate,
-    interestMultiplier,
-    owner
+    interestMultiplier
   }: {
     baseRate?: Decimal256;
     interestMultiplier?: Decimal256;
-    owner?: string;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
         base_rate: baseRate,
-        interest_multiplier: interestMultiplier,
-        owner
+        interest_multiplier: interestMultiplier
       }
+    }, fee, memo, _funds);
+  };
+  setOwner = async ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      set_owner: {
+        new_owner_addr: newOwnerAddr
+      }
+    }, fee, memo, _funds);
+  };
+  acceptOwnership = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_ownership: {}
     }, fee, memo, _funds);
   };
 }

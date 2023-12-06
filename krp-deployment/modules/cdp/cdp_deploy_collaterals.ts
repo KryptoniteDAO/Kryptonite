@@ -1,104 +1,53 @@
-import type { ContractDeployed, WalletData } from "@/types";
-import type { CdpCollateralPairsDeployed, CdpContractsDeployed, MarketContractsDeployed, StakingContractsDeployed, CdpCollateralPairsConfig, OracleContractsDeployed } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
-import {
-  cdpReadArtifact,
-  deployCdpCustody,
-  doCdpCentralControlSetWhitelistCollateral,
-  doCdpLiquidationQueueSetWhitelistCollateral,
-  printDeployedCdpContracts,
-  marketReadArtifact,
-  stakingReadArtifact,
-  cdpConfigs,
-  oracleReadArtifact,
-  writeDeployed,
-  deployCdpRewardBook,
-  doCdpRewardBookUpdateConfig,
-  doCdpCustodyUpdateConfig
-} from "@/modules";
+import type { CdpCollateralPairsConfig, ContractsDeployed } from "@/modules";
+import { cdpConfigs, deployCdpPairCustody, deployCdpPairRewardBook, printDeployedCdpContracts, readDeployedContracts } from "@/modules";
+import { CDP_MODULE_NAME } from "@/modules/cdp/cdp_constants";
+import { ORACLE_MODULE_NAME } from "@/modules/oracle/oracle_constants.ts";
+import type { WalletData } from "@/types";
 
-main().catch(console.error);
-
-async function main(): Promise<void> {
-  console.log(`\n  --- --- deploy cdp contracts enter --- ---`);
+(async (): Promise<void> => {
+  console.log(`\n  --- --- deploy contracts enter: ${CDP_MODULE_NAME}:collaterals --- ---`);
 
   const walletData: WalletData = await loadingWalletData();
 
-  // const networkSwap = swapExtensionReadArtifact(walletData.chainId) as SwapDeployContracts;
-  const networkOracle = oracleReadArtifact(walletData.chainId) as OracleContractsDeployed;
-  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
-  const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
-  // const networkConvert = convertReadArtifact(walletData.chainId) as ConvertDeployContracts;
-  // const networkToken = kptReadArtifact(walletData.chainId) as KptDeployContracts;
-  const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
-
-  console.log(`\n  --- --- cdp contracts storeCode & instantiateContract enter --- ---`);
-
-  const cdpCollateralPairsConfig: CdpCollateralPairsConfig[] | undefined = cdpConfigs?.cdpCollateralPairs;
-  if (!!cdpCollateralPairsConfig && cdpCollateralPairsConfig.length > 0) {
-    const bSeiToken = networkStaking.bSeiToken;
-    const stSeiToken = networkStaking.stSeiToken;
-    for (const cdpCollateralPairConfig of cdpCollateralPairsConfig) {
-      if (!!bSeiToken?.address) {
-        cdpCollateralPairConfig.collateral = cdpCollateralPairConfig.collateral.replaceAll("%bsei_address%", bSeiToken.address);
-      }
-      if (!!stSeiToken?.address) {
-        cdpCollateralPairConfig.collateral = cdpCollateralPairConfig.collateral.replaceAll("%stsei_address%", stSeiToken.address);
-      }
-      if (!cdpCollateralPairConfig.collateral || !cdpCollateralPairConfig.collateral.startsWith(walletData.prefix)) {
-        continue;
-      }
-      await deployCdpRewardBook(walletData, networkCdp, cdpCollateralPairConfig, networkStaking?.reward);
-      await deployCdpCustody(walletData, networkCdp, cdpCollateralPairConfig);
-    }
+  const network: ContractsDeployed = readDeployedContracts(walletData.chainId);
+  const { oracleNetwork, stakingNetwork } = network;
+  const { oraclePyth } = oracleNetwork;
+  if (!oraclePyth?.address) {
+    throw new Error(`\n  --- --- deploy ${CDP_MODULE_NAME} contracts error, Please deploy ${ORACLE_MODULE_NAME} contracts first --- ---`);
   }
-  await writeDeployed({});
-
-  console.log(`\n  --- --- cdp contracts storeCode & instantiateContract end --- ---`);
-
-  await printDeployedCdpContracts(networkCdp);
-
-  // //////////////////////////////////////configure contracts///////////////////////////////////////////
-
-  console.log(`\n  --- --- cdp contracts configure enter --- ---`);
-  const print: boolean = true;
-
-  if (!!cdpCollateralPairsConfig && cdpCollateralPairsConfig.length > 0) {
-    const bSeiToken = networkStaking.bSeiToken;
-    const stSeiToken = networkStaking.stSeiToken;
-    for (const cdpCollateralPairConfig of cdpCollateralPairsConfig) {
-      if (!!bSeiToken?.address) {
-        cdpCollateralPairConfig.collateral = cdpCollateralPairConfig.collateral.replaceAll("%bsei_address%", bSeiToken.address);
-      }
-      if (!!stSeiToken?.address) {
-        cdpCollateralPairConfig.collateral = cdpCollateralPairConfig.collateral.replaceAll("%stsei_address%", stSeiToken.address);
-      }
-      if (!cdpCollateralPairConfig.collateral || !cdpCollateralPairConfig.collateral.startsWith(walletData.prefix)) {
-        continue;
-      }
-      const cdpCollateralPairNetwork = networkCdp?.cdpCollateralPairs?.find(v => cdpCollateralPairConfig?.collateral === v.collateral);
-      const custody: ContractDeployed = cdpCollateralPairNetwork?.custody;
-      const rewardBook: ContractDeployed = cdpCollateralPairNetwork?.rewardBook;
-      if (!custody?.address || !rewardBook?.address) {
-        continue;
-      }
-
-      let cdpCollateralPairDeployed: CdpCollateralPairsDeployed | undefined = networkCdp?.cdpCollateralPairs?.["find"]?.(value => cdpCollateralPairConfig?.collateral === value.collateral);
-
-      await doCdpRewardBookUpdateConfig(walletData, networkCdp, cdpCollateralPairDeployed, networkStaking?.reward, print);
-      await doCdpCustodyUpdateConfig(walletData, networkCdp, cdpCollateralPairDeployed, print);
-
-      await doCdpCentralControlSetWhitelistCollateral(walletData, networkCdp, cdpCollateralPairConfig, custody, rewardBook, print);
-      await doCdpLiquidationQueueSetWhitelistCollateral(walletData, networkCdp, cdpCollateralPairConfig, print);
-    }
-  }
-
-  console.log(`\n  --- --- cdp contracts configure end --- ---`);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  console.log(`\n  --- --- deploy cdp contracts end --- ---`);
+  console.log(`\n  --- --- store code & instantiate contracts enter: ${CDP_MODULE_NAME}:collaterals --- ---`);
+
+  const cdpCollateralPairsConfig: CdpCollateralPairsConfig[] | undefined = cdpConfigs?.cdpCollateralPairs;
+  if (!!cdpCollateralPairsConfig && cdpCollateralPairsConfig.length > 0) {
+    const { bAssetsToken, stAssetsToken } = stakingNetwork;
+    for (const cdpCollateralPairConfig of cdpCollateralPairsConfig) {
+      if (!!bAssetsToken?.address) {
+        cdpCollateralPairConfig.collateral = cdpCollateralPairConfig.collateral.replaceAll("%bassets_address%", bAssetsToken.address);
+      }
+      // if (!!stAssetsToken?.address) {
+      //   cdpCollateralPairConfig.collateral = cdpCollateralPairConfig.collateral.replaceAll("%stassets_address%", stAssetsToken.address);
+      // }
+      if (!cdpCollateralPairConfig.collateral || !cdpCollateralPairConfig.collateral.startsWith(walletData.prefix)) {
+        continue;
+      }
+      await deployCdpPairRewardBook(walletData, network, cdpCollateralPairConfig);
+      await deployCdpPairCustody(walletData, network, cdpCollateralPairConfig);
+    }
+  }
+
+  console.log(`\n  --- --- store code & instantiate contracts end: ${CDP_MODULE_NAME}:collaterals --- ---`);
+
+  const { cdpNetwork } = network;
+  await printDeployedCdpContracts(cdpNetwork);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  console.log(`\n  --- --- deploy contracts end: ${CDP_MODULE_NAME}:collaterals --- ---`);
 
   await printChangeBalancesByWalletData(walletData);
-}
+})().catch(console.error);

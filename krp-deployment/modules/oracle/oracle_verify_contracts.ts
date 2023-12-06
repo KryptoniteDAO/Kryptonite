@@ -1,25 +1,17 @@
-import type { WalletData } from "@/types";
-import type { OracleContractsDeployed, SwapExtensionContractsDeployed, StakingContractsDeployed, MarketContractsDeployed, ConvertContractsDeployed, CdpContractsDeployed } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
-import { loadingWalletData } from "@/env_data";
-import { oracleReadArtifact, printDeployedOracleContracts, swapExtensionReadArtifact, stakingReadArtifact, marketReadArtifact, convertReadArtifact, cdpReadArtifact } from "@/modules";
 import { oracleContracts } from "@/contracts";
 import { ConfigResponse } from "@/contracts/oracle/OraclePyth.types";
+import { loadingWalletData } from "@/env_data";
+import { printDeployedOracleContracts, readDeployedContracts } from "@/modules";
+import { ORACLE_MODULE_NAME } from "@/modules/oracle/oracle_constants.ts";
+import type { WalletData } from "@/types";
 
-main().catch(console.error);
-
-async function main(): Promise<void> {
-  console.log(`\n  --- --- verify deployed oracle contracts enter --- ---`);
+(async (): Promise<void> => {
+  console.log(`\n  --- --- verify deployed contracts enter: ${ORACLE_MODULE_NAME} --- ---`);
 
   const walletData: WalletData = await loadingWalletData();
-
-  const networkSwap = swapExtensionReadArtifact(walletData.chainId) as SwapExtensionContractsDeployed;
-  const networkOracle = oracleReadArtifact(walletData.chainId) as OracleContractsDeployed;
-  const networkStaking = stakingReadArtifact(walletData.chainId) as StakingContractsDeployed;
-  const networkMarket = marketReadArtifact(walletData.chainId) as MarketContractsDeployed;
-  const networkConvert = convertReadArtifact(walletData.chainId) as ConvertContractsDeployed;
-  const networkCdp = cdpReadArtifact(walletData.chainId) as CdpContractsDeployed;
-  await printDeployedOracleContracts(networkOracle);
+  const { oracleNetwork, stakingNetwork, cdpNetwork } = readDeployedContracts(walletData.chainId);
+  await printDeployedOracleContracts(oracleNetwork);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   // // just a few simple tests to make sure the contracts are not failing
@@ -27,14 +19,14 @@ async function main(): Promise<void> {
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   const doFunc: boolean = false;
   const print: boolean = true;
-  const oraclePyth = networkOracle?.oraclePyth;
-  const mockOracle = networkOracle?.mockOracle;
+  const oraclePyth = oracleNetwork?.oraclePyth;
+  const mockOracle = oracleNetwork?.mockOracle;
 
   if (oraclePyth?.address) {
     const oraclePythClient = new oracleContracts.OraclePyth.OraclePythClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, oraclePyth.address);
     const oraclePythQueryClient = new oracleContracts.OraclePyth.OraclePythQueryClient(walletData?.activeWallet?.signingCosmWasmClient, oraclePyth.address);
     // const doRes = await oraclePythClient.configFeedInfo({
-    //   asset: "usei",
+    //   asset: "",
     //   checkFeedAge: true,
     //   priceFeedId: "5bc91f13e412c07599167bae86f07543f076a638962b8d6017ec19dab4a82814",
     //   priceFeedSymbol: "Crypto.ETH/USD",
@@ -49,40 +41,40 @@ async function main(): Promise<void> {
     if (mockOracle?.address) {
       const mockOracleClient = new oracleContracts.MockOracle.MockOracleClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, mockOracle?.address);
       if (doFunc) {
-        const doMockRes = await mockOracleClient.updatePriceFeed({ id: "ff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0acd", price: 1 });
+        const doMockRes = await mockOracleClient.updatePriceFeed({ id: "5bc91f13e412c07599167bae86f07543f076a638962b8d6017ec19dab4a82815", price: 1 });
         console.log(`\n  Do oracle.MockOracle updatePriceFeed ok. \n  ${doMockRes?.transactionHash}`);
       }
 
       const mockOracleQueryClient = new oracleContracts.MockOracle.MockOracleQueryClient(walletData?.activeWallet?.signingCosmWasmClient, mockOracle.address);
-      const priceFeedRes = await mockOracleQueryClient.priceFeed({ id: "ff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0acd" });
+      const priceFeedRes = await mockOracleQueryClient.priceFeed({ id: "5bc91f13e412c07599167bae86f07543f076a638962b8d6017ec19dab4a82815" });
       print && console.log(`\n  Query oracle.oraclePyth configFeedInfo ok. \n   ${JSON.stringify(priceFeedRes)}`);
     }
 
     if (walletData?.nativeCurrency?.coinMinimalDenom) {
       const feederConfig = await oraclePythQueryClient.queryPythFeederConfig({ asset: walletData?.nativeCurrency?.coinMinimalDenom });
-      print && console.log(`\n  Query oracle.oraclePyth queryPythFeederConfig ok. usei \n   ${JSON.stringify(feederConfig)}`);
+      print && console.log(`\n  Query oracle.oraclePyth queryPythFeederConfig ok. ${walletData?.nativeCurrency?.coinMinimalDenom} \n   ${JSON.stringify(feederConfig)}`);
       const priceRes = await oraclePythQueryClient.queryPrice({ asset: walletData?.nativeCurrency?.coinMinimalDenom });
-      print && console.log(`\n  Query oracle.oraclePyth queryPrice ok. usei \n   ${JSON.stringify(priceRes)}`);
+      print && console.log(`\n  Query oracle.oraclePyth queryPrice ok. ${walletData?.nativeCurrency?.coinMinimalDenom} \n   ${JSON.stringify(priceRes)}`);
     }
 
-    if (networkStaking?.bSeiToken?.address) {
-      const feederConfig = await oraclePythQueryClient.queryPythFeederConfig({ asset: networkStaking?.bSeiToken?.address });
-      print && console.log(`\n  Query oracle.oraclePyth queryPythFeederConfig ok. bsei \n   ${JSON.stringify(feederConfig)}`);
-      const priceRes = await oraclePythQueryClient.queryPrice({ asset: networkStaking?.bSeiToken?.address });
-      print && console.log(`\n  Query oracle.oraclePyth queryPrice ok. bsei \n   ${JSON.stringify(priceRes)}`);
+    if (stakingNetwork?.bAssetsToken?.address) {
+      const feederConfig = await oraclePythQueryClient.queryPythFeederConfig({ asset: stakingNetwork?.bAssetsToken?.address });
+      print && console.log(`\n  Query oracle.oraclePyth queryPythFeederConfig ok. nAsset \n   ${JSON.stringify(feederConfig)}`);
+      const priceRes = await oraclePythQueryClient.queryPrice({ asset: stakingNetwork?.bAssetsToken?.address });
+      print && console.log(`\n  Query oracle.oraclePyth queryPrice ok. nAsset \n   ${JSON.stringify(priceRes)}`);
     }
 
-    if (networkCdp?.stable_coin_denom) {
-      const feederConfig = await oraclePythQueryClient.queryPythFeederConfig({ asset: networkCdp?.stable_coin_denom });
+    if (cdpNetwork?.stable_coin_denom) {
+      const feederConfig = await oraclePythQueryClient.queryPythFeederConfig({ asset: cdpNetwork?.stable_coin_denom });
       print && console.log(`\n  Query oracle.oraclePyth queryPythFeederConfig ok. stable_coin_denom \n   ${JSON.stringify(feederConfig)}`);
-      const priceRes = await oraclePythQueryClient.queryPrice({ asset: networkCdp?.stable_coin_denom });
+      const priceRes = await oraclePythQueryClient.queryPrice({ asset: cdpNetwork?.stable_coin_denom });
       print && console.log(`\n  Query oracle.oraclePyth queryPrice ok. stable_coin_denom \n   ${JSON.stringify(priceRes)}`);
     }
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  console.log(`\n  --- --- verify deployed oracle contracts end --- ---`);
+  console.log(`\n  --- --- verify deployed contracts end: ${ORACLE_MODULE_NAME} --- ---`);
 
   await printChangeBalancesByWalletData(walletData);
-}
+})().catch(console.error);

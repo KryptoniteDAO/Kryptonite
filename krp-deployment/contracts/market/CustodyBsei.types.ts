@@ -44,7 +44,15 @@ export type ExecuteMsg = {
 } | {
   update_config: {
     liquidation_contract?: string | null;
-    owner?: string | null;
+    [k: string]: unknown;
+  };
+} | {
+  set_owner: {
+    new_owner_addr: string;
+    [k: string]: unknown;
+  };
+} | {
+  accept_ownership: {
     [k: string]: unknown;
   };
 } | {

@@ -96,18 +96,22 @@ export interface RewardBookInterface {
   updateConfig: ({
     controlContract,
     custodyContract,
-    ownerAddr,
     rewardContract,
     rewardDenom,
     threshold
   }: {
     controlContract?: string;
     custodyContract?: string;
-    ownerAddr?: string;
     rewardContract?: string;
     rewardDenom?: string;
     threshold?: Uint256;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setOwner: ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptOwnership: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   increaseBalance: ({
     address,
     amount
@@ -140,6 +144,8 @@ export class RewardBookClient implements RewardBookInterface {
     this.sender = sender;
     this.contractAddress = contractAddress;
     this.updateConfig = this.updateConfig.bind(this);
+    this.setOwner = this.setOwner.bind(this);
+    this.acceptOwnership = this.acceptOwnership.bind(this);
     this.increaseBalance = this.increaseBalance.bind(this);
     this.decreaseBalance = this.decreaseBalance.bind(this);
     this.updateGlobalIndex = this.updateGlobalIndex.bind(this);
@@ -150,14 +156,12 @@ export class RewardBookClient implements RewardBookInterface {
   updateConfig = async ({
     controlContract,
     custodyContract,
-    ownerAddr,
     rewardContract,
     rewardDenom,
     threshold
   }: {
     controlContract?: string;
     custodyContract?: string;
-    ownerAddr?: string;
     rewardContract?: string;
     rewardDenom?: string;
     threshold?: Uint256;
@@ -166,11 +170,26 @@ export class RewardBookClient implements RewardBookInterface {
       update_config: {
         control_contract: controlContract,
         custody_contract: custodyContract,
-        owner_addr: ownerAddr,
         reward_contract: rewardContract,
         reward_denom: rewardDenom,
         threshold
       }
+    }, fee, memo, _funds);
+  };
+  setOwner = async ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      set_owner: {
+        new_owner_addr: newOwnerAddr
+      }
+    }, fee, memo, _funds);
+  };
+  acceptOwnership = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_ownership: {}
     }, fee, memo, _funds);
   };
   increaseBalance = async ({

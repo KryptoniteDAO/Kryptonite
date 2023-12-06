@@ -7,6 +7,7 @@
 export type Addr = string;
 export interface InstantiateMsg {
   distribute_token: Addr;
+  distribute_ve_token: Addr;
   gov?: Addr | null;
   rule_configs_map: {
     [k: string]: RuleConfigMsg;
@@ -70,10 +71,13 @@ export interface QueryClaimableInfoResponse {
   linear_release_amount: number;
   release_amount: number;
 }
+export type Uint128 = string;
 export interface QueryConfigResponse {
   distribute_token: Addr;
+  distribute_ve_token: Addr;
   gov: Addr;
   rules_total_amount: number;
+  token_cap?: Uint128 | null;
   total_amount: number;
 }
 export interface QueryRuleInfoResponse {

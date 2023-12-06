@@ -12,7 +12,7 @@
         "filePath": "../krp-basset-convert/artifacts/krp_basset_converter.wasm",
         "deploy": false
       },
-      "btoken": {
+      "bAssetsToken": {
         "admin": null,
         "initMsg": {
           "name": "bstsei",
@@ -61,7 +61,7 @@
         "filePath": "../krp-basset-convert/artifacts/krp_basset_converter.wasm",
         "deploy": false
       },
-      "btoken": {
+      "bAssetsToken": {
         "admin": null,
         "initMsg": {
           "name": "bslsdi",

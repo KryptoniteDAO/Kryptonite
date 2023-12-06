@@ -9,7 +9,6 @@ import { Coin, StdFee } from "@cosmjs/amino";
 import { Decimal, ConfigResponse, ExecuteMsg, Uint128, GetBufferedRewardsResponse, InstantiateMsg, QueryMsg } from "./RewardsDispatcher.types";
 export interface RewardsDispatcherReadOnlyInterface {
   contractAddress: string;
-  getBufferedRewards: () => Promise<GetBufferedRewardsResponse>;
   config: () => Promise<ConfigResponse>;
 }
 export class RewardsDispatcherQueryClient implements RewardsDispatcherReadOnlyInterface {
@@ -19,15 +18,9 @@ export class RewardsDispatcherQueryClient implements RewardsDispatcherReadOnlyIn
   constructor(client: CosmWasmClient, contractAddress: string) {
     this.client = client;
     this.contractAddress = contractAddress;
-    this.getBufferedRewards = this.getBufferedRewards.bind(this);
     this.config = this.config.bind(this);
   }
 
-  getBufferedRewards = async (): Promise<GetBufferedRewardsResponse> => {
-    return this.client.queryContractSmart(this.contractAddress, {
-      get_buffered_rewards: {}
-    });
-  };
   config = async (): Promise<ConfigResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       config: {}
@@ -50,7 +43,6 @@ export interface RewardsDispatcherInterface {
     hubContract,
     krpKeeperAddress,
     krpKeeperRate,
-    owner,
     stseiRewardDenom
   }: {
     bseiRewardContract?: string;
@@ -58,9 +50,14 @@ export interface RewardsDispatcherInterface {
     hubContract?: string;
     krpKeeperAddress?: string;
     krpKeeperRate?: Decimal;
-    owner?: string;
     stseiRewardDenom?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setOwner: ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptOwnership: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   dispatchRewards: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   updateSwapContract: ({
     swapContract
@@ -91,6 +88,8 @@ export class RewardsDispatcherClient implements RewardsDispatcherInterface {
     this.contractAddress = contractAddress;
     this.swapToRewardDenom = this.swapToRewardDenom.bind(this);
     this.updateConfig = this.updateConfig.bind(this);
+    this.setOwner = this.setOwner.bind(this);
+    this.acceptOwnership = this.acceptOwnership.bind(this);
     this.dispatchRewards = this.dispatchRewards.bind(this);
     this.updateSwapContract = this.updateSwapContract.bind(this);
     this.updateSwapDenom = this.updateSwapDenom.bind(this);
@@ -117,7 +116,6 @@ export class RewardsDispatcherClient implements RewardsDispatcherInterface {
     hubContract,
     krpKeeperAddress,
     krpKeeperRate,
-    owner,
     stseiRewardDenom
   }: {
     bseiRewardContract?: string;
@@ -125,7 +123,6 @@ export class RewardsDispatcherClient implements RewardsDispatcherInterface {
     hubContract?: string;
     krpKeeperAddress?: string;
     krpKeeperRate?: Decimal;
-    owner?: string;
     stseiRewardDenom?: string;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
@@ -135,9 +132,24 @@ export class RewardsDispatcherClient implements RewardsDispatcherInterface {
         hub_contract: hubContract,
         krp_keeper_address: krpKeeperAddress,
         krp_keeper_rate: krpKeeperRate,
-        owner,
         stsei_reward_denom: stseiRewardDenom
       }
+    }, fee, memo, _funds);
+  };
+  setOwner = async ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      set_owner: {
+        new_owner_addr: newOwnerAddr
+      }
+    }, fee, memo, _funds);
+  };
+  acceptOwnership = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_ownership: {}
     }, fee, memo, _funds);
   };
   dispatchRewards = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {

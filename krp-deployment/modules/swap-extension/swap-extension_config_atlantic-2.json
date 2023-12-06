@@ -24,7 +24,18 @@
       ],
       "pairAddress": "sei1pqcgdn5vmf3g9ncs98vtxkydc6su0f9rk3uk73s5ku2xhthr6avswrwnrx",
       "maxSpread": null,
-      "to": null
+      "to": null,
+      "oracleFeedInfoConfigs": [
+        {
+          "asset": "",
+          "checkFeedAge": true,
+          "priceFeedId": "",
+          "priceFeedSymbol": "Crypto.USDT/USD",
+          "priceFeedDecimal": 8,
+          "priceFeedAge": 720000000,
+          "mockPrice": 100000000
+        }
+      ]
     },
     {
       "assetInfos": [

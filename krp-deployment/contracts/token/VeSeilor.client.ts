@@ -6,15 +6,10 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Uint128, Logo, EmbeddedLogo, Binary, Addr, InstantiateMsg, InstantiateMsg1, Cw20Coin, InstantiateMarketingInfo, MinterResponse, ExecuteMsg, QueryMsg, AllAccountsResponse, BalanceResponse, CheckpointResponse, DownloadLogoResponse, GetPastVotesResponse, GetVotesResponse, IsMinterResponse, LogoInfo, MarketingInfoResponse, NumCheckpointsResponse, TokenInfoResponse, VoteConfigResponse } from "./VeSeilor.types";
+import { Uint128, Logo, EmbeddedLogo, Binary, Addr, InstantiateMsg, InstantiateMsg1, Cw20Coin, InstantiateMarketingInfo, MinterResponse, ExecuteMsg, QueryMsg, AllAccountsResponse, BalanceResponse, CheckpointResponse, DownloadLogoResponse, GetPastVotesResponse, GetVotesResponse, LogoInfo, MarketingInfoResponse, NumCheckpointsResponse, TokenInfoResponse, VoteConfigResponse } from "./VeSeilor.types";
 export interface VeSeilorReadOnlyInterface {
   contractAddress: string;
   voteConfig: () => Promise<VoteConfigResponse>;
-  isMinter: ({
-    address
-  }: {
-    address: string;
-  }) => Promise<IsMinterResponse>;
   checkpoints: ({
     account,
     pos
@@ -64,7 +59,6 @@ export class VeSeilorQueryClient implements VeSeilorReadOnlyInterface {
     this.client = client;
     this.contractAddress = contractAddress;
     this.voteConfig = this.voteConfig.bind(this);
-    this.isMinter = this.isMinter.bind(this);
     this.checkpoints = this.checkpoints.bind(this);
     this.numCheckpoints = this.numCheckpoints.bind(this);
     this.getVotes = this.getVotes.bind(this);
@@ -80,17 +74,6 @@ export class VeSeilorQueryClient implements VeSeilorReadOnlyInterface {
   voteConfig = async (): Promise<VoteConfigResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       vote_config: {}
-    });
-  };
-  isMinter = async ({
-    address
-  }: {
-    address: string;
-  }): Promise<IsMinterResponse> => {
-    return this.client.queryContractSmart(this.contractAddress, {
-      is_minter: {
-        address
-      }
     });
   };
   checkpoints = async ({
@@ -199,13 +182,6 @@ export interface VeSeilorInterface {
     fund?: Addr;
     maxMinted?: Uint128;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  setMinters: ({
-    contracts,
-    isMinter
-  }: {
-    contracts: Addr[];
-    isMinter: boolean[];
-  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   mint: ({
     amount,
     recipient
@@ -247,7 +223,6 @@ export class VeSeilorClient implements VeSeilorInterface {
     this.sender = sender;
     this.contractAddress = contractAddress;
     this.updateConfig = this.updateConfig.bind(this);
-    this.setMinters = this.setMinters.bind(this);
     this.mint = this.mint.bind(this);
     this.burn = this.burn.bind(this);
     this.updateMarketing = this.updateMarketing.bind(this);
@@ -267,20 +242,6 @@ export class VeSeilorClient implements VeSeilorInterface {
       update_config: {
         fund,
         max_minted: maxMinted
-      }
-    }, fee, memo, _funds);
-  };
-  setMinters = async ({
-    contracts,
-    isMinter
-  }: {
-    contracts: Addr[];
-    isMinter: boolean[];
-  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
-    return await this.client.execute(this.sender, this.contractAddress, {
-      set_minters: {
-        contracts,
-        is_minter: isMinter
       }
     }, fee, memo, _funds);
   };

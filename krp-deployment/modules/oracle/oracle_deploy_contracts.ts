@@ -1,55 +1,33 @@
-import type { WalletData } from "@/types";
-import type { BaseFeedInfo, OracleContractsDeployed, FeedInfo } from "@/modules";
 import { printChangeBalancesByWalletData } from "@/common";
-import { ChainId, loadingWalletData } from "@/env_data";
-import { oracleReadArtifact, printDeployedOracleContracts, deployOraclePyth, oracleConfigs, doOraclePythConfigFeedInfo, writeDeployed, deployMockOracle } from "@/modules";
+import {ChainId, loadingWalletData} from "@/env_data";
+import type { ContractsDeployed } from "@/modules";
+import { deployMockOracle, deployOraclePyth, printDeployedOracleContracts, readDeployedContracts } from "@/modules";
+import { ORACLE_MODULE_NAME } from "@/modules/oracle/oracle_constants";
+import type { WalletData } from "@/types";
 
-main().catch(console.error);
-
-async function main(): Promise<void> {
-  console.log(`\n  --- --- deploy oracle contracts enter --- ---`);
+(async (): Promise<void> => {
+  console.log(`\n  --- --- deploy contracts enter: ${ORACLE_MODULE_NAME} --- ---`);
 
   const walletData: WalletData = await loadingWalletData();
-
-  const networkOracle = oracleReadArtifact(walletData.chainId) as OracleContractsDeployed;
-
-  console.log(`\n  --- --- oracle contracts storeCode & instantiateContract enter --- ---`);
-
-  if (ChainId.ATLANTIC_2 !== walletData.chainId) {
-    await deployMockOracle(walletData, networkOracle);
-  }
-  await deployOraclePyth(walletData, networkOracle);
-  await writeDeployed({});
-
-  console.log(`\n  --- --- oracle contracts storeCode & instantiateContract end --- ---`);
-
-  await printDeployedOracleContracts(networkOracle);
-
-  // //////////////////////////////////////configure contracts///////////////////////////////////////////
-
-  console.log(`\n  --- --- oracle contracts configure enter --- ---`);
-  const print: boolean = true;
-
-  const baseFeedInfoConfig: BaseFeedInfo | undefined = oracleConfigs?.baseFeedInfoConfig;
-  const feedInfoConfigList: FeedInfo[] | undefined = oracleConfigs?.feedInfoConfigList;
-  if (!!feedInfoConfigList && feedInfoConfigList.length > 0) {
-    for (const feedInfoConfig of feedInfoConfigList) {
-      const feedInfo = Object.assign({}, baseFeedInfoConfig, feedInfoConfig);
-      // feedInfo.asset = feedInfo.asset.replace("%stable_coin_denom%", stable_coin_denom);
-      // if (feedInfo.asset.startsWith("%")) {
-      feedInfo.asset = feedInfo.asset.replace("%native_coin_minimal_denom%", walletData.nativeCurrency?.coinMinimalDenom).replaceAll(/%.*%/g, "");
-      if (!feedInfo.asset) {
-        continue;
-      }
-      await doOraclePythConfigFeedInfo(walletData, networkOracle, feedInfo, print);
-    }
-  }
-
-  console.log(`\n  --- --- oracle contracts configure end --- ---`);
+  const network: ContractsDeployed = readDeployedContracts(walletData.chainId);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  console.log(`\n  --- --- deploy oracle contracts end --- ---`);
+  console.log(`\n  --- --- store code & instantiate contracts enter: ${ORACLE_MODULE_NAME} --- ---`);
+
+  if (ChainId.ATLANTIC_2 !== walletData.chainId) {
+    await deployMockOracle(walletData, network);
+  }
+  await deployOraclePyth(walletData, network);
+
+  console.log(`\n  --- --- store code & instantiate contracts end: ${ORACLE_MODULE_NAME} --- ---`);
+
+  const { oracleNetwork } = network;
+  await printDeployedOracleContracts(oracleNetwork);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  console.log(`\n  --- --- deploy contracts end: ${ORACLE_MODULE_NAME} --- ---`);
 
   await printChangeBalancesByWalletData(walletData);
-}
+})().catch(console.error);
