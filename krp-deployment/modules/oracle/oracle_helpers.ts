@@ -43,7 +43,7 @@ export async function deployOraclePyth(walletData: WalletData, network: Contract
   const defaultInitMsg: object | undefined = Object.assign({}, config?.initMsg ?? {}, {
     owner: config?.initMsg?.owner || walletData?.activeWallet?.address
   });
-  if (ChainId.ATLANTIC_2 !== walletData.chainId) {
+  if (ChainId.PACIFIC_1 !== walletData.chainId && ChainId.ATLANTIC_2 !== walletData.chainId) {
     Object.assign(defaultInitMsg, { pyth_contract: oracleNetwork?.mockOracle?.address });
   }
   const writeFunc = writeDeployedContracts;

@@ -11,12 +11,14 @@ import type { BaseCurrencyInfo, WalletData, WalletInstantiate } from "./types";
 require("dotenv").config();
 
 export enum ChainId {
-  LOCAL_SEI = "localsei",
-  SEI_CHAIN = "sei-chain",
+  PACIFIC_1 = "pacific-1",
   ATLANTIC_2 = "atlantic-2",
-  "localsei" = "localsei",
+  SEI_CHAIN = "sei-chain",
+  LOCAL_SEI = "localsei",
+  "pacific-1" = "pacific-1",
+  "atlantic-2" = "atlantic-2",
   "sei-chain" = "sei-chain",
-  "atlantic-2" = "atlantic-2"
+  "localsei" = "localsei",
 }
 
 const default_cosmos_native_token_decimals: number = 6;

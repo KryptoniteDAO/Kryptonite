@@ -30,6 +30,10 @@ import { TOKEN_MODULE_NAME } from "./token_constants";
 
   if (!!stakingPairs && stakingPairs.length > 0) {
     for (const stakingRewardsPairConfig of stakingPairs) {
+      if (!stakingRewardsPairConfig?.staking_token || !stakingRewardsPairConfig?.pool_address) {
+        console.error(`\n  config ${TOKEN_MODULE_NAME} pair error: missing pair's staking_token or pool_address`);
+        continue;
+      }
       const stakingRewardsPairsNetwork = tokenNetwork?.stakingPairs?.find((v: TokenStakingPairsContractsDeployed) => stakingRewardsPairConfig.staking_token === v.staking_token);
       // await doVeTokenSetMinters(walletData, tokenNetwork?.veToken, stakingRewardsPairsNetwork?.staking, false, print);
       await doTokenFundSetVeFundMinter(walletData, tokenNetwork?.fund, stakingRewardsPairsNetwork?.staking, true, print);

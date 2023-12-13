@@ -15,7 +15,7 @@ import type { WalletData } from "@/types";
 
   console.log(`\n  --- --- store code & instantiate contracts enter: ${ORACLE_MODULE_NAME} --- ---`);
 
-  if (ChainId.ATLANTIC_2 !== walletData.chainId) {
+  if (ChainId.PACIFIC_1 !== walletData.chainId && ChainId.ATLANTIC_2 !== walletData.chainId) {
     await deployMockOracle(walletData, network);
   }
   await deployOraclePyth(walletData, network);

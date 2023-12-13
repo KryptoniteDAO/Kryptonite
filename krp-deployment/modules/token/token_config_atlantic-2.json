@@ -1,13 +1,21 @@
 {
-  "kusd_reward_controller": "sei1f53twx2n6p9t379kkv6gmcnhxn03xpppuum8j0",
-  "seilor": {
+  "usd_reward_controller": "sei1f53twx2n6p9t379kkv6gmcnhxn03xpppuum8j0",
+  "platToken": {
     "admin": null,
     "initMsg": {
       "cw20_init_msg": {
-        "name": "Seilor",
+        "name": "seilor",
         "symbol": "SEILOR",
         "decimals": 6,
-        "initial_balances": []
+        "initial_balances": [],
+        "marketing": {
+          "description": "SEILOR",
+          "logo": {
+            "url": "https://www.google.com"
+          },
+          "marketing": null,
+          "project": "SEILOR"
+        }
       },
       "max_supply": "1000000000000000"
     },
@@ -15,14 +23,22 @@
     "filePath": "../krp-token-contracts/artifacts/seilor.wasm",
     "deploy": false
   },
-  "veSeilor": {
+  "veToken": {
     "admin": null,
     "initMsg": {
       "cw20_init_msg": {
         "name": "vest kryptonite token",
         "symbol": "veSEILOR",
         "decimals": 6,
-        "initial_balances": []
+        "initial_balances": [],
+        "marketing": {
+          "description": "veSEILOR",
+          "logo": {
+            "url": "https://www.google.com"
+          },
+          "marketing": null,
+          "project": "veSEILOR"
+        }
       },
       "max_supply": "1000000000000000",
       "max_minted": "1000000000000000"
@@ -72,18 +88,12 @@
   "treasure": {
     "admin": null,
     "initMsg": {
-      "dust_reward_per_second": "16534391",
-      "end_lock_time": 1694226615,
       "gov": null,
       "lock_token": null,
-      "mint_nft_cost_dust": "10000000000",
-      "mod_num": 100,
-      "nft_end_pre_mint_time": 2694226615,
-      "nft_start_pre_mint_time": 1694226615,
       "no_delay_punish_coefficient": "300000",
       "punish_receiver": null,
-      "start_lock_time": 1688128677,
-      "winning_num": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 31, 32, 33, 38, 35, 36, 77, 78, 79, 90, 91, 92, 93, 96],
+      "start_lock_time": 1700064000,
+      "end_lock_time": 1700409600,
       "withdraw_delay_duration": 1209600
     },
     "label": "treasure",
@@ -216,8 +226,8 @@
   "stakingPairs": [
     {
       "name": "SEI/SEILOR",
-      "staking_token": "sei1eth6r2mcfhx9h8a7s99vm6jhmznsxrhz3rymkgeyhsm7rk682rdq08yzla",
-      "pool_address": "sei1e0d0mfgxlmpypf68w4jq2eclk9hc5mcdw8mwurj8rld4yx3qncxsn0q88f",
+      "staking_token": "",
+      "pool_address": "",
       "staking": {
         "admin": null,
         "initMsg": {
@@ -231,8 +241,8 @@
     },
     {
       "name": "USDC/KUSD",
-      "staking_token": "sei19ltvsqy0ksyxqtv5e7ft5aej6qqldfekw65e9yrtmhmkpvjj64aqaccdv9",
-      "pool_address": "sei14ey0dw3saseas26v0mr3rskq8f9tqjam7nxjxs2wupmp9qpdtxcqm7ar40",
+      "staking_token": "",
+      "pool_address": "",
       "staking": {
         "admin": null,
         "initMsg": {

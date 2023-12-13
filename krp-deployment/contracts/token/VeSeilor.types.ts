@@ -158,6 +158,7 @@ export interface VoteConfigResponse {
   gov: Addr;
   max_minted: Uint128;
   max_supply: number;
+  new_gov?: Addr | null;
   total_minted: Uint128;
 }
 export type VeSeilorExecuteMsg = ExecuteMsg;

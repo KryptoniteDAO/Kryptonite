@@ -19,6 +19,11 @@ import { TOKEN_MODULE_NAME } from "./token_constants";
   const { stakingPairs } = tokenConfigs;
   if (!!stakingPairs && stakingPairs.length > 0) {
     for (const stakingRewardsPairConfig of stakingPairs) {
+      if (!stakingRewardsPairConfig?.staking_token || !stakingRewardsPairConfig?.pool_address) {
+        console.error(`\n  deploy ${TOKEN_MODULE_NAME} pair error: missing pair's staking_token or pool_address`);
+        continue;
+      }
+
       await deployTokenStaking(walletData, network, stakingRewardsPairConfig);
     }
   }

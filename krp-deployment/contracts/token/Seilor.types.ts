@@ -215,6 +215,7 @@ export interface SeilorConfigResponse {
   fund: Addr;
   gov: Addr;
   max_supply: number;
+  new_gov?: Addr | null;
 }
 export interface TokenInfoResponse {
   decimals: number;

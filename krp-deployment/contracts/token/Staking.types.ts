@@ -104,6 +104,7 @@ export interface StakingConfigResponse {
   boost: Addr;
   fund: Addr;
   gov: Addr;
+  new_gov?: Addr | null;
   reward_controller_addr: Addr;
   rewards_token: Addr;
   staking_token: Addr;

@@ -50,6 +50,7 @@ export type QueryMsg = {
 };
 export interface GetBoostConfigResponse {
   gov: Addr;
+  new_gov?: Addr | null;
   ve_seilor_lock_settings: VeSeilorLockSetting[];
 }
 export interface GetUnlockTimeResponse {

@@ -1,0 +1,75 @@
+{
+  "swapSparrow": {
+    "admin": null,
+    "initMsg": {
+      "owner": null
+    },
+    "label": "swapSparrow",
+    "filePath": "../swap-extension/artifacts/swap_sparrow.wasm",
+    "deploy": false
+  },
+  "swapPairConfigList": [
+    {
+      "assetInfos": [
+        {
+          "native_token": {
+            "denom": "usei"
+          }
+        },
+        {
+          "native_token": {
+            "denom": "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/usdt"
+          }
+        }
+      ],
+      "pairAddress": "sei1pqcgdn5vmf3g9ncs98vtxkydc6su0f9rk3uk73s5ku2xhthr6avswrwnrx",
+      "maxSpread": null,
+      "to": null,
+      "oracleFeedInfoConfigs": [
+        {
+          "asset": "",
+          "checkFeedAge": true,
+          "priceFeedId": "",
+          "priceFeedSymbol": "Crypto.USDT/USD",
+          "priceFeedDecimal": 8,
+          "priceFeedAge": 720000000,
+          "mockPrice": 100000000
+        }
+      ]
+    },
+    {
+      "assetInfos": [
+        {
+          "native_token": {
+            "denom": "usei"
+          }
+        },
+        {
+          "token": {
+            "contract_addr": "sei1chjhkfkkzhmdu3q3vrurmdm6qalyduvnn0tqkmduy3vqpw7chfcsw4ennj"
+          }
+        }
+      ],
+      "pairAddress": "sei1e0d0mfgxlmpypf68w4jq2eclk9hc5mcdw8mwurj8rld4yx3qncxsn0q88f",
+      "maxSpread": null,
+      "to": null
+    },
+    {
+      "assetInfos": [
+        {
+          "native_token": {
+            "denom": "factory/sei135mlnw9ndkyglgx7ma95pw22cl64mpnw58pfpd/usdc"
+          }
+        },
+        {
+          "native_token": {
+            "denom": "factory/sei1kmrnnc7230e6ha2hcl5h6guwwcch298p057rw85vkfhuk6wjwe5sv4hqx6/kUSD"
+          }
+        }
+      ],
+      "pairAddress": "sei14ey0dw3saseas26v0mr3rskq8f9tqjam7nxjxs2wupmp9qpdtxcqm7ar40",
+      "maxSpread": null,
+      "to": null
+    }
+  ]
+}

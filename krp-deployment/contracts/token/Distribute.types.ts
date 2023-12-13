@@ -76,6 +76,7 @@ export interface QueryConfigResponse {
   distribute_token: Addr;
   distribute_ve_token: Addr;
   gov: Addr;
+  new_gov?: Addr | null;
   rules_total_amount: number;
   token_cap?: Uint128 | null;
   total_amount: number;

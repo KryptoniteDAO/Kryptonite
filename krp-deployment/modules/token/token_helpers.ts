@@ -49,7 +49,9 @@ export async function deployTokenPlatToken(walletData: WalletData, network: Cont
       value.address = walletData?.activeWallet?.address;
     }
   });
-  const defaultInitMsg = Object.assign({}, config?.initMsg ?? {});
+  const defaultInitMsg = Object.assign({}, config?.initMsg ?? {}, {
+    gov: config?.initMsg?.gov || walletData?.activeWallet?.address
+  });
   const writeFunc = writeDeployedContracts;
   const contractPath: string = `${ContractsDeployedModules.token}.${contractName}`;
 
@@ -67,9 +69,10 @@ export async function deployTokenFund(walletData: WalletData, network: Contracts
   const contractName: keyof Required<TokenContractsDeployed> = "fund";
   const config: TokenFundContractConfig | undefined = tokenConfigs?.[contractName];
   const defaultInitMsg = Object.assign({}, config?.initMsg ?? {}, {
+    gov: config?.initMsg?.gov || walletData?.activeWallet?.address,
     seilor_addr: config?.initMsg?.seilor_addr || platToken.address,
     ve_seilor_addr: config?.initMsg?.ve_seilor_addr || veToken.address,
-    kusd_denom: config?.initMsg?.kusd_denom || stable_coin_denom,
+    kusd_denom: config?.initMsg?.kusd_denom || stable_coin_denom || walletData?.activeWallet?.address,
     kusd_reward_addr: config?.initMsg?.kusd_reward_addr || tokenConfigs.usd_reward_controller || walletData?.activeWallet?.address
   });
   const writeFunc = writeDeployedContracts;
@@ -105,6 +108,7 @@ export async function deployTokenStaking(walletData: WalletData, network: Contra
 
   const contractName: keyof Required<TokenStakingPairsContractsDeployed> = "staking";
   const defaultInitMsg: object = Object.assign({}, stakingRewardsPairsConfig?.staking?.initMsg ?? {}, {
+    gov: stakingRewardsPairsConfig?.staking?.initMsg?.gov || walletData?.activeWallet?.address,
     rewards_token: stakingRewardsPairsConfig?.staking?.initMsg?.rewards_token || veToken.address,
     boost: stakingRewardsPairsConfig?.staking?.initMsg?.boost || boost.address,
     fund: stakingRewardsPairsConfig?.staking?.initMsg?.fund || fund.address,
@@ -127,7 +131,9 @@ export async function deployTokenVeToken(walletData: WalletData, network: Contra
       value.address = walletData?.activeWallet?.address;
     }
   });
-  const defaultInitMsg = Object.assign({}, config?.initMsg ?? {});
+  const defaultInitMsg = Object.assign({}, config?.initMsg ?? {}, {
+    gov: config?.initMsg?.gov || walletData?.activeWallet?.address
+  });
   const writeFunc = writeDeployedContracts;
   const contractPath: string = `${ContractsDeployedModules.token}.${contractName}`;
 
@@ -137,7 +143,10 @@ export async function deployTokenVeToken(walletData: WalletData, network: Contra
 export async function deployTokenBoost(walletData: WalletData, network: ContractsDeployed): Promise<void> {
   const contractName: keyof Required<TokenContractsDeployed> = "boost";
   const config: TokenBoostContractConfig | undefined = tokenConfigs?.[contractName];
-  const defaultInitMsg = Object.assign({}, config?.initMsg ?? {});
+  const defaultInitMsg = Object.assign({}, config?.initMsg ?? {},
+    {
+      gov: config?.initMsg?.gov || walletData?.activeWallet?.address
+    });
   const writeFunc = writeDeployedContracts;
   const contractPath: string = `${ContractsDeployedModules.token}.${contractName}`;
 
@@ -155,6 +164,7 @@ export async function deployTokenTreasure(walletData: WalletData, network: Contr
   const contractName: keyof Required<TokenContractsDeployed> = "treasure";
   const config: TokenTreasureContractConfig | undefined = tokenConfigs?.[contractName];
   const defaultInitMsg = Object.assign({}, config?.initMsg ?? {}, {
+    gov: config?.initMsg?.gov || walletData?.activeWallet?.address,
     lock_token: config?.initMsg?.lock_token || platToken.address,
     punish_receiver: config?.initMsg?.punish_receiver || tokenConfigs?.usd_reward_controller || walletData?.activeWallet?.address
   });
@@ -182,6 +192,7 @@ export async function deployTokenDistribute(walletData: WalletData, network: Con
   }
 
   const defaultInitMsg = Object.assign({}, config?.initMsg ?? {}, {
+    gov: config?.initMsg?.gov || walletData?.activeWallet?.address,
     distribute_token: config?.initMsg?.distribute_token || platToken?.address,
     distribute_ve_token: config?.initMsg?.distribute_ve_token || veToken?.address
   });
@@ -204,6 +215,7 @@ export async function deployTokenDispatcher(walletData: WalletData, network: Con
   const config: TokenDispatcherContractConfig | undefined = tokenConfigs?.[contractName];
 
   const defaultInitMsg = Object.assign({}, config?.initMsg ?? {}, {
+    gov: config?.initMsg?.gov || walletData?.activeWallet?.address,
     claim_token: config?.initMsg?.claim_token || platToken?.address
   });
   const writeFunc = writeDeployedContracts;
@@ -226,8 +238,8 @@ export async function deployTokenKeeper(walletData: WalletData, network: Contrac
   const config: TokenKeeperContractConfig | undefined = tokenConfigs?.[contractName];
   const defaultInitMsg = Object.assign({}, config?.initMsg ?? {}, {
     owner: config?.initMsg?.owner || walletData?.activeWallet?.address,
-    rewards_contract: config?.initMsg?.rewards_contract || fund?.address,
-    rewards_denom: config?.initMsg?.rewards_denom || stable_coin_denom
+    rewards_contract: config?.initMsg?.rewards_contract || fund?.address || walletData?.activeWallet?.address,
+    rewards_denom: config?.initMsg?.rewards_denom || stable_coin_denom || walletData?.activeWallet?.address,
   });
   const writeFunc = writeDeployedContracts;
   const contractPath: string = `${ContractsDeployedModules.token}.${contractName}`;
@@ -382,11 +394,13 @@ export async function doTokenFundUpdateConfig(walletData: WalletData, tokenNetwo
 
 export async function doTokenKeeperUpdateConfig(walletData: WalletData, tokenNetwork: TokenContractsDeployed, stable_coin_denom: string, print: boolean = true): Promise<any> {
   print && console.log(`\n  Do ${TOKEN_MODULE_NAME}.keeper update_config enter.`);
-  const { keeper } = tokenNetwork;
+  const { keeper, fund } = tokenNetwork;
   if (!keeper?.address || !stable_coin_denom) {
     console.error(`\n  ********* missing info!`);
     return;
   }
+  const rewardsContract: string = fund?.address || walletData?.activeWallet?.address;
+  const rewardsDenom: string = stable_coin_denom || walletData?.activeWallet?.address;
   const keeperClient = new tokenContracts.Keeper.KeeperClient(walletData?.activeWallet?.signingCosmWasmClient, walletData?.activeWallet?.address, keeper.address);
   const keeperQueryClient = new tokenContracts.Keeper.KeeperQueryClient(walletData?.activeWallet?.signingCosmWasmClient, keeper.address);
 
@@ -404,12 +418,13 @@ export async function doTokenKeeperUpdateConfig(walletData: WalletData, tokenNet
   }
   // rewards_contract: string;
   // rewards_denom: string;
-  if (initFlag && stable_coin_denom === beforeConfigRes?.rewards_denom) {
+  if (initFlag && rewardsDenom === beforeConfigRes?.rewards_denom && rewardsContract === beforeConfigRes?.rewards_contract) {
     console.warn(`\n  ######### The ${TOKEN_MODULE_NAME}.keeper config is already done.`);
     return;
   }
   const doRes = await keeperClient.updateConfig({
-    rewardsDenom: stable_coin_denom
+    rewardsContract,
+    rewardsDenom
   });
   console.log(`  Do ${TOKEN_MODULE_NAME}.keeper update_config ok. \n  ${doRes?.transactionHash}`);
 

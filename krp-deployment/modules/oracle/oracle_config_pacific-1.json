@@ -3,7 +3,7 @@
     "admin": null,
     "initMsg": {
       "owner": null,
-      "pyth_contract": "sei1w2rxq6eckak47s25crxlhmq96fzjwdtjgdwavn56ggc0qvxvw7rqczxyfy"
+      "pyth_contract": "sei15d2tyq2jzxmpg32y3am3w62dts32qgzmds9qnr6c87r0gwwr7ynqal0x38"
     },
     "label": "oracle pyth contract",
     "filePath": "../krp-oracle/artifacts/oracle_pyth.wasm",
@@ -11,7 +11,7 @@
   },
   "baseFeedInfoConfig": {
     "checkFeedAge": true,
-    "priceFeedId": "95f1aef92c74670d40f1f37ee6fb158ffd6a0f8913b07b9e61087f9b7273b11c",
+    "priceFeedId": "53614f1cb0c031d4af66c04cb9c756234adad0e1cee85303795091499a4084eb",
     "priceFeedSymbol": "Crypto.SEI/USD",
     "priceFeedDecimal": 8,
     "priceFeedAge": 720000000
@@ -20,7 +20,7 @@
     {
       "asset": "%stable_coin_denom%",
       "checkFeedAge": true,
-      "priceFeedId": "1fc18861232290221461220bd4e2acd1dcdfbc89c84092c93c18bdc7756c1588",
+      "priceFeedId": "2b89b9dc8fdf9f34709a5b106b472f0f39bb6ca9ce04b0fd7f2e971688e2e53b",
       "priceFeedSymbol": "Crypto.USDT/USD",
       "priceFeedDecimal": 8,
       "priceFeedAge": 720000000
