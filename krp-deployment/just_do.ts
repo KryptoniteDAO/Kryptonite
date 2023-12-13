@@ -10,7 +10,15 @@ async function main(): Promise<void> {
 
   const walletData: WalletData = await loadingWalletData();
 
-  const { swapExtensionNetwork = {}, oracleNetwork = {}, cdpNetwork: { stable_coin_denom } = {}, stakingNetwork = {}, marketNetwork = {}, convertNetwork = {}, tokenNetwork = {} } = readDeployedContracts(walletData?.chainId);
+  const {
+    swapExtensionNetwork: { swapSparrow } = {},
+    oracleNetwork: { oraclePyth } = {},
+    cdpNetwork: { stable_coin_denom, cdpCentralControl, cdpLiquidationQueue, cdpStablePool, cdpCollateralPairs } = {},
+    stakingNetwork: { hub, reward, rewardsDispatcher, validatorsRegistry, bAssetsToken, stAssetsToken } = {},
+    marketNetwork: { aToken, market, liquidationQueue, overseer, custodyBAssets, interestModel, distributionModel } = {},
+    convertNetwork: { convertPairs } = {},
+    tokenNetwork: { platToken, veToken, keeper, boost, dispatcher, fund, distribute, treasure, stakingPairs } = {}
+  } = readDeployedContracts(walletData?.chainId);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 

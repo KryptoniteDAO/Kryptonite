@@ -25,3 +25,4 @@ deploy_testing_muilti_stable.ts
 # Text file backups
 **/*.rs.bk
 **/*.ts.bk
+**/just*
