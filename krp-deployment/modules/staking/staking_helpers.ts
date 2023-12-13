@@ -116,16 +116,16 @@ export async function deployStakingRewardsDispatcher(walletData: WalletData, net
   const defaultInitMsg: object | undefined = Object.assign(
     {
       hub_contract: hub?.address ?? walletData?.activeWallet?.address,
-      binj_reward_contract: reward?.address ?? walletData?.activeWallet?.address,
+      bsei_reward_contract: reward?.address ?? walletData?.activeWallet?.address,
       stsei_reward_denom: walletData?.nativeCurrency?.coinMinimalDenom,
-      binj_reward_denom: stable_coin_denom ?? walletData?.activeWallet?.address,
+      bsei_reward_denom: stable_coin_denom ?? walletData?.activeWallet?.address,
       swap_contract: swapSparrow?.address ?? walletData?.activeWallet?.address,
       swap_denoms: [walletData?.nativeCurrency?.coinMinimalDenom],
       oracle_contract: oraclePyth?.address ?? walletData?.activeWallet?.address
     },
     config?.initMsg ?? {},
     {
-      ninja_keeper_address: config?.initMsg?.ninja_keeper_address || keeper?.address || walletData?.activeWallet?.address
+      krp_keeper_address: config?.initMsg?.krp_keeper_address || keeper?.address || walletData?.activeWallet?.address
     }
   );
   const writeFunc = writeDeployedContracts;
@@ -198,13 +198,13 @@ export async function doStakingHubUpdateConfig(walletData: WalletData, stakingNe
   const hubQueryClient = new stakingContracts.Hub.HubQueryClient(walletData?.activeWallet?.signingCosmWasmClient, hub.address);
 
   const beforeRes = await hubQueryClient.config();
-  const initFlag: boolean = rewardsDispatcher.address === beforeRes?.reward_dispatcher_contract && validatorsRegistry.address === beforeRes?.validators_registry_contract && bAssetsToken.address === beforeRes?.binj_token_contract && stAssetsToken.address === beforeRes?.stsei_token_contract;
+  const initFlag: boolean = rewardsDispatcher.address === beforeRes?.reward_dispatcher_contract && validatorsRegistry.address === beforeRes?.validators_registry_contract && bAssetsToken.address === beforeRes?.bsei_token_contract && stAssetsToken.address === beforeRes?.stsei_token_contract;
   if (initFlag) {
     console.warn(`\n  ######### ${STAKING_MODULE_NAME}.hub config is already done.`);
     return;
   }
   // airdropRegistryContract,
-  // binjTokenContract,
+  // bseiTokenContract,
   // rewardsContract,
   // rewardsDispatcherContract,
   // stseiTokenContract,
@@ -301,7 +301,7 @@ export async function doStakingRewardsDispatcherUpdateConfig(walletData: WalletD
   // bsei_reward_contract: string;
   // bsei_reward_denom: string;
   // hub_contract: string;
-  // ninja_keeper_address: string;
+  // krp_keeper_address: string;
   // oracle_contract: string;
   // stsei_reward_denom: string;
   // swap_contract: string;
@@ -309,7 +309,7 @@ export async function doStakingRewardsDispatcherUpdateConfig(walletData: WalletD
   const beforeRes: ConfigResponse = await rewardsDispatcherQueryClient.config();
 
   try {
-    const initFlag: boolean = hub.address === beforeRes?.hub_contract && reward.address === beforeRes?.bsei_reward_contract && krpKeeperAddress === beforeRes?.ninja_keeper_address && bseiRewardDenom === beforeRes?.bsei_reward_denom;
+    const initFlag: boolean = hub.address === beforeRes?.hub_contract && reward.address === beforeRes?.bsei_reward_contract && krpKeeperAddress === beforeRes?.krp_keeper_address && bseiRewardDenom === beforeRes?.bsei_reward_denom;
     if (initFlag) {
       console.warn(`\n  ######### ${STAKING_MODULE_NAME}.rewardsDispatcher config is already done.`);
     } else {
