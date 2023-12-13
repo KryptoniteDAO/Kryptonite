@@ -1,7 +1,8 @@
 import type { InstantiateMsg as ConvertBassetConverterInstantiateMsg } from "@/contracts/convert/BassetConverter.types";
 import type { TokenInstantiateMsg as ConvertBassetTokenInstantiateMsg } from "@/contracts/convert/BassetToken.types";
+import type { InstantiateMsg as ConvertCustodyInstantiateMsg } from "@/contracts/market/CustodyBase.types";
 import { BaseFeedInfo } from "@/modules";
-import type { Addr, BaseContractConfig, ContractDeployed, TokenInfo } from "@/types";
+import type { BaseContractConfig, ContractDeployed } from "@/types";
 
 export interface ConvertConverterContractConfig extends BaseContractConfig {
   initMsg?: ConvertBassetConverterInstantiateMsg;
@@ -12,10 +13,7 @@ export interface ConvertBAssetsTokenContractConfig extends BaseContractConfig {
 }
 
 export interface ConvertCustodyContractConfig extends BaseContractConfig {
-  initMsg?: {
-    owner?: Addr;
-    basset_info: TokenInfo;
-  };
+  initMsg?: ConvertCustodyInstantiateMsg;
 }
 
 export interface ConvertPairAssetsConfig {
@@ -30,7 +28,7 @@ export interface ConvertPairsConfig {
   converter: ConvertConverterContractConfig;
   bAssetsToken: ConvertBAssetsTokenContractConfig;
   custody: ConvertCustodyContractConfig;
-  marketCollateralWhitelist: boolean
+  marketCollateralWhitelist: boolean;
   overseerWhitelistConfig?: {
     name: string;
     symbol: string;

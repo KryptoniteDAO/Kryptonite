@@ -41,23 +41,6 @@
       "assetInfos": [
         {
           "native_token": {
-            "denom": "usei"
-          }
-        },
-        {
-          "token": {
-            "contract_addr": "sei1chjhkfkkzhmdu3q3vrurmdm6qalyduvnn0tqkmduy3vqpw7chfcsw4ennj"
-          }
-        }
-      ],
-      "pairAddress": "sei1e0d0mfgxlmpypf68w4jq2eclk9hc5mcdw8mwurj8rld4yx3qncxsn0q88f",
-      "maxSpread": null,
-      "to": null
-    },
-    {
-      "assetInfos": [
-        {
-          "native_token": {
             "denom": "factory/sei135mlnw9ndkyglgx7ma95pw22cl64mpnw58pfpd/usdc"
           }
         },

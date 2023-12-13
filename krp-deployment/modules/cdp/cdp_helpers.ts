@@ -260,7 +260,7 @@ export async function printDeployedCdpContracts(cdpNetwork: CdpContractsDeployed
 export async function doCdpCentralControlUpdateConfig(walletData: WalletData, cdpNetwork: CdpContractsDeployed, oraclePyth: ContractDeployed, bAssetsToken: ContractDeployed, print: boolean = true): Promise<any> {
   print && console.log(`\n  Do ${CDP_MODULE_NAME}.centralControl update_config enter.`);
   const { cdpCentralControl, cdpStablePool, cdpLiquidationQueue, cdpCollateralPairs } = cdpNetwork;
-  const cdpCustodyBAssets = cdpCollateralPairs?.find(value => value.collateral === bAssetsToken?.address)?.custody;
+  const cdpCustodyBAssets = cdpCollateralPairs?.find?.(value => value.collateral === bAssetsToken?.address)?.custody;
   if (!cdpCentralControl?.address || !cdpStablePool?.address || !cdpLiquidationQueue?.address) {
     console.error("\n  ********* missing info!");
     return;

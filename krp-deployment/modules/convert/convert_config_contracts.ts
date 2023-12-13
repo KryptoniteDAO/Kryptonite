@@ -1,7 +1,6 @@
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
 import { convertConfigs, doConverterRegisterTokens, doLiquidationQueueWhitelistCollateral, doOraclePythConfigFeedInfo, doOverseerWhitelist, doSwapSparrowSetWhitelist, oracleConfigs, printDeployedConvertContracts, readDeployedContracts } from "@/modules";
-import { MARKET_MODULE_NAME } from "@/modules/market/market_constants";
 import type { WalletData } from "@/types";
 import { CONVERT_MODULE_NAME } from "./convert_constants";
 
@@ -10,19 +9,11 @@ import { CONVERT_MODULE_NAME } from "./convert_constants";
 
   const walletData: WalletData = await loadingWalletData();
 
-  const { convertNetwork, swapExtensionNetwork, oracleNetwork, marketNetwork } = readDeployedContracts(walletData.chainId);
+  const { convertNetwork, swapExtensionNetwork: { swapSparrow } = {}, oracleNetwork, marketNetwork: { aToken, market, interestModel, distributionModel, overseer, liquidationQueue, custodyBAssets } = {} } = readDeployedContracts(walletData.chainId);
 
   if (!convertNetwork) {
     throw new Error(`\n  --- --- config ${CONVERT_MODULE_NAME} contracts error, missing some deployed ${CONVERT_MODULE_NAME} address info --- ---`);
   }
-  if (!marketNetwork) {
-    throw new Error(`\n  --- --- config ${CONVERT_MODULE_NAME} contracts error, missing some deployed ${MARKET_MODULE_NAME} address info --- ---`);
-  }
-  const { aToken, market, interestModel, distributionModel, overseer, liquidationQueue, custodyBAssets } = marketNetwork;
-  if (!aToken?.address || !market?.address || !interestModel?.address || !distributionModel?.address || !overseer?.address || !liquidationQueue?.address || !custodyBAssets?.address) {
-    throw new Error(`\n  --- --- config ${CONVERT_MODULE_NAME} contracts error, missing some deployed ${MARKET_MODULE_NAME} address info --- ---`);
-  }
-  const { swapSparrow } = swapExtensionNetwork;
 
   await printDeployedConvertContracts(convertNetwork);
 
@@ -58,8 +49,10 @@ import { CONVERT_MODULE_NAME } from "./convert_constants";
       convertPairsConfig.overseerWhitelistConfig.name = convertPairsConfig?.bAssetsToken?.initMsg?.name ?? convertPairsConfig?.overseerWhitelistConfig?.name;
       convertPairsConfig.overseerWhitelistConfig.symbol = convertPairsConfig?.bAssetsToken?.initMsg?.symbol ?? convertPairsConfig?.overseerWhitelistConfig?.symbol;
 
-      await doOverseerWhitelist(walletData, overseer, custodyNetwork, bAssetsTokenNetwork?.address, convertPairsConfig?.overseerWhitelistConfig);
-      await doLiquidationQueueWhitelistCollateral(walletData, liquidationQueue, bAssetsTokenNetwork?.address, convertPairsConfig?.liquidationQueueWhitelistCollateralConfig);
+      if (convertPairsConfig.marketCollateralWhitelist) {
+        await doOverseerWhitelist(walletData, overseer, custodyNetwork, bAssetsTokenNetwork?.address, convertPairsConfig?.overseerWhitelistConfig);
+        await doLiquidationQueueWhitelistCollateral(walletData, liquidationQueue, bAssetsTokenNetwork?.address, convertPairsConfig?.liquidationQueueWhitelistCollateralConfig);
+      }
       // await doOracleRegisterFeeder(walletData, nativeDenom, oracle, bAssetsTokenNetwork);
       // await doOracleFeedPrice(walletData, nativeDenom, oracle, bAssetsTokenNetwork, nativeDenomItem?.["price"]);
 

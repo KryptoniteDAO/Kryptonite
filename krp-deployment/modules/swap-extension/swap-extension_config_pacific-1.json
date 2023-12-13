@@ -22,7 +22,7 @@
           }
         }
       ],
-      "pairAddress": "sei1pqcgdn5vmf3g9ncs98vtxkydc6su0f9rk3uk73s5ku2xhthr6avswrwnrx",
+      "pairAddress": "",
       "maxSpread": null,
       "to": null,
       "oracleFeedInfoConfigs": [
@@ -41,23 +41,6 @@
       "assetInfos": [
         {
           "native_token": {
-            "denom": "usei"
-          }
-        },
-        {
-          "token": {
-            "contract_addr": "sei1chjhkfkkzhmdu3q3vrurmdm6qalyduvnn0tqkmduy3vqpw7chfcsw4ennj"
-          }
-        }
-      ],
-      "pairAddress": "sei1e0d0mfgxlmpypf68w4jq2eclk9hc5mcdw8mwurj8rld4yx3qncxsn0q88f",
-      "maxSpread": null,
-      "to": null
-    },
-    {
-      "assetInfos": [
-        {
-          "native_token": {
             "denom": "factory/sei135mlnw9ndkyglgx7ma95pw22cl64mpnw58pfpd/usdc"
           }
         },
@@ -67,7 +50,7 @@
           }
         }
       ],
-      "pairAddress": "sei14ey0dw3saseas26v0mr3rskq8f9tqjam7nxjxs2wupmp9qpdtxcqm7ar40",
+      "pairAddress": "",
       "maxSpread": null,
       "to": null
     }

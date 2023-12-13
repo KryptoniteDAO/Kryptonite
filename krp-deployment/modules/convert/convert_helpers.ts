@@ -66,6 +66,7 @@ export async function deployConvertPairConverter(walletData: WalletData, network
 }
 
 export async function deployConvertPairBAssetsToken(walletData: WalletData, network: ContractsDeployed, convertPairsConfig: ConvertPairsConfig): Promise<void> {
+  const { stakingNetwork } = network
   const nativeDenom: string = convertPairsConfig?.assets?.nativeDenom;
   if (!nativeDenom) {
     console.error(`\n  ********* deploy error: missing info. deployConvertPairBAssetsToken / unknown configuration of native denom ${nativeDenom}`);
@@ -104,6 +105,7 @@ export async function deployConvertPairBAssetsToken(walletData: WalletData, netw
       const label = convertPairsConfig?.bAssetsToken?.label;
       const initMsg = Object.assign(
         {
+          reward_contract: stakingNetwork?.reward?.address ?? walletData?.activeWallet?.address,
           mint: converter.address
         },
         convertPairsConfig?.bAssetsToken?.initMsg
@@ -230,7 +232,7 @@ export async function doConverterRegisterTokens(walletData: WalletData, nativeDe
   const doRes = await converterClient.registerTokens({
     nativeDenom,
     bassetTokenAddress: bAssetsToken?.address,
-    // denomDecimals: nativeDenomDecimals
+    denomDecimals: nativeDenomDecimals
   });
 
   print && console.log(`\n  Do ${CONVERT_MODULE_NAME}.converter registerTokens ok. \n  ${doRes?.transactionHash}`);

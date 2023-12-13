@@ -143,10 +143,9 @@ export async function deployTokenVeToken(walletData: WalletData, network: Contra
 export async function deployTokenBoost(walletData: WalletData, network: ContractsDeployed): Promise<void> {
   const contractName: keyof Required<TokenContractsDeployed> = "boost";
   const config: TokenBoostContractConfig | undefined = tokenConfigs?.[contractName];
-  const defaultInitMsg = Object.assign({}, config?.initMsg ?? {},
-    {
-      gov: config?.initMsg?.gov || walletData?.activeWallet?.address
-    });
+  const defaultInitMsg = Object.assign({}, config?.initMsg ?? {}, {
+    gov: config?.initMsg?.gov || walletData?.activeWallet?.address
+  });
   const writeFunc = writeDeployedContracts;
   const contractPath: string = `${ContractsDeployedModules.token}.${contractName}`;
 
@@ -239,7 +238,7 @@ export async function deployTokenKeeper(walletData: WalletData, network: Contrac
   const defaultInitMsg = Object.assign({}, config?.initMsg ?? {}, {
     owner: config?.initMsg?.owner || walletData?.activeWallet?.address,
     rewards_contract: config?.initMsg?.rewards_contract || fund?.address || walletData?.activeWallet?.address,
-    rewards_denom: config?.initMsg?.rewards_denom || stable_coin_denom || walletData?.activeWallet?.address,
+    rewards_denom: config?.initMsg?.rewards_denom || stable_coin_denom || walletData?.activeWallet?.address
   });
   const writeFunc = writeDeployedContracts;
   const contractPath: string = `${ContractsDeployedModules.token}.${contractName}`;

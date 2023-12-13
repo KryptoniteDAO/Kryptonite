@@ -1,7 +1,7 @@
 import { deployContract, readArtifact, writeArtifact } from "@/common";
 import { oracleContracts } from "@/contracts";
 import { PythFeederConfigResponse } from "@/contracts/oracle/OraclePyth.types";
-import {ChainId, DEPLOY_CHAIN_ID, DEPLOY_VERSION} from "@/env_data";
+import { ChainId, DEPLOY_CHAIN_ID, DEPLOY_VERSION } from "@/env_data";
 import type { ContractsDeployed, OracleContractsConfig, OracleContractsDeployed, OraclePythContractConfig } from "@/modules";
 import { ContractsDeployedModules, writeDeployedContracts } from "@/modules";
 import type { BaseContractConfig, ContractDeployed, WalletData } from "@/types";

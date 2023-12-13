@@ -4,7 +4,7 @@
       "name": "STSEI/bSTSEI",
       "assets": {
         "nativeName": "SLSTI",
-        "nativeDenom": "ibc/326D2E9FFBF7AE39CC404A58DED81054E23F107BC8D926D5D981C0231F1ECD2D",
+        "nativeDenom": "",
         "nativeDenomDecimals": 8
       },
       "converter": {
@@ -60,59 +60,6 @@
         "priceFeedDecimal": 8,
         "priceFeedAge": 720000000,
         "mockPrice": 100000000
-      }
-    },
-    {
-      "name": "SLSTI/bSLSTI",
-      "assets": {
-        "nativeName": "SLSTI",
-        "nativeDenom": "ibc/53B6183707AF4C744EE26815613D9C4D0DE40E2C18083EA5B384FAF4F6BB0C06",
-        "nativeDenomDecimals": 8
-      },
-      "converter": {
-        "admin": null,
-        "initMsg": {
-          "owner": null
-        },
-        "label": "bAssets and native token convert contract",
-        "filePath": "../krp-basset-convert/artifacts/krp_basset_converter.wasm",
-        "deploy": false
-      },
-      "bAssetsToken": {
-        "admin": null,
-        "initMsg": {
-          "name": "bslsdi",
-          "symbol": "BSLSDI",
-          "decimals": 6,
-          "initial_balances": []
-        },
-        "label": "bond to cw20 token",
-        "filePath": "../krp-basset-convert/artifacts/krp_basset_token.wasm",
-        "deploy": false
-      },
-      "custody": {
-        "admin": null,
-        "initMsg": {
-          "owner": null,
-          "basset_info": {
-            "name": null,
-            "symbol": null,
-            "decimals": null
-          }
-        },
-        "label": "custody bond assets contract",
-        "filePath": "../krp-market-contracts/artifacts/moneymarket_custody_base.wasm",
-        "deploy": false
-      },
-      "overseerWhitelistConfig": {
-        "name": null,
-        "symbol": null,
-        "max_ltv": "0.65"
-      },
-      "liquidationQueueWhitelistCollateralConfig": {
-        "bid_threshold": "500000000",
-        "max_slot": 30,
-        "premium_rate_per_slot": "0.01"
       }
     }
   ]

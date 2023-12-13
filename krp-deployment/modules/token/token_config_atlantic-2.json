@@ -125,7 +125,6 @@
           "rule_total_amount": "100000000000000",
           "start_release_amount": "20000000000000",
           "lock_start_time": 1688366468,
-          "lock_end_time": 1696315268,
           "start_linear_release_time": 1696315269,
           "unlock_linear_release_amount": "80000000000000",
           "unlock_linear_release_time": 1727937668
@@ -136,7 +135,6 @@
           "rule_total_amount": "120000000000000",
           "start_release_amount": "0",
           "lock_start_time": 1688366468,
-          "lock_end_time": 1704264068,
           "start_linear_release_time": 1704264069,
           "unlock_linear_release_amount": "120000000000000",
           "unlock_linear_release_time": 1862116868
@@ -147,7 +145,6 @@
           "rule_total_amount": "10000000000000",
           "start_release_amount": "5000000000000",
           "lock_start_time": 1688366468,
-          "lock_end_time": 1696315268,
           "start_linear_release_time": 1696315269,
           "unlock_linear_release_amount": "5000000000000",
           "unlock_linear_release_time": 1712126468
@@ -158,7 +155,6 @@
           "rule_total_amount": "100000000000000",
           "start_release_amount": "0",
           "lock_start_time": 1688366468,
-          "lock_end_time": 1704264068,
           "start_linear_release_time": 1704264069,
           "unlock_linear_release_amount": "100000000000000",
           "unlock_linear_release_time": 1798958469
@@ -169,7 +165,6 @@
           "rule_total_amount": "500000000000000",
           "start_release_amount": "0",
           "lock_start_time": 1688366468,
-          "lock_end_time": 1704264068,
           "start_linear_release_time": 1704264069,
           "unlock_linear_release_amount": "500000000000000",
           "unlock_linear_release_time": 1770100869
@@ -180,7 +175,6 @@
           "rule_total_amount": "50000000000000",
           "start_release_amount": "0",
           "lock_start_time": 1688366468,
-          "lock_end_time": 1688366468,
           "start_linear_release_time": 1688366468,
           "unlock_linear_release_amount": "500000000000000",
           "unlock_linear_release_time": 1743662468
@@ -191,7 +185,6 @@
           "rule_total_amount": "110000000000000",
           "start_release_amount": "0",
           "lock_start_time": 1688366468,
-          "lock_end_time": 1704264068,
           "start_linear_release_time": 1704264069,
           "unlock_linear_release_amount": "110000000000000",
           "unlock_linear_release_time": 1798958469
@@ -202,7 +195,6 @@
           "rule_total_amount": "10000000000000",
           "start_release_amount": "0",
           "lock_start_time": 1688366468,
-          "lock_end_time": 1688366468,
           "start_linear_release_time": 1688366468,
           "unlock_linear_release_amount": "10000000000000",
           "unlock_linear_release_time": 1719988868
@@ -228,6 +220,29 @@
       "name": "SEI/SEILOR",
       "staking_token": "",
       "pool_address": "",
+      "assetInfos": [
+        {
+          "native_token": {
+            "denom": "usei"
+          }
+        },
+        {
+          "native_token": {
+            "denom": ""
+          }
+        }
+      ],
+      "oracleFeedInfoConfigs": [
+        {
+          "asset": "",
+          "checkFeedAge": true,
+          "priceFeedId": "",
+          "priceFeedSymbol": "Crypto.INJ/USD",
+          "priceFeedDecimal": 8,
+          "priceFeedAge": 720000000,
+          "mockPrice": 100000000
+        }
+      ],
       "staking": {
         "admin": null,
         "initMsg": {

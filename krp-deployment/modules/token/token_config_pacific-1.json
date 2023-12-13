@@ -103,15 +103,12 @@
   "dispatcher": {
     "admin": null,
     "initMsg": {
+      "gov": null,
       "claim_token": null,
-      "regret_token_receiver": null,
-      "start_time": 1688128677,
-      "end_regret_time": 1690720710,
-      "total_lock_amount": "80000000000000",
-      "total_unlock_amount": "20000000000000",
-      "start_lock_period_time": 1688828677,
       "duration_per_period": 2592000,
-      "periods": 25
+      "periods": 25,
+      "start_lock_period_time": 1703454000,
+      "total_lock_amount": "80000000000000"
     },
     "label": "dispatcher",
     "filePath": "../krp-token-contracts/artifacts/dispatcher.wasm",
@@ -120,62 +117,87 @@
   "distribute": {
     "admin": null,
     "initMsg": {
-      "total_amount": "650000000000000",
+      "total_amount": "1000000000000000",
       "rule_configs_map": {
-        "kol": {
-          "rule_name": "kol",
-          "rule_owner": "sei1j76wppj5a760tqq60m5xq2sufr6yupz0xx3hsm",
-          "rule_total_amount": "56644705880000",
-          "start_release_amount": "0",
-          "lock_start_time": 1700179200,
-          "lock_end_time": 1700179200,
-          "start_linear_release_time": 1700179200,
-          "unlock_linear_release_amount": "56644705880000",
-          "unlock_linear_release_time": 52531200
-        },
-        "mm": {
-          "rule_name": "mm",
-          "rule_owner": "sei1j76wppj5a760tqq60m5xq2sufr6yupz0xx3hsm",
-          "rule_total_amount": "86702921120000",
-          "start_release_amount": "0",
-          "lock_start_time": 1697500800,
-          "lock_end_time": 1697500800,
-          "start_linear_release_time": 1697500800,
-          "unlock_linear_release_amount": "86702921120000",
-          "unlock_linear_release_time": 36892800
+        "loot_box": {
+          "rule_name": "loot_box",
+          "rule_owner": null,
+          "rule_total_amount": "100000000000000",
+          "start_release_amount": "20000000000000",
+          "lock_start_time": 1688366468,
+          "start_linear_release_time": 1696315269,
+          "unlock_linear_release_amount": "80000000000000",
+          "unlock_linear_release_time": 1727937668
         },
         "team": {
           "rule_name": "team",
-          "rule_owner": "sei1j76wppj5a760tqq60m5xq2sufr6yupz0xx3hsm",
-          "rule_total_amount": "200000000000000",
+          "rule_owner": null,
+          "rule_total_amount": "120000000000000",
           "start_release_amount": "0",
-          "lock_start_time": 1723852800,
-          "lock_end_time": 1723852800,
-          "start_linear_release_time": 1723852800,
-          "unlock_linear_release_amount": "200000000000000",
-          "unlock_linear_release_time": 26265600
+          "lock_start_time": 1688366468,
+          "start_linear_release_time": 1704264069,
+          "unlock_linear_release_amount": "120000000000000",
+          "unlock_linear_release_time": 1862116868
         },
-        "partners": {
-          "rule_name": "partners",
-          "rule_owner": "sei1j76wppj5a760tqq60m5xq2sufr6yupz0xx3hsm",
-          "rule_total_amount": "45000000000000",
+        "sho": {
+          "rule_name": "sho",
+          "rule_owner": null,
+          "rule_total_amount": "10000000000000",
+          "start_release_amount": "5000000000000",
+          "lock_start_time": 1688366468,
+          "start_linear_release_time": 1696315269,
+          "unlock_linear_release_amount": "5000000000000",
+          "unlock_linear_release_time": 1712126468
+        },
+        "dao": {
+          "rule_name": "dao",
+          "rule_owner": null,
+          "rule_total_amount": "100000000000000",
           "start_release_amount": "0",
-          "lock_start_time": 1723852800,
-          "lock_end_time": 1723852800,
-          "start_linear_release_time": 1723852800,
-          "unlock_linear_release_amount": "45000000000000",
-          "unlock_linear_release_time": 26265600
+          "lock_start_time": 1688366468,
+          "start_linear_release_time": 1704264069,
+          "unlock_linear_release_amount": "100000000000000",
+          "unlock_linear_release_time": 1798958469
         },
-        "cross": {
-          "rule_name": "cross",
-          "rule_owner": "sei1j76wppj5a760tqq60m5xq2sufr6yupz0xx3hsm",
-          "rule_total_amount": "261652373000000",
-          "start_release_amount": "261652373000000",
-          "lock_start_time": 1692182397,
-          "lock_end_time": 1692182397,
-          "start_linear_release_time": 9999999999,
-          "unlock_linear_release_amount": "0",
-          "unlock_linear_release_time": 1
+        "mining": {
+          "rule_name": "mining",
+          "rule_owner": null,
+          "rule_total_amount": "500000000000000",
+          "start_release_amount": "0",
+          "lock_start_time": 1688366468,
+          "start_linear_release_time": 1704264069,
+          "unlock_linear_release_amount": "500000000000000",
+          "unlock_linear_release_time": 1770100869
+        },
+        "mm": {
+          "rule_name": "mm",
+          "rule_owner": null,
+          "rule_total_amount": "50000000000000",
+          "start_release_amount": "0",
+          "lock_start_time": 1688366468,
+          "start_linear_release_time": 1688366468,
+          "unlock_linear_release_amount": "500000000000000",
+          "unlock_linear_release_time": 1743662468
+        },
+        "reserve": {
+          "rule_name": "reserve",
+          "rule_owner": null,
+          "rule_total_amount": "110000000000000",
+          "start_release_amount": "0",
+          "lock_start_time": 1688366468,
+          "start_linear_release_time": 1704264069,
+          "unlock_linear_release_amount": "110000000000000",
+          "unlock_linear_release_time": 1798958469
+        },
+        "airdrop": {
+          "rule_name": "airdrop",
+          "rule_owner": null,
+          "rule_total_amount": "10000000000000",
+          "start_release_amount": "0",
+          "lock_start_time": 1688366468,
+          "start_linear_release_time": 1688366468,
+          "unlock_linear_release_amount": "10000000000000",
+          "unlock_linear_release_time": 1719988868
         }
       }
     },
@@ -196,8 +218,31 @@
   "stakingPairs": [
     {
       "name": "SEI/SEILOR",
-      "staking_token": "sei1eth6r2mcfhx9h8a7s99vm6jhmznsxrhz3rymkgeyhsm7rk682rdq08yzla",
-      "pool_address": "sei1e0d0mfgxlmpypf68w4jq2eclk9hc5mcdw8mwurj8rld4yx3qncxsn0q88f",
+      "staking_token": "",
+      "pool_address": "",
+      "assetInfos": [
+        {
+          "native_token": {
+            "denom": "usei"
+          }
+        },
+        {
+          "native_token": {
+            "denom": ""
+          }
+        }
+      ],
+      "oracleFeedInfoConfigs": [
+        {
+          "asset": "",
+          "checkFeedAge": true,
+          "priceFeedId": "",
+          "priceFeedSymbol": "Crypto.INJ/USD",
+          "priceFeedDecimal": 8,
+          "priceFeedAge": 720000000,
+          "mockPrice": 100000000
+        }
+      ],
       "staking": {
         "admin": null,
         "initMsg": {
@@ -211,8 +256,8 @@
     },
     {
       "name": "USDC/KUSD",
-      "staking_token": "sei19ltvsqy0ksyxqtv5e7ft5aej6qqldfekw65e9yrtmhmkpvjj64aqaccdv9",
-      "pool_address": "sei14ey0dw3saseas26v0mr3rskq8f9tqjam7nxjxs2wupmp9qpdtxcqm7ar40",
+      "staking_token": "",
+      "pool_address": "",
       "staking": {
         "admin": null,
         "initMsg": {

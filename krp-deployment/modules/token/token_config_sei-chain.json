@@ -4,7 +4,7 @@
     "admin": null,
     "initMsg": {
       "cw20_init_msg": {
-        "name": "Seilor",
+        "name": "seilor",
         "symbol": "SEILOR",
         "decimals": 6,
         "initial_balances": [],
@@ -218,8 +218,31 @@
   "stakingPairs": [
     {
       "name": "SEI/SEILOR",
-      "staking_token": "sei1973hq2vajasc2uvxhdn3kfq27w3cvksyysspnrwq3swyu7t37caq2eana6",
+      "staking_token": "",
       "pool_address": "",
+      "assetInfos": [
+        {
+          "native_token": {
+            "denom": "usei"
+          }
+        },
+        {
+          "native_token": {
+            "denom": ""
+          }
+        }
+      ],
+      "oracleFeedInfoConfigs": [
+        {
+          "asset": "",
+          "checkFeedAge": true,
+          "priceFeedId": "",
+          "priceFeedSymbol": "Crypto.INJ/USD",
+          "priceFeedDecimal": 8,
+          "priceFeedAge": 720000000,
+          "mockPrice": 100000000
+        }
+      ],
       "staking": {
         "admin": null,
         "initMsg": {
@@ -233,7 +256,7 @@
     },
     {
       "name": "kUSD/USDC",
-      "staking_token": "sei1e9ac92wc2ahh36ew8mdfvrlgntk8nqtcycc3d7qr4xrn3xuk8h8skngqtt",
+      "staking_token": "",
       "pool_address": "",
       "staking": {
         "admin": null,

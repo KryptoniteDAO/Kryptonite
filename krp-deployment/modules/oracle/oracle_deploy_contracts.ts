@@ -1,5 +1,5 @@
 import { printChangeBalancesByWalletData } from "@/common";
-import {ChainId, loadingWalletData} from "@/env_data";
+import { ChainId, loadingWalletData } from "@/env_data";
 import type { ContractsDeployed } from "@/modules";
 import { deployMockOracle, deployOraclePyth, printDeployedOracleContracts, readDeployedContracts } from "@/modules";
 import { ORACLE_MODULE_NAME } from "@/modules/oracle/oracle_constants";

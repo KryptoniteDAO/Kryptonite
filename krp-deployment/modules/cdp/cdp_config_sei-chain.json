@@ -1,4 +1,9 @@
 {
+  "stableCoinDenomMetadata": {
+    "decimals": 6,
+    "symbol": "kUSD",
+    "name": "kUSD"
+  },
   "cdpCentralControl": {
     "admin": null,
     "initMsg": {
