@@ -6,10 +6,11 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Decimal, ConfigResponse, ExecuteMsg, Uint128, GetBufferedRewardsResponse, InstantiateMsg, QueryMsg } from "./RewardsDispatcher.types";
+import { Decimal, ConfigResponse, ExecuteMsg, Uint128, GetBufferedRewardsResponse, InstantiateMsg, NewOwnerResponse, QueryMsg } from "./RewardsDispatcher.types";
 export interface RewardsDispatcherReadOnlyInterface {
   contractAddress: string;
   config: () => Promise<ConfigResponse>;
+  newOwner: () => Promise<NewOwnerResponse>;
 }
 export class RewardsDispatcherQueryClient implements RewardsDispatcherReadOnlyInterface {
   client: CosmWasmClient;
@@ -19,11 +20,17 @@ export class RewardsDispatcherQueryClient implements RewardsDispatcherReadOnlyIn
     this.client = client;
     this.contractAddress = contractAddress;
     this.config = this.config.bind(this);
+    this.newOwner = this.newOwner.bind(this);
   }
 
   config = async (): Promise<ConfigResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       config: {}
+    });
+  };
+  newOwner = async (): Promise<NewOwnerResponse> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      new_owner: {}
     });
   };
 }

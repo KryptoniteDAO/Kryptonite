@@ -50,12 +50,20 @@ export interface InstantiateMsg {
   registry: Validator[];
   [k: string]: unknown;
 }
+export interface NewOwnerResponse {
+  new_owner: string;
+  [k: string]: unknown;
+}
 export type QueryMsg = {
   get_validators_for_delegation: {
     [k: string]: unknown;
   };
 } | {
   config: {
+    [k: string]: unknown;
+  };
+} | {
+  new_owner: {
     [k: string]: unknown;
   };
 };

@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Uint128, AccruedRewardsResponse, ConfigResponse, ExecuteMsg, Decimal, HolderResponse, HoldersResponse, InstantiateMsg, QueryMsg, StateResponse } from "./Reward.types";
+import { Uint128, AccruedRewardsResponse, ConfigResponse, ExecuteMsg, Decimal, HolderResponse, HoldersResponse, InstantiateMsg, NewOwnerResponse, QueryMsg, StateResponse } from "./Reward.types";
 export interface RewardReadOnlyInterface {
   contractAddress: string;
   config: () => Promise<ConfigResponse>;
@@ -28,6 +28,7 @@ export interface RewardReadOnlyInterface {
     limit?: number;
     startAfter?: string;
   }) => Promise<HoldersResponse>;
+  newOwner: () => Promise<NewOwnerResponse>;
 }
 export class RewardQueryClient implements RewardReadOnlyInterface {
   client: CosmWasmClient;
@@ -41,6 +42,7 @@ export class RewardQueryClient implements RewardReadOnlyInterface {
     this.accruedRewards = this.accruedRewards.bind(this);
     this.holder = this.holder.bind(this);
     this.holders = this.holders.bind(this);
+    this.newOwner = this.newOwner.bind(this);
   }
 
   config = async (): Promise<ConfigResponse> => {
@@ -89,6 +91,11 @@ export class RewardQueryClient implements RewardReadOnlyInterface {
       }
     });
   };
+  newOwner = async (): Promise<NewOwnerResponse> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      new_owner: {}
+    });
+  };
 }
 export interface RewardInterface {
   contractAddress: string;
@@ -102,6 +109,7 @@ export interface RewardInterface {
     rewardDenom?: string;
     swapContract?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  swapToRewardDenom: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   setOwner: ({
     newOwnerAddr
   }: {
@@ -146,6 +154,7 @@ export class RewardClient implements RewardInterface {
     this.sender = sender;
     this.contractAddress = contractAddress;
     this.updateConfig = this.updateConfig.bind(this);
+    this.swapToRewardDenom = this.swapToRewardDenom.bind(this);
     this.setOwner = this.setOwner.bind(this);
     this.acceptOwnership = this.acceptOwnership.bind(this);
     this.updateGlobalIndex = this.updateGlobalIndex.bind(this);
@@ -170,6 +179,11 @@ export class RewardClient implements RewardInterface {
         reward_denom: rewardDenom,
         swap_contract: swapContract
       }
+    }, fee, memo, _funds);
+  };
+  swapToRewardDenom = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      swap_to_reward_denom: {}
     }, fee, memo, _funds);
   };
   setOwner = async ({

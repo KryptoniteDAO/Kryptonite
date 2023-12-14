@@ -242,7 +242,7 @@ export async function doStakingHubUpdateParameters(walletData: WalletData, netwo
     return;
   }
   const doRes = await hubClient.updateParams({
-    // rewardDenom
+    rewardDenom
   });
   console.log(`\n  Do ${STAKING_MODULE_NAME}.hub update_parameters ok. \n  ${doRes?.transactionHash}`);
 

@@ -66,7 +66,7 @@ export async function deployConvertPairConverter(walletData: WalletData, network
 }
 
 export async function deployConvertPairBAssetsToken(walletData: WalletData, network: ContractsDeployed, convertPairsConfig: ConvertPairsConfig): Promise<void> {
-  const { stakingNetwork } = network
+  const { stakingNetwork } = network;
   const nativeDenom: string = convertPairsConfig?.assets?.nativeDenom;
   if (!nativeDenom) {
     console.error(`\n  ********* deploy error: missing info. deployConvertPairBAssetsToken / unknown configuration of native denom ${nativeDenom}`);

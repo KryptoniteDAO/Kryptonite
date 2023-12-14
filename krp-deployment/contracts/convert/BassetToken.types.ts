@@ -148,6 +148,7 @@ export interface TokenInstantiateMsg {
   initial_balances: Cw20Coin[];
   mint: string;
   name: string;
+  reward_contract: string;
   symbol: string;
   [k: string]: unknown;
 }

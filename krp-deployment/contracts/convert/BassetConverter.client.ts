@@ -4,12 +4,14 @@
 * and run the @cosmwasm/ts-codegen generate command to regenerate this file.
 */
 
+import {NewOwnerResponse} from "@/contracts/staking/Hub.types.ts";
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
 import { ConfigResponse, ExecuteMsg, Uint128, Binary, Cw20ReceiveMsg, InstantiateMsg, MigrateMsg, QueryMsg } from "./BassetConverter.types";
 export interface BassetConverterReadOnlyInterface {
   contractAddress: string;
   config: () => Promise<ConfigResponse>;
+  newOwner: () => Promise<NewOwnerResponse>;
 }
 export class BassetConverterQueryClient implements BassetConverterReadOnlyInterface {
   client: CosmWasmClient;
@@ -19,11 +21,17 @@ export class BassetConverterQueryClient implements BassetConverterReadOnlyInterf
     this.client = client;
     this.contractAddress = contractAddress;
     this.config = this.config.bind(this);
+    this.newOwner = this.newOwner.bind(this);
   }
 
   config = async (): Promise<ConfigResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       config: {}
+    });
+  };
+  newOwner = async (): Promise<NewOwnerResponse> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      new_owner: {}
     });
   };
 }
@@ -41,12 +49,20 @@ export interface BassetConverterInterface {
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   registerTokens: ({
     bassetTokenAddress,
+    denomDecimals,
     nativeDenom
   }: {
     bassetTokenAddress: string;
+    denomDecimals: number;
     nativeDenom: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   convertNativeToBasset: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setOwner: ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  acceptOwnership: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
 export class BassetConverterClient implements BassetConverterInterface {
   client: SigningCosmWasmClient;
@@ -60,6 +76,8 @@ export class BassetConverterClient implements BassetConverterInterface {
     this.receive = this.receive.bind(this);
     this.registerTokens = this.registerTokens.bind(this);
     this.convertNativeToBasset = this.convertNativeToBasset.bind(this);
+    this.setOwner = this.setOwner.bind(this);
+    this.acceptOwnership = this.acceptOwnership.bind(this);
   }
 
   receive = async ({
@@ -81,14 +99,17 @@ export class BassetConverterClient implements BassetConverterInterface {
   };
   registerTokens = async ({
     bassetTokenAddress,
+    denomDecimals,
     nativeDenom
   }: {
     bassetTokenAddress: string;
+    denomDecimals: number;
     nativeDenom: string;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       register_tokens: {
         basset_token_address: bassetTokenAddress,
+        denom_decimals: denomDecimals,
         native_denom: nativeDenom
       }
     }, fee, memo, _funds);
@@ -96,6 +117,22 @@ export class BassetConverterClient implements BassetConverterInterface {
   convertNativeToBasset = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       convert_native_to_basset: {}
+    }, fee, memo, _funds);
+  };
+  setOwner = async ({
+    newOwnerAddr
+  }: {
+    newOwnerAddr: string;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      set_owner: {
+        new_owner_addr: newOwnerAddr
+      }
+    }, fee, memo, _funds);
+  };
+  acceptOwnership = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+    return await this.client.execute(this.sender, this.contractAddress, {
+      accept_ownership: {}
     }, fee, memo, _funds);
   };
 }

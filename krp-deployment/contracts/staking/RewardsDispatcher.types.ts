@@ -80,8 +80,16 @@ export interface InstantiateMsg {
   swap_denoms: string[];
   [k: string]: unknown;
 }
+export interface NewOwnerResponse {
+  new_owner: string;
+  [k: string]: unknown;
+}
 export type QueryMsg = {
   config: {
+    [k: string]: unknown;
+  };
+} | {
+  new_owner: {
     [k: string]: unknown;
   };
 };

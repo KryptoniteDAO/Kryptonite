@@ -13,6 +13,7 @@ export interface ConfigResponse {
   hub_contract: string;
   owner: string;
   reward_denom: string;
+  swap_contract: string;
   [k: string]: unknown;
 }
 export type ExecuteMsg = {
@@ -20,6 +21,10 @@ export type ExecuteMsg = {
     hub_contract?: string | null;
     reward_denom?: string | null;
     swap_contract?: string | null;
+    [k: string]: unknown;
+  };
+} | {
+  swap_to_reward_denom: {
     [k: string]: unknown;
   };
 } | {
@@ -78,6 +83,10 @@ export interface InstantiateMsg {
   swap_denoms: string[];
   [k: string]: unknown;
 }
+export interface NewOwnerResponse {
+  new_owner: string;
+  [k: string]: unknown;
+}
 export type QueryMsg = {
   config: {
     [k: string]: unknown;
@@ -100,6 +109,10 @@ export type QueryMsg = {
   holders: {
     limit?: number | null;
     start_after?: string | null;
+    [k: string]: unknown;
+  };
+} | {
+  new_owner: {
     [k: string]: unknown;
   };
 };

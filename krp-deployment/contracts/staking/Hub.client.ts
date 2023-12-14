@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { StdFee } from "@cosmjs/amino";
-import { Uint128, Decimal, AllHistoryResponse, UnbondHistoryResponse, ConfigResponse, CanonicalAddr, Binary, Config, CurrentBatchResponse, ExecuteMsg, Cw20ReceiveMsg, Coin, InstantiateMsg, MigrateMsg, Parameters, QueryMsg, StateResponse, State, UnbondRequestsResponse, WithdrawableUnbondedResponse } from "./Hub.types";
+import { Uint128, Decimal, AllHistoryResponse, UnbondHistoryResponse, ConfigResponse, CanonicalAddr, Binary, Config, CurrentBatchResponse, ExecuteMsg, Cw20ReceiveMsg, Coin, InstantiateMsg, MigrateMsg, NewOwnerResponse, Parameters, QueryMsg, StateResponse, State, UnbondRequestsResponse, WithdrawableUnbondedResponse } from "./Hub.types";
 export interface HubReadOnlyInterface {
   contractAddress: string;
   config: () => Promise<ConfigResponse>;
@@ -30,6 +30,7 @@ export interface HubReadOnlyInterface {
     limit?: number;
     startFrom?: number;
   }) => Promise<AllHistoryResponse>;
+  newOwner: () => Promise<NewOwnerResponse>;
 }
 export class HubQueryClient implements HubReadOnlyInterface {
   client: CosmWasmClient;
@@ -45,6 +46,7 @@ export class HubQueryClient implements HubReadOnlyInterface {
     this.parameters = this.parameters.bind(this);
     this.unbondRequests = this.unbondRequests.bind(this);
     this.allHistory = this.allHistory.bind(this);
+    this.newOwner = this.newOwner.bind(this);
   }
 
   config = async (): Promise<ConfigResponse> => {
@@ -103,6 +105,11 @@ export class HubQueryClient implements HubReadOnlyInterface {
       }
     });
   };
+  newOwner = async (): Promise<NewOwnerResponse> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      new_owner: {}
+    });
+  };
 }
 export interface HubInterface {
   contractAddress: string;
@@ -113,6 +120,7 @@ export interface HubInterface {
     rewardsContract,
     rewardsDispatcherContract,
     stseiTokenContract,
+    updateRewardIndexAddr,
     validatorsRegistryContract
   }: {
     airdropRegistryContract?: string;
@@ -120,6 +128,7 @@ export interface HubInterface {
     rewardsContract?: string;
     rewardsDispatcherContract?: string;
     stseiTokenContract?: string;
+    updateRewardIndexAddr?: string;
     validatorsRegistryContract?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   updateParams: ({
@@ -127,12 +136,14 @@ export interface HubInterface {
     erThreshold,
     paused,
     pegRecoveryFee,
+    rewardDenom,
     unbondingPeriod
   }: {
     epochPeriod?: number;
     erThreshold?: Decimal;
     paused?: boolean;
     pegRecoveryFee?: Decimal;
+    rewardDenom?: string;
     unbondingPeriod?: number;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   setOwner: ({
@@ -227,6 +238,7 @@ export class HubClient implements HubInterface {
     rewardsContract,
     rewardsDispatcherContract,
     stseiTokenContract,
+    updateRewardIndexAddr,
     validatorsRegistryContract
   }: {
     airdropRegistryContract?: string;
@@ -234,6 +246,7 @@ export class HubClient implements HubInterface {
     rewardsContract?: string;
     rewardsDispatcherContract?: string;
     stseiTokenContract?: string;
+    updateRewardIndexAddr?: string;
     validatorsRegistryContract?: string;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
@@ -243,6 +256,7 @@ export class HubClient implements HubInterface {
         rewards_contract: rewardsContract,
         rewards_dispatcher_contract: rewardsDispatcherContract,
         stsei_token_contract: stseiTokenContract,
+        update_reward_index_addr: updateRewardIndexAddr,
         validators_registry_contract: validatorsRegistryContract
       }
     }, fee, memo, _funds);
@@ -252,12 +266,14 @@ export class HubClient implements HubInterface {
     erThreshold,
     paused,
     pegRecoveryFee,
+    rewardDenom,
     unbondingPeriod
   }: {
     epochPeriod?: number;
     erThreshold?: Decimal;
     paused?: boolean;
     pegRecoveryFee?: Decimal;
+    rewardDenom?: string;
     unbondingPeriod?: number;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
@@ -266,6 +282,7 @@ export class HubClient implements HubInterface {
         er_threshold: erThreshold,
         paused,
         peg_recovery_fee: pegRecoveryFee,
+        reward_denom: rewardDenom,
         unbonding_period: unbondingPeriod
       }
     }, fee, memo, _funds);

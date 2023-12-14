@@ -32,6 +32,7 @@ export interface ConfigResponse {
   reward_dispatcher_contract?: string | null;
   stsei_token_contract?: string | null;
   token_contract?: string | null;
+  update_reward_index_addr: string;
   validators_registry_contract?: string | null;
   [k: string]: unknown;
 }
@@ -44,6 +45,7 @@ export interface Config {
   reward_dispatcher_contract?: CanonicalAddr | null;
   rewards_contract?: CanonicalAddr | null;
   stsei_token_contract?: CanonicalAddr | null;
+  update_reward_index_addr: CanonicalAddr;
   validators_registry_contract?: CanonicalAddr | null;
   [k: string]: unknown;
 }
@@ -61,6 +63,7 @@ export type ExecuteMsg = {
     rewards_contract?: string | null;
     rewards_dispatcher_contract?: string | null;
     stsei_token_contract?: string | null;
+    update_reward_index_addr?: string | null;
     validators_registry_contract?: string | null;
     [k: string]: unknown;
   };
@@ -70,6 +73,7 @@ export type ExecuteMsg = {
     er_threshold?: Decimal | null;
     paused?: boolean | null;
     peg_recovery_fee?: Decimal | null;
+    reward_denom?: string | null;
     unbonding_period?: number | null;
     [k: string]: unknown;
   };
@@ -154,6 +158,7 @@ export interface InstantiateMsg {
   reward_denom: string;
   unbonding_period: number;
   underlying_coin_denom: string;
+  update_reward_index_addr: string;
   [k: string]: unknown;
 }
 export interface MigrateMsg {
@@ -161,6 +166,10 @@ export interface MigrateMsg {
   rewards_contract: string;
   stsei_token_contract: string;
   validators_registry_contract: string;
+  [k: string]: unknown;
+}
+export interface NewOwnerResponse {
+  new_owner: string;
   [k: string]: unknown;
 }
 export interface Parameters {
@@ -203,6 +212,10 @@ export type QueryMsg = {
   all_history: {
     limit?: number | null;
     start_from?: number | null;
+    [k: string]: unknown;
+  };
+} | {
+  new_owner: {
     [k: string]: unknown;
   };
 };

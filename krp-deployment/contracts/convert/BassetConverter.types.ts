@@ -15,11 +15,21 @@ export type ExecuteMsg = {
 } | {
   register_tokens: {
     basset_token_address: string;
+    denom_decimals: number;
     native_denom: string;
     [k: string]: unknown;
   };
 } | {
   convert_native_to_basset: {
+    [k: string]: unknown;
+  };
+} | {
+  set_owner: {
+    new_owner_addr: string;
+    [k: string]: unknown;
+  };
+} | {
+  accept_ownership: {
     [k: string]: unknown;
   };
 };
@@ -39,6 +49,10 @@ export interface MigrateMsg {
 }
 export type QueryMsg = {
   config: {
+    [k: string]: unknown;
+  };
+} | {
+  new_owner: {
     [k: string]: unknown;
   };
 };
