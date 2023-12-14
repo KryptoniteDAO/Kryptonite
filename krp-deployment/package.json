@@ -65,6 +65,7 @@
     "@cosmjs/tendermint-rpc": "0.29.5",
     "@cosmjs/utils": "0.29.5",
     "@sei-js/core": "3.1.1",
+    "@sei-js/proto": "3.1.0",
     "cosmjs-types": "^0.5.2",
     "decimal.js": "^10.4.3",
     "dotenv": "^16.3.1",

@@ -53,7 +53,7 @@
       "kusd_denom": null,
       "kusd_reward_addr": null,
       "exit_cycle": "2592000",
-      "claim_able_time": "1688005462"
+      "claim_able_time": "1703454000"
     },
     "label": "fund",
     "filePath": "../krp-token-contracts/artifacts/fund.wasm",
@@ -92,8 +92,8 @@
       "lock_token": null,
       "no_delay_punish_coefficient": "300000",
       "punish_receiver": null,
-      "start_lock_time": 1700064000,
-      "end_lock_time": 1700409600,
+      "start_lock_time": 1703454000,
+      "end_lock_time": 1704454000,
       "withdraw_delay_duration": 1209600
     },
     "label": "treasure",
@@ -107,7 +107,7 @@
       "claim_token": null,
       "duration_per_period": 2592000,
       "periods": 25,
-      "start_lock_period_time": 1688828677,
+      "start_lock_period_time": 1703454000,
       "total_lock_amount": "80000000000000"
     },
     "label": "dispatcher",
@@ -124,7 +124,7 @@
           "rule_owner": null,
           "rule_total_amount": "100000000000000",
           "start_release_amount": "20000000000000",
-          "lock_start_time": 1688366468,
+          "lock_start_time": 1703454000,
           "start_linear_release_time": 1696315269,
           "unlock_linear_release_amount": "80000000000000",
           "unlock_linear_release_time": 1727937668
@@ -134,7 +134,7 @@
           "rule_owner": null,
           "rule_total_amount": "120000000000000",
           "start_release_amount": "0",
-          "lock_start_time": 1688366468,
+          "lock_start_time": 1703454000,
           "start_linear_release_time": 1704264069,
           "unlock_linear_release_amount": "120000000000000",
           "unlock_linear_release_time": 1862116868
@@ -144,7 +144,7 @@
           "rule_owner": null,
           "rule_total_amount": "10000000000000",
           "start_release_amount": "5000000000000",
-          "lock_start_time": 1688366468,
+          "lock_start_time": 1703454000,
           "start_linear_release_time": 1696315269,
           "unlock_linear_release_amount": "5000000000000",
           "unlock_linear_release_time": 1712126468
@@ -154,7 +154,7 @@
           "rule_owner": null,
           "rule_total_amount": "100000000000000",
           "start_release_amount": "0",
-          "lock_start_time": 1688366468,
+          "lock_start_time": 1703454000,
           "start_linear_release_time": 1704264069,
           "unlock_linear_release_amount": "100000000000000",
           "unlock_linear_release_time": 1798958469
@@ -164,7 +164,7 @@
           "rule_owner": null,
           "rule_total_amount": "500000000000000",
           "start_release_amount": "0",
-          "lock_start_time": 1688366468,
+          "lock_start_time": 1703454000,
           "start_linear_release_time": 1704264069,
           "unlock_linear_release_amount": "500000000000000",
           "unlock_linear_release_time": 1770100869
@@ -174,8 +174,8 @@
           "rule_owner": null,
           "rule_total_amount": "50000000000000",
           "start_release_amount": "0",
-          "lock_start_time": 1688366468,
-          "start_linear_release_time": 1688366468,
+          "lock_start_time": 1703454000,
+          "start_linear_release_time": 1703454000,
           "unlock_linear_release_amount": "500000000000000",
           "unlock_linear_release_time": 1743662468
         },
@@ -184,7 +184,7 @@
           "rule_owner": null,
           "rule_total_amount": "110000000000000",
           "start_release_amount": "0",
-          "lock_start_time": 1688366468,
+          "lock_start_time": 1703454000,
           "start_linear_release_time": 1704264069,
           "unlock_linear_release_amount": "110000000000000",
           "unlock_linear_release_time": 1798958469
@@ -194,8 +194,8 @@
           "rule_owner": null,
           "rule_total_amount": "10000000000000",
           "start_release_amount": "0",
-          "lock_start_time": 1688366468,
-          "start_linear_release_time": 1688366468,
+          "lock_start_time": 1703454000,
+          "start_linear_release_time": 1703454000,
           "unlock_linear_release_amount": "10000000000000",
           "unlock_linear_release_time": 1719988868
         }

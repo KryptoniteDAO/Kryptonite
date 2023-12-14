@@ -296,7 +296,7 @@ export async function sendTokens<P extends { gasLimit?: number }>(clientData: Cl
     const gasEstimation = await clientData?.signingCosmWasmClient.simulate(clientData?.senderAddress, sendTokensMsgEncodeObject(clientData?.senderAddress, recipientAddress, funds), memo);
     fee = calculateFee(Math.round(gasEstimation * GAS_MULTIPLIER), clientData?.gasPrice);
   }
-  console.log(`  migrateContract fee: ${JSON.stringify(fee)}`);
+  console.log(`  sendTokens fee: ${JSON.stringify(fee)}`);
   if (BnComparedTo(fee.amount[0].amount, FEE_AMOUNT_WARNING) >= 0) {
     console.error(`\n  ********* sendTokens error：too large fee. `, recipientAddress, funds);
     return;

@@ -1,9 +1,71 @@
 {
   "convertPairs": [
     {
+      "name": "ATOM/bATOM",
+      "assets": {
+        "nativeName": "ATOM",
+        "nativeDenom": "factory/sei1h3ukufh4lhacftdf6kyxzum4p86rcnel35v4jk/atom",
+        "nativeDenomDecimals": 6
+      },
+      "converter": {
+        "admin": null,
+        "initMsg": {
+          "owner": null
+        },
+        "label": "bAssets and native token convert contract",
+        "filePath": "../krp-basset-convert/artifacts/krp_basset_converter.wasm",
+        "deploy": false
+      },
+      "bAssetsToken": {
+        "admin": null,
+        "initMsg": {
+          "name": "bATOM",
+          "symbol": "BATOM",
+          "decimals": 6,
+          "initial_balances": []
+        },
+        "label": "bond to cw20 token",
+        "filePath": "../krp-basset-convert/artifacts/krp_basset_token.wasm",
+        "deploy": false
+      },
+      "custody": {
+        "admin": null,
+        "initMsg": {
+          "owner": null,
+          "basset_info": {
+            "name": null,
+            "symbol": null,
+            "decimals": null
+          }
+        },
+        "label": "custody bond assets contract",
+        "filePath": "../krp-market-contracts/artifacts/moneymarket_custody_base.wasm",
+        "deploy": false
+      },
+      "marketCollateralWhitelist": false,
+      "overseerWhitelistConfig": {
+        "name": null,
+        "symbol": null,
+        "max_ltv": "0.65"
+      },
+      "liquidationQueueWhitelistCollateralConfig": {
+        "bid_threshold": "500000000",
+        "max_slot": 30,
+        "premium_rate_per_slot": "0.01"
+      },
+      "oracleFeedInfoConfig": {
+        "checkFeedAge": true,
+        "priceFeedId": "61226d39beea19d334f17c2febce27e12646d84675924ebb02b9cdaea68727e3",
+        "priceFeedSymbol": "Crypto.ATOM/USD",
+        "priceFeedDecimal": 8,
+        "priceFeedAge": 720000000,
+        "mockPrice": 100000000
+      }
+    },
+    {
       "name": "STSEI/bSTSEI",
       "assets": {
-        "nativeName": "SLSTI",
+        "nativeName": "STSEI",
         "nativeDenom": "ibc/326D2E9FFBF7AE39CC404A58DED81054E23F107BC8D926D5D981C0231F1ECD2D",
         "nativeDenomDecimals": 8
       },
