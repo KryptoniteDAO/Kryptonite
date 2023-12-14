@@ -47,6 +47,10 @@ export interface InstantiateMsg {
 export interface MigrateMsg {
   [k: string]: unknown;
 }
+export interface NewOwnerResponse {
+  new_owner: string;
+  [k: string]: unknown;
+}
 export type QueryMsg = {
   config: {
     [k: string]: unknown;

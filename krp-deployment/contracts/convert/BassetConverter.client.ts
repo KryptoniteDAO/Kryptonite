@@ -4,10 +4,9 @@
 * and run the @cosmwasm/ts-codegen generate command to regenerate this file.
 */
 
-import {NewOwnerResponse} from "@/contracts/staking/Hub.types.ts";
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { ConfigResponse, ExecuteMsg, Uint128, Binary, Cw20ReceiveMsg, InstantiateMsg, MigrateMsg, QueryMsg } from "./BassetConverter.types";
+import { ConfigResponse, ExecuteMsg, Uint128, Binary, Cw20ReceiveMsg, InstantiateMsg, MigrateMsg, NewOwnerResponse, QueryMsg } from "./BassetConverter.types";
 export interface BassetConverterReadOnlyInterface {
   contractAddress: string;
   config: () => Promise<ConfigResponse>;
