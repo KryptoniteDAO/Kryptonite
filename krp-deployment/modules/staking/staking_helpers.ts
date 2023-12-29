@@ -89,8 +89,7 @@ export async function deployStakingBAssetsToken(walletData: WalletData, network:
   const config: BAssetsTokenContractConfig | undefined = stakingConfigs?.[contractName];
   const defaultInitMsg: object | undefined = Object.assign(
     {
-      hub_contract: hub?.address,
-      mint: { minter: hub?.address, cap: null }
+      hub_contract: hub?.address
     },
     config?.initMsg ?? {}
   );
@@ -164,7 +163,7 @@ export async function deployStakingStAssetsToken(walletData: WalletData, network
     {
       description: config?.initMsg?.name,
       logo: {
-        url: "https://www.google.com"
+        url: "https://www.kryptonite.finance/"
       },
       marketing: walletData?.activeWallet?.address,
       project: config?.initMsg?.name

@@ -83,7 +83,7 @@ export async function deployTokenFund(walletData: WalletData, network: Contracts
 
 export async function deployTokenStaking(walletData: WalletData, network: ContractsDeployed, stakingRewardsPairsConfig: TokenStakingPairsConfig): Promise<void> {
   const { tokenNetwork } = network;
-  const { veToken, fund, boost } = tokenNetwork;
+  const { veToken, fund, boost, platToken } = tokenNetwork;
   if (!stakingRewardsPairsConfig?.staking_token || !veToken?.address || !fund?.address || !boost?.address) {
     console.error(`\n  ********* deploy error: missing info. deployTokenStaking / ${stakingRewardsPairsConfig?.staking_token} / ${veToken?.address} / ${fund?.address} / ${boost?.address}`);
     return;
@@ -112,14 +112,17 @@ export async function deployTokenStaking(walletData: WalletData, network: Contra
     rewards_token: stakingRewardsPairsConfig?.staking?.initMsg?.rewards_token || veToken.address,
     boost: stakingRewardsPairsConfig?.staking?.initMsg?.boost || boost.address,
     fund: stakingRewardsPairsConfig?.staking?.initMsg?.fund || fund.address,
-    staking_token: stakingRewardsPairsConfig.staking_token,
+    staking_token: stakingRewardsPairsConfig?.staking_token || platToken.address,
     reward_controller_addr: stakingRewardsPairsConfig?.staking?.initMsg?.reward_controller_addr || tokenConfigs?.usd_reward_controller || walletData?.activeWallet?.address
   });
   const writeFunc = writeDeployedContracts;
   let stakingPairsNetworkIndex: number = tokenNetwork?.stakingPairs?.findIndex((v: TokenStakingPairsContractsDeployed) => stakingRewardsPairsConfig?.staking_token === v.staking_token);
   const contractPath: string = `${ContractsDeployedModules.token}[${stakingPairsNetworkIndex}].${contractName}`;
 
-  await deployContract(walletData, contractPath, network, stakingPairsNetwork.staking, stakingRewardsPairsConfig.staking, { defaultInitMsg, writeFunc });
+  await deployContract(walletData, contractPath, network, stakingPairsNetwork.staking, stakingRewardsPairsConfig.staking, {
+    defaultInitMsg,
+    writeFunc
+  });
 }
 
 export async function deployTokenVeToken(walletData: WalletData, network: ContractsDeployed): Promise<void> {
@@ -535,7 +538,12 @@ export async function doTokenPlatTokenDistributeUpdateRuleConfig(
     console.warn(`\n  ######### The ${TOKEN_MODULE_NAME}.distribute rule_config is already done.`);
     return;
   }
-  const doRes = await distributeClient.updateRuleConfig({ updateRuleMsg: { rule_type: ruleType, rule_owner: ruleOwner } });
+  const doRes = await distributeClient.updateRuleConfig({
+    updateRuleMsg: {
+      rule_type: ruleType,
+      rule_owner: ruleOwner
+    }
+  });
   console.log(`  Do ${TOKEN_MODULE_NAME}.veToken UpdateRuleConfig ok. \n  ${doRes?.transactionHash}`);
 
   const afterRes = await distributeQueryClient.queryRuleInfo({ ruleType });
@@ -545,14 +553,54 @@ export async function doTokenPlatTokenDistributeUpdateRuleConfig(
 export async function printDeployedTokenContracts(tokenNetwork: TokenContractsDeployed): Promise<void> {
   console.log(`\n  --- --- deployed contracts info: ${TOKEN_MODULE_NAME} --- ---`);
   const tableData = [
-    { name: `platToken`, deploy: tokenConfigs?.platToken?.deploy, codeId: tokenNetwork?.platToken?.codeId || 0, address: tokenNetwork?.platToken?.address },
-    { name: `treasure`, deploy: tokenConfigs?.treasure?.deploy, codeId: tokenNetwork?.treasure?.codeId || 0, address: tokenNetwork?.treasure?.address },
-    { name: `distribute`, deploy: tokenConfigs?.distribute?.deploy, codeId: tokenNetwork?.distribute?.codeId || 0, address: tokenNetwork?.distribute?.address },
-    { name: `dispatcher`, deploy: tokenConfigs?.dispatcher?.deploy, codeId: tokenNetwork?.dispatcher?.codeId || 0, address: tokenNetwork?.dispatcher?.address },
-    { name: `veToken`, deploy: tokenConfigs?.veToken?.deploy, codeId: tokenNetwork?.veToken?.codeId || 0, address: tokenNetwork?.veToken?.address },
-    { name: `fund`, deploy: tokenConfigs?.fund?.deploy, codeId: tokenNetwork?.fund?.codeId || 0, address: tokenNetwork?.fund?.address },
-    { name: `boost`, deploy: tokenConfigs?.boost?.deploy, codeId: tokenNetwork?.boost?.codeId || 0, address: tokenNetwork?.boost?.address },
-    { name: `keeper`, deploy: tokenConfigs?.keeper?.deploy, codeId: tokenNetwork?.keeper?.codeId || 0, address: tokenNetwork?.keeper?.address }
+    {
+      name: `platToken`,
+      deploy: tokenConfigs?.platToken?.deploy,
+      codeId: tokenNetwork?.platToken?.codeId || 0,
+      address: tokenNetwork?.platToken?.address
+    },
+    {
+      name: `treasure`,
+      deploy: tokenConfigs?.treasure?.deploy,
+      codeId: tokenNetwork?.treasure?.codeId || 0,
+      address: tokenNetwork?.treasure?.address
+    },
+    {
+      name: `distribute`,
+      deploy: tokenConfigs?.distribute?.deploy,
+      codeId: tokenNetwork?.distribute?.codeId || 0,
+      address: tokenNetwork?.distribute?.address
+    },
+    {
+      name: `dispatcher`,
+      deploy: tokenConfigs?.dispatcher?.deploy,
+      codeId: tokenNetwork?.dispatcher?.codeId || 0,
+      address: tokenNetwork?.dispatcher?.address
+    },
+    {
+      name: `veToken`,
+      deploy: tokenConfigs?.veToken?.deploy,
+      codeId: tokenNetwork?.veToken?.codeId || 0,
+      address: tokenNetwork?.veToken?.address
+    },
+    {
+      name: `fund`,
+      deploy: tokenConfigs?.fund?.deploy,
+      codeId: tokenNetwork?.fund?.codeId || 0,
+      address: tokenNetwork?.fund?.address
+    },
+    {
+      name: `boost`,
+      deploy: tokenConfigs?.boost?.deploy,
+      codeId: tokenNetwork?.boost?.codeId || 0,
+      address: tokenNetwork?.boost?.address
+    },
+    {
+      name: `keeper`,
+      deploy: tokenConfigs?.keeper?.deploy,
+      codeId: tokenNetwork?.keeper?.codeId || 0,
+      address: tokenNetwork?.keeper?.address
+    }
   ];
   console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
   await printDeployedTokenStakingContracts(tokenNetwork);

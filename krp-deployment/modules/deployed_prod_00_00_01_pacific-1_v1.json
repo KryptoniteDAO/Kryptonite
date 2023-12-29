@@ -1,0 +1,67 @@
+{
+  "oracleNetwork": {
+    "oraclePyth": {
+      "codeId": 537,
+      "address": "sei1luag38kgt3qgvttkyttg3l2fwd53q53sg7m7fjsnxpjz69vlqs4s5r4vk4"
+    }
+  },
+  "stakingNetwork": {
+    "hub": {
+      "codeId": 538,
+      "address": "sei1swe2fy3t49j2c2xl8l64ldjaqyr6khmaya60pl5kr4em2v2jp0ysa3xjum"
+    },
+    "reward": {
+      "codeId": 539,
+      "address": "sei1z4ufkl7079c7sm26e978pf9hzw0mjcpd3vygehg0z5s3lwnjssks34ll90"
+    },
+    "bAssetsToken": {
+      "codeId": 540,
+      "address": "sei1xq7g6asf63mkv7t5jkfu6uf8jpzkvwnu4zl2kh4cfvk0ynxvvksqf7z3d2"
+    },
+    "rewardsDispatcher": {
+      "codeId": 541,
+      "address": "sei13nlndl7gnespwfzlkr8tpgqspnum2r6rfjt3vf8ewlhtfy2vxazsrlsfwa"
+    },
+    "validatorsRegistry": {
+      "codeId": 547,
+      "address": "sei1ne3ssvk8gj7lvjprkyahk9k565pkvgqx09fur3qgpj85aaa3jrhqtev8hz"
+    },
+    "stAssetsToken": {
+      "codeId": 548,
+      "address": "sei1ln7ntsqmxl8s502f83km9a475zyhcfhpj7v2fsm3pcmckdyys3tsktx9vk"
+    }
+  },
+  "tokenNetwork": {
+    "platToken": {
+      "codeId": 542,
+      "address": "sei10knxlv9e54z0xcywdhtycc63uf970aefeec73ycqwd75ep9nu45sh66m6a"
+    },
+    "veToken": {
+      "codeId": 543,
+      "address": "sei1u5h47cvux8hmecq0kcg3p8x6q59tjef4ry56863nmnys9s62z5qs4uc0jv"
+    },
+    "distribute": {
+      "codeId": 544,
+      "address": "sei1aglzr0jmaus76ymg2wc9xgpxep2sdyctxn07l5mffny4l9x4374sl02a2n"
+    },
+    "fund": {
+      "codeId": 545,
+      "address": "sei1dkxhfdyn86c49k4aq8xe5yla7wcx72n2zkz9nn765w4pmj9kwajqkwxlq4"
+    },
+    "boost": {
+      "codeId": 546,
+      "address": "sei1yawtxvegg4y2d82wjvxh2tsqs254rlh55m62kl4r0vmq586p9h7swuxgjl"
+    },
+    "stakingPairs": [
+      {
+        "name": "SEI/SEILOR",
+        "staking_token": "sei1cw59j944v9uvseq3jz67tft7p92yhnff0l52eek3d5qnxj908wpqz4vrr8",
+        "pool_address": "sei13pzdhenzugwa02tm975g2y5kllj26rf4x4ykpqtrfw2h4mcezmmqz06dfr",
+        "staking": {
+          "codeId": 549,
+          "address": "sei17na3tj5mjnz0f4s3gqa3eqykzp4qk5qz4uvmz7hzak2zwyh5ym7s7ljcay"
+        }
+      }
+    ]
+  }
+}

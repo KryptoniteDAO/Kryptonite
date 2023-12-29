@@ -14,7 +14,7 @@
     "priceFeedId": "53614f1cb0c031d4af66c04cb9c756234adad0e1cee85303795091499a4084eb",
     "priceFeedSymbol": "Crypto.SEI/USD",
     "priceFeedDecimal": 8,
-    "priceFeedAge": 720000000
+    "priceFeedAge": 8640000
   },
   "feedInfoConfigList": [
     {
@@ -23,7 +23,7 @@
       "priceFeedId": "2b89b9dc8fdf9f34709a5b106b472f0f39bb6ca9ce04b0fd7f2e971688e2e53b",
       "priceFeedSymbol": "Crypto.USDT/USD",
       "priceFeedDecimal": 8,
-      "priceFeedAge": 720000000
+      "priceFeedAge": 8640000
     },
     { "asset": "%native_coin_minimal_denom%" }
   ]

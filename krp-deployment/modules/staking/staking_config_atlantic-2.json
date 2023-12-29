@@ -1,9 +1,10 @@
 {
-  "validators": ["seivaloper19t4d78pt5xg6xm0mf97q8ay7v0xwrr4jmf04j3"],
+
+  "validators": ["seivaloper183xtf2wmcah9fh5kpdr47wlspv3w47c0p8aqde"],
   "hub": {
     "admin": null,
     "initMsg": {
-      "update_reward_index_addr": null,
+      "update_reward_index_addr": "sei13qevn22zm33mrvkt6a3rjg3vrag7sz0w5d26n9",
       "epoch_period": 259200,
       "er_threshold": "1.0",
       "peg_recovery_fee": "0.005",
@@ -37,7 +38,7 @@
   "rewardsDispatcher": {
     "admin": null,
     "initMsg": {
-      "krp_keeper_address": null,
+      "krp_keeper_address": "sei1qa8yxx5u3vyxe9jse9j78rvzp20zdzdn24uh98",
       "krp_keeper_rate": "0.05"
     },
     "label": "reward dispatcher",

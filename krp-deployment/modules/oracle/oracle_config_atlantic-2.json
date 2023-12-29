@@ -3,7 +3,7 @@
     "admin": null,
     "initMsg": {
       "owner": null,
-      "pyth_contract": "sei1w2rxq6eckak47s25crxlhmq96fzjwdtjgdwavn56ggc0qvxvw7rqczxyfy"
+      "pyth_contract": "sei1kpntez76v38yuxhhaaahdmvjxnr5tkr8tq077smefs7uw70rj5yqw2aewy"
     },
     "label": "oracle pyth contract",
     "filePath": "../krp-oracle/artifacts/oracle_pyth.wasm",

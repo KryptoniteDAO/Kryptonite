@@ -44,7 +44,7 @@ interface DeployConfig {
         marketing: {
           description: "CTT",
           logo: {
-            url: "https://www.google.com"
+            url: "https://www.kryptonite.finance/"
           },
           marketing: null,
           project: "CTT"
