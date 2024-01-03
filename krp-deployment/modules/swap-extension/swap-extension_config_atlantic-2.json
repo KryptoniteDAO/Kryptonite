@@ -4,8 +4,8 @@
     "initMsg": {
       "owner": null
     },
-    "label": "swapSparrow",
-    "filePath": "../swap-extension/artifacts/swap_sparrow.wasm",
+    "label": "swapAstroport",
+    "filePath": "../swap-extension/artifacts/swap_astroport.wasm",
     "deploy": false
   },
   "swapPairConfigList": [

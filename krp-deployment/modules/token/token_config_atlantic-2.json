@@ -203,5 +203,35 @@
         "deploy": false
       }
     }
+  ],
+  "stakingOnlyPairs": [
+    {
+      "name": "SEILOR/XX",
+      "staking_token": "sei1deelp0jz9xw794cpspnu2wu6396d6ekqmxgt3a7mekxs7d8kjfhs44d0r4",
+      "pool_address": "",
+      "assetInfos": [
+        {
+          "token": {
+            "contract": "sei1deelp0jz9xw794cpspnu2wu6396d6ekqmxgt3a7mekxs7d8kjfhs44d0r4"
+          }
+        },
+        {
+          "token": {
+            "contract": ""
+          }
+        }
+      ],
+      "stakingOnly": {
+        "admin": null,
+        "initMsg": {
+          "rewards_token": "sei1deelp0jz9xw794cpspnu2wu6396d6ekqmxgt3a7mekxs7d8kjfhs44d0r4",
+          "reward_controller_addr": "sei16j0hypm83zlctv7czky9n0me0k03prel3ynczn",
+          "duration": "2592000"
+        },
+        "label": "staking-only",
+        "filePath": "../krp-token-contracts/artifacts/staking_only.wasm",
+        "deploy": false
+      }
+    }
   ]
 }

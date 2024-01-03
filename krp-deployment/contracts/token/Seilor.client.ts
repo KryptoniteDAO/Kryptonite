@@ -174,9 +174,11 @@ export interface SeilorInterface {
   contractAddress: string;
   sender: string;
   updateConfig: ({
+    crossChainSwapContract,
     distribute,
     fund
   }: {
+    crossChainSwapContract?: Addr;
     distribute?: Addr;
     fund?: Addr;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
@@ -306,14 +308,17 @@ export class SeilorClient implements SeilorInterface {
   }
 
   updateConfig = async ({
+    crossChainSwapContract,
     distribute,
     fund
   }: {
+    crossChainSwapContract?: Addr;
     distribute?: Addr;
     fund?: Addr;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
+        cross_chain_swap_contract: crossChainSwapContract,
         distribute,
         fund
       }

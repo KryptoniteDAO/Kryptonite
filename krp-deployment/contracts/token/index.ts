@@ -18,10 +18,12 @@ import * as _10 from "./Seilor.types";
 import * as _11 from "./Seilor.client";
 import * as _12 from "./Staking.types";
 import * as _13 from "./Staking.client";
-import * as _14 from "./Treasure.types";
-import * as _15 from "./Treasure.client";
-import * as _16 from "./VeSeilor.types";
-import * as _17 from "./VeSeilor.client";
+import * as _14 from "./StakingOnly.types";
+import * as _15 from "./StakingOnly.client";
+import * as _16 from "./Treasure.types";
+import * as _17 from "./Treasure.client";
+import * as _18 from "./VeSeilor.types";
+import * as _19 from "./VeSeilor.client";
 export namespace tokenContracts {
   export const Boost = { ..._0,
     ..._1
@@ -44,10 +46,13 @@ export namespace tokenContracts {
   export const Staking = { ..._12,
     ..._13
   };
-  export const Treasure = { ..._14,
+  export const StakingOnly = { ..._14,
     ..._15
   };
-  export const VeSeilor = { ..._16,
+  export const Treasure = { ..._16,
     ..._17
+  };
+  export const VeSeilor = { ..._18,
+    ..._19
   };
 }

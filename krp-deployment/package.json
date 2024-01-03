@@ -52,13 +52,14 @@
     "deploy:token2": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/token/token_deploy_contracts_2.ts --require ./suppress-experimental.cjs",
     "multisig": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register ./modules/multisig/multisig_deploy.ts --require ./suppress-experimental.cjs",
     "format": "prettier --write \"./**/*.{html,ts,js,json,md}\"",
-
     "config:staking-v1-append": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs ./modules/staking/staking_config_contracts_v1_append.ts",
     "deploy:only:token-v1": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs ./modules/token/token_deploy_contracts_v1.ts",
     "deploy:only:token:collaterals-v1": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs ./modules/token/token_deploy_collaterals_v1.ts",
     "config:token-v1": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs ./modules/token/token_config_contracts_v1.ts",
     "deploy:v1-step-1": "npm run deploy:oracle && npm run deploy:staking && npm run config:staking-v1-append && npm run deploy:only:token-v1 && npm run config:token-v1",
-    "deploy:v1-step-2": "npm run deploy:only:token:collaterals-v1 && npm run config:token-v1"
+    "deploy:v1-step-2": "npm run deploy:only:token:collaterals-v1 && npm run config:token-v1",
+    "deploy:only:token:collaterals-v1-1": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs ./modules/token/token_deploy_collaterals_v1_1.ts",
+    "deploy:v1-1": "npm run deploy:swap"
   },
   "dependencies": {
     "@cosmjs/amino": "0.29.5",
@@ -77,6 +78,7 @@
     "decimal.js": "^10.4.3",
     "dotenv": "^16.3.1",
     "ethers": "^6.9.0",
+    "js-base64": "^3.7.5",
     "lodash": "^4.17.21",
     "pako": "^2.1.0"
   },

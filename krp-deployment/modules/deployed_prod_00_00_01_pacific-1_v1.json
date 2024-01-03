@@ -62,6 +62,23 @@
           "address": "sei17na3tj5mjnz0f4s3gqa3eqykzp4qk5qz4uvmz7hzak2zwyh5ym7s7ljcay"
         }
       }
+    ],
+    "stakingOnlyPairs": [
+      {
+        "name": "STSEI/SEIYAN",
+        "staking_token": "sei1hxh76ty0fk9esq3qsvrhzz6fsvmh55j59xnduswn6dfnsyjs06vqcye8yf",
+        "pool_address": "sei1qgyrkxvnydcvtzj8w6e4n2p07pykxw4y25ntncz5a4puz6fd6e9slq6jgk",
+        "staking_only": {
+          "codeId": 649,
+          "address": "sei1400dydwghdkpxz9tqzv2f9nr7p04tvwawkvxsxf9xqvylec593fs73vr53"
+        }
+      }
     ]
+  },
+  "swapExtensionNetwork": {
+    "swapSparrow": {
+      "codeId": 706,
+      "address": "sei1gjq78fhh0vu90997ysldzm3pe0alla95zquy727cc3xah3nh794qmzrpwp"
+    }
   }
 }

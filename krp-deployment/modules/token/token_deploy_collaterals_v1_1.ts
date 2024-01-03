@@ -1,7 +1,13 @@
 import { printChangeBalancesByWalletData } from "@/common";
 import { loadingWalletData } from "@/env_data";
 import type { ContractsDeployed } from "@/modules";
-import { deployTokenStaking, printDeployedTokenContracts, readDeployedContracts, tokenConfigs } from "@/modules";
+import {
+  deployTokenStaking,
+  deployTokenStakingOnly,
+  printDeployedTokenContracts,
+  readDeployedContracts,
+  tokenConfigs
+} from "@/modules";
 import type { WalletData } from "@/types";
 import { TOKEN_MODULE_NAME } from "./token_constants";
 
@@ -16,14 +22,15 @@ import { TOKEN_MODULE_NAME } from "./token_constants";
 
   console.log(`\n  --- --- store code & instantiate contracts enter: ${TOKEN_MODULE_NAME}:collaterals  --- ---`);
 
-  const { stakingPairs } = tokenConfigs;
-  if (!!stakingPairs && stakingPairs.length == 1) {
-    for (const stakingRewardsPairConfig of stakingPairs) {
-      if (!stakingRewardsPairConfig?.staking_token) {
-        console.error(`\n  deploy ${TOKEN_MODULE_NAME} pair error: missing pair's staking_token or pool_address`);
+  const { stakingOnlyPairs } = tokenConfigs;
+  if (!!stakingOnlyPairs && stakingOnlyPairs.length == 1) {
+    for (const stakingOnlyRewardsPairConfig of stakingOnlyPairs) {
+      if (!stakingOnlyRewardsPairConfig?.staking_token) {
+        console.error(`\n  deploy ${TOKEN_MODULE_NAME} pair error: missing pair's staking_token or reward_token`);
         continue;
       }
-      await deployTokenStaking(walletData, network, stakingRewardsPairConfig);
+
+      await deployTokenStakingOnly(walletData, network, stakingOnlyRewardsPairConfig);
     }
   }
 

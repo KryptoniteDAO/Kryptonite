@@ -5,6 +5,7 @@ import type { InstantiateMsg as TokenFundInstantiateMsg } from "@/contracts/toke
 import type { InstantiateMsg as TokenKeeperInstantiateMsg } from "@/contracts/token/Keeper.types";
 import type { InstantiateMsg as TokenPlatTokenInstantiateMsg } from "@/contracts/token/Seilor.types";
 import type { InstantiateMsg as TokenStakingInstantiateMsg } from "@/contracts/token/Staking.types";
+import type { InstantiateMsg as TokenStakingOnlyInstantiateMsg } from "@/contracts/token/StakingOnly.types";
 import type { InstantiateMsg as TokenTreasureInstantiateMsg } from "@/contracts/token/Treasure.types";
 import type { InstantiateMsg as TokenVeTokenInstantiateMsg } from "@/contracts/token/VeSeilor.types";
 import type { FeedInfo } from "@/modules";
@@ -38,7 +39,18 @@ export interface TokenTreasureContractConfig extends BaseContractConfig {
 export interface TokenStakingContractConfig extends BaseContractConfig {
   initMsg?: TokenStakingInstantiateMsg;
 }
+export interface TokenStakingOnlyContractConfig extends BaseContractConfig {
+  initMsg?: TokenStakingOnlyInstantiateMsg;
+}
 
+export interface TokenStakingOnlyPairsConfig {
+  name?: string;
+  staking_token?: Addr;
+  pool_address?: Addr;
+  assetInfos?: AssetInfo[];
+  oracleFeedInfoConfigs?: FeedInfo[];
+  stakingOnly?: TokenStakingOnlyContractConfig;
+}
 export interface TokenStakingPairsConfig {
   name?: string;
   staking_token?: Addr;
@@ -83,6 +95,7 @@ export interface TokenContractsConfig {
   veToken?: TokenVeTokenContractConfig;
   treasure?: TokenTreasureContractConfig;
   stakingPairs?: TokenStakingPairsConfig[];
+  stakingOnlyPairs?: TokenStakingOnlyPairsConfig[];
 }
 
 export interface TokenStakingPairsContractsDeployed {
@@ -91,6 +104,14 @@ export interface TokenStakingPairsContractsDeployed {
   pool_address?: Addr;
   assetInfos?: AssetInfo[];
   staking?: ContractDeployed;
+}
+export interface TokenStakingOnlyPairsContractsDeployed {
+  name?: string;
+  staking_token?: Addr;
+  reward_token?: Addr;
+  pool_address?: Addr;
+  assetInfos?: AssetInfo[];
+  staking_only?: ContractDeployed;
 }
 
 export interface TokenContractsDeployed {
@@ -103,4 +124,5 @@ export interface TokenContractsDeployed {
   veToken?: ContractDeployed;
   treasure?: ContractDeployed;
   stakingPairs?: TokenStakingPairsContractsDeployed[];
+  stakingOnlyPairs?: TokenStakingOnlyPairsContractsDeployed[];
 }

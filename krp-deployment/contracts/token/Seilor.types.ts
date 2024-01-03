@@ -46,6 +46,7 @@ export interface MinterResponse {
 }
 export type ExecuteMsg = {
   update_config: {
+    cross_chain_swap_contract?: Addr | null;
     distribute?: Addr | null;
     fund?: Addr | null;
   };
@@ -211,6 +212,7 @@ export interface MarketingInfoResponse {
   [k: string]: unknown;
 }
 export interface SeilorConfigResponse {
+  cross_chain_swap_contract?: Addr | null;
   distribute: Addr;
   fund: Addr;
   gov: Addr;

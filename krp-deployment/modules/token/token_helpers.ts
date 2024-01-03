@@ -16,7 +16,7 @@ import type {
   TokenDistributeRuleConfig,
   TokenFundContractConfig,
   TokenKeeperContractConfig,
-  TokenPlatTokenContractConfig,
+  TokenPlatTokenContractConfig, TokenStakingOnlyPairsConfig, TokenStakingOnlyPairsContractsDeployed,
   TokenStakingPairsConfig,
   TokenStakingPairsContractsDeployed,
   TokenTreasureContractConfig,
@@ -120,6 +120,51 @@ export async function deployTokenStaking(walletData: WalletData, network: Contra
   const contractPath: string = `${ContractsDeployedModules.token}[${stakingPairsNetworkIndex}].${contractName}`;
 
   await deployContract(walletData, contractPath, network, stakingPairsNetwork.staking, stakingRewardsPairsConfig.staking, {
+    defaultInitMsg,
+    writeFunc
+  });
+}
+export async function deployTokenStakingOnly(walletData: WalletData, network: ContractsDeployed, stakingOnlyRewardsPairConfig: TokenStakingOnlyPairsConfig): Promise<void> {
+  let { tokenNetwork } = network;
+  if(!tokenNetwork){
+    tokenNetwork = {};
+  }
+  if (!stakingOnlyRewardsPairConfig?.staking_token  ) {
+    console.error(`\n  ********* deploy error: missing info. deployTokenStaking / ${stakingOnlyRewardsPairConfig?.staking_token}`);
+    return;
+  }
+
+  let stakingOnlyPairsNetwork: TokenStakingOnlyPairsContractsDeployed | undefined = tokenNetwork?.stakingOnlyPairs?.find(
+    (v: TokenStakingOnlyPairsContractsDeployed) => stakingOnlyRewardsPairConfig?.staking_token === v.staking_token);
+  if (!!stakingOnlyPairsNetwork?.staking_only?.address) {
+    return;
+  }
+  if (!stakingOnlyPairsNetwork) {
+    stakingOnlyPairsNetwork = {
+      name: stakingOnlyRewardsPairConfig?.name,
+      staking_token: stakingOnlyRewardsPairConfig?.staking_token,
+      pool_address: stakingOnlyRewardsPairConfig?.pool_address,
+      staking_only: {} as ContractDeployed
+    };
+    if (!tokenNetwork?.stakingOnlyPairs) {
+      tokenNetwork.stakingOnlyPairs = [];
+    }
+    tokenNetwork.stakingOnlyPairs.push(stakingOnlyPairsNetwork);
+  }
+
+  const contractName: keyof Required<TokenStakingOnlyPairsContractsDeployed> = "staking_only";
+  const defaultInitMsg: object = Object.assign({}, stakingOnlyRewardsPairConfig?.stakingOnly?.initMsg ?? {}, {
+    gov: stakingOnlyRewardsPairConfig?.stakingOnly?.initMsg?.gov || walletData?.activeWallet?.address,
+    rewards_token: stakingOnlyRewardsPairConfig.stakingOnly.initMsg.rewards_token,
+    staking_token: stakingOnlyRewardsPairConfig?.staking_token,
+    reward_controller_addr: stakingOnlyRewardsPairConfig?.stakingOnly?.initMsg?.reward_controller_addr || tokenConfigs?.usd_reward_controller || walletData?.activeWallet?.address
+  });
+  const writeFunc = writeDeployedContracts;
+  let stakingOnlyPairsNetworkIndex: number = tokenNetwork?.stakingOnlyPairs?.findIndex(
+    (v: TokenStakingOnlyPairsContractsDeployed) => stakingOnlyRewardsPairConfig?.staking_token === v.staking_token);
+  const contractPath: string = `${ContractsDeployedModules.token}[${stakingOnlyPairsNetworkIndex}].${contractName}`;
+
+  await deployContract(walletData, contractPath, network, stakingOnlyPairsNetwork.staking_only, stakingOnlyRewardsPairConfig.stakingOnly, {
     defaultInitMsg,
     writeFunc
   });

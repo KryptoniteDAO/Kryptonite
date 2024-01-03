@@ -203,5 +203,37 @@
         "deploy": false
       }
     }
+  ],
+  "stakingOnlyPairs": [
+    {
+      "name": "STSEI/SEIYAN",
+      "staking_token": "sei1hxh76ty0fk9esq3qsvrhzz6fsvmh55j59xnduswn6dfnsyjs06vqcye8yf",
+      "pool_address": "sei1qgyrkxvnydcvtzj8w6e4n2p07pykxw4y25ntncz5a4puz6fd6e9slq6jgk",
+      "assetInfos": [
+        {
+          "token": {
+            "name":"stSEI",
+            "contract": "sei1ln7ntsqmxl8s502f83km9a475zyhcfhpj7v2fsm3pcmckdyys3tsktx9vk"
+          }
+        },
+        {
+          "token": {
+            "name": "seiyan",
+            "contract": "sei1hrndqntlvtmx2kepr0zsfgr7nzjptcc72cr4ppk4yav58vvy7v3s4er8ed"
+          }
+        }
+      ],
+      "stakingOnly": {
+        "admin": null,
+        "initMsg": {
+          "rewards_token": "sei1hrndqntlvtmx2kepr0zsfgr7nzjptcc72cr4ppk4yav58vvy7v3s4er8ed",
+          "reward_controller_addr": "sei1z7n2vg6yhf4qlxx30hef4nvp5aawueflcxcnx0",
+          "duration": "2592000"
+        },
+        "label": "staking-only",
+        "filePath": "../krp-token-contracts/artifacts/staking_only.wasm",
+        "deploy": false
+      }
+    }
   ]
 }
