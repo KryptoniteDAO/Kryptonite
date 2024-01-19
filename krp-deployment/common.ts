@@ -13,7 +13,7 @@ import type {
   MsgStoreCodeEncodeObject,
   MsgUpdateAdminEncodeObject
 } from "@cosmjs/cosmwasm-stargate";
-import { fromBech32, toBase64, toUtf8 } from "@cosmjs/encoding";
+import { fromBech32, toUtf8 } from "@cosmjs/encoding";
 import { Uint53 } from "@cosmjs/math";
 import type { GasPrice, MsgDelegateEncodeObject, MsgSendEncodeObject, MsgTransferEncodeObject, MsgUndelegateEncodeObject, MsgWithdrawDelegatorRewardEncodeObject } from "@cosmjs/stargate";
 import { calculateFee, coins } from "@cosmjs/stargate";
@@ -326,10 +326,11 @@ export async function queryWasmContractByWalletData<T extends any>(walletData: W
 }
 
 export async function queryWasmContract<T extends any>(cosmWasmClient: CosmWasmClient, contractAddress: string, message: object): Promise<T> {
-  const response = await cosmWasmClient.queryContractSmart(contractAddress, toEncodedBinary(message));
-  const data: string = toBase64(response?.data);
-
-  return toDecodedBinary(data) as unknown as T;
+  // const response = await cosmWasmClient.queryContractSmart(contractAddress, toEncodedBinary(message));
+  // const data: string = toBase64(response?.data);
+  // return toDecodedBinary(data) as unknown as T;
+  const response = await cosmWasmClient.queryContractSmart(contractAddress, message);
+  return response as unknown as T;
 }
 
 export async function queryAddressTokenBalanceByWalletData(walletData: WalletData, userAddress: string, contractAddress: string): Promise<BalanceResponse> {
