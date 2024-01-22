@@ -1,0 +1,81 @@
+{
+  "random": {
+    "admin": null,
+    "initMsg": {
+      "pairs": [
+        "sei13ch8h7nws3yqndh777khwark064z2gdqjddme8raqystj3qxkr4skasz3w",
+        "sei1h8dkua0t2lp992k498x7nav5fdu6ay5g0u0af4l3slh25c6852xqg3ahjp",
+        "sei1jfhpnmhqd5f6nzskwmcawjpjk0luepn7pdr9ky0a2tn7epv6t8gqqpq7fl",
+        "sei173vr5csfdv7qewraz02ar6wd6k4dcv8dc50lwz6vhacnkkux7j6q7593sd",
+        "sei1vpdp0tcx6ujc6u0pfegqxq9yw8ry50awn2et70mtdg4hdl5mk3wqy240yq"
+      ]
+    },
+    "label": "random",
+    "filePath": "../nft-campaign/artifacts/random.wasm",
+    "deploy": false
+  },
+  "dragonPart": {
+    "admin": null,
+    "initMsg": {
+      "name": "dragon part",
+      "symbol": "DRAGONPART",
+      "token_uri": "https://arweave.net/SkZ3nkbBZEMha6ZqITF97GHECSpTdYAj8xU0GaFtpPU",
+      "extension": {},
+      "price_uint": "5000000",
+      "mod_num": 100,
+      "random_configs": [
+        {
+          "body_part": 1,
+          "start_index": 0,
+          "end_index": 30
+        },
+        {
+          "body_part": 2,
+          "start_index": 30,
+          "end_index": 55
+        },
+        {
+          "body_part": 3,
+          "start_index": 55,
+          "end_index": 75
+        },
+        {
+          "body_part": 4,
+          "start_index": 75,
+          "end_index": 90
+        },
+        {
+          "body_part": 5,
+          "start_index": 90,
+          "end_index": 100
+        }
+      ],
+      "start_time": 1705735024,
+      "end_time": 1708413424
+    },
+    "label": "dragon part",
+    "filePath": "../nft-campaign/artifacts/dragon_part.wasm",
+    "deploy": false
+  },
+  "dragons": {
+    "admin": null,
+    "initMsg": {},
+    "label": "dragons",
+    "filePath": "../nft-campaign/artifacts/dragons.wasm",
+    "deploy": false
+  },
+  "rewardsPool": {
+    "admin": null,
+    "initMsg": {
+      "convert_denom": "usei",
+      "convert_controller": "sei16j0hypm83zlctv7czky9n0me0k03prel3ynczn",
+      "platform_address": "sei16j0hypm83zlctv7czky9n0me0k03prel3ynczn",
+      "reward_pool_percent": "5000",
+      "reward_pool_platform_percent": "2000",
+      "next_reward_pool_percent": "5000"
+    },
+    "label": "rewards pool",
+    "filePath": "../nft-campaign/artifacts/rewards_pool.wasm",
+    "deploy": false
+  }
+}

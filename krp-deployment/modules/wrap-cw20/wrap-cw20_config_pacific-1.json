@@ -1,0 +1,13 @@
+{
+  "wrapCw20": {
+    "admin": null,
+    "initMsg": {
+      "owner": null,
+      "sub_denom": "seilor",
+      "cw20_token_address": null
+    },
+    "label": "Wrap cw20 contract",
+    "filePath": "../krp-wrap-cw20/artifacts/krp_wrap_cw20.wasm",
+    "deploy": false
+  }
+}

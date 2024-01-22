@@ -59,7 +59,28 @@
     "deploy:v1-step-1": "npm run deploy:oracle && npm run deploy:staking && npm run config:staking-v1-append && npm run deploy:only:token-v1 && npm run config:token-v1",
     "deploy:v1-step-2": "npm run deploy:only:token:collaterals-v1 && npm run config:token-v1",
     "deploy:only:token:collaterals-v1-1": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs ./modules/token/token_deploy_collaterals_v1_1.ts",
-    "deploy:v1-1": "npm run deploy:swap"
+    "deploy:v1-1": "npm run deploy:swap",
+
+    "codegen:merkle": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs ./modules/merkle/merkle_codegen.ts",
+    "deploy:only:merkle": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs ./modules/merkle/merkle_deploy_contracts.ts",
+    "config:merkle": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs ./modules/merkle/merkle_config_contracts.ts",
+    "deploy:merkle": "npm run deploy:only:merkle && npm run config:merkle",
+
+    "codegen:warpCw20": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs modules/wrap-cw20/wrap-cw20_codegen.ts",
+    "deploy:only:warpCw20": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs ./modules/wrap-cw20/wrap-cw20_deploy_contracts.ts",
+
+    "codegen:nftCampaign": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs ./modules/nft-campaign/nft-campaign_codegen.ts",
+    "deploy:only:nftCampaign": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs ./modules/nft-campaign/nft-campaign_deploy_contracts.ts",
+    "config:nftCampaign": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs ./modules/nft-campaign/nft-campaign_config_contracts.ts",
+    "deploy:nftCampaign": "npm run deploy:only:nftCampaign && npm run config:nftCampaign",
+
+    "codegen:nft-lighthouse": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs modules/nft/lighthouse_codegen.ts",
+    "codegen:nft-cw721-base": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs modules/nft/cw721_base_codegen.ts",
+    "store:nft-cw721-base": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs modules/nft/cw721_base_store_wasm.ts",
+
+    "just_do_me": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs just_do_me.ts",
+
+    "just_do_nft_test": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs just_do_nft_test.ts"
   },
   "dependencies": {
     "@cosmjs/amino": "0.29.5",

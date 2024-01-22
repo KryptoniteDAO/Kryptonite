@@ -5,5 +5,8 @@ export enum ContractsDeployedModules {
   staking = "stakingNetwork",
   market = "marketNetwork",
   convert = "convertNetwork",
-  token = "tokenNetwork"
+  token = "tokenNetwork",
+  merkle = "merkleNetwork",
+  wrapCw20 = "wrapCw20Network",
+  nftCampaign = "nftCampaignNetwork",
 }

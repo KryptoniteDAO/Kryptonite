@@ -6,3 +6,7 @@ export * from "./swap-extension";
 export * from "./cdp";
 export * from "./oracle";
 export * from "./token";
+export * from "./merkle";
+export * from "./wrap-cw20";
+export * from "./nft";
+export * from "./nft-campaign";

@@ -274,6 +274,7 @@ npm run codegen:staking
 npm run codegen:market
 npm run codegen:convert
 npm run codegen:token
+npm run codegen:merkle
 ```
 
 ### usage
