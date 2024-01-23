@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Addr, Uint128, InstantiateMsg, ExecuteMsg, Action, Expiration, Timestamp, Uint64, UpdateConfigMsg, RegisterPeriodPoolMsg, OpenRewardMsg, QueryMsg, Config, PeriodPoolConfig, Decimal, PoolRewardsInfo, Boolean } from "./RewardsPool.types";
+import { Addr, Uint128, InstantiateMsg, ExecuteMsg, Action, Expiration, Timestamp, Uint64, UpdateConfigMsg, RegisterPeriodPoolMsg, OpenRewardMsg, QueryMsg, OwnershipForAddr, Config, PeriodPoolConfig, Decimal, PoolRewardsInfo, Boolean } from "./RewardsPool.types";
 export interface RewardsPoolReadOnlyInterface {
   contractAddress: string;
   queryConfig: () => Promise<Config>;
@@ -28,6 +28,7 @@ export interface RewardsPoolReadOnlyInterface {
     periodId: number;
     user: Addr;
   }) => Promise<Boolean>;
+  getOwnership: () => Promise<OwnershipForAddr>;
 }
 export class RewardsPoolQueryClient implements RewardsPoolReadOnlyInterface {
   client: CosmWasmClient;
@@ -41,6 +42,7 @@ export class RewardsPoolQueryClient implements RewardsPoolReadOnlyInterface {
     this.queryPeriodIdByDragon = this.queryPeriodIdByDragon.bind(this);
     this.queryPoolRewardsInfo = this.queryPoolRewardsInfo.bind(this);
     this.queryUserClaimed = this.queryUserClaimed.bind(this);
+    this.getOwnership = this.getOwnership.bind(this);
   }
 
   queryConfig = async (): Promise<Config> => {
@@ -87,6 +89,11 @@ export class RewardsPoolQueryClient implements RewardsPoolReadOnlyInterface {
         period_id: periodId,
         user
       }
+    });
+  };
+  getOwnership = async (): Promise<OwnershipForAddr> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      get_ownership: {}
     });
   };
 }

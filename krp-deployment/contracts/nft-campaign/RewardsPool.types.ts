@@ -90,7 +90,14 @@ export type QueryMsg = {
     period_id: number;
     user: Addr;
   };
+} | {
+  get_ownership: {};
 };
+export interface OwnershipForAddr {
+  owner?: Addr | null;
+  pending_expiry?: Expiration | null;
+  pending_owner?: Addr | null;
+}
 export interface Config {
   convert_contract_hub: Addr;
   convert_controller: Addr;
