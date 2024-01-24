@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Addr, Uint128, InstantiateMsg, Metadata, Trait, RandomConfig, ExecuteMsg, Binary, UpdateConfigMsg, Cw20ReceiveMsg, QueryMsg, Empty, Expiration, Timestamp, Uint64, AllNftInfoResponseForEmpty, OwnerOfResponse, Approval, NftInfoResponseForEmpty, OperatorsResponse, TokensResponse, ApprovalResponse, ApprovalsResponse, ContractInfoResponse, Null, MinterResponse, NumTokensResponse, OperatorResponse, Config } from "./DragonPart.types";
+import { Addr, Uint128, InstantiateMsg, Metadata, Trait, RandomConfig, ExecuteMsg, Binary, UpdateConfigMsg, Cw20ReceiveMsg, QueryMsg, Empty, Expiration, Timestamp, Uint64, AllNftInfoResponseForEmpty, OwnerOfResponse, Approval, NftInfoResponseForEmpty, OperatorsResponse, TokensResponse, ApprovalResponse, ApprovalsResponse, ContractInfoResponse, Null, MinterResponse, NumTokensResponse, OperatorResponse, Config, MapOfSetOfString, MapOfUint64 } from "./DragonPart.types";
 export interface DragonPartReadOnlyInterface {
   contractAddress: string;
   ownerOf: ({
@@ -89,6 +89,16 @@ export interface DragonPartReadOnlyInterface {
     msg: Empty;
   }) => Promise<Null>;
   queryConfig: () => Promise<Config>;
+  queryUserTokenExtension: ({
+    user
+  }: {
+    user: Addr;
+  }) => Promise<MapOfSetOfString>;
+  queryUserTokenExtensionCount: ({
+    user
+  }: {
+    user: Addr;
+  }) => Promise<MapOfUint64>;
 }
 export class DragonPartQueryClient implements DragonPartReadOnlyInterface {
   client: CosmWasmClient;
@@ -111,6 +121,8 @@ export class DragonPartQueryClient implements DragonPartReadOnlyInterface {
     this.minter = this.minter.bind(this);
     this.extension = this.extension.bind(this);
     this.queryConfig = this.queryConfig.bind(this);
+    this.queryUserTokenExtension = this.queryUserTokenExtension.bind(this);
+    this.queryUserTokenExtensionCount = this.queryUserTokenExtensionCount.bind(this);
   }
 
   ownerOf = async ({
@@ -280,6 +292,28 @@ export class DragonPartQueryClient implements DragonPartReadOnlyInterface {
   queryConfig = async (): Promise<Config> => {
     return this.client.queryContractSmart(this.contractAddress, {
       query_config: {}
+    });
+  };
+  queryUserTokenExtension = async ({
+    user
+  }: {
+    user: Addr;
+  }): Promise<MapOfSetOfString> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      query_user_token_extension: {
+        user
+      }
+    });
+  };
+  queryUserTokenExtensionCount = async ({
+    user
+  }: {
+    user: Addr;
+  }): Promise<MapOfUint64> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      query_user_token_extension_count: {
+        user
+      }
     });
   };
 }

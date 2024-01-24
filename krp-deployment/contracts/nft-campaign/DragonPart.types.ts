@@ -134,6 +134,14 @@ export type QueryMsg = {
   };
 } | {
   query_config: {};
+} | {
+  query_user_token_extension: {
+    user: Addr;
+  };
+} | {
+  query_user_token_extension_count: {
+    user: Addr;
+  };
 };
 export interface Empty {
   [k: string]: unknown;
@@ -202,5 +210,11 @@ export interface Config {
   start_time: number;
   token_uri: string;
   unused_token_id: number;
+}
+export interface MapOfSetOfString {
+  [k: string]: string[];
+}
+export interface MapOfUint64 {
+  [k: string]: number;
 }
 export type DragonPartExecuteMsg = ExecuteMsg;
