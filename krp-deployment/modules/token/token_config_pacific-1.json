@@ -202,6 +202,34 @@
         "filePath": "../krp-token-contracts/artifacts/staking.wasm",
         "deploy": false
       }
+    },
+    {
+      "name": "STSEI/SEI",
+      "staking_token": "sei1y03a4m9etthj9w5mz7sltqcgh05ss09cjrezstfgqt28sgsvqxwsapqwfx",
+      "pool_address": "sei1jqkqp7ql0n9edp9e7y86znt0m2h7rstlc2rwfvyxzrj84et9czaq89uqdx",
+      "assetInfos": [
+        {
+          "token": {
+            "contract": "sei1ln7ntsqmxl8s502f83km9a475zyhcfhpj7v2fsm3pcmckdyys3tsktx9vk"
+          }
+        },
+        {
+          "native_token": {
+            "denom": "usei"
+          }
+        }
+      ],
+      "staking": {
+        "admin": null,
+        "initMsg": {
+          "gov": "sei1j76wppj5a760tqq60m5xq2sufr6yupz0xx3hsm",
+          "reward_controller_addr": "sei1y8jrjjrrdwwg3x8axmwluwtl6aarh68c03wscw",
+          "duration": "2592000"
+        },
+        "label": "staking STSEI/SEI",
+        "filePath": "../krp-token-contracts/artifacts/staking.wasm",
+        "deploy": false
+      }
     }
   ],
   "stakingOnlyPairs": [

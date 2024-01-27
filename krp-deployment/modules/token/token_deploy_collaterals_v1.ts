@@ -17,7 +17,7 @@ import { TOKEN_MODULE_NAME } from "./token_constants";
   console.log(`\n  --- --- store code & instantiate contracts enter: ${TOKEN_MODULE_NAME}:collaterals  --- ---`);
 
   const { stakingPairs } = tokenConfigs;
-  if (!!stakingPairs && stakingPairs.length == 1) {
+  if (!!stakingPairs && stakingPairs.length > 0) {
     for (const stakingRewardsPairConfig of stakingPairs) {
       if (!stakingRewardsPairConfig?.staking_token) {
         console.error(`\n  deploy ${TOKEN_MODULE_NAME} pair error: missing pair's staking_token or pool_address`);

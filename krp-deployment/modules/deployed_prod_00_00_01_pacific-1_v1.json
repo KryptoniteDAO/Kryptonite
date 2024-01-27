@@ -61,6 +61,15 @@
           "codeId": 549,
           "address": "sei17na3tj5mjnz0f4s3gqa3eqykzp4qk5qz4uvmz7hzak2zwyh5ym7s7ljcay"
         }
+      },
+      {
+        "name": "STSEI/SEI",
+        "staking_token": "sei1y03a4m9etthj9w5mz7sltqcgh05ss09cjrezstfgqt28sgsvqxwsapqwfx",
+        "pool_address": "sei1jqkqp7ql0n9edp9e7y86znt0m2h7rstlc2rwfvyxzrj84et9czaq89uqdx",
+        "staking": {
+          "codeId": 549,
+          "address": "sei1x4jr7j63tq37lm8m0pmkdsjjtswsvpvmfhug9az207zp4m9a5j6s04gz0n"
+        }
       }
     ],
     "stakingOnlyPairs": [
@@ -79,6 +88,12 @@
     "swapSparrow": {
       "codeId": 706,
       "address": "sei1gjq78fhh0vu90997ysldzm3pe0alla95zquy727cc3xah3nh794qmzrpwp"
+    }
+  },
+  "wrapCw20Network": {
+    "wrapCw20": {
+      "codeId": 1196,
+      "address": "sei10hud5e5er4aul2l7sp2u9qp2lag5u4xf8mvyx38cnjvqhlgsrcls5qn5ke"
     }
   }
 }

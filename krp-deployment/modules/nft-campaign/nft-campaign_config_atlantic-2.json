@@ -17,9 +17,9 @@
   "dragonPart": {
     "admin": null,
     "initMsg": {
-      "name": "dragon part",
-      "symbol": "DRAGONPART",
-      "token_uri": "https://arweave.net/SkZ3nkbBZEMha6ZqITF97GHECSpTdYAj8xU0GaFtpPU",
+      "name": "Blue Dragon Fragment",
+      "symbol": "DRAGONFRAGMENT",
+      "token_uri": "https://arweave.net/THt0ZJf9v4sFCMvu257-Bqf8biuy0k0d4umr7a3I9nE",
       "extension": {},
       "price_uint": "5000000",
       "mod_num": 100,
@@ -27,20 +27,25 @@
         {
           "body_part": 1,
           "start_index": 0,
-          "end_index": 30
+          "end_index": 25
         },
         {
           "body_part": 2,
-          "start_index": 30,
-          "end_index": 55
+          "start_index": 25,
+          "end_index": 45
         },
         {
           "body_part": 3,
-          "start_index": 55,
-          "end_index": 75
+          "start_index": 45,
+          "end_index": 60
         },
         {
           "body_part": 4,
+          "start_index": 60,
+          "end_index": 75
+        },
+        {
+          "body_part": 5,
           "start_index": 75,
           "end_index": 90
         },
@@ -53,7 +58,7 @@
       "start_time": 1705735024,
       "end_time": 1708413424
     },
-    "label": "dragon part",
+    "label": "Blue Dragon Fragment",
     "filePath": "../nft-campaign/artifacts/dragon_part.wasm",
     "deploy": false
   },
