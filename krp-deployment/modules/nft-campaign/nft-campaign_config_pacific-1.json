@@ -1,21 +1,37 @@
 {
   "random": {
-    "admin": null,
+    "admin": "sei156cayeu9j5p03nelc55yj7e6d9d9zrl4d82jhg",
     "initMsg": {
+      "owner": "sei1j76wppj5a760tqq60m5xq2sufr6yupz0xx3hsm",
       "pairs": [
-        "sei13ch8h7nws3yqndh777khwark064z2gdqjddme8raqystj3qxkr4skasz3w",
-        "sei1h8dkua0t2lp992k498x7nav5fdu6ay5g0u0af4l3slh25c6852xqg3ahjp",
-        "sei1jfhpnmhqd5f6nzskwmcawjpjk0luepn7pdr9ky0a2tn7epv6t8gqqpq7fl",
-        "sei173vr5csfdv7qewraz02ar6wd6k4dcv8dc50lwz6vhacnkkux7j6q7593sd",
-        "sei1vpdp0tcx6ujc6u0pfegqxq9yw8ry50awn2et70mtdg4hdl5mk3wqy240yq"
+        "sei17pcj9gjz29d3x5kh4tu5hkl988jfjmzk56rgxa0u84g5rwkcfqdqvp47gu",
+        "sei1g5s84juvcjamggl6t36pejc4489zgkx4tg42j9m6pfruskv8ajcqml2xsq",
+        "sei1prqsm5y7tumchkugx5wcz4y0fya7cta5ch9h366em806frq4jtnqlrazgt",
+        "sei1jqkqp7ql0n9edp9e7y86znt0m2h7rstlc2rwfvyxzrj84et9czaq89uqdx",
+        "sei13pzdhenzugwa02tm975g2y5kllj26rf4x4ykpqtrfw2h4mcezmmqz06dfr"
       ]
     },
     "label": "random",
     "filePath": "../nft-campaign/artifacts/random.wasm",
     "deploy": false
   },
+  "rewardsPool": {
+    "admin": "sei156cayeu9j5p03nelc55yj7e6d9d9zrl4d82jhg",
+    "initMsg": {
+      "owner": "sei1j76wppj5a760tqq60m5xq2sufr6yupz0xx3hsm",
+      "convert_denom": "usei",
+      "convert_controller": "sei13qevn22zm33mrvkt6a3rjg3vrag7sz0w5d26n9",
+      "platform_address": "sei15qu337szn0xt3xa82gry5e55fusgfkkg7a6n7u",
+      "reward_pool_percent": "5000",
+      "reward_pool_platform_percent": "2000",
+      "next_reward_pool_percent": "5000"
+    },
+    "label": "rewards pool",
+    "filePath": "../nft-campaign/artifacts/rewards_pool.wasm",
+    "deploy": false
+  },
   "dragonPart": {
-    "admin": null,
+    "admin": "sei156cayeu9j5p03nelc55yj7e6d9d9zrl4d82jhg",
     "initMsg": {
       "name": "Blue Dragon Pieces",
       "symbol": "DRAGONPIECES",
@@ -25,7 +41,7 @@
       "mod_num": 100,
       "random_configs": [
         {
-          "body_part": 1,
+          "body_part": 6,
           "start_index": 0,
           "end_index": 25
         },
@@ -50,37 +66,23 @@
           "end_index": 98
         },
         {
-          "body_part": 6,
+          "body_part": 1,
           "start_index": 99,
           "end_index": 100
         }
       ],
-      "start_time": 1705735024,
-      "end_time": 1708413424
+      "start_time": 1706965200,
+      "end_time": 1709643600
     },
     "label": "Blue Dragon Pieces",
     "filePath": "../nft-campaign/artifacts/dragon_part.wasm",
     "deploy": false
   },
   "dragons": {
-    "admin": null,
+    "admin": "sei156cayeu9j5p03nelc55yj7e6d9d9zrl4d82jhg",
     "initMsg": {},
     "label": "dragons",
     "filePath": "../nft-campaign/artifacts/dragons.wasm",
-    "deploy": false
-  },
-  "rewardsPool": {
-    "admin": null,
-    "initMsg": {
-      "convert_denom": "usei",
-      "convert_controller": "sei16j0hypm83zlctv7czky9n0me0k03prel3ynczn",
-      "platform_address": "sei16j0hypm83zlctv7czky9n0me0k03prel3ynczn",
-      "reward_pool_percent": "5000",
-      "reward_pool_platform_percent": "2000",
-      "next_reward_pool_percent": "5000"
-    },
-    "label": "rewards pool",
-    "filePath": "../nft-campaign/artifacts/rewards_pool.wasm",
     "deploy": false
   }
 }

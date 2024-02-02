@@ -1,0 +1,16 @@
+{
+  "merkleVeDrop": {
+    "admin": "sei156cayeu9j5p03nelc55yj7e6d9d9zrl4d82jhg",
+    "initMsg": {
+      "gov": "sei1j76wppj5a760tqq60m5xq2sufr6yupz0xx3hsm",
+      "merkle_root": "te28s1FVmQQjxLfRidMwz0gOY8QXceCee/Puurt0mCc=",
+      "ve_token": null,
+      "fund": null,
+      "total_reward": "500000000000",
+      "claim_able_time": 1706773580
+    },
+    "label": "Merkle ve drop contract staking only.",
+    "filePath": "../merkle-rs/artifacts/merkle_ve_drop.wasm",
+    "deploy": false
+  }
+}

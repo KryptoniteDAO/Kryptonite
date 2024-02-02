@@ -95,5 +95,29 @@
       "codeId": 1196,
       "address": "sei10hud5e5er4aul2l7sp2u9qp2lag5u4xf8mvyx38cnjvqhlgsrcls5qn5ke"
     }
+  },
+  "merkleNetwork": {
+    "merkleVeDrop": {
+      "codeId": 2350,
+      "address": "sei107m3fxr8f2wsu2m47zzyav665zldjns3fhmlfj29t5rfn0e83upq3uhy9w"
+    }
+  },
+  "nftCampaignNetwork": {
+    "random": {
+      "codeId": 2414,
+      "address": "sei1m5fn47kdeax4cwv8r4n2xug2kge2tyee5ynwkcqvqtrzyls4se3srz29t3"
+    },
+    "dragonPart": {
+      "codeId": 2415,
+      "address": "sei1wpqmyt2l7rp4uacgpjpdl07yw0dlma7wd6tk9j880dgcysw7vueq3c438p"
+    },
+    "dragons": {
+      "codeId": 2416,
+      "address": "sei1yl3j8086zmcrx0fdtv7r5qn6dwgk9csjvpdhd4eeu6k8ye8cu5pssh2amg"
+    },
+    "rewardsPool": {
+      "codeId": 2417,
+      "address": "sei12xcglrq98esgksd7g65s6wm6tw9h5yzp3vscxk6t7y8c7hl9gexswrz6tw"
+    }
   }
 }
