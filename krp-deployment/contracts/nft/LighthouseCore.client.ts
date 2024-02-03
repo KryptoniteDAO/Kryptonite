@@ -119,10 +119,10 @@ export interface LighthouseCoreInterface {
   contractAddress: string;
   sender: string;
   updateConfig: ({
-    fee,
+    feeCore,
     registerationOpen
   }: {
-    fee?: Uint128;
+    feeCore?: Uint128;
     registerationOpen?: boolean;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   registerCollection: ({
@@ -227,15 +227,15 @@ export class LighthouseCoreClient implements LighthouseCoreInterface {
   }
 
   updateConfig = async ({
-    fee,
+    feeCore,
     registerationOpen
   }: {
-    fee?: Uint128;
+    feeCore?: Uint128;
     registerationOpen?: boolean;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       update_config: {
-        fee,
+        fee: feeCore,
         registeration_open: registerationOpen
       }
     }, fee, memo, _funds);

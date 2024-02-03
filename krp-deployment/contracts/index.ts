@@ -1,4 +1,5 @@
 export * from "./cw20Base";
+export * from "./cw721Base";
 export * from "./staking";
 export * from "./market";
 export * from "./convert";

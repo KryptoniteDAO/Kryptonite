@@ -26,3 +26,7 @@ deploy_testing_muilti_stable.ts
 **/*.rs.bk
 **/*.ts.bk
 **/just*
+**/*temp*
+**/*.json
+**/*.sh
+**/*.bat
