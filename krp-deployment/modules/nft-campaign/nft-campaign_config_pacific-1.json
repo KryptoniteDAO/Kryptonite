@@ -84,5 +84,20 @@
     "label": "dragons",
     "filePath": "../nft-campaign/artifacts/dragons.wasm",
     "deploy": false
+  },
+  "medal": {
+    "admin": "sei156cayeu9j5p03nelc55yj7e6d9d9zrl4d82jhg",
+    "initMsg": {
+      "token_code_id": 2944,
+      "name": "Dragon Medal",
+      "symbol": "DRAGONMEDAL",
+      "token_uri": "https://arweave.net/Q3m9MT2K7Hpel9DRus9H-Qloj447eRn1b9jgFlrxy9I",
+      "owner": "sei1j76wppj5a760tqq60m5xq2sufr6yupz0xx3hsm",
+      "royalty_percentage": 8,
+      "sei_men_contract": "sei1cnktx4rr8mlyr09hw3u4l8vrrpv6qtght3zcdpzhlf29fq2enluqlpndct"
+    },
+    "label": "drago medal",
+    "filePath": "../nft-campaign/artifacts/medal.wasm",
+    "deploy": false
   }
 }

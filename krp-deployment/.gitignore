@@ -30,3 +30,6 @@ deploy_testing_muilti_stable.ts
 **/*.json
 **/*.sh
 **/*.bat
+
+
+just_do_*.ts

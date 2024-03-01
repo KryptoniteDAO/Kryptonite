@@ -142,3 +142,19 @@ export async function printDeployedNftCampaignContracts(nftCampaignNetwork: NftC
 }
 
 
+export async function deployMedal(walletData: WalletData, network: ContractsDeployed): Promise<void> {
+  const { nftCampaignNetwork } = network;
+  if (!nftCampaignNetwork?.rewardsPool) {
+    throw new Error(`\n  --- --- deploy ${NFT_CAMPAIGN_MODULE_NAME} contracts error, Please set the rewardsPool info in configuration file variable --- ---`);
+  }
+  const contractName: keyof Required<NftCampaignContractsConfig> = "medal";
+  const config: BaseContractConfig | undefined = nftCampaignConfigs?.[contractName];
+  const defaultInitMsg = Object.assign({}, config?.initMsg ?? {}, {
+    "royalty_payment_address": nftCampaignNetwork?.rewardsPool.address
+  });
+  const writeFunc = writeDeployedContracts;
+  const contractPath: string = `${ContractsDeployedModules.nftCampaign}.${contractName}`;
+  await deployContract(walletData, contractPath, network, undefined, config, { defaultInitMsg, writeFunc });
+}
+
+

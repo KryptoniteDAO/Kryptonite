@@ -4,6 +4,8 @@ import type { InstantiateMsg as DragonPartInstantiateMsg } from "@/contracts/nft
 import type { InstantiateMsg as DragonsInstantiateMsg } from "@/contracts/nft-campaign/Dragons.types";
 import type { InstantiateMsg as RandomInstantiateMsg } from "@/contracts/nft-campaign/Random.types";
 import type { InstantiateMsg as RewardsPoolInstantiateMsg } from "@/contracts/nft-campaign/RewardsPool.types";
+import type { InstantiateMsg as MedalInstantiateMsg } from "@/contracts/nft-campaign/Medal.types.ts";
+
 import { TokenStakingOnlyPairsContractsDeployed, TokenStakingPairsContractsDeployed } from "@/modules";
 
 export interface DragonPartContractConfig extends BaseContractConfig {
@@ -46,6 +48,13 @@ export interface RewardsPoolContractsDeployed {
   rewardsPool?: ContractDeployed;
 }
 
+export interface MedalContractConfig extends BaseContractConfig {
+  initMsg?: MedalInstantiateMsg;
+}
+
+export interface MedalContractsDeployed {
+  medal?: ContractDeployed;
+}
 
 
 export interface NftCampaignContractsConfig {
@@ -53,6 +62,7 @@ export interface NftCampaignContractsConfig {
   dragons: DragonsContractConfig;
   random: RandomContractConfig;
   rewardsPool: RewardsPoolContractConfig;
+  medal: MedalContractConfig;
 }
 
 
@@ -61,4 +71,5 @@ export interface NftCampaignContractsDeployed {
   dragons?: ContractDeployed;
   random?: ContractDeployed;
   rewardsPool?: ContractDeployed;
+  medal?: ContractDeployed;
 }

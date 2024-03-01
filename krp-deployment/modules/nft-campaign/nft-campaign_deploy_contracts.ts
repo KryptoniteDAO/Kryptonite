@@ -6,7 +6,7 @@ import { NFT_CAMPAIGN_MODULE_NAME } from "@/modules/nft-campaign/nft-campaign_co
 import { readDeployedContracts } from "@/modules";
 import {
   deployDragonPart,
-  deployDragons,
+  deployDragons, deployMedal,
   deployRandom,
   deployRewardsPool, printDeployedNftCampaignContracts
 } from "@/modules/nft-campaign/nft-campaign_helpers.ts";
@@ -23,19 +23,21 @@ import {
 
   console.log(`\n  --- --- store code & instantiate contracts enter: ${NFT_CAMPAIGN_MODULE_NAME}  --- ---`);
 
-  await deployRandom(walletData, network);
+  // await deployRandom(walletData, network);
+  //
+  // await deployDragonPart(walletData, network);
+  //
+  // await deployDragons(walletData, network);
+  //
+  // await deployRewardsPool(walletData, network);
 
-  await deployDragonPart(walletData, network);
-
-  await deployDragons(walletData, network);
-
-  await deployRewardsPool(walletData, network);
+  await deployMedal(walletData, network);
 
 
   console.log(`\n  --- --- store code & instantiate contracts end: ${NFT_CAMPAIGN_MODULE_NAME}  --- ---`);
 
-  const { nftCampaignNetwork } = network;
-  await printDeployedNftCampaignContracts(nftCampaignNetwork);
+  // const { nftCampaignNetwork } = network;
+  // await printDeployedNftCampaignContracts(nftCampaignNetwork);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 

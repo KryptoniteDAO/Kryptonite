@@ -127,7 +127,7 @@
           "lock_start_time": 1703433600,
           "start_linear_release_time": 1702548000,
           "unlock_linear_release_amount": "126000000000000",
-          "unlock_linear_release_time": 1749895200
+          "unlock_linear_release_time": 47347200
         },
         "mm": {
           "rule_name": "mm",
@@ -137,7 +137,7 @@
           "lock_start_time": 1703433600,
           "start_linear_release_time": 1702548000,
           "unlock_linear_release_amount": "126500000000000",
-          "unlock_linear_release_time": 1731578400
+          "unlock_linear_release_time": 29030400
         },
         "team": {
           "rule_name": "team",
@@ -147,7 +147,7 @@
           "lock_start_time": 1721836800,
           "start_linear_release_time": 1720951200,
           "unlock_linear_release_amount": "200000000000000",
-          "unlock_linear_release_time": 1747216800
+          "unlock_linear_release_time": 26265600
         },
         "pa": {
           "rule_name": "pa",
@@ -157,7 +157,7 @@
           "lock_start_time": 1721836800,
           "start_linear_release_time": 1720951200,
           "unlock_linear_release_amount": "45000000000000",
-          "unlock_linear_release_time": 1747216800
+          "unlock_linear_release_time": 26265600
         }
       }
     },
@@ -240,7 +240,7 @@
       "assetInfos": [
         {
           "token": {
-            "name":"stSEI",
+            "name": "stSEI",
             "contract": "sei1ln7ntsqmxl8s502f83km9a475zyhcfhpj7v2fsm3pcmckdyys3tsktx9vk"
           }
         },

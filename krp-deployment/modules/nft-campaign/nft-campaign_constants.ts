@@ -6,5 +6,6 @@ export enum NftCampaignContracts {
   dragonPart = "dragonPart",
   dragons = "dragons",
   random = "random",
-  rewardsPool = "rewardsPool"
+  rewardsPool = "rewardsPool",
+  medal = "medal",
 }
