@@ -19,12 +19,11 @@ import {
   console.log(`\n  --- --- store code & instantiate contracts enter: ${MERKLE_MODULE_NAME} --- ---`);
 
 
-  if (ChainId.ATLANTIC_2 === walletData.chainId) {
+  if (ChainId.ATLANTIC_2 === walletData.chainId || ChainId.ARCTIC_1 === walletData.chainId) {
     await doTokenFundSetVeFundMinter(walletData, network?.tokenNetwork?.fund, network?.merkleNetwork?.merkleVeDrop, true, true);
   }
 
   console.log(`\n  --- --- store code & instantiate contracts end: ${MERKLE_MODULE_NAME} --- ---`);
-
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 

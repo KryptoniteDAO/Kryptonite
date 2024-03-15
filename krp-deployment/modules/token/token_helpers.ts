@@ -22,9 +22,11 @@ import type {
   TokenTreasureContractConfig,
   TokenVeTokenContractConfig
 } from "@/modules";
-import { ContractsDeployedModules, writeDeployedContracts } from "@/modules";
+import {ContractsDeployedModules, TokenDistributeCoContractConfig, writeDeployedContracts} from "@/modules";
 import type { ContractDeployed, InitialBalance, WalletData } from "@/types";
 import { TOKEN_ARTIFACTS_PATH, TOKEN_MODULE_NAME } from "./token_constants";
+import {cosmos} from "@sei-js/proto";
+import distribution = cosmos.distribution;
 
 export const tokenConfigs: TokenContractsConfig = readArtifact(`${TOKEN_MODULE_NAME}_config_${DEPLOY_CHAIN_ID}`, `./modules/${TOKEN_MODULE_NAME}/`);
 
@@ -645,7 +647,13 @@ export async function printDeployedTokenContracts(tokenNetwork: TokenContractsDe
       deploy: tokenConfigs?.keeper?.deploy,
       codeId: tokenNetwork?.keeper?.codeId || 0,
       address: tokenNetwork?.keeper?.address
-    }
+    },
+    {
+      name: `distributeCo`,
+      deploy: tokenConfigs?.distributeCo.deploy,
+      codeId: tokenNetwork?.distributeCo?.codeId || 0,
+      address: tokenNetwork?.distributeCo?.address
+    },
   ];
   console.table(tableData, [`name`, `codeId`, `address`, `deploy`]);
   await printDeployedTokenStakingContracts(tokenNetwork);
@@ -668,4 +676,25 @@ export async function printDeployedTokenStakingContracts(tokenNetwork: TokenCont
   }
 
   console.table(tableData, [`name`, `stakingToken`, `codeId`, `address`, `deploy`]);
+}
+
+export async function deployTokenDistributeCo(walletData: WalletData, network: ContractsDeployed): Promise<void> {
+  const { tokenNetwork } = network;
+  const { platToken,distribute } = tokenNetwork;
+  if (!platToken?.address || !distribute?.address) {
+    console.error(`\n  ********* deploy error: missing info. deployPlatToken / ${platToken?.address} or distribute ${distribute?.address}`);
+    return;
+  }
+  const contractName: keyof Required<TokenContractsDeployed> = "distributeCo";
+  const config: TokenDistributeCoContractConfig | undefined = tokenConfigs?.[contractName];
+
+  const defaultInitMsg = Object.assign({}, config?.initMsg ?? {}, {
+    gov: config?.initMsg?.gov || walletData?.activeWallet?.address,
+    token_address: platToken?.address,
+    token_distribute_address: distribute?.address
+  });
+  const writeFunc = writeDeployedContracts;
+  const contractPath: string = `${ContractsDeployedModules.token}.${contractName}`;
+
+  await deployContract(walletData, contractPath, network, undefined, config, { defaultInitMsg, writeFunc });
 }

@@ -12,5 +12,6 @@ export enum TokenContracts {
   veToken = "veToken",
   treasure = "treasure",
   staking = "staking",
-  stakingPairs = "stakingPairs"
+  stakingPairs = "stakingPairs",
+  distributeCo = "distributeCo"
 }

@@ -8,6 +8,7 @@ import type { InstantiateMsg as TokenStakingInstantiateMsg } from "@/contracts/t
 import type { InstantiateMsg as TokenStakingOnlyInstantiateMsg } from "@/contracts/token/StakingOnly.types";
 import type { InstantiateMsg as TokenTreasureInstantiateMsg } from "@/contracts/token/Treasure.types";
 import type { InstantiateMsg as TokenVeTokenInstantiateMsg } from "@/contracts/token/VeSeilor.types";
+import type { InstantiateMsg as TokenDistributeCoInstantiateMsg } from "@/contracts/token/DistributeCo.types";
 import type { FeedInfo } from "@/modules";
 import type { Addr, AssetInfo, BaseContractConfig, ContractDeployed, Uint128 } from "@/types";
 
@@ -96,6 +97,7 @@ export interface TokenContractsConfig {
   treasure?: TokenTreasureContractConfig;
   stakingPairs?: TokenStakingPairsConfig[];
   stakingOnlyPairs?: TokenStakingOnlyPairsConfig[];
+  distributeCo?: TokenDistributeCoContractConfig;
 }
 
 export interface TokenStakingPairsContractsDeployed {
@@ -125,4 +127,10 @@ export interface TokenContractsDeployed {
   treasure?: ContractDeployed;
   stakingPairs?: TokenStakingPairsContractsDeployed[];
   stakingOnlyPairs?: TokenStakingOnlyPairsContractsDeployed[];
+  distributeCo?: ContractDeployed;
+}
+
+
+export interface TokenDistributeCoContractConfig extends BaseContractConfig {
+  initMsg?: TokenDistributeCoInstantiateMsg;
 }

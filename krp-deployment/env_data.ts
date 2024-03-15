@@ -13,12 +13,14 @@ require("dotenv").config();
 export enum ChainId {
   PACIFIC_1 = "pacific-1",
   ATLANTIC_2 = "atlantic-2",
+  ARCTIC_1 = "arctic-1",
   SEI_CHAIN = "sei-chain",
   LOCAL_SEI = "localsei",
   "pacific-1" = "pacific-1",
   "atlantic-2" = "atlantic-2",
   "sei-chain" = "sei-chain",
   "localsei" = "localsei",
+  "arctic-1" = "arctic-1",
 }
 
 const default_cosmos_native_token_decimals: number = 6;
@@ -37,10 +39,11 @@ export const DEPLOY_CHAIN_ID = ChainId[process.env.CHAIN_ID_KEY || chain_id_defa
 
 // export const chainConfigs: Config = readArtifact(`${DEPLOY_CHAIN_ID}`, "configs");
 
-async function loadingEnvData() {
+export async function loadingEnvData() {
   const LCD_ENDPOINT = process.env.LCD_ENDPOINT;
   const RPC_ENDPOINT = process.env.RPC_ENDPOINT;
   const GRPC_ENDPOINT = process.env.GRPC_ENDPOINT;
+  const EVM_RPC_ENDPOINT = process.env.EVM_RPC_ENDPOINT;
   const chainId = DEPLOY_CHAIN_ID;
 
   const gasPriceValue = process.env.GAS_PRICE || gas_price_default + nativeCurrency?.coinMinimalDenom;
@@ -50,6 +53,7 @@ async function loadingEnvData() {
     LCD_ENDPOINT,
     RPC_ENDPOINT,
     GRPC_ENDPOINT,
+    EVM_RPC_ENDPOINT,
     chainId,
     gasPriceValue,
     wallets

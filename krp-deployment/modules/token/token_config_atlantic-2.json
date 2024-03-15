@@ -233,5 +233,15 @@
         "deploy": false
       }
     }
-  ]
+  ],
+  "distributeCo": {
+    "admin": null,
+    "initMsg": {
+      "gov": null,
+      "total_distribute_amount": "0"
+    },
+    "label": "distribute-co",
+    "filePath": "../krp-token-contracts/artifacts/distribute_co.wasm",
+    "deploy": false
+  }
 }

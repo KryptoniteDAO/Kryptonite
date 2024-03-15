@@ -18,10 +18,10 @@ export interface RuleConfigMsg {
   lock_start_time: number;
   rule_name: string;
   rule_owner: Addr;
-  rule_total_amount: number;
+  rule_total_amount: string;
   start_linear_release_time: number;
-  start_release_amount: number;
-  unlock_linear_release_amount: number;
+  start_release_amount: string;
+  unlock_linear_release_amount: string;
   unlock_linear_release_time: number;
 }
 export type ExecuteMsg = {

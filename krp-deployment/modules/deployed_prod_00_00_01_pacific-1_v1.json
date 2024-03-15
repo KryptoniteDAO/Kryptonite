@@ -82,7 +82,11 @@
           "address": "sei1400dydwghdkpxz9tqzv2f9nr7p04tvwawkvxsxf9xqvylec593fs73vr53"
         }
       }
-    ]
+    ],
+    "distributeCo": {
+      "codeId": 4039,
+      "address": "sei1wcjwdf2s2gksuwx3rt3uvlmaman2rtycwwrtt68n7u9tswsyza7sl6egzr"
+    }
   },
   "swapExtensionNetwork": {
     "swapSparrow": {
