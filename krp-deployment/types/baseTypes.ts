@@ -64,6 +64,7 @@ export interface WalletData {
   LCD_ENDPOINT: string;
   RPC_ENDPOINT: string;
   GRPC_ENDPOINT: string;
+  EVM_RPC_ENDPOINT: string;
   chainId: ChainId;
   gasPrice: GasPrice;
 

@@ -42,6 +42,10 @@ import type { WalletData } from "@/types";
     const feedInfo = Object.assign({ asset: bAssetsToken?.address }, oracleConfigs.baseFeedInfoConfig);
     await doOraclePythConfigFeedInfo(walletData, oracleNetwork, feedInfo, print);
   }
+  if (stAssetsToken?.address) {
+    const feedInfo = Object.assign({ asset: stAssetsToken?.address }, oracleConfigs.baseFeedInfoConfig);
+    await doOraclePythConfigFeedInfo(walletData, oracleNetwork, feedInfo, print);
+  }
 
   /// add staking.reward & staking.rewardsDispatcher to swap whitelist
   const swapWhitelistList: {

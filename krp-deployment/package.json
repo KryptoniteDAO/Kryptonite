@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "deploy:assets": "npm run deploy:only:swap && npm run deploy:only:oracle && npm run deploy:only:staking && npm run config:swap && npm run config:oracle && npm run config:staking",
     "deploy:all": "npm run deploy:only:swap && npm run deploy:only:oracle && npm run deploy:only:cdp && npm run deploy:only:token && npm run deploy:only:token:collaterals && npm run deploy:only:staking && npm run deploy:only:cdp:collaterals && npm run config:priority && npm run deploy:only:market && npm run deploy:only:convert && npm run config:remain",
     "deploy:without:token": "npm run deploy:only:swap && npm run deploy:only:oracle && npm run deploy:only:cdp && npm run deploy:only:staking && npm run deploy:only:cdp:collaterals && npm run config:priority:without:token && npm run deploy:only:market && npm run deploy:only:convert && npm run config:remain",
     "deploy:swap": "npm run deploy:only:swap && npm run config:swap",
@@ -49,6 +50,8 @@
     "codegen:swap": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs ./modules/swap-extension/swap-extension_codegen.ts",
     "migrate": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs ./just_migrate.ts",
     "justdo": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs ./just_do.ts",
+    "justdo:evm": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs ./just_do_evm.ts",
+    "justdo:wallet": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs ./just_do_wallet.ts",
     "deploy:token2": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register modules/token/token_deploy_contracts_2.ts --require ./suppress-experimental.cjs",
     "multisig": "node --dns-result-order=ipv4first --loader ts-node/esm -r tsconfig-paths/register ./modules/multisig/multisig_deploy.ts --require ./suppress-experimental.cjs",
     "format": "prettier --write \"./**/*.{html,ts,js,json,md}\"",

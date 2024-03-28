@@ -36,6 +36,11 @@ import type { Balance, BaseContractConfig, ClientData, ContractDeployed, WalletD
 export const FEE_AMOUNT_WARNING: number = 500000;
 export const GAS_MULTIPLIER: number = 1.3;
 
+export const BANK_PRECOMPILE_ADDRESS: string = "0x0000000000000000000000000000000000001001";
+export const WASM_PRECOMPILE_ADDRESS: string = "0x0000000000000000000000000000000000001002";
+export const ADDRESS_PRECOMPILE_ADDRESS: string = "0x0000000000000000000000000000000000001004";
+export const STAKING_PRECOMPILE_ADDRESS: string = "0x0000000000000000000000000000000000001005";
+
 export function readArtifact(name: string = "artifact", from: string) {
   try {
     const data = fs.readFileSync(path.join(from, `${name}.json`), "utf8");

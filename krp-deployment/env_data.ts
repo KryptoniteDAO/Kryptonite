@@ -1,6 +1,7 @@
 import { Secp256k1Wallet } from "@cosmjs/amino";
 import { Secp256k1HdWallet } from "@cosmjs/amino/build/secp256k1hdwallet";
 import { CosmWasmClient, SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
+import { stringToPath } from "@cosmjs/crypto";
 import { DirectSecp256k1HdWallet, DirectSecp256k1Wallet } from "@cosmjs/proto-signing";
 import { GasPrice, SigningStargateClient, StargateClient } from "@cosmjs/stargate";
 import { getCosmWasmClient, getSigningClient, getSigningCosmWasmClient, getStargateClient } from "@sei-js/core";
@@ -20,7 +21,7 @@ export enum ChainId {
   "atlantic-2" = "atlantic-2",
   "sei-chain" = "sei-chain",
   "localsei" = "localsei",
-  "arctic-1" = "arctic-1",
+  "arctic-1" = "arctic-1"
 }
 
 const default_cosmos_native_token_decimals: number = 6;
@@ -45,6 +46,8 @@ export async function loadingEnvData() {
   const GRPC_ENDPOINT = process.env.GRPC_ENDPOINT;
   const EVM_RPC_ENDPOINT = process.env.EVM_RPC_ENDPOINT;
   const chainId = DEPLOY_CHAIN_ID;
+  const BIPS = process.env.BIPS ?? 118;
+  const ACCOUNT_INDEX = process.env.ACCOUNT_INDEX ?? 0;
 
   const gasPriceValue = process.env.GAS_PRICE || gas_price_default + nativeCurrency?.coinMinimalDenom;
   const wallets = JSON.parse(process.env.WALLETS) || [];
@@ -55,13 +58,15 @@ export async function loadingEnvData() {
     GRPC_ENDPOINT,
     EVM_RPC_ENDPOINT,
     chainId,
+    BIPS,
+    ACCOUNT_INDEX,
     gasPriceValue,
     wallets
   };
 }
 
-export async function loadingWalletData(loadBalances: boolean = true, denomList: string[] = [], printAble= true): Promise<WalletData> {
-  const { LCD_ENDPOINT, RPC_ENDPOINT, GRPC_ENDPOINT, chainId, gasPriceValue, wallets } = await loadingEnvData();
+export async function loadingWalletData(loadBalances: boolean = true, denomList: string[] = [], printAble = true): Promise<WalletData> {
+  const { LCD_ENDPOINT, RPC_ENDPOINT, GRPC_ENDPOINT, EVM_RPC_ENDPOINT, BIPS, ACCOUNT_INDEX, chainId, gasPriceValue, wallets } = await loadingEnvData();
 
   if (!LCD_ENDPOINT) {
     throw new Error("\n  Set the LCD_ENDPOINT env variable to the LCD URL of the node to use");
@@ -110,7 +115,8 @@ export async function loadingWalletData(loadBalances: boolean = true, denomList:
       continue;
     }
 
-    const wallet = !!privateKey ? await DirectSecp256k1Wallet.fromKey(toBeArray(privateKey), prefix) : await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, { prefix });
+    const hdPaths = [stringToPath(`m/44'/${BIPS}'/0'/0/${ACCOUNT_INDEX}`)];
+    const wallet = !!privateKey ? await DirectSecp256k1Wallet.fromKey(toBeArray(privateKey), prefix) : await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, { prefix, hdPaths });
     const [account] = await wallet.getAccounts();
     if (!account?.address) {
       throw new Error("\n  No account found in wallet");
@@ -159,6 +165,7 @@ export async function loadingWalletData(loadBalances: boolean = true, denomList:
     LCD_ENDPOINT,
     RPC_ENDPOINT,
     GRPC_ENDPOINT,
+    EVM_RPC_ENDPOINT,
     chainId,
     gasPrice,
     stargateClient,
