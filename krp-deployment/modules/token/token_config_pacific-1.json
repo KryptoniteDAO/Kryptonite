@@ -230,6 +230,40 @@
         "filePath": "../krp-token-contracts/artifacts/staking.wasm",
         "deploy": false
       }
+    },
+    {
+      "name": "SEI/SEILOR-Wrapper",
+      "staking_token": "sei1lahjp2h2wchtncxsszpjeu5kr77wmn6uh354hu0l57pym9p3mvys8qnpp6",
+      "pool_address": "",
+      "assetInfos": [],
+      "staking": {
+        "admin": "sei156cayeu9j5p03nelc55yj7e6d9d9zrl4d82jhg",
+        "initMsg": {
+          "gov": "sei1j76wppj5a760tqq60m5xq2sufr6yupz0xx3hsm",
+          "reward_controller_addr": "sei1y8jrjjrrdwwg3x8axmwluwtl6aarh68c03wscw",
+          "duration": "2592000"
+        },
+        "label": "staking donkeswap SEI/SEILOR Wrapper",
+        "filePath": "../krp-token-contracts/artifacts/staking.wasm",
+        "deploy": false
+      }
+    },
+    {
+      "name": "STSEI/SEI-Wrapper",
+      "staking_token": "sei16pe95h9uujjdp660tzsuv0utp9zymw926j604lx3p53rsy2tjh3s7ypvnu",
+      "pool_address": "",
+      "assetInfos": [],
+      "staking": {
+        "admin": "sei156cayeu9j5p03nelc55yj7e6d9d9zrl4d82jhg",
+        "initMsg": {
+          "gov": "sei1j76wppj5a760tqq60m5xq2sufr6yupz0xx3hsm",
+          "reward_controller_addr": "sei1y8jrjjrrdwwg3x8axmwluwtl6aarh68c03wscw",
+          "duration": "2592000"
+        },
+        "label": "staking donkeswap STSEI/SEI Wrapper",
+        "filePath": "../krp-token-contracts/artifacts/staking.wasm",
+        "deploy": false
+      }
     }
   ],
   "stakingOnlyPairs": [

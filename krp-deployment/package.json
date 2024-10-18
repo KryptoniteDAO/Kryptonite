@@ -80,7 +80,8 @@
     "just_do_evm": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs just_do_evm.ts",
     "just_do_nft_test": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs just_do_nft_test.ts",
     "deploy:only:tokenDeployExtraContracts": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs ./modules/token/token_deploy_extra_contracts.ts",
-    "deploy:v1-step-1-dev": "npm run deploy:only:token-v1 && npm run config:token-v1"
+    "deploy:v1-step-1-dev": "npm run deploy:only:token-v1 && npm run config:token-v1",
+    "just_do_wrapper_lp": "node --loader ts-node/esm --dns-result-order=ipv4first -r tsconfig-paths/register -r ./suppress-experimental.cjs just_do_wrapper_lp.ts"
   },
   "dependencies": {
     "@cosmjs/amino": "0.29.5",

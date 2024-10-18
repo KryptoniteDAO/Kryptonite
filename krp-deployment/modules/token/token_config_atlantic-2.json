@@ -177,8 +177,112 @@
   },
   "stakingPairs": [
     {
-      "name": "SEI/SEILOR",
-      "staking_token": "",
+      "name": "SEILOR",
+      "staking_token": "sei175rw65ce8sy27tz9tqrfsan3c9466rde0vvf7eq506xexumjea0sqsvzwd",
+      "pool_address": "",
+      "assetInfos": [
+        {
+          "native_token": {
+            "denom": "usei"
+          }
+        },
+        {
+          "token": {
+            "contract": "sei175rw65ce8sy27tz9tqrfsan3c9466rde0vvf7eq506xexumjea0sqsvzwd"
+          }
+        }
+      ],
+      "staking": {
+        "admin": null,
+        "initMsg": {
+          "reward_controller_addr": "sei16j0hypm83zlctv7czky9n0me0k03prel3ynczn",
+          "duration": "2592000"
+        },
+        "label": "staking",
+        "filePath": "../krp-token-contracts/artifacts/staking.wasm",
+        "deploy": false
+      }
+    },{
+      "name": "EVM-SEI/SEILOR",
+      "staking_token": "sei15u5alg9shne8q36gjx5zv9es0pumjfqt293f6hxfhsghuzhee3ms66an7y",
+      "pool_address": "",
+      "assetInfos": [
+        {
+          "native_token": {
+            "denom": "usei"
+          }
+        },
+        {
+          "token": {
+            "contract": "sei175rw65ce8sy27tz9tqrfsan3c9466rde0vvf7eq506xexumjea0sqsvzwd"
+          }
+        }
+      ],
+      "staking": {
+        "admin": null,
+        "initMsg": {
+          "reward_controller_addr": "sei16j0hypm83zlctv7czky9n0me0k03prel3ynczn",
+          "duration": "2592000"
+        },
+        "label": "staking",
+        "filePath": "../krp-token-contracts/artifacts/staking.wasm",
+        "deploy": false
+      }
+    },{
+      "name": "EVM-SEI/STSEI",
+      "staking_token": "sei15u5alg9shne8q36gjx5zv9es0pumjfqt293f6hxfhsghuzhee3ms66an7y",
+      "pool_address": "",
+      "assetInfos": [
+        {
+          "native_token": {
+            "denom": "usei"
+          }
+        },
+        {
+          "token": {
+            "contract": "sei10mjpcdhua2250lmasv29952xawutzwvhkl37gwquvj9f9vlq4j3suuz7xq"
+          }
+        }
+      ],
+      "staking": {
+        "admin": null,
+        "initMsg": {
+          "reward_controller_addr": "sei16j0hypm83zlctv7czky9n0me0k03prel3ynczn",
+          "duration": "2592000"
+        },
+        "label": "staking",
+        "filePath": "../krp-token-contracts/artifacts/staking.wasm",
+        "deploy": false
+      }
+    },{
+      "name": "SEI/Tetst",
+      "staking_token": "sei1t3nxfx9tk4kmpggcc6j0w4t5aw45epe50h8jxw6c80lnhhvxdg0q900rmy",
+      "pool_address": "",
+      "assetInfos": [
+        {
+          "native_token": {
+            "denom": "usei"
+          }
+        },
+        {
+          "token": {
+            "contract": ""
+          }
+        }
+      ],
+      "staking": {
+        "admin": null,
+        "initMsg": {
+          "reward_controller_addr": "sei16j0hypm83zlctv7czky9n0me0k03prel3ynczn",
+          "duration": "2592000"
+        },
+        "label": "staking",
+        "filePath": "../krp-token-contracts/artifacts/staking.wasm",
+        "deploy": false
+      }
+    },{
+      "name": "EVM-Test-2/MyToken",
+      "staking_token": "sei1u9ftyhe5sszx9ghr7ae75ak05j86mme0xlzr0n4g0aa45hry5s0qlvr5nw",
       "pool_address": "",
       "assetInfos": [
         {
